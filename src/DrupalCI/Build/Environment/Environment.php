@@ -49,6 +49,18 @@ class Environment implements Injectable, EnvironmentInterface {
   /* @var \DrupalCI\Build\BuildInterface */
   protected $build;
 
+  /**
+   * @var string
+   * The source directory within the exec container.
+   */
+  protected $execContainerSourceDir = '/var/www/html';
+
+  /**
+   * @var string
+   * Build directory for artifacts exposed within the container.
+   */
+  protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
+
 
   public function inject(Container $container) {
 
@@ -148,13 +160,27 @@ class Environment implements Injectable, EnvironmentInterface {
   }
 
   /**
+   * @return string
+   */
+  public function getExecContainerSourceDir() {
+    return $this->execContainerSourceDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getContainerArtifactDir() {
+    return $this->containerArtifactDir;
+  }
+
+  /**
    * @param array $container
    */
   public function startExecContainer($container) {
 
     // Map working directory
-    $container['HostConfig']['Binds'][] = $this->build->getSourceDirectory() . ':/var/www/html';
-    $container['HostConfig']['Binds'][] = "/var/lib/drupalci/docker-tmp:/tmp";
+    $container['HostConfig']['Binds'][] = $this->build->getSourceDirectory() . ':' . $this->execContainerSourceDir;
+    $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $this->executableContainer = $this->startContainer($container);
 
   }
@@ -166,11 +192,8 @@ class Environment implements Injectable, EnvironmentInterface {
     }
     $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
 
-
-
     $this->databaseContainer = $this->startContainer($db_container);
     $this->database->setHost($this->databaseContainer['ip']);
-
 
   }
 

@@ -20,4 +20,16 @@ interface EnvironmentInterface {
   public function getDatabaseContainer();
 
   public function getExecContainer();
+
+  /**
+   * @return string
+   *   The source directory mounted within the container.
+   */
+  public function getExecContainerSourceDir();
+
+  /**
+   * @return string
+   *   The artifact directory on all containers
+   */
+  public function getContainerArtifactDir();
 }
