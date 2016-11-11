@@ -91,6 +91,22 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
       $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
     }
 
+
+
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function declareArtifacts() {
+
+    $this->addArtifact("xmlresults", $this->build->getXmlDirectory() . "/testresults.xml");
+    $this->addContainerArtifact("apache_error", "/var/log/apache2/error.log");
+    $this->addContainerArtifact("phantomjs_err", "/var/log/supervisor/phatomjs.err.log");
+    $this->addContainerArtifact("phantomjs_out", "/var/log/supervisor/phatomjs.out.log");
+    $this->addContainerArtifact("phpunit_xml", $this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
+    $this->addContainerArtifact("testgroups", $this->environment->getContainerArtifactDir() . "/testgroups.txt");
+    $this->addContainerArtifact("sqlite", $this->environment->getContainerArtifactDir() . "/simpletest.sqlite");
   }
 
   /**
@@ -234,17 +250,12 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   public function generateJunitXml(BuildInterface $build) {
 
     // Load the list of tests from the testgroups.txt build artifact
-    // Assumes that gatherArtifacts plugin has run.
-    // TODO: Verify that gatherArtifacts has ran.
-    // TODO: This gets generated in the containers, into a subdir of the source
-    // directory, and we need to have it generated in the artifacts by default.
-    $source_dir = $this->build->getSourceDirectory();
-    $test_listfile = $source_dir . '/artifacts/testgroups.txt';
+    // This gets generated in the containers, into the container artifact dir
+    // we cant use $this->getArtifact('testgroups')->getPath() because we need
+    // the Host path.
+    $test_listfile = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $test_list = file($test_listfile, FILE_IGNORE_NEW_LINES);
     $test_list = array_slice($test_list, 4);
-
-    // Set up output directory (inside working directory)
-    $xml_output_dir = $source_dir = $this->build->getXmlDirectory();
 
     $test_groups = $this->parseGroups($test_list);
 
@@ -261,7 +272,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     $q_result = $db->query('SELECT * FROM simpletest ORDER BY test_id, test_class, message_id;');
 
-    $results = [];
     $classes = [];
 
     while ($result = $q_result->fetch(\PDO::FETCH_ASSOC)) {
@@ -293,10 +303,10 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
         );
       }
     }
-    $this->_build_xml($classes, $xml_output_dir);
+    $this->_build_xml($classes);
   }
 
-  private function _build_xml($test_result_data, $xml_output_dir) {
+  private function _build_xml($test_result_data) {
     // Maps statuses to their xml element for each testcase.
     $element_map = array(
       'pass' => 'system-out',
@@ -422,8 +432,8 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
 
-    file_put_contents($xml_output_dir . '/testresults.xml', $doc->saveXML());
-    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_dir . '/testresults.xml</options=bold></info>');
+    file_put_contents($this->getArtifact('xmlresults')->getPath(), $doc->saveXML());
+    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $this->getArtifact('xmlresults')->getPath() . '</options=bold></info>');
   }
 
   /**
