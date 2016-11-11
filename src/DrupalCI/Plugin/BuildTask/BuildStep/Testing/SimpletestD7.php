@@ -17,16 +17,18 @@ use Pimple\Container;
  */
 class SimpletestD7 extends Simpletest {
 
+  protected $runscript = '/scripts/run-tests.sh';
+
   protected function setupSimpletestDB(BuildInterface $build) {
 
     $this->results_database = $this->system_database;
     $dburl = $this->system_database->getUrl();
-
+    $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html si -y --db-url=' . $dburl . ' --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html vset simpletest_clear_results \'0\' 2>&1',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html vset simpletest_verbose \'0\' 2>&1',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html en -y simpletest 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' si -y --db-url=' . $dburl . ' --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' vset simpletest_clear_results \'0\' 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' vset simpletest_verbose \'0\' 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' en -y simpletest 2>&1',
     ];
     $this->environment->executeCommands($setup_commands);
   }

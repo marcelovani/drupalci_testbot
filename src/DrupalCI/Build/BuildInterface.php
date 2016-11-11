@@ -71,14 +71,14 @@ interface BuildInterface {
 
   /**
    * This is where we checkout the code to. It should be volume mounted over
-   * to /var/www/html inside the docker containers.
+   * to wherever the $execContainerSourceDir is set on the Environment object
    *
    * @return mixed
    */
   public function getSourceDirectory();
   /**
    * This is where we put the database It should be volume mounted over
-   * to /var/www/html inside the docker containers.
+   * to wherever the data directory specifies from the Database Environment
    *
    * @return mixed
    */

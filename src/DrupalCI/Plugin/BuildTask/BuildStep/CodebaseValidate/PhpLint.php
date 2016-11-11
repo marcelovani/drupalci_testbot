@@ -76,10 +76,10 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
     file_put_contents($lintable_files, $bash_array);
     // Make sure
     if (0 < filesize($lintable_files)) {
-      // TODO: Remove hardcoded /var/www/html.
+
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
-      $cmd = "cd /var/www/html && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
+      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
       $this->environment->executeCommands($cmd);
     }
   }

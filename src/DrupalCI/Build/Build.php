@@ -612,8 +612,8 @@ class Build implements BuildInterface, Injectable {
     $uid = posix_getuid();
     $environment = $this->container['environment'];
     $commands = [
-                 'chown -R '. $uid . ' /var/www/html',
-                 'chmod -R 777 /var/www/html',
+                 'chown -R '. $uid . ' ' . $environment->getExecContainerSourceDir(),
+                 'chmod -R 777 ' . $environment->getExecContainerSourceDir(),
                 ];
     $environment->executeCommands($commands);
     $db_container = $environment->getDatabaseContainer();

@@ -52,12 +52,12 @@ class PrepareFilesystem extends PluginBase implements BuildStepInterface, BuildT
    * @inheritDoc
    */
   public function run() {
+    $sourcedir = $this->environment->getExecContainerSourceDir();
    $setup_commands = [
-      'mkdir -p /var/www/html/artifacts',
-      'mkdir -p /var/www/html/sites/simpletest/xml',
-      'ln -s /var/www/html /var/www/html/checkout',
-      'chown -fR www-data:www-data /var/www/html/sites',
-      'chmod 0777 /var/www/html/artifacts',
+      'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
+      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
+      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
+      'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
       'supervisorctl start phantomjs',
       'php -v',
