@@ -19,17 +19,8 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
 
   use FileHandlerTrait;
 
-  /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
-
   public function inject(Container $container) {
     parent::inject($container);
-    $this->build = $container['build'];
   }
 
   /**

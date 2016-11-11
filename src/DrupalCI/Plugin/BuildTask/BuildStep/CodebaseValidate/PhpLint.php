@@ -23,19 +23,11 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
-  /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
 
   public function inject(Container $container) {
     parent::inject($container);
     $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
-    $this->build = $container['build'];
   }
 
   /**

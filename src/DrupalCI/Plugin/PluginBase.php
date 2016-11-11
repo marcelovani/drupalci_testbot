@@ -59,6 +59,13 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
   protected $io;
 
   /**
+   * The current build.
+   *
+   * @var \DrupalCI\Build\BuildInterface
+   */
+  protected $build;
+
+  /**
    * The container.
    *
    * We need this to inject into other objects.
@@ -94,6 +101,7 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
   }
 
   public function inject(Container $container) {
+    $this->build = $container['build'];
     $this->io = $container['console.io'];
     $this->container = $container;
   }

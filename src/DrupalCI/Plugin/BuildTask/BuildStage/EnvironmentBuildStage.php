@@ -16,13 +16,6 @@ use Pimple\Container;
 class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
 
   /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
-  /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface
    */
   protected $database;
@@ -30,7 +23,6 @@ class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, 
   public function inject(Container $container) {
     parent::inject($container);
     $this->database = $container['db.system'];
-    $this->build = $container['build'];
   }
   /**
    * @inheritDoc

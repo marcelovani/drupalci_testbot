@@ -20,16 +20,12 @@ class Checkout extends PluginBase implements BuildStepInterface, BuildTaskInterf
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
-  /* @var \DrupalCI\Build\BuildInterface */
-  protected $build;
-
-
   public function inject(Container $container) {
     parent::inject($container);
     // TODO: not using the codebase in here, but we might want to in order to
     // add whatever repositories we checkout to the codebase object
     $this->codebase = $container['codebase'];
-    $this->build = $container['build'];
+
   }
 
   /**

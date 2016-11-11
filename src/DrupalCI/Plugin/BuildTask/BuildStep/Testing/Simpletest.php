@@ -24,19 +24,11 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   protected $results_database;
 
   /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
-  /**
    * The current container environment
    *
    * @var  \DrupalCI\Build\Environment\EnvironmentInterface
    */
   protected $environment;
-
 
   protected $runscript = '/core/scripts/run-tests.sh';
 
@@ -45,7 +37,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $this->system_database = $container['db.system'];
     $this->results_database = $container['db.results'];
     $this->environment = $container['environment'];
-    $this->build = $container['build'];
 
   }
 
