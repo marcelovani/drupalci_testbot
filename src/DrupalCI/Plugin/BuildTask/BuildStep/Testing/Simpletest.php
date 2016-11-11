@@ -44,9 +44,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_RunScript'])) {
-      $this->configuration['runscript'] = $_ENV['DCI_RunScript'];
-    }
+    // Override any Environment Variables
     if (isset($_ENV['DCI_PHPInterpreter'])) {
       $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
     }
@@ -55,9 +53,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     }
     if (isset($_ENV['DCI_RTTypes'])) {
       $this->configuration['types'] = $_ENV['DCI_RTTypes'];
-    }
-    if (isset($_ENV['DCI_RTSqlite'])) {
-      $this->configuration['sqlite'] = $_ENV['DCI_RTSqlite'];
     }
     if (isset($_ENV['DCI_RTUrl'])) {
       $this->configuration['types'] = $_ENV['DCI_RTUrl'];
@@ -119,9 +114,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'runscript' => '/var/www/html/core/scripts/run-tests.sh ',
       'testgroups' => '--all',
-      'sqlite' => '/var/www/html/artifacts/simpletest.sqlite',
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
       'url' => 'http://localhost/checkout',
