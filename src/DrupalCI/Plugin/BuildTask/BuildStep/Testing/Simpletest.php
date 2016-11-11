@@ -186,6 +186,30 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $status = $this->environment->executeCommands($cmd);
     return $status;
   }
+  /**
+   * @param $test_list
+   *
+   * @return array
+   */
+  protected function parseGroups($test_list): array {
+    // Set an initial default group, in case leading tests are found with no group.
+    $group = 'nogroup';
+    $test_groups = [];
+
+    foreach ($test_list as $output_line) {
+      if (substr($output_line, 0, 3) == ' - ') {
+        // This is a class
+        $class = substr($output_line, 3);
+        $test_groups[$class] = $group;
+      }
+      else {
+        // This is a group
+        $group = ucwords($output_line);
+      }
+    }
+    return $test_groups;
+  }
+
 
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
@@ -436,28 +460,5 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $this->getArtifact('xmlresults')->getPath() . '</options=bold></info>');
   }
 
-  /**
-   * @param $test_list
-   *
-   * @return array
-   */
-  protected function parseGroups($test_list): array {
-    // Set an initial default group, in case leading tests are found with no group.
-    $group = 'nogroup';
-    $test_groups = [];
-
-    foreach ($test_list as $output_line) {
-      if (substr($output_line, 0, 3) == ' - ') {
-        // This is a class
-        $class = substr($output_line, 3);
-        $test_groups[$class] = $group;
-      }
-      else {
-        // This is a group
-        $group = ucwords($output_line);
-      }
-    }
-    return $test_groups;
-  }
 
 }
