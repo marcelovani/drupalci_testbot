@@ -6,6 +6,8 @@
 
 namespace DrupalCI\Plugin;
 
+use DrupalCI\Build\Artifact\ContainerTaskArtifact;
+use DrupalCI\Build\Artifact\TaskArtifact;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
@@ -64,6 +66,8 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
    * @var \Pimple\Container
    */
   protected $container;
+
+  protected $taskArtifacts = [];
 
   /**
    * Constructs a Drupal\Component\Plugin\PluginBase object.
@@ -159,5 +163,32 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
   public function getArtifacts() {
     return [];
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function declareArtifacts() {
+    // Placeholder for artifact free Plugins.
+  }
+
+  protected function addArtifact($name, $path) {
+    // @TODO maybe throw a warning if somebody defines the same artifact name
+    // twice?
+    $this->taskArtifacts[$name] = new TaskArtifact($path);
+  }
+
+  protected function addContainerArtifact($name,$path) {
+    $this->taskArtifacts[$name] = new ContainerTaskArtifact($path);
+  }
+
+  /**
+   * @param $name
+   *
+   * @return \DrupalCI\Build\Artifact\TaskArtifactInterface
+   */
+  protected function getArtifact($name) {
+    return $this->taskArtifacts[$name];
+  }
+
 
 }

@@ -1,21 +1,13 @@
 <?php
 
-namespace Build\Artifact;
+namespace DrupalCI\Build\Artifact;
 
 
-class TaskArtifact implements TaskArtifactInterface {
+class ContainerTaskArtifact extends TaskArtifact {
   /**
    * @inheritDoc
    */
   public function preserve() {
     // TODO: Implement preserve() method.
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getPath() {
-    // TODO: Implement getPath() method.
-  }
-
 }

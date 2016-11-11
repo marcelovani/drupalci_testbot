@@ -1,9 +1,9 @@
 <?php
 
-namespace Build\Artifact;
+namespace DrupalCI\Build\Artifact;
 
 
-interface BuildArtifactInterface {
+interface TaskArtifactInterface {
 
   /**
    * @return int
