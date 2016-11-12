@@ -67,12 +67,4 @@ class PrepareFilesystem extends PluginBase implements BuildStepInterface, BuildT
     $this->environment->executeCommands($setup_commands);
 
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
 }

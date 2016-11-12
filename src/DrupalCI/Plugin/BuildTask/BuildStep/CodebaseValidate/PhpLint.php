@@ -85,11 +85,4 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
     ];
   }
 
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
 }

@@ -3,12 +3,12 @@
 namespace DrupalCI\Build\Artifact;
 
 
-class TaskArtifact implements TaskArtifactInterface {
+class BuildArtifact implements BuildArtifactInterface {
 
   protected $path;
 
   /**
-   * TaskArtifact constructor.
+   * BuildArtifact constructor.
    *
    * @param $path
    *   Takes in the path of the artifact. Could be a host path or inside the

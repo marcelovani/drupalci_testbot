@@ -3,7 +3,7 @@
 namespace DrupalCI\Build\Artifact;
 
 
-interface TaskArtifactInterface {
+interface BuildArtifactInterface {
 
   /**
    * @return int

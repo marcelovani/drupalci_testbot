@@ -97,21 +97,6 @@ interface BuildTaskInterface {
    */
   public function setChildTasks($buildTasks);
 
-  /**
-   * @return array
-   *
-   *   Returns an array of artifact paths that this buildtask creates.
-   *   The build should copy and rename these to an overall build artifact
-   *   location.
-   */
-  public function getArtifacts();
-
-  /**
-   * Allows a plugin to name and declare any artifact files and directories
-   * that should be preserved post build.
-   */
-  public function declareArtifacts();
-
   /* TODO: each task should be able to define their own command line switches
    * that override config like the environment variables do.
    * public function getCLIHelp();

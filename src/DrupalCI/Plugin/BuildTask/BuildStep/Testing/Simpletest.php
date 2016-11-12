@@ -82,22 +82,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
       $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
     }
 
-
-
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function declareArtifacts() {
-
-    $this->addArtifact("xmlresults", $this->build->getXmlDirectory() . "/testresults.xml");
-    $this->addContainerArtifact("apache_error", "/var/log/apache2/error.log");
-    $this->addContainerArtifact("phantomjs_err", "/var/log/supervisor/phatomjs.err.log");
-    $this->addContainerArtifact("phantomjs_out", "/var/log/supervisor/phatomjs.out.log");
-    $this->addContainerArtifact("phpunit_xml", $this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
-    $this->addContainerArtifact("testgroups", $this->environment->getContainerArtifactDir() . "/testgroups.txt");
-    $this->addContainerArtifact("sqlite", $this->environment->getContainerArtifactDir() . "/simpletest.sqlite");
   }
 
   /**
@@ -120,9 +104,15 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     $result = $this->environment->executeCommands($command_line);
 
-    $this->generateJunitXml($this->build);
     // Last thing. JunitFormat the output.
+    $this->generateJunitXml();
 
+    //Save some artifacts for the build
+    $this->build->addContainerArtifact("/var/log/apache2/error.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phatomjs.err.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phatomjs.out.log");
+    $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
+    return $result;
   }
 
   /**
@@ -166,15 +156,19 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->getArtifact('sqlite')->getPath();
+    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest.sqlite";
     $dbfile = $this->build->getArtifactDirectory() . '/simpletest.sqlite';
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
+    $this->build->addArtifact($dbfile);
   }
 
   protected function generateTestGroups() {
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $this->getArtifact('testgroups')->getPath();
+    $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
+    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
     $status = $this->environment->executeCommands($cmd);
+    $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
+    $this->build->addArtifact($host_testgroups);
     return $status;
   }
   /**
@@ -262,12 +256,10 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   /**
    * {@inheritdoc}
    */
-  public function generateJunitXml(BuildInterface $build) {
+  public function generateJunitXml() {
 
     // Load the list of tests from the testgroups.txt build artifact
     // This gets generated in the containers, into the container artifact dir
-    // we cant use $this->getArtifact('testgroups')->getPath() because we need
-    // the Host path.
     $test_listfile = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $test_list = file($test_listfile, FILE_IGNORE_NEW_LINES);
     $test_list = array_slice($test_list, 4);
@@ -447,8 +439,10 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
 
-    file_put_contents($this->getArtifact('xmlresults')->getPath(), $doc->saveXML());
-    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $this->getArtifact('xmlresults')->getPath() . '</options=bold></info>');
+    $xml_output_file = $this->build->getXmlDirectory() . "/testresults.xml";
+    file_put_contents($xml_output_file, $doc->saveXML());
+    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</options=bold></info>');
+    $this->build->addArtifact($xml_output_file);
   }
 
 

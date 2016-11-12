@@ -110,13 +110,6 @@ class Checkout extends PluginBase implements BuildStepInterface, BuildTaskInterf
 
   }
 
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
   protected function setupCheckoutLocal($repository) {
     $source_dir = isset($repository['source_dir']) ? $repository['source_dir'] : './';
     $checkout_dir = isset($repository['checkout_dir']) ? $repository['checkout_dir'] : $this->build->getSourceDirectory();

@@ -3,7 +3,7 @@
 namespace DrupalCI\Build\Artifact;
 
 
-class ContainerTaskArtifact extends TaskArtifact {
+class ContainerBuildArtifact extends BuildArtifact {
   /**
    * @inheritDoc
    */

@@ -8,6 +8,8 @@ namespace DrupalCI\Build;
 
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\HostConfig;
+use DrupalCI\Build\Artifact\ContainerBuildArtifact;
+use DrupalCI\Build\Artifact\BuildArtifact;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
@@ -94,10 +96,26 @@ class Build implements BuildInterface, Injectable {
 
   protected $buildDirectory;
 
-  // @TODO: build should do something with configuration values in the build.yml
   protected $configuration;
 
+  /**
+   * Stores the build type
+   *
+   * @var string
+   */
+  protected $buildType;
 
+  /**
+   * Stores a build ID for this build
+   *
+   * @var string
+   */
+  protected $buildId;
+
+  /**
+   * @var array of \DrupalCI\Build\Artifact\TaskArtifactInterface
+   */
+  protected $buildArtifacts = [];
 
   /**
    * {@inheritdoc}
@@ -108,13 +126,6 @@ class Build implements BuildInterface, Injectable {
     $this->yaml = $container['yaml.parser'];
     $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
   }
-
-  /**
-   * Stores the build type
-   *
-   * @var string
-   */
-  protected $buildType;
 
   public function getBuildType() {
     return $this->buildType;
@@ -127,12 +138,13 @@ class Build implements BuildInterface, Injectable {
     return $this->buildFile;
   }
 
-  /**
-   * Stores a build ID for this build
-   *
-   * @var string
-   */
-  protected $buildId;
+  public function addArtifact($path) {
+    $this->buildArtifacts[] = new BuildArtifact($path);
+  }
+
+  public function addContainerArtifact($path) {
+    $this->buildArtifacts[] = new ContainerBuildArtifact($path);
+  }
 
   public function getBuildId() {
     return $this->buildId;
@@ -343,7 +355,7 @@ class Build implements BuildInterface, Injectable {
          * then we $buildtask->finish to post process child tasks as well as the
          * current task.
          *
-         * start->run->complete->getArtifacts->finish.
+         * start->run->complete->finish.
          * A Task can fail the build. by returning False value from
          * processTask indicates proceed, or abort.
          *

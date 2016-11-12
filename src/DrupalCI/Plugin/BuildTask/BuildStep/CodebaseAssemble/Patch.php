@@ -113,11 +113,4 @@ class Patch extends PluginBase implements BuildStepInterface, BuildTaskInterface
     ];
   }
 
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
 }

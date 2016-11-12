@@ -84,14 +84,6 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       'files' => [],
     ];
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
   /**
    * @return \GuzzleHttp\ClientInterface
    */

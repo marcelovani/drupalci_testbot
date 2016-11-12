@@ -40,19 +40,4 @@ class DBCreate extends PluginBase implements BuildStepInterface, BuildTaskInterf
       $this->database->createDB();
     }
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    return [];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
 }

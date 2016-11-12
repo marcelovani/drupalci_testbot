@@ -86,4 +86,9 @@ interface BuildInterface {
 
 
   public function generateBuildId();
+
+  public function addArtifact($path);
+
+  public function addContainerArtifact($path);
+
 }
