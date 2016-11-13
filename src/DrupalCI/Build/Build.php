@@ -393,16 +393,6 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * Checks if an array has string keys.
-   * @param array $array
-   *
-   * @return bool
-   */
-  protected function has_string_keys(array $array) {
-    return count(array_filter(array_keys($array), 'is_string')) > 0;
-  }
-
-  /**
    * Given a file, returns an array containing the parsed YAML contents from that file
    *
    * @param $source
