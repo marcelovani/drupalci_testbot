@@ -8,14 +8,14 @@ use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("phplint")
  */
-class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterface {
+class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
   protected $environment;

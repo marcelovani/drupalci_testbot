@@ -6,14 +6,14 @@ use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildStage\BuildStageInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 /**
  * @PluginID("environment")
  */
 
-class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
+class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface

@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \DrupalCI\Plugin\PluginBase
+ * Contains \DrupalCI\Plugin\BuildTaskBase
  */
 
 namespace DrupalCI\Plugin;
@@ -16,7 +16,7 @@ use Pimple\Container;
 /**
  * Base class for plugins.
  */
-abstract class PluginBase implements Injectable, BuildTaskInterface {
+abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   use BuildTaskTrait;
   /**
@@ -73,7 +73,7 @@ abstract class PluginBase implements Injectable, BuildTaskInterface {
   protected $container;
 
   /**
-   * Constructs a Drupal\Component\Plugin\PluginBase object.
+   * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
    *
    * @param array $configuration_overrides
    *   A configuration array containing overrides from the build.yml file.

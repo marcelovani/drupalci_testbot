@@ -8,7 +8,7 @@ use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use GuzzleHttp\Client;
 use Pimple\Container;
@@ -20,7 +20,7 @@ use Pimple\Container;
  *
  * @PluginID("prepare_filesystem")
  */
-class PrepareFilesystem extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
   use FileHandlerTrait;
 

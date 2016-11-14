@@ -5,14 +5,14 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CreateDatabase;
 
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("dbcreate")
  */
-class DBCreate extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface

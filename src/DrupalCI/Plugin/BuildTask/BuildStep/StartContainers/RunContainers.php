@@ -7,7 +7,7 @@ use Docker\DockerClient;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Console\Output;
 use DrupalCI\Providers\DockerServiceProvider;
@@ -17,7 +17,7 @@ use Pimple\Container;
 /**
  * @PluginID("runcontainers")
  */
-class RunContainers extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
   /* @var DatabaseInterface */
   protected $database;

@@ -17,7 +17,7 @@ use Docker\Manager\ExecManager;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;
 use Symfony\Component\Console\Helper\ProgressBar;

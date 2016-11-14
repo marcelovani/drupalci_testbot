@@ -6,14 +6,14 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("composer")
  */
-class Composer extends PluginBase implements BuildStepInterface, BuildTaskInterface {
+class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
 
 

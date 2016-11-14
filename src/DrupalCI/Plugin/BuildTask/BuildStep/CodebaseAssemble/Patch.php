@@ -9,7 +9,7 @@ use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Build\Codebase\PatchInterface;
 use DrupalCI\Build\Codebase\Patch as PatchFile;
@@ -18,7 +18,7 @@ use Pimple\Container;
 /**
  * @PluginID("patch")
  */
-class Patch extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
   use FileHandlerTrait;
 

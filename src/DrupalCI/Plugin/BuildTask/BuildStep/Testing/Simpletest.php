@@ -8,14 +8,14 @@ use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
