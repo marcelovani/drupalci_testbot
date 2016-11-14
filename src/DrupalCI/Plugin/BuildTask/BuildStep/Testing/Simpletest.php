@@ -109,8 +109,8 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     //Save some artifacts for the build
     $this->build->addContainerArtifact("/var/log/apache2/error.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phatomjs.err.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phatomjs.out.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
     $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
     return $result;
   }
@@ -160,7 +160,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $dbfile = $this->build->getArtifactDirectory() . '/simpletest.sqlite';
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
-    $this->build->addArtifact($dbfile);
+    $this->build->addContainerArtifact($this->configuration['sqlite']);
   }
 
   protected function generateTestGroups() {
@@ -168,7 +168,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
     $status = $this->environment->executeCommands($cmd);
     $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
-    $this->build->addArtifact($host_testgroups);
+    $this->build->addContainerArtifact($testgroups_file);
     return $status;
   }
   /**

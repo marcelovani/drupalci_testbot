@@ -61,6 +61,12 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
 
+  /**
+   * @var array
+   *   Contains the stdout, stderr of every container we interact with via
+   * executions.
+   */
+  protected $commandOutput = [];
 
   public function inject(Container $container) {
 
@@ -91,12 +97,17 @@ class Environment implements Injectable, EnvironmentInterface {
         $container = $this->getExecContainer();
         $id = $container['id'];
       }
+      if (!isset($this->commandOutput[$id])){
+        $this->commandOutput[$id]['stderr'] = '';
+        $this->commandOutput[$id]['stdout'] = '';
+      }
 
       $short_id = substr($id, 0, 8);
       $this->io->writeLn("<info>Executing on container instance $short_id:</info>");
       foreach ($commands as $cmd) {
         $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
-
+        $this->commandOutput[$id]['stdout'] = $this->commandOutput[$id]['stdout'] . "\nEXECUTING: " . $cmd . "\n";
+        $this->commandOutput[$id]['stderr'] = $this->commandOutput[$id]['stderr'] . "\nEXECUTING: " . $cmd . "\n";
         $exec_config = new ExecConfig();
         $exec_config->setTty(FALSE);
         $exec_config->setAttachStderr(TRUE);
@@ -130,6 +141,9 @@ class Environment implements Injectable, EnvironmentInterface {
         $stream->wait();
 
         $exec_command_exit_code = $exec_manager->find($exec_id)->getExitCode();
+
+        $this->commandOutput[$id]['stdout'] = $this->commandOutput[$id]['stdout'] . $stdoutFull;
+        $this->commandOutput[$id]['stderr'] = $this->commandOutput[$id]['stderr'] . $stderrFull;
 
         if ($this->checkCommandStatus($exec_command_exit_code) !== 0) {
           return $exec_command_exit_code;

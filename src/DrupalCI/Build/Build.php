@@ -139,11 +139,16 @@ class Build implements BuildInterface, Injectable {
   }
 
   public function addArtifact($path) {
-    $this->buildArtifacts[] = new BuildArtifact($path);
+    $buildArtifact = new BuildArtifact($path);
+    $buildArtifact->inject($this->container);
+    $this->buildArtifacts[] = $buildArtifact;
+
   }
 
   public function addContainerArtifact($path) {
-    $this->buildArtifacts[] = new ContainerBuildArtifact($path);
+    $containerBuildArtifact = new ContainerBuildArtifact($path);
+    $containerBuildArtifact->inject($this->container);
+    $this->buildArtifacts[] = $containerBuildArtifact;
   }
 
   public function getBuildId() {
@@ -321,6 +326,11 @@ class Build implements BuildInterface, Injectable {
       $this->saveBuildState($e->getMessage());
       return 2;
     } finally {
+      // Preserve all the Build artifacts.
+      /* @var $buildArtifact \DrupalCI\Build\Artifact\BuildArtifactInterface */
+      foreach ($this->buildArtifacts as $buildArtifact){
+        $buildArtifact->preserve();
+      }
       try {
         // If we set DCI_Debug, we keep the databases n stuff.
         if (FALSE === (getenv('DCI_Debug'))){

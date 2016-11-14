@@ -43,7 +43,7 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
    * @inheritDoc
    */
   public function run() {
-    // TODO Throw a BuildException if there are syntax errors.
+
     $this->io->writeln('<info>SyntaxCheck checking for php syntax errors.</info>');
 
     $modified_files = $this->codebase->getModifiedFiles();
@@ -72,6 +72,7 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
       $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
+      // TODO Throw a BuildException if there are syntax errors.
       $this->environment->executeCommands($cmd);
     }
   }

@@ -18,8 +18,6 @@ use Pimple\Container;
  */
 abstract class PluginBase implements Injectable, BuildTaskInterface {
 
-  // TODO: Perhaps this isnt BuildTaskTrait, but a TimerTrait that can add
-  // timing information to things?
   use BuildTaskTrait;
   /**
    * The plugin_id.
