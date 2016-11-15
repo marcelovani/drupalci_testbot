@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-use DrupalCI\Console\Output;
 
 class TestingEnvironment extends Environment implements EnvironmentInterface {
 

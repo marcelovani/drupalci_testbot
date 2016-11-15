@@ -4,7 +4,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
 use DrupalCI\Build\BuildInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;

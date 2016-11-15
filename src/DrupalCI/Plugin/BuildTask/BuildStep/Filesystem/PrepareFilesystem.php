@@ -4,7 +4,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Filesystem;
 
 
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;

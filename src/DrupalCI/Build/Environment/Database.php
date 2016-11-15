@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use Pimple\Container;
 

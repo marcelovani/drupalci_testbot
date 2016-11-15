@@ -9,7 +9,6 @@ use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Build\Environment\DatabaseInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Providers\DockerServiceProvider;
 use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;

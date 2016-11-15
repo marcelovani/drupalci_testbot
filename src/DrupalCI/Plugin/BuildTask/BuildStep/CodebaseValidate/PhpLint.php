@@ -5,7 +5,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;

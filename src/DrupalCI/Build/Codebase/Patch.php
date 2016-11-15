@@ -7,7 +7,6 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Console\Output;
 use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Injectable;
 use GuzzleHttp\Client;
