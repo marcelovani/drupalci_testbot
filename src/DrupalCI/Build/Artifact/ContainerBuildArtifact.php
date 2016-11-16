@@ -34,6 +34,5 @@ class ContainerBuildArtifact extends BuildArtifact {
       'chown -R '. $uid . ':' . $gid . ' ' .  $this->environment->getContainerArtifactDir() . "/" . basename($this->path),
     ];
     $results= $this->environment->executeCommands($commands);
-    $foo = '';
   }
 }
