@@ -65,10 +65,10 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
       'sudo bash -c "/opt/phpenv/shims/pecl list | grep -q yaml && cd /opt/phpenv/versions/ && ls | xargs -I {} -i bash -c \'echo extension=yaml.so > ./{}/etc/conf.d/yaml.ini\' || echo -n"',
     ];
     $result = $this->environment->executeCommands($setup_commands);
-    if ($result !== 0) {
-      // Directory setup failed threw an error.
-      $this->io->drupalCIError("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
-      throw new BuildTaskException("Setting up the filesystem failed:  Error Code: $result");
-    }
+//    if ($result !== 0) {
+//      // Directory setup failed threw an error.
+//      $this->io->drupalCIError("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
+//      throw new BuildTaskException("Setting up the filesystem failed:  Error Code: $result");
+//    }
   }
 }
