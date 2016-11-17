@@ -29,8 +29,9 @@ class CheckoutTest extends DrupalCITestCase {
     $checkout = new TestCheckout($data);
     $checkout->inject($this->getContainer());
     $checkout->setValidate($dir);
-    $checkout->run($this->build);
-    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\''], $checkout->getCommands());
+    $checkout->setExecResult(0);
+    $checkout->run();
+    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\'','cd \'test/dir\' && git log --oneline -n 1 --decorate'], $checkout->getCommands());
   }
 
   public function testRunLocalCheckout() {
@@ -48,7 +49,8 @@ class CheckoutTest extends DrupalCITestCase {
     $checkout = new TestCheckout($data, 'checkout', []);
     $checkout->inject($this->getContainer());
     $checkout->setValidate($dir);
-    $checkout->run($this->build);
+    $checkout->setExecResult(0);
+    $checkout->run();
     $this->assertSame(["rsync -a   $tmp_dir/. test/dir"], $checkout->getCommands());
   }
 }

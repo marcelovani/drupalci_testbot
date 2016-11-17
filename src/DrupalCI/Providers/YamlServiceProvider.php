@@ -4,7 +4,7 @@ namespace DrupalCI\Providers;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 class YamlServiceProvider implements ServiceProviderInterface {
   /**
@@ -12,7 +12,7 @@ class YamlServiceProvider implements ServiceProviderInterface {
    */
   public function register(Container $container) {
     $container['yaml.parser'] = function ($container) {
-      return new Parser();
+      return new Yaml();
     };
   }
 

@@ -6,9 +6,9 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use GuzzleHttp\Client;
 use Pimple\Container;
@@ -16,22 +16,12 @@ use Pimple\Container;
 /**
  * @PluginID("fetch")
  */
-class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
-  use BuildTaskTrait;
   use FileHandlerTrait;
-
-  /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->build = $container['build'];
   }
 
   /**
@@ -60,8 +50,8 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       // TODO: Ensure $details contains all required parameters
       if (empty($details['from'])) {
         $this->io->drupalCIError("Fetch error", "No valid target file provided for fetch command.");
+        throw new BuildTaskException("No valid target file provided for fetch command.");
 
-        return;
       }
       $url = $details['from'];
       $source_dir = $this->build->getSourceDirectory();
@@ -69,8 +59,7 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       if (!($directory = $this->validateDirectory($source_dir, $fetchdir))) {
         // Invalid checkout directory
         $this->io->drupalCIError("Fetch error", "The fetch directory <info>$directory</info> is invalid.");
-
-        return;
+        throw new BuildTaskException("The fetch directory $directory is invalid.");
       }
       $info = pathinfo($url);
       try {
@@ -80,18 +69,11 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       }
       catch (\Exception $e) {
         $this->io->drupalCIError("Write error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
+        throw new BuildTaskException("An error was encountered while attempting to write $url to $destination_file");
 
-        return;
       }
       $this->io->writeln("<comment>Fetch of <options=bold>$url</options=bold> to <options=bold>$destination_file</options=bold> complete.</comment>");
     }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function complete() {
-    // TODO: Implement complete() method.
   }
 
   /**
@@ -102,49 +84,6 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       'files' => [],
     ];
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
   /**
    * @return \GuzzleHttp\ClientInterface
    */

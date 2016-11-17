@@ -6,24 +6,14 @@ use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildStage\BuildStageInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 /**
  * @PluginID("environment")
  */
 
-class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
-
-  use BuildTaskTrait;
-
-  /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
+class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface
@@ -33,7 +23,6 @@ class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, 
   public function inject(Container $container) {
     parent::inject($container);
     $this->database = $container['db.system'];
-    $this->build = $container['build'];
   }
   /**
    * @inheritDoc
@@ -81,13 +70,6 @@ class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, 
   /**
    * @inheritDoc
    */
-  public function complete() {
-    // TODO: Implement complete() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getDefaultConfiguration() {
     return [
       'db_type' => 'mysql',
@@ -95,48 +77,6 @@ class EnvironmentBuildStage extends PluginBase  implements BuildStageInterface, 
       'dbuser' => 'drupaltestbot',
       'dbpassword' => 'drupaltestbotpw',
     ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
   }
 
 }

@@ -21,16 +21,16 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/token.git,8.x-1.x,modules/token,1;',
+    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/block_field.git,8.x-1.x,modules/block_field,1;',
     'DCI_ComposerInstall=true',
     'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
     'DCI_CoreBranch=8.3.x',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_GitCommitHash=24343f9',
+    'DCI_DBType=sqlite',
+    'DCI_DBVersion=3.8',
+    'DCI_GitCommitHash=469d128',
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=7',
-    'DCI_TestItem=directory:modules/token',
+    'DCI_TestItem=directory:modules/block_field',
   ];
 
   public function testD8Contrib() {
@@ -40,8 +40,7 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*Drupal\\\\Tests\\\\token.*/', $app_tester->getDisplay());
-    $this->assertRegExp('/.*Drupal\\\\token\\\\Tests.*/', $app_tester->getDisplay());
+    $this->assertRegExp('/.*Drupal\\\\block_field\\\\Tests.*/', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
 }

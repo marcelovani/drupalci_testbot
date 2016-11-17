@@ -68,12 +68,4 @@ class Codebase implements CodebaseInterface, Injectable {
       $this->addModifiedFile($file);
     }
   }
-
-  protected function determineMajorVersion($version) {
-    $pattern = "/^(\d+)/";
-    if (preg_match($pattern, $version, $matches)) {
-      return $matches[0];
-    }
-    return NULL;
-  }
 }

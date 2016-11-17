@@ -3,7 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask;
 
 use DrupalCI\Injectable;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 trait FileHandlerTrait {

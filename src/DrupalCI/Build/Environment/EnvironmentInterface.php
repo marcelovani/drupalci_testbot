@@ -11,15 +11,25 @@ interface EnvironmentInterface {
    */
   public function executeCommands($commands);
 
-  public function getExecContainers();
+  public function startExecContainer($container);
 
-  public function setExecContainers(array $containers);
+  public function startServiceContainerDaemons($container);
 
-  public function getServiceContainers();
+  public function terminateContainers();
 
-  public function setServiceContainers(array $service_containers);
+  public function getDatabaseContainer();
 
-  public function startServiceContainerDaemons($container_type);
+  public function getExecContainer();
 
-  public function validateImageNames($containers);
+  /**
+   * @return string
+   *   The source directory mounted within the container.
+   */
+  public function getExecContainerSourceDir();
+
+  /**
+   * @return string
+   *   The artifact directory on all containers
+   */
+  public function getContainerArtifactDir();
 }

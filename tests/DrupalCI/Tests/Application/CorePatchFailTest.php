@@ -40,12 +40,15 @@ class CorePatchFailTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
-
+    $build = $this->getCommand('run')->getBuild();
     $this->assertRegExp('/.*The patch attempt returned an error.*/', $app_tester->getDisplay());
     // The testbot should return 2 if there was an error.
     $this->assertEquals(2, $app_tester->getStatusCode());
-    // @todo: Poke around in artifacts to verify that the testbot is telling
-    //   d.o or other consumers that this is a failed test.
+    $output_file = $build->getXmlDirectory() . "/patchfailure.xml";
+    $this->assertFileExists($output_file);
+    // create a test fixture that contains the xml output results.
+    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CorePatchFailTestpatchfailure.xml', $output_file);
+
   }
 
 }

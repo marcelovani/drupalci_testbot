@@ -1,6 +1,6 @@
 # The yml build definition is the "roadmap" for a build, that tells DrupalCI what steps to execute, in what order, and
 # Provides a way to "lock" configuration values.
-# The structure of a build.yml will always follow the following conventions:
+# The structure of a build.yml has the following conventions:
 # There are five levels:
 # 1. The build
 # 2. build stages and build level configuration.
@@ -15,45 +15,63 @@
 # this is to allow for those configurations to be overridden, such as composer, and patches.
 
 # The build level really only exists to provide for a possibility to run entire, multiple builds. It might go away.
-build:
-  environment:
-    startcontainers:
+build: #plugin
+  environment: #plugin
+    startcontainers: #plugin
       runcontainers:
-    create_db:
-      dbcreate:
-        fudpucker: 20
-    dbversion: mysql-5.5
-  codebase:
-    assemble_codebase:
+        phpversion: 7
+    create_db: #plugin
+      dbcreate: #plugin
+        #randomstring: 20 #Key Value config
+    db_type: sqlite #key Value config
+    dbversion: sqlite #key Value config
+  codebase: #plugin
+    assemble_codebase: #plugin
       checkout:
-      composer:
-        arbitrary_configuration:
-          - item 1
-          - item 2
-          - item 3
+        repositories:
+        - branch: 8.3.x
+          repo: git://drupalcode.org/project/drupal.git
+          protocol: git
+          depth: 1
+          checkoutdir: .
+          sourcedir: ./
+      composer: #plugin
+#        arbitrary_configuration: #key Array
+#          - item 1
+#          - item 2
+#          - item 3
       # The default configuration for the patch plugin is to do nothing. But if we do not define it, it wont run at all
       # This allows us to optionally enable it with env variables, user config overrides, or command line overrides.
       # This is an example of a plugin that is configured multiple times.
       patch:
-      - from: http://drupal.org/files/123457.patch
-        to: .
-      - from: http://drupal.org/files/123457.patch
-        to: .
+#        patches:
+#          - from: http://drupal.org/files/123457.patch
+#            to: .
+#          - from: http://drupal.org/files/123457.patch
+#            to: .
       fetch:
+    filesystem:
+      prepare_filesystem:
     validate_codebase:
       phplint:
       #this is an example of doing the whole assessment stage twice
-  assessment:
-    - testing:
-        simpletest:
-          - concurrency: 32
-          - concurrency: 40
-      metrics:
-    - testing:
-        simpletest:
-      metrics:
+  assessment.concurrency:
+    testing:
+      simpletest.js:
+        concurrency: 1
+        types: 'PHPUnit-FunctionalJavascript'
+      simpletest.normal:
+        concurrency: 1
+        testgroups: Url
+    metrics:
+#  assessment.standard:
+#    testing:
+#      simpletest:
+#    metrics:
   buildid: foobar
 
+# a plugin name should never be followed by array, always keys.
+# a disambiguator should pass its children as configuration to its parent plugin
 
 
 

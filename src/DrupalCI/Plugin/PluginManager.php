@@ -7,6 +7,7 @@
 namespace DrupalCI\Plugin;
 
 use Drupal\Component\Annotation\Plugin\Discovery\AnnotatedClassDiscovery;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use DrupalCI\Injectable;
 use DrupalCI\InjectableTrait;
 use Pimple\Container;
@@ -15,11 +16,6 @@ use DrupalCI\Plugin\PluginManagerInterface;
 class PluginManager implements PluginManagerInterface, Injectable {
 
   use InjectableTrait;
-
-  /**
-   * @var array
-   */
-  protected $plugins;
 
   /**
    * @var string
@@ -67,7 +63,6 @@ class PluginManager implements PluginManagerInterface, Injectable {
    * {@inheritdoc}
    */
   public function getPlugin($type, $plugin_id, $configuration = []) {
-    if (!isset($this->plugins[$type][$plugin_id])) {
       if (!$this->hasPlugin($type, $plugin_id)) {
         throw new PluginNotFoundException("Plugin type $type plugin id $plugin_id not found.");
       }
@@ -78,8 +73,6 @@ class PluginManager implements PluginManagerInterface, Injectable {
       if ($plugin instanceof Injectable) {
         $plugin->inject($this->container);
       }
-      $this->plugins[$type][$plugin_id] = $plugin;
-    }
-    return $this->plugins[$type][$plugin_id];
+    return $plugin;
   }
 }

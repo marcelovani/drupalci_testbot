@@ -44,6 +44,6 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
     ], $options);
     $this->assertRegExp('/Fatal error/', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertEquals(255, $app_tester->getStatusCode());
   }
 }

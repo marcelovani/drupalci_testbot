@@ -5,20 +5,16 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
-
-  use BuildTaskTrait;
+class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
@@ -27,19 +23,19 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   protected $results_database;
 
   /**
-   * The current build.
+   * The current container environment
    *
-   * @var \DrupalCI\Build\BuildInterface
+   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
    */
-  protected $build;
+  protected $environment;
 
-  // Results database goes here.
+  protected $runscript = '/core/scripts/run-tests.sh';
+
   public function inject(Container $container) {
     parent::inject($container);
     $this->system_database = $container['db.system'];
     $this->results_database = $container['db.results'];
     $this->environment = $container['environment'];
-    $this->build = $container['build'];
 
   }
 
@@ -47,9 +43,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_RunScript'])) {
-      $this->configuration['runscript'] = $_ENV['DCI_RunScript'];
-    }
+    // Override any Environment Variables
     if (isset($_ENV['DCI_PHPInterpreter'])) {
       $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
     }
@@ -58,9 +52,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     }
     if (isset($_ENV['DCI_RTTypes'])) {
       $this->configuration['types'] = $_ENV['DCI_RTTypes'];
-    }
-    if (isset($_ENV['DCI_RTSqlite'])) {
-      $this->configuration['sqlite'] = $_ENV['DCI_RTSqlite'];
     }
     if (isset($_ENV['DCI_RTUrl'])) {
       $this->configuration['types'] = $_ENV['DCI_RTUrl'];
@@ -102,7 +93,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     if ($status > 0) {
       return $status;
     }
-    $command = ["cd /var/www/html && sudo -u www-data php " . $this->configuration['runscript']];
+    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     $this->configuration['dburl'] = $this->system_database->getUrl();
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
@@ -112,16 +103,15 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     $result = $this->environment->executeCommands($command_line);
 
-    $this->generateJunitXml($this->build);
     // Last thing. JunitFormat the output.
+    $this->generateJunitXml();
 
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function complete() {
-    // TODO: Implement complete() method.
+    //Save some artifacts for the build
+    $this->build->addContainerArtifact("/var/log/apache2/error.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
+    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
+    $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
+    return $result;
   }
 
   /**
@@ -129,9 +119,7 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'runscript' => '/var/www/html/core/scripts/run-tests.sh ',
       'testgroups' => '--all',
-      'sqlite' => '/var/www/html/artifacts/simpletest.sqlite',
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
       'url' => 'http://localhost/checkout',
@@ -142,48 +130,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
     ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
   }
 
   protected function parseTestGroups($testitem) {
@@ -206,18 +152,48 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
   protected function setupSimpletestDB(BuildInterface $build) {
 
-    // TODO: this shouldnt be in artifacts under the source dir.
-    $source_dir = $this->build->getSourceDirectory();
-    $dbfile = $source_dir . '/artifacts/' . basename($this->configuration['sqlite']);
+
+    // This is a rare instance where we're meddling with config after the object
+    // is underway. Perhaps theres a better way?
+    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest.sqlite";
+    $dbfile = $this->build->getArtifactDirectory() . '/simpletest.sqlite';
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
+    $this->build->addContainerArtifact($this->configuration['sqlite']);
   }
 
   protected function generateTestGroups() {
-    $cmd = "sudo -u www-data php " . $this->configuration['runscript'] . " --list --php " . $this->configuration['php'] . " > /var/www/html/artifacts/testgroups.txt";
+    $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
+    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
     $status = $this->environment->executeCommands($cmd);
+    $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
+    $this->build->addContainerArtifact($testgroups_file);
     return $status;
   }
+  /**
+   * @param $test_list
+   *
+   * @return array
+   */
+  protected function parseGroups($test_list): array {
+    // Set an initial default group, in case leading tests are found with no group.
+    $group = 'nogroup';
+    $test_groups = [];
+
+    foreach ($test_list as $output_line) {
+      if (substr($output_line, 0, 3) == ' - ') {
+        // This is a class
+        $class = substr($output_line, 3);
+        $test_groups[$class] = $group;
+      }
+      else {
+        // This is a group
+        $group = ucwords($output_line);
+      }
+    }
+    return $test_groups;
+  }
+
 
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
@@ -279,20 +255,13 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
   /**
    * {@inheritdoc}
    */
-  public function generateJunitXml(BuildInterface $build) {
+  public function generateJunitXml() {
 
     // Load the list of tests from the testgroups.txt build artifact
-    // Assumes that gatherArtifacts plugin has run.
-    // TODO: Verify that gatherArtifacts has ran.
-    // TODO: This gets generated in the containers, into a subdir of the source
-    // directory, and we need to have it generated in the artifacts by default.
-    $source_dir = $this->build->getSourceDirectory();
-    $test_listfile = $source_dir . '/artifacts/testgroups.txt';
+    // This gets generated in the containers, into the container artifact dir
+    $test_listfile = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $test_list = file($test_listfile, FILE_IGNORE_NEW_LINES);
     $test_list = array_slice($test_list, 4);
-
-    // Set up output directory (inside working directory)
-    $xml_output_dir = $source_dir = $this->build->getXmlDirectory();
 
     $test_groups = $this->parseGroups($test_list);
 
@@ -309,7 +278,6 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
 
     $q_result = $db->query('SELECT * FROM simpletest ORDER BY test_id, test_class, message_id;');
 
-    $results = [];
     $classes = [];
 
     while ($result = $q_result->fetch(\PDO::FETCH_ASSOC)) {
@@ -330,7 +298,8 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
         $test_method = substr($test_method, 0, strlen($test_method) - 2);
 
         //$classes[$test_group][$test_class][$test_method]['classname'] = $classname;
-        $result['file'] = substr($result['file'],14); // Trim off /var/www/html
+        $length = strlen($this->environment->getExecContainerSourceDir());
+        $result['file'] = substr($result['file'],$length+1); // Trim off source dir
         $classes[$test_group][$test_class][$test_method][] = array(
           'status' => $result['status'],
           'type' => $result['message_group'],
@@ -340,10 +309,10 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
         );
       }
     }
-    $this->_build_xml($classes, $xml_output_dir);
+    $this->_build_xml($classes);
   }
 
-  private function _build_xml($test_result_data, $xml_output_dir) {
+  private function _build_xml($test_result_data) {
     // Maps statuses to their xml element for each testcase.
     $element_map = array(
       'pass' => 'system-out',
@@ -469,32 +438,11 @@ class Simpletest extends PluginBase implements BuildStepInterface, BuildTaskInte
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
 
-    file_put_contents($xml_output_dir . '/testresults.xml', $doc->saveXML());
-    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_dir . '/testresults.xml</options=bold></info>');
+    $xml_output_file = $this->build->getXmlDirectory() . "/testresults.xml";
+    file_put_contents($xml_output_file, $doc->saveXML());
+    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</options=bold></info>');
+    $this->build->addArtifact($xml_output_file);
   }
 
-  /**
-   * @param $test_list
-   *
-   * @return array
-   */
-  protected function parseGroups($test_list): array {
-    // Set an initial default group, in case leading tests are found with no group.
-    $group = 'nogroup';
-    $test_groups = [];
-
-    foreach ($test_list as $output_line) {
-      if (substr($output_line, 0, 3) == ' - ') {
-        // This is a class
-        $class = substr($output_line, 3);
-        $test_groups[$class] = $group;
-      }
-      else {
-        // This is a group
-        $group = ucwords($output_line);
-      }
-    }
-    return $test_groups;
-  }
 
 }
