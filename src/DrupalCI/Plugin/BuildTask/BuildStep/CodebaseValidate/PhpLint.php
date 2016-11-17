@@ -71,7 +71,7 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $this->build->addArtifact($lintable_files);
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
-      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
+      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerArtifactDir() . "/lintable_files.txt -I {} php -l '{}'";
       // TODO Throw a BuildException if there are syntax errors.
       $result = $this->environment->executeCommands($cmd);
       if ($result !== 0) {
