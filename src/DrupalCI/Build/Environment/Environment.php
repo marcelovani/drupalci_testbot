@@ -261,7 +261,7 @@ class Environment implements Injectable, EnvironmentInterface {
       $container_id = $create_result->getId();
 
       $response = $manager->start($container_id);
-      // TODO: Catch and exception if doesn't return 204.
+      // TODO: Throw exception if doesn't return 204.
 
       $executable_container = $manager->find($container_id);
 
@@ -276,6 +276,7 @@ class Environment implements Injectable, EnvironmentInterface {
       return $container;
     }
     else {
+      // TODO: Build Objects should throw BuildExceptions not BuildTaskExceptions
       throw new BuildTaskException("Starting Container Failed");
     }
   }

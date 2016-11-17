@@ -6,6 +6,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -55,8 +56,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         // Ensure we have at least 3 components
         if (count($components) < 4) {
           $this->io->writeln("<error>Unable to parse repository information for value <options=bold>$entry</options=bold>.</error>");
-          // TODO: Bail out of processing.  For now, we'll just keep going with the next entry.
-          continue;
+          throw new BuildTaskException("Unable to parse repository information for value $entry");
         }
         // Create the build definition entry
         $output = array(
@@ -117,15 +117,13 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     // Validate source directory
     if (!is_dir($source_dir)) {
       $this->io->drupalCIError("Directory error", "The source directory <info>$source_dir</info> does not exist.");
-
-      return;
+      throw new BuildTaskException("The source directory $source_dir does not exist.");
     }
     // Validate target directory.  Must be within workingdir.
     if (!($directory = $this->validateDirectory($this->build->getSourceDirectory(), $checkout_dir))) {
       // Invalidate checkout directory
       $this->io->drupalCIError("Directory error", "The checkout directory <info>$directory</info> is invalid.");
-
-      return;
+      throw new BuildTaskException("The checkout directory $directory is invalid.");
     }
     $this->io->writeln("<comment>Copying files from <options=bold>$source_dir</options=bold> to the local checkout directory <options=bold>$directory</options=bold> ... </comment>");
     // TODO: Make sure target directory is empty
@@ -134,8 +132,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $this->exec("rsync -a $exclude_var  $source_dir/. $directory", $cmdoutput, $result);
     if ($result !== 0) {
       $this->io->drupalCIError("Copy error", "Error encountered while attempting to copy code to the local checkout directory.");
-
-      return;
+      throw new BuildTaskException("The rsync returned an error.  Error Code: $result");
     }
     $this->io->writeln("<comment>DONE</comment>");
   }
@@ -152,7 +149,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     if (!($directory = $this->validateDirectory($this->build->getSourceDirectory(), $checkout_directory))) {
       // Invalid checkout directory
       $this->io->drupalCIError("Directory Error", "The checkout directory <info>$directory</info> is invalid.");
-      return;
+      throw new BuildTaskException("The checkout directory $directory is invalid.");
     }
     if (substr($repository['repo'],0,4) == 'file') {
       // If the repository is specified as a local file://tmp/project, then we rsync the
@@ -168,8 +165,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         // @TODO: thrown an exception.
         // Git threw an error.
         $this->io->drupalCIError("Checkout Error", "The rsync returned an error.  Error Code: $result");
-
-        return;
+        throw new BuildTaskException("The rsync returned an error.  Error Code: $result");
       }
 
       $cmd = "cd $directory; git clean -fx; git checkout -f $git_branch";
@@ -178,7 +174,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       if ($result !== 0) {
         // Git threw an error.
         $this->io->drupalCIError("Checkout Error", "Unable to change branch.  Error Code: $result");
-        return;
+        throw new BuildTaskException("Unable to change branch.  Error Code: $result");
       }
     } else {
       $this->io->writeln("<comment>Performing git checkout of $repo $git_branch branch to $directory.</comment>");
@@ -194,7 +190,6 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       if ($result !== 0) {
         // Git threw an error.
         $this->io->drupalCIError("Checkout Error", "The git checkout returned an error.  Error Code: $result");
-        return;
       }
     }
 
@@ -205,10 +200,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     }
     if ($result !==0) {
       // Git threw an error.
-      // TODO Throw a BuildTaskException
-      //$build->errorOutput("Checkout failed", "The git checkout returned an error.");
-      // TODO: Pass on the actual return value for the git checkout
-      return;
+      throw new BuildTaskException("git reset returned an error.  Error Code: $result");
     }
 
     $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";

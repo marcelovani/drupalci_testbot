@@ -439,8 +439,6 @@ class Build implements BuildInterface, Injectable {
    *
    * @param $message
    *
-   *
-   * @TODO refactor out the buildfile and pass it as an arg too.
    */
   protected function saveBuildState($message = 'Build Successful') {
 

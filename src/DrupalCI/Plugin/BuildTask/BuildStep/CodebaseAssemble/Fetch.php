@@ -6,6 +6,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -49,8 +50,8 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // TODO: Ensure $details contains all required parameters
       if (empty($details['from'])) {
         $this->io->drupalCIError("Fetch error", "No valid target file provided for fetch command.");
+        throw new BuildTaskException("No valid target file provided for fetch command.");
 
-        return;
       }
       $url = $details['from'];
       $source_dir = $this->build->getSourceDirectory();
@@ -58,8 +59,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if (!($directory = $this->validateDirectory($source_dir, $fetchdir))) {
         // Invalid checkout directory
         $this->io->drupalCIError("Fetch error", "The fetch directory <info>$directory</info> is invalid.");
-
-        return;
+        throw new BuildTaskException("The fetch directory $directory is invalid.");
       }
       $info = pathinfo($url);
       try {
@@ -69,8 +69,8 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
       catch (\Exception $e) {
         $this->io->drupalCIError("Write error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
+        throw new BuildTaskException("An error was encountered while attempting to write $url to $destination_file");
 
-        return;
       }
       $this->io->writeln("<comment>Fetch of <options=bold>$url</options=bold> to <options=bold>$destination_file</options=bold> complete.</comment>");
     }

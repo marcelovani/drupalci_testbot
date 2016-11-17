@@ -7,6 +7,7 @@ use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
@@ -67,12 +68,17 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     file_put_contents($lintable_files, $bash_array);
     // Make sure
     if (0 < filesize($lintable_files)) {
-
+      $this->build->addArtifact($lintable_files);
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
       $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
       // TODO Throw a BuildException if there are syntax errors.
-      $this->environment->executeCommands($cmd);
+      $result = $this->environment->executeCommands($cmd);
+      if ($result !== 0) {
+        // Git threw an error.
+        $this->io->drupalCIError("PHPLint Failed", "Unable to change branch.  Error Code: $result");
+        throw new BuildTaskException("PHPLint Failed: $result");
+      }
     }
   }
 
