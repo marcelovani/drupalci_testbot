@@ -7,6 +7,7 @@ build:
   codebase:
     assemble_codebase:
       checkout:
+      composer:
       fetch:
       patch:
     filesystem:
@@ -15,8 +16,8 @@ build:
       phplint:
   assessment:
     testing:
-      simpletest_d7:
-
-
-
-
+      simpletest.standard:
+        concurrency: 31
+      simpletest.js:
+        concurrency: 1
+        types: 'PHPUnit-FunctionalJavascript'

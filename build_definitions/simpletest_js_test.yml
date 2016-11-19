@@ -1,4 +1,3 @@
-
 build:
   environment:
     startcontainers:
@@ -8,7 +7,15 @@ build:
   codebase:
     assemble_codebase:
       checkout:
+        repositories:
+          - branch: 8.3.x
+            repo: git://drupalcode.org/project/drupal.git
+            protocol: git
+            depth: 1
+            checkoutdir: .
+            sourcedir: ./
       composer:
+
       fetch:
       patch:
     filesystem:
@@ -18,11 +25,8 @@ build:
   assessment:
     testing:
       simpletest.standard:
-        concurrency: 31
+        concurrency: 1
+        testgroups: Url
       simpletest.js:
         concurrency: 1
         types: 'PHPUnit-FunctionalJavascript'
-
-
-
-
