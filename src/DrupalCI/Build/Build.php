@@ -260,9 +260,10 @@ class Build implements BuildInterface, Injectable {
     $task_type = ['BuildStage','BuildPhase','BuildStep','BuildStepConfig'];
     foreach ($config as $config_key => $task_configurations) {
       $plugin_key = preg_replace('/\..*/', '', $config_key);
+      $keyparts = explode('.', $config_key);
       if ($this->buildTaskPluginManager->hasPlugin($task_type[$depth], $plugin_key)) {
         // This $config_key is a BuildTask plugin, therefore it may have some
-        // configuration definedor may have child BuildTask plugins.
+        // configuration defined or may have child BuildTask plugins.
         $transformed_config[$config_key] = [];
         // If a task_configuration is null, that indicates that this BuildTask
         // has no configuration overrides, or subordinate children.
@@ -282,6 +283,10 @@ class Build implements BuildInterface, Injectable {
           }
           else {
             $overrides = [];
+          }
+          // If a plugin has a label in the yaml, pass it on in the overrides.
+          if (isset($keyparts[1])) {
+            $overrides['plugin_label'] = $keyparts[1];
           }
           $children = $transformed_config[$config_key];
           unset($transformed_config[$config_key]);

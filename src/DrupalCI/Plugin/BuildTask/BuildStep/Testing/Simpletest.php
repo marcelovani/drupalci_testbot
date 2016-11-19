@@ -155,8 +155,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest.sqlite";
-    $dbfile = $this->build->getArtifactDirectory() . '/simpletest.sqlite';
+    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel .".sqlite";
+    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel .".sqlite";
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
     $this->build->addContainerArtifact($this->configuration['sqlite']);

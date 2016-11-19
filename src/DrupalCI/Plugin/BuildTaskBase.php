@@ -27,6 +27,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $pluginId;
 
   /**
+   * The plugin_label
+   *
+   * @var string
+   */
+  protected $pluginLabel;
+
+  /**
    * Any variables that can affect the behavior of this plugin, that are
    * specific to this plugin, reside in a configuration array within the plugin.
    *
@@ -84,6 +91,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = []) {
     $this->configuration = $this->getDefaultConfiguration();
+    // Set the plugin label as a special case.
+    if (isset($configuration_overrides['plugin_label'])) {
+      $this->pluginLabel = $configuration_overrides['plugin_label'];
+      unset($configuration_overrides['plugin_label']);
+    }
     $this->configuration_overrides = $configuration_overrides;
     $this->pluginId = $plugin_id;
     $this->pluginDefinition = $plugin_definition;
