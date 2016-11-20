@@ -103,6 +103,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $result = $this->environment->executeCommands($command_line);
 
+    // Look at the output for no valid tests, and set that to an acceptable signal.
+    if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE){
+      $result->setSignal(0);
+    }
     // Last thing. JunitFormat the output.
     $this->generateJunitXml();
 
