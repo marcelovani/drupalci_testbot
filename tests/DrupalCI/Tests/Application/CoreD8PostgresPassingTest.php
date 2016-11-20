@@ -47,7 +47,7 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
     // Look for junit xml results file
-    $output_file = $build->getXmlDirectory() . "/testresults.xml";
+    $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);

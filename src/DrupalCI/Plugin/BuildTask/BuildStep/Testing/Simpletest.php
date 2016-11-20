@@ -450,8 +450,12 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     // $test_suites->setAttribute('disabled', "TODO SET");
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
+    $label = '';
+    if (isset($this->pluginLabel)){
+      $label = $this->pluginLabel . ".";
+    }
 
-    $xml_output_file = $this->build->getXmlDirectory() . "/testresults.xml";
+    $xml_output_file = $this->build->getXmlDirectory() . "/" . $label . "testresults.xml";
     file_put_contents($xml_output_file, $doc->saveXML());
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</options=bold></info>');
     $this->build->addArtifact($xml_output_file);
