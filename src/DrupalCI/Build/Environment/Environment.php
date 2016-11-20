@@ -8,6 +8,7 @@
 
 namespace DrupalCI\Build\Environment;
 
+use Build\Environment\CommandResult;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
@@ -49,6 +50,9 @@ class Environment implements Injectable, EnvironmentInterface {
   /* @var \DrupalCI\Build\BuildInterface */
   protected $build;
 
+  /* @var \Pimple\Container */
+  protected $container;
+
   /**
    * @var string
    * The source directory within the exec container.
@@ -61,19 +65,13 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
 
-  /**
-   * @var array
-   *   Contains the stdout, stderr of every container we interact with via
-   * executions.
-   */
-  protected $commandOutput = [];
-
   public function inject(Container $container) {
 
     $this->io = $container['console.io'];
     $this->docker = $container['docker'];
     $this->database = $container['db.system'];
     $this->build = $container['build'];
+    $this->container = $container;
 
   }
 
@@ -81,15 +79,13 @@ class Environment implements Injectable, EnvironmentInterface {
    * {@inheritdoc}
    */
   public function executeCommands($commands, $container_id = '') {
-    // @TODO someday we may have more than one container. This currently assumes
-    // just the single Exec container.
 
+    $executionResult = $this->container['command.result'];
+    $maxExitCode = 0;
     // Data format: 'command [arguments]' or array('command [arguments]', 'command [arguments]')
     // $data May be a string if one version required, or array if multiple
     // Normalize data to the array format, if necessary
     $commands = is_array($commands) ? $commands : [$commands];
-
-
     if (!empty($commands)) {
       if (!empty($container_id)){
         $id = $container_id;
@@ -97,17 +93,15 @@ class Environment implements Injectable, EnvironmentInterface {
         $container = $this->getExecContainer();
         $id = $container['id'];
       }
-      if (!isset($this->commandOutput[$id])){
-        $this->commandOutput[$id]['stderr'] = '';
-        $this->commandOutput[$id]['stdout'] = '';
-      }
 
       $short_id = substr($id, 0, 8);
-      $this->io->writeLn("<info>Executing on container instance $short_id:</info>");
+      // TODO: add a way to add debugging information, and make this a debug
+      // ouput
+      //$this->io->writeLn("<info>Executing on container instance $short_id:</info>");
       foreach ($commands as $cmd) {
         $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
-        $this->commandOutput[$id]['stdout'] = $this->commandOutput[$id]['stdout'] . "\nEXECUTING: " . $cmd . "\n";
-        $this->commandOutput[$id]['stderr'] = $this->commandOutput[$id]['stderr'] . "\nEXECUTING: " . $cmd . "\n";
+        $executionResult->appendOutput("\nEXECUTING: " . $cmd . "\n");
+        $executionResult->appendError("\nEXECUTING: " . $cmd . "\n");
         $exec_config = new ExecConfig();
         $exec_config->setTty(FALSE);
         $exec_config->setAttachStderr(TRUE);
@@ -120,7 +114,7 @@ class Environment implements Injectable, EnvironmentInterface {
         $response = $exec_manager->create($id, $exec_config);
 
         $exec_id = $response->getId();
-        $this->io->writeLn("<info>Command created as exec id " . substr($exec_id, 0, 8) . "</info>");
+        // $this->io->writeLn("<info>Command created as exec id " . substr($exec_id, 0, 8) . "</info>");
 
         $exec_start_config = new ExecStartConfig();
         $exec_start_config->setTty(FALSE);
@@ -139,18 +133,14 @@ class Environment implements Injectable, EnvironmentInterface {
           $this->io->write($stderr);
         });
         $stream->wait();
-
-        $exec_command_exit_code = $exec_manager->find($exec_id)->getExitCode();
-
-        $this->commandOutput[$id]['stdout'] = $this->commandOutput[$id]['stdout'] . $stdoutFull;
-        $this->commandOutput[$id]['stderr'] = $this->commandOutput[$id]['stderr'] . $stderrFull;
-
-        if ($this->checkCommandStatus($exec_command_exit_code) !== 0) {
-          return $exec_command_exit_code;
-        }
+        $exit_code = $exec_manager->find($exec_id)->getExitCode();
+        $maxExitCode = max($exit_code, $maxExitCode);
+        $executionResult->appendOutput($stdoutFull);
+        $executionResult->appendError($stderrFull);
       }
+      $executionResult->setSignal($maxExitCode);
     }
-    return 0;
+    return $executionResult;
   }
 
   protected function checkCommandStatus($signal) {
@@ -162,6 +152,7 @@ class Environment implements Injectable, EnvironmentInterface {
       return 0;
     }
   }
+
   /**
    * @return mixed
    */
@@ -198,7 +189,6 @@ class Environment implements Injectable, EnvironmentInterface {
     $this->executableContainer = $this->startContainer($container);
 
   }
-
 
   public function startServiceContainerDaemons($db_container) {
     if (strpos($this->database->getDbType(), 'sqlite') === 0) {

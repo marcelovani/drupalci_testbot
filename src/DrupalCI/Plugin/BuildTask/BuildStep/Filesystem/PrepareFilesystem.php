@@ -70,5 +70,6 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
 //      $this->io->drupalCIError("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
 //      throw new BuildTaskException("Setting up the filesystem failed:  Error Code: $result");
 //    }
+    //return $result->getSignal();
   }
 }

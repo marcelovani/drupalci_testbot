@@ -29,7 +29,8 @@ class SimpletestD7 extends Simpletest {
       'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' vset simpletest_verbose \'0\' 2>&1',
       'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r ' . $sourcedir . ' en -y simpletest 2>&1',
     ];
-    $this->environment->executeCommands($setup_commands);
+    $result = $this->environment->executeCommands($setup_commands);
+    return $result->getSignal();
   }
 
 

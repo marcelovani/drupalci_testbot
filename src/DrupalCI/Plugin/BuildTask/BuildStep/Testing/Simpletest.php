@@ -165,10 +165,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
     $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
-    $status = $this->environment->executeCommands($cmd);
+    $result = $this->environment->executeCommands($cmd);
     $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $this->build->addContainerArtifact($testgroups_file);
-    return $status;
+    return $result->getSignal();
   }
   /**
    * @param $test_list

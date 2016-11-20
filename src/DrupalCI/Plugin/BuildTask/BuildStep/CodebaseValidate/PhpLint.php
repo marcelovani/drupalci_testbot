@@ -74,12 +74,13 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerArtifactDir() . "/lintable_files.txt -I {} php -l '{}'";
       // TODO Throw a BuildException if there are syntax errors.
       $result = $this->environment->executeCommands($cmd);
-      if ($result !== 0) {
+      if ($result->getSignal() !== 0) {
         // Git threw an error.
         $this->io->drupalCIError("PHPLint Failed", "Unable to change branch.  Error Code: $result");
         throw new BuildTaskException("PHPLint Failed: $result");
       }
     }
+    return 0;
   }
 
   /**

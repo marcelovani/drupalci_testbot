@@ -6,10 +6,19 @@ use Pimple\Container;
 interface EnvironmentInterface {
   public function inject(Container $container);
 
+
   /**
-   * {@inheritdoc}
+   * @param $commands
+   *
+   * @param null $container_id
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   *
+   * Takes in an array of commands to execute on a container and returns a
+   * CommandResult object with the signal, stdout, and stderr. Optional
+   * container_id allows for a specific container to be selected.
    */
-  public function executeCommands($commands);
+  public function executeCommands($commands, $container_id = NULL);
 
   public function startExecContainer($container);
 
