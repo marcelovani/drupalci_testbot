@@ -24,15 +24,15 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.1.x',
+    'DCI_CoreBranch=8.3.x',
     'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2675066-12.patch,.',
-    'DCI_GitCommitHash=04038f4',
+    'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
+    'DCI_GitCommitHash=5d97345',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=7',
-    'DCI_Patch=2675066-12.patch,.',
+    'DCI_PHPVersion=5.5',
+    'DCI_Patch=2827218-2-field_denormalize.patch,.',
     'DCI_RunScript=/var/www/html/core/scripts/run-tests.sh',
   ];
 
@@ -43,8 +43,8 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*Error.*/', $app_tester->getDisplay());
-    $this->assertRegExp('/.*Return status: 2*/', $app_tester->getDisplay());
+    $foo = $app_tester->getDisplay();
+    $this->assertRegExp('/.*MissingGroupException.*/', $app_tester->getDisplay());
     $this->assertEquals(2, $app_tester->getStatusCode());
   }
 }
