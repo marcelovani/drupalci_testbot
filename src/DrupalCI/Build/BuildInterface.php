@@ -91,4 +91,12 @@ interface BuildInterface {
 
   public function addContainerArtifact($path);
 
+  /**
+   * @param $filename
+   * @param $string
+   *
+   * Takes in a string, and saves it as an artifact in the artifact directory.
+   */
+  public function saveStringArtifact($filename, $string);
+
 }

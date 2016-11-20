@@ -151,6 +151,15 @@ class Build implements BuildInterface, Injectable {
     $this->buildArtifacts[] = $containerBuildArtifact;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function saveStringArtifact($filename, $string) {
+    $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
+    file_put_contents($artifactFile, $string);
+    $this->addArtifact($artifactFile);
+  }
+
   public function getBuildId() {
     return $this->buildId;
   }
@@ -331,6 +340,10 @@ class Build implements BuildInterface, Injectable {
       $this->saveBuildState($e->getMessage());
       return 2;
     } finally {
+      // TODO: we need to have a step that goes through the build objects
+      // and preserves their files/output. Either that or we need to ensure
+      // that *all* artifacts are part of the plugins, and never on the build
+      // objects (better)
       // Preserve all the Build artifacts.
       /* @var $buildArtifact \DrupalCI\Build\Artifact\BuildArtifactInterface */
       foreach ($this->buildArtifacts as $buildArtifact){
