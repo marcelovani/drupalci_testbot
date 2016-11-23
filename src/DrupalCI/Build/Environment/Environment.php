@@ -143,16 +143,6 @@ class Environment implements Injectable, EnvironmentInterface {
     return $executionResult;
   }
 
-  protected function checkCommandStatus($signal) {
-    if ($signal !== 0) {
-      $this->io->drupalCIError('Error', "Received a non-zero return code from the last command executed on the container.  (Return status: " . $signal . ")");
-      return 1;
-    }
-    else {
-      return 0;
-    }
-  }
-
   /**
    * @return mixed
    */
