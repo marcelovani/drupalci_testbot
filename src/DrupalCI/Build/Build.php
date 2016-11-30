@@ -602,7 +602,7 @@ class Build implements BuildInterface, Injectable {
    *
    * @return bool
    */
-  protected function setupDirectory($directory): bool {
+  protected function setupDirectory($directory) {
     if (!is_dir($directory)) {
       $result = mkdir($directory, 0777, TRUE);
       if (!$result) {

@@ -162,8 +162,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $this->exec($cmd, $cmdoutput, $result);
 
       if ($result !== 0) {
-        // @TODO: thrown an exception.
-        // Git threw an error.
+        // rsync threw an error.
         $this->io->drupalCIError("Checkout Error", "The rsync returned an error.  Error Code: $result");
         throw new BuildTaskException("The rsync returned an error.  Error Code: $result");
       }
@@ -197,11 +196,12 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $cmd =  "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
       $this->io->writeln("Git Command: $cmd");
       $this->exec($cmd, $cmdoutput, $result);
+      if ($result !==0) {
+        // Git threw an error.
+        throw new BuildTaskException("git reset returned an error.  Error Code: $result");
+      }
     }
-    if ($result !==0) {
-      // Git threw an error.
-      throw new BuildTaskException("git reset returned an error.  Error Code: $result");
-    }
+
 
     $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
     $this->exec($cmd, $cmdoutput, $result);
