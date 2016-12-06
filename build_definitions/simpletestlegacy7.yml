@@ -6,6 +6,7 @@ build:
       dbcreate:
   codebase:
     assemble_codebase:
+      replicate:
       checkout:
       fetch:
       patch:
