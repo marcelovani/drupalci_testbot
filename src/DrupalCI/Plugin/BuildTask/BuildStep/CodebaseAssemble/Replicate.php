@@ -42,6 +42,15 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
     if (isset($_ENV['DCI_Exclude'])) {
       $this->configuration['excludes'] = explode(',', $_ENV['DCI_Exclude']);
     }
+    // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
+    // assume those Refer to the git repository at the root of the directory.
+    if (isset($_ENV['DCI_LocalBranch'])) {
+      $this->configuration['git_branch'] = $_ENV['DCI_LocalBranch'];
+    }
+
+    if (isset($_ENV['DCI_LocalCommitHash'])) {
+      $this->configuration['git_commit_hash'] = $_ENV['DCI_LocalCommitHash'];
+    }
   }
 
   /**
@@ -57,14 +66,15 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         throw new BuildTaskException("The source directory $local_dir does not exist.");
       }
       // Validate target directory.  Must be within workingdir.
-      if (!($directory = $this->validateDirectory($this->build->getSourceDirectory()))) {
+      if (!($directory = $this->validateDirectory($this->build->getSourceDirectory(), $this->build->getSourceDirectory()))) {
         // Invalidate checkout directory
         $this->io->drupalCIError("Directory error", "The checkout directory <info>$directory</info> is invalid.");
         throw new BuildTaskException("The checkout directory $directory is invalid.");
       }
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</options=bold> to the local checkout directory <options=bold>$directory</options=bold> ... </comment>");
 
-      foreach ($this->configuration['excludes'] as $exclude_dir) {
+      $excludes = '';
+      foreach ($this->configuration['exclude'] as $exclude_dir) {
         $excludes .= '--exclude=' . $exclude_dir . ' ';
       }
       $this->exec("rsync -a $excludes  $local_dir/. $directory", $cmdoutput, $result);
@@ -75,8 +85,27 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
       $this->io->writeln("<comment>Copying files complete</comment>");
 
-      // If the locally copied directory has a .git, lets display it.
+      // If the locally copied directory has a .git, perform operations on it.
       if (is_dir($directory . '/.git')) {
+        if (!empty($this->configuration['git_branch'])) {
+          $cmd =  "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
+          $this->io->writeln("Git Command: $cmd");
+          $this->exec($cmd, $cmdoutput, $result);
+          if ($result !==0) {
+            // Git threw an error.
+            throw new BuildTaskException("git checkout returned an error.  Error Code: $result");
+          }
+        }
+        if (!empty($this->configuration['git_commit_hash'])) {
+          $cmd =  "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
+          $this->io->writeln("Git Command: $cmd");
+          $this->exec($cmd, $cmdoutput, $result);
+          if ($result !==0) {
+            // Git threw an error.
+            throw new BuildTaskException("git reset returned an error.  Error Code: $result");
+          }
+        }
+
         $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
         $this->exec($cmd, $cmdoutput, $result);
         $this->io->writeln("<comment>Git commit info:</comment>");
