@@ -22,10 +22,10 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
    */
 
   protected $dciConfig = [
-    'DCI_CoreBranch=7.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=7.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_JobType=simpletestlegacy7',
-    'DCI_GitCommitHash=3d5bcd3',
+    'DCI_LocalCommitHash=3d5bcd3',
     'DCI_RunScript=/var/www/html/scripts/run-tests.sh',
     'DCI_TestGroups=Syslog',
     'DCI_PHPVersion=7',

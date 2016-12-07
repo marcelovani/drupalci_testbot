@@ -25,8 +25,8 @@ class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_AdditionalRepositories=git,https://git.drupal.org/sandbox/Mile23/2683655.git,8.x-1.x,modules/drupalci_d8_module_no_tests,1;',
     'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.1.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.1.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_JobType=simpletest',

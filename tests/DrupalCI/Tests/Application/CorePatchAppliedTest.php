@@ -24,12 +24,12 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.1.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.1.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
-    'DCI_GitCommitHash=bdb434a',
+    'DCI_LocalCommitHash=bdb434a',
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=5.5',
     'DCI_Patch=Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',

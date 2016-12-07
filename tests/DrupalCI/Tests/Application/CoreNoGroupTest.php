@@ -24,12 +24,12 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.3.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.3.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
-    'DCI_GitCommitHash=5d97345',
+    'DCI_LocalCommitHash=5d97345',
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=5.5',
     'DCI_Patch=2827218-2-field_denormalize.patch,.',
