@@ -1,4 +1,3 @@
-
 build:
   environment:
     startcontainers:
@@ -23,7 +22,3 @@ build:
       simpletest.js:
         concurrency: 1
         types: 'PHPUnit-FunctionalJavascript'
-
-
-
-
