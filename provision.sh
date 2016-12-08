@@ -122,7 +122,8 @@ else
   # setting the uid:gid to database (mysql/postgres)
   chown -R ubuntu:102 $DCIPATH/database
   adduser ubuntu www-data
-  chmod -R 775 $DCIPATH
+  chmod -R 775 $DCIPATH/web
+  chmod -R 775 $DCIPATH/database
 
   echo "Installing docker"
     # curl -sSL get.docker.io | sed 's/docker-engine/docker-engine=1.12.1-0~xenial/' | sh 2>&1 | egrep -i -v "Ctrl|docker installed"
