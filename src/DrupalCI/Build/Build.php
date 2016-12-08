@@ -500,7 +500,12 @@ class Build implements BuildInterface, Injectable {
     return $this->buildDirectory . '/database';
   }
 
-
+  /**
+   * @inheritDoc
+   */
+  public function getTmpDirectory() {
+    return $this->buildDirectory . '/tmp';
+  }
 
   /**
    * Generate a Build ID for this build
@@ -589,6 +594,10 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result =  $this->setupDirectory($this->getTmpDirectory());
+    if (!$result) {
+      return FALSE;
+    }
     $result =  $this->setupDirectory($this->getXMLDirectory());
     if (!$result) {
       return FALSE;
@@ -607,7 +616,7 @@ class Build implements BuildInterface, Injectable {
       $result = mkdir($directory, 0777, TRUE);
       if (!$result) {
         // Error creating checkout directory
-        $this->io->drupalCIError('Directory Creation Error', 'Error encountered while attempting to create  directory');
+        $this->io->drupalCIError('Directory Creation Error', 'Error encountered while attempting to create directory');
         return FALSE;
       }
       else {

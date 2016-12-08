@@ -84,6 +84,14 @@ interface BuildInterface {
    */
   public function getDBDirectory();
 
+  /**
+   * This is where we put the database It should be volume mounted over
+   * to wherever the data directory specifies from the Database Environment
+   *
+   * @return mixed
+   */
+  public function getTmpDirectory();
+
 
   public function generateBuildId();
 
