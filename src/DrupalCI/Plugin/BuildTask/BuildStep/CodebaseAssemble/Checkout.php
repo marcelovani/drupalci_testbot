@@ -36,15 +36,20 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
     if (isset($_ENV['DCI_CoreRepository'])) {
       $this->configuration['repositories'][0]['repo'] = $_ENV['DCI_CoreRepository'];
-    }
-    if (isset($_ENV['DCI_CoreBranch'])) {
-      $this->configuration['repositories'][0]['branch'] = $_ENV['DCI_CoreBranch'];
-    }
-    if (isset($_ENV['DCI_GitCheckoutDepth'])) {
-      $this->configuration['repositories'][0]['depth'] = $_ENV['DCI_GitCheckoutDepth'];
-    }
-    if (isset($_ENV['DCI_GitCommitHash'])) {
-      $this->configuration['repositories'][0]['commit_hash'] = $_ENV['DCI_GitCommitHash'];
+
+      if (isset($_ENV['DCI_CoreBranch'])) {
+        $this->configuration['repositories'][0]['branch'] = $_ENV['DCI_CoreBranch'];
+      }
+      // These are really the Core Depth and Core Git Commit Hashes.
+      if (isset($_ENV['DCI_GitCheckoutDepth'])) {
+        $this->configuration['repositories'][0]['depth'] = $_ENV['DCI_GitCheckoutDepth'];
+      }
+      if (isset($_ENV['DCI_GitCommitHash'])) {
+        $this->configuration['repositories'][0]['commit_hash'] = $_ENV['DCI_GitCommitHash'];
+      }
+      $this->configuration['repositories'][0]['type'] = 'standard';
+    } else {
+
     }
    // @TODO make a test:  $_ENV['DCI_AdditionalRepositories']='git,git://git.drupal.org/project/panels.git,8.x-3.x,modules/panels,1;git,git://git.drupal.org/project/ctools.git,8.x-3.0-alpha27,modules/ctools,1;git,git://git.drupal.org/project/layout_plugin.git,8.x-1.0-alpha23,modules/layout_plugin,1;git,git://git.drupal.org/project/page_manager.git,8.x-1.0-alpha24,modules/page_manager,1';
     if (isset($_ENV['DCI_AdditionalRepositories'])) {
@@ -68,9 +73,12 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         if (!empty($components[4])) {
           $output['depth'] = $components[4];
         }
+        $output['type'] = 'standard';
         $this->configuration['repositories'][] = $output;
       }
     }
+
+
   }
 
   /**
@@ -97,13 +105,14 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   protected function setupCheckoutGit($repository) {
     $this->io->writeln("<info>Entering setup_checkout_git().</info>");
     // @TODO: these should always have a default. no sense in setting them here.
-    $repo = isset($repository['repo']) ? $repository['repo'] : 'git://drupalcode.org/project/drupal.git';
+    $repo = isset($repository['repo']) ? $repository['repo'] : 'git://git.drupal.org/project/drupal.git';
 
     $git_branch = isset($repository['branch']) ? "-b " . $repository['branch'] : '';
     $checkout_directory = isset($repository['checkout_dir']) ? $repository['checkout_dir'] : $this->build->getSourceDirectory();
     // TODO: Ensure we don't end up with double slashes
     // Validate target directory.  Must be within workingdir.
-    if (!($directory = $this->validateDirectory($this->build->getSourceDirectory(), $checkout_directory))) {
+    $source_or_tmpdir = $this->getCheckoutDirectory($repository);
+    if (!($directory = $this->validateDirectory($source_or_tmpdir, $checkout_directory))) {
       // Invalid checkout directory
       $this->io->drupalCIError("Directory Error", "The checkout directory <info>$directory</info> is invalid.");
       throw new BuildTaskException("The checkout directory $directory is invalid.");
@@ -143,6 +152,5 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
     $this->io->writeln("<comment>Checkout complete.</comment>");
   }
-
 
 }

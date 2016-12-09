@@ -170,13 +170,13 @@ class Patch implements PatchInterface, Injectable {
 
   /**
    * @param string[] $patch_details
-   * @param string $source_dir
+   * @param string $apply_dir
    */
-  public function __construct($patch_details, $source_dir)
+  public function __construct($patch_details, $apply_dir)
   {
     // Copy working directory from the initial codebase
 
-    $this->working_dir = $source_dir;
+    $this->working_dir = $apply_dir;
 
     // Set source and apply_dir properties
     $this->setSource($patch_details['from']);

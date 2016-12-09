@@ -82,4 +82,20 @@ trait FileHandlerTrait {
     // Return the updated directory value.
     return $directory;
   }
+
+
+  protected function getCheckoutDirectory($filehandler) {
+    if (isset($filehandler['type']) && ($filehandler['type'] == 'dummy')){
+      return $this->build->getTmpDirectory();
+    }
+    return $this->build->getSourceDirectory();
+  }
+
+  protected function getProjectDirectory($testitem) {
+    if (strpos($testitem,'directory') == 0) {
+      $components = explode(':', $testitem);
+      return $components[1];
+    }
+    return FALSE;
+  }
 }

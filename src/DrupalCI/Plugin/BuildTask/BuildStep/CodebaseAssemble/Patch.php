@@ -36,6 +36,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_Patch'])) {
       $this->configuration['patches'] = $this->process($_ENV['DCI_Patch']);
     }
+    $this->configuration['type'] = 'standard';
   }
 
   /**
@@ -56,7 +57,8 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
         }
         // Create a new patch object
-        $patch = new PatchFile($details, $this->build->getSourceDirectory());
+        $source_or_tmpdir = $this->getCheckoutDirectory($details);
+        $patch = new PatchFile($details, $source_or_tmpdir);
         $patch->inject($this->container);
         $this->codebase->addPatch($patch);
         // Validate our patch's source file and target directory

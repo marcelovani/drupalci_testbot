@@ -580,8 +580,6 @@ class Build implements BuildInterface, Injectable {
     // If we arrive here, we have a valid empty working directory.
     $this->buildDirectory = $build_directory;
 
-
-
     $result =  $this->setupDirectory($this->getArtifactDirectory());
     if (!$result) {
       return FALSE;
