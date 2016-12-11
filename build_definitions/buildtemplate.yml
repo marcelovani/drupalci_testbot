@@ -19,12 +19,6 @@
 
 # The build level really only exists to provide for a possibility to run entire, multiple builds. It might go away.
 build:
-  environment:
-    startcontainers:
-      pullcontainers:
-      runcontainers:
-    create_db:
-      dbcreate:
   codebase:
     assemble_codebase:
       checkout:
@@ -38,9 +32,14 @@ build:
       # to an empty directory, *then* add in more folders.
       filesystem:
         prepare_filesystem:
+  environment:
+    startcontainers:
+      runcontainers:
+      create_db:
+        dbcreate:
+  assessment:
     validate_codebase:
       phplint:
-  assessment:
     testing:
       simpletest:
 

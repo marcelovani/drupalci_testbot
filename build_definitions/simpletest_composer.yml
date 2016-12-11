@@ -2,10 +2,10 @@ build:
   codebase:
     assemble_codebase:
       replicate:
-      checkout:
-      composer:
-      fetch:
-      patch:
+      composer_checkout:
+      composer_fetch:
+      composer_patch:
+      composer_build:
   environment:
     startcontainers:
       runcontainers:
