@@ -20,8 +20,14 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $io;
 
+  /**
+   * @var \DrupalCI\Build\BuildInterface
+   */
+  protected $build;
+
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->build = $container['build'];
   }
 
   /**
@@ -67,5 +73,31 @@ class Codebase implements CodebaseInterface, Injectable {
     foreach ($files as $file) {
       $this->addModifiedFile($file);
     }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSourceDirectory() {
+    return $this->build->getBuildDirectory() . '/source';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getTmpDirectory() {
+    return $this->build->getBuildDirectory() . '/tmp';
+  }
+
+  public function setupDirectories() {
+    $result =  $this->build->setupDirectory($this->getSourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    $result =  $this->build->setupDirectory($this->getTmpDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    return TRUE;
   }
 }

@@ -53,6 +53,9 @@ class Environment implements Injectable, EnvironmentInterface {
   /* @var \Pimple\Container */
   protected $container;
 
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
   /**
    * @var string
    * The source directory within the exec container.
@@ -69,6 +72,7 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $this->io = $container['console.io'];
     $this->docker = $container['docker'];
+    $this->codebase = $container['codebase'];
     $this->database = $container['db.system'];
     $this->build = $container['build'];
     $this->container = $container;
@@ -174,7 +178,7 @@ class Environment implements Injectable, EnvironmentInterface {
   public function startExecContainer($container) {
 
     // Map working directory
-    $container['HostConfig']['Binds'][] = $this->build->getSourceDirectory() . ':' . $this->execContainerSourceDir;
+    $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $this->executableContainer = $this->startContainer($container);
 
