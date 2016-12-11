@@ -64,7 +64,6 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
     $this->database->setPassword($this->configuration['dbpassword']);
     $this->database->setUsername($this->configuration['dbuser']);
 
-
   }
 
   /**
