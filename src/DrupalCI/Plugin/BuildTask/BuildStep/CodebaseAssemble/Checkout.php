@@ -23,8 +23,6 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
   public function inject(Container $container) {
     parent::inject($container);
-    // TODO: not using the codebase in here, but we might want to in order to
-    // add whatever repositories we checkout to the codebase object
     $this->codebase = $container['codebase'];
 
   }
