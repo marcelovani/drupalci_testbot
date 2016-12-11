@@ -108,7 +108,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $repo = isset($repository['repo']) ? $repository['repo'] : 'git://git.drupal.org/project/drupal.git';
 
     $git_branch = isset($repository['branch']) ? "-b " . $repository['branch'] : '';
-    $checkout_directory = isset($repository['checkout_dir']) ? $repository['checkout_dir'] : $this->build->getSourceDirectory();
+    $checkout_directory = isset($repository['checkout_dir']) ? $repository['checkout_dir'] : $this->codebase->getSourceDirectory();
     // TODO: Ensure we don't end up with double slashes
     // Validate target directory.  Must be within workingdir.
     $source_or_tmpdir = $this->getCheckoutDirectory($repository);

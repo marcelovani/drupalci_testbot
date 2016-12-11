@@ -19,9 +19,12 @@ use Pimple\Container;
 class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
+    $this->codebase = $container['codebase'];
   }
 
   /**

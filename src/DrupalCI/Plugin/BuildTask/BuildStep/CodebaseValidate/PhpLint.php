@@ -52,7 +52,9 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       return 0;
     }
 
-    $workingdir = $this->build->getSourceDirectory();
+    // TODO 2597778: the modified files from the codebase should include the
+    // full path, instead of getting it separately here. ?
+    $workingdir = $this->codebase->getSourceDirectory();
     $concurrency = $this->configuration['concurrency'];
     $bash_array = "";
     foreach ($modified_files as $file) {

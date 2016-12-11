@@ -65,7 +65,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
         throw new BuildTaskException("The source directory $local_dir does not exist.");
       }
-      $directory = $this->build->getSourceDirectory();
+      $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</options=bold> to the local checkout directory <options=bold>$directory</options=bold> ... </comment>");
 
       $excludes = '';

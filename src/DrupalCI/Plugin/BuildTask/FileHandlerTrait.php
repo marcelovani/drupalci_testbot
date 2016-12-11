@@ -86,9 +86,9 @@ trait FileHandlerTrait {
 
   protected function getCheckoutDirectory($filehandler) {
     if (isset($filehandler['type']) && ($filehandler['type'] == 'dummy')){
-      return $this->build->getTmpDirectory();
+      return $this->codebase->getTmpDirectory();
     }
-    return $this->build->getSourceDirectory();
+    return $this->codebase->getSourceDirectory();
   }
 
   protected function getProjectDirectory($testitem) {
