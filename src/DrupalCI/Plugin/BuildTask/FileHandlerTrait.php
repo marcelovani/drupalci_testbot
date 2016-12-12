@@ -85,17 +85,10 @@ trait FileHandlerTrait {
 
 
   protected function getCheckoutDirectory($filehandler) {
-    if (isset($filehandler['type']) && ($filehandler['type'] == 'dummy')){
-      return $this->codebase->getTmpDirectory();
+    if (isset($filehandler['type']) && ($filehandler['type'] == 'ancillary')){
+      return $this->codebase->getAncillarySourceDirectory();
     }
     return $this->codebase->getSourceDirectory();
   }
 
-  protected function getProjectDirectory($testitem) {
-    if (strpos($testitem,'directory') == 0) {
-      $components = explode(':', $testitem);
-      return $components[1];
-    }
-    return FALSE;
-  }
 }

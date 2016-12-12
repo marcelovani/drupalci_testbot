@@ -25,6 +25,8 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $build;
 
+  protected $ancillaryProjectDirectory;
+
   public function inject(Container $container) {
     $this->io = $container['console.io'];
     $this->build = $container['build'];
@@ -85,7 +87,7 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * @inheritDoc
    */
-  public function getTmpDirectory() {
+  public function getAncillarySourceDirectory() {
     return $this->build->getBuildDirectory() . '/tmp';
   }
 
@@ -94,10 +96,27 @@ class Codebase implements CodebaseInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->build->setupDirectory($this->getTmpDirectory());
+    $result =  $this->build->setupDirectory($this->getAncillarySourceDirectory());
     if (!$result) {
       return FALSE;
     }
     return TRUE;
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function getAncillaryProjectSubdir() {
+    return $this->ancillaryProjectDirectory;
+  }
+
+  /**
+   * @param string $ancillaryProjectDirectory
+   */
+  public function setAncillaryProjectSubdir($ancillaryProjectDirectory) {
+    $this->ancillaryProjectDirectory = $ancillaryProjectDirectory;
+  }
+
+
+
 }

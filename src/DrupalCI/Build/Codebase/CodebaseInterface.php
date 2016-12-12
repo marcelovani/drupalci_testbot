@@ -20,7 +20,7 @@ interface CodebaseInterface {
    * This is the codebase that we will test. It should be volume mounted over
    * to wherever the $execContainerSourceDir is set on the Environment object
    *
-   * @return mixed
+   * @return string
    */
   public function getSourceDirectory();
 
@@ -31,10 +31,19 @@ interface CodebaseInterface {
    * and require that project as a local composer repo in order to see the
    * changed dependencies.
    *
-   * @return mixed
+   * @return string
    */
-  public function getTmpDirectory();
+  public function getAncillarySourceDirectory();
 
   public function setupDirectories();
+
+  /**
+   * This is the directory for the 'Project under test'.
+   *
+   * @return string
+   */
+  public function getAncillaryProjectSubdir();
+
+  public function setAncillaryProjectSubdir($ancillaryDirectory);
 
 }
