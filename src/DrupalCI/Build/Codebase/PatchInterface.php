@@ -27,11 +27,6 @@ interface PatchInterface {
   /**
    * @return string
    */
-  public function getLocalSource();
-
-  /**
-   * @return string
-   */
   public function getApplyDir();
 
   /**

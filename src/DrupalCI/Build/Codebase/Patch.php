@@ -82,22 +82,6 @@ class Patch implements PatchInterface, Injectable {
   protected $local_source;
 
   /**
-   * @return string
-   */
-  public function getLocalSource()
-  {
-    return $this->local_source;
-  }
-
-  /**
-   * @param string $local_source
-   */
-  protected function setLocalSource($local_source)
-  {
-    $this->local_source = $local_source;
-  }
-
-  /**
    * Target patch application directory
    *
    * @var string
@@ -196,7 +180,7 @@ class Patch implements PatchInterface, Injectable {
       // If a local file, we already know the local source location
       $local_source = $this->working_dir . '/' . $patch_details['to'] . '/' . $patch_details['from'];
     }
-    $this->setLocalSource($local_source);
+    $this->local_source = $local_source;
 
     // Set initial 'applied' state
     $this->applied = false;
@@ -241,7 +225,7 @@ class Patch implements PatchInterface, Injectable {
    */
   public function validate_file()
   {
-    $source = $this->getLocalSource();
+    $source = $this->local_source;
     $real_file = realpath($source);
     if ($real_file === FALSE) {
       // Invalid patch file
@@ -276,7 +260,7 @@ class Patch implements PatchInterface, Injectable {
   public function apply()
   {
 
-    $source = realpath($this->getLocalSource());
+    $source = realpath($this->local_source);
     $target = realpath($this->working_dir . '/' . $this->getApplyDir());
 
     $cmd = "cd $target && git apply -p1 $source 2>&1";
