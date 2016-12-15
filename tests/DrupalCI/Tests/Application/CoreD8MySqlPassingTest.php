@@ -27,7 +27,7 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=8.3.x',
     'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
-    'DCI_TestGroups=Url',
+    'DCI_TestItem=Url',
     'DCI_PHPVersion=7',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',

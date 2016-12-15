@@ -59,14 +59,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (isset($_ENV['DCI_RTColor'])) {
       $this->configuration['color'] = $_ENV['DCI_RTColor'];
     }
-    if (isset($_ENV['DCI_RTTestGroups'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_RTTestGroups']);
-    }
     if (isset($_ENV['DCI_TestItem'])) {
       $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_TestItem']);
-    }
-    if (isset($_ENV['DCI_TestGroups'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_TestGroups']);
     }
     if (isset($_ENV['DCI_RTDieOnFail'])) {
       $this->configuration['die-on-fail'] = $_ENV['DCI_RTDieOnFail'];
