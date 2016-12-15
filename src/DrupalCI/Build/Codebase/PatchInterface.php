@@ -9,25 +9,16 @@ namespace DrupalCI\Build\Codebase;
  * @package DrupalCI\Build\Codebase
  */
 interface PatchInterface {
-  /**
-   * @return string
-   */
-  public function getType();
-
-  /**
-   * @param string $type
-   */
-  public function setType($type);
 
   /**
    * @return string
    */
-  public function getSource();
+  public function getFilename();
 
   /**
    * @return string
    */
-  public function getApplyDir();
+  public function getTargetApplyDir();
 
   /**
    * @return string
