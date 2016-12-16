@@ -30,6 +30,7 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
     // to be built in the codebase tmp directory and pointed to by composer.
     if (isset($_ENV['DCI_TestItem'])) {
       $this->configuration['project_subdir'] = $this->getProjectSubDir($_ENV['DCI_TestItem']);
+      $this->configuration['project_name'] = $this->getContribProjectName($_ENV['DCI_TestItem']);
     }
     // @TODO: add an API for this vs. scraping it from DCI_TestItem
 
@@ -41,7 +42,10 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   public function run() {
 
     if (!empty($this->configuration['project_subdir'])){
-      $this->codebase->setAncillaryProjectSubdir($this->configuration['project_subdir']);
+      $this->codebase->setExtensionProjectSubdir($this->configuration['project_subdir']);
+    }
+    if (!empty($this->configuration['project_name'])){
+      $this->codebase->setProjectName($this->configuration['project_name']);
     }
     $this->codebase->setupDirectories();
 
@@ -53,14 +57,26 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   public function getDefaultConfiguration() {
     return [
       'project_subdir' => '',
+      'project_name' => '',
     ];
 
   }
 
   protected function getProjectSubDir($testitem) {
-    if (strpos($testitem,'directory') == 0) {
+    if (strpos($testitem,'directory') === 0) {
       $components = explode(':', $testitem);
       return $components[1];
+    }
+    return FALSE;
+  }
+
+  protected function getContribProjectName($testitem) {
+    if (strpos($testitem,'directory') === 0) {
+      $components = explode(':', $testitem);
+      $pathcomponents = explode("/", $components[1]);
+    }
+    if (!empty($pathcomponents)){
+      return array_pop($pathcomponents);
     }
     return FALSE;
   }
