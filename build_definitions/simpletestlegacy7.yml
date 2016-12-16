@@ -2,7 +2,8 @@ build:
   codebase:
     assemble_codebase:
       replicate:
-      checkout:
+      checkout_core_d7:
+      composer_contrib_d7:
       fetch:
       patch:
   environment:

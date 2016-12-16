@@ -2,8 +2,9 @@ build:
   codebase:
     assemble_codebase:
       replicate:
-      checkout:
+      checkout_core:
       composer:
+      composer_contrib:
       fetch:
       patch:
   environment:

@@ -27,16 +27,13 @@ build:
       # This allows us to optionally enable it with env variables, user config overrides, or command line overrides.
       patch:
       fetch:
-      # This filesystem step *should* be in the environment stage,
-      # But our organization currently expects to be able to git clone
-      # to an empty directory, *then* add in more folders.
-      filesystem:
-        prepare_filesystem:
   environment:
     startcontainers:
       runcontainers:
       create_db:
         dbcreate:
+      filesystem:
+        prepare_filesystem:
   assessment:
     validate_codebase:
       phplint:
