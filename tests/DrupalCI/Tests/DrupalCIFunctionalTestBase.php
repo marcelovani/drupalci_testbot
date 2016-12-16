@@ -78,13 +78,18 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
    */
   public function setUp() {
     parent::setUp();
-    // Complain if there is no config.
-    if (empty($this->dciConfig)) {
-      throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
+
+    if (!empty($this->dciConfig)) {
+      foreach ($this->dciConfig as $variable) {
+        list($env_var, $value) = explode('=', $variable);
+        $_ENV[$env_var] = $value;
+      }
     }
-    foreach ($this->dciConfig as $variable) {
-      list($env_var,$value) = explode('=',$variable);
-      $_ENV[$env_var]=$value;
+    else {
+      // TODO: if there isnt config *or* a build definition yml specified, then
+      // we should complain
+      // Complain if there is no config.
+      // throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
     }
 
     $app = $this->getConsoleApp();

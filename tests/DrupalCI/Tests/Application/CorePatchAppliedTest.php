@@ -33,8 +33,7 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=5.5',
     'DCI_Patch=Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
-//    'DCI_RunScript=/var/www/html/core/scripts/run-tests.sh',
-    'DCI_TestGroups=Url',
+    'DCI_TestItem=Url',
   ];
 
   public function testCorePatchApplied() {

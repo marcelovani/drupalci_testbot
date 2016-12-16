@@ -65,12 +65,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
         throw new BuildTaskException("The source directory $local_dir does not exist.");
       }
-      // Validate target directory.  Must be within workingdir.
-      if (!($directory = $this->validateDirectory($this->build->getSourceDirectory(), $this->build->getSourceDirectory()))) {
-        // Invalidate checkout directory
-        $this->io->drupalCIError("Directory error", "The checkout directory <info>$directory</info> is invalid.");
-        throw new BuildTaskException("The checkout directory $directory is invalid.");
-      }
+      $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</options=bold> to the local checkout directory <options=bold>$directory</options=bold> ... </comment>");
 
       $excludes = '';
@@ -85,7 +80,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
       $this->io->writeln("<comment>Copying files complete</comment>");
 
-      // If the locally copied directory has a .git, perform operations on it.
+      // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
         if (!empty($this->configuration['git_branch'])) {
           $cmd =  "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
@@ -128,6 +123,8 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
     return [
       'exclude' => [],
       'local_dir' => '',
+      'git_branch' => '',
+      'git_commit_hash' => '',
     ];
   }
 }

@@ -27,112 +27,38 @@ class Patch implements PatchInterface, Injectable {
   protected $io;
 
   /**
-   * Local or Remote Patch File
+   * The url of the patch
    *
    * @var string
    */
-  protected $type = 'remote';
-
-  public function inject(Container $container) {
-    $this->io = $container['console.io'];
-  }
+  protected $url;
 
   /**
-   * @return string
-   */
-  public function getType() {
-    return $this->type;
-  }
-
-  /**
-   * @param string $type
-   */
-  public function setType($type) {
-    $this->type = $type;
-  }
-
-  /**
-   * Source patch location
+   * Base Working directory
    *
    * @var string
    */
-  protected $source;
-
-  /**
-   * @return string
-   */
-  public function getSource()
-  {
-    return $this->source;
-  }
-
-  /**
-   * @param string $source
-   */
-  protected function setSource($source)
-  {
-    $this->source = $source;
-  }
-
-  /**
-   * Source patch location on the local file system
-   *
-   * @var string
-   */
-  protected $local_source;
-
-  /**
-   * @return string
-   */
-  public function getLocalSource()
-  {
-    return $this->local_source;
-  }
-
-  /**
-   * @param string $local_source
-   */
-  protected function setLocalSource($local_source)
-  {
-    $this->local_source = $local_source;
-  }
+  protected $working_dir;
 
   /**
    * Target patch application directory
    *
    * @var string
    */
-  protected $apply_dir;
+  protected $targetApplyDir;
 
   /**
-   * @return string
+   * Source patch filename
+   * @var string
    */
-  public function getApplyDir()
-  {
-    return $this->apply_dir;
-  }
+  protected $filename;
 
   /**
-   * @param string $apply_dir
+   * Source patch location on the local file system
+   *
+   * @var string
    */
-  protected function setApplyDir($apply_dir)
-  {
-    $this->apply_dir = $apply_dir;
-  }
-
-  /**
-   * @return string
-   */
-  public function getPatchApplyResults() {
-    return $this->patch_apply_results;
-  }
-
-  /**
-   * @param string $patch_apply_results
-   */
-  public function setPatchApplyResults($patch_apply_results) {
-    $this->patch_apply_results = $patch_apply_results;
-  }
+  protected $absolutePath;
 
   /**
    * "Patch has been applied" flag
@@ -149,54 +75,104 @@ class Patch implements PatchInterface, Injectable {
   protected $modified_files;
 
   /**
-   * Base Working directory
-   *
-   * @var string
-   */
-  protected $working_dir;
-
-  /**
    * Results from applying a patch
    *
    * @var string
    */
   protected $patch_apply_results;
 
-
   /**
    * @var \GuzzleHttp\ClientInterface
    */
   protected $httpClient;
 
+  public function inject(Container $container) {
+    $this->io = $container['console.io'];
+  }
+  /**
+   * @return string
+   */
+  public function getFilename()
+  {
+    return $this->filename;
+  }
+
+  /**
+   * @param string $source
+   */
+  protected function setPatchFileName($source)
+  {
+    $this->filename = $source;
+  }
+
+
+  /**
+   * @return string
+   */
+  public function getTargetApplyDir()
+  {
+    return $this->targetApplyDir;
+  }
+
+  /**
+   * @param string $targetApplyDir
+   */
+  protected function setTargetApplyDir($targetApplyDir)
+  {
+    $this->targetApplyDir = $targetApplyDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getPatchApplyResults() {
+    return $this->patch_apply_results;
+  }
+
+  /**
+   * @param string $patch_apply_results
+   */
+  public function setPatchApplyResults($patch_apply_results) {
+    $this->patch_apply_results = $patch_apply_results;
+  }
+
+
+
   /**
    * @param string[] $patch_details
-   * @param string $source_dir
+   * @param string $ancillary_workspace The real working directory.
    */
-  public function __construct($patch_details, $source_dir)
+  public function __construct($patch_details, $ancillary_workspace)
   {
     // Copy working directory from the initial codebase
 
-    $this->working_dir = $source_dir;
+    $this->working_dir = $ancillary_workspace;
 
-    // Set source and apply_dir properties
-    $this->setSource($patch_details['from']);
-    $this->setApplyDir($patch_details['to']);
+    $this->targetApplyDir = $patch_details['to'];
 
     // Determine whether passed a URL or local file
     $type = filter_var($patch_details['from'], FILTER_VALIDATE_URL) ? "remote" : "local";
-    $this->setType($type);
 
     // If a remote file, download a local copy
     if ($type == "remote") {
       // Download the patch file
       // If any errors encountered during download, we expect guzzle to throw
       // an appropriate exception.
-      $local_source = $this->download();
+      $this->url = $patch_details['from'];
+      $absolute_path = $this->download();
     } else {
-      // If a local file, we already know the local source location
-      $local_source = $this->working_dir . '/' . $patch_details['to'] . '/' . $patch_details['from'];
+      // If its not a url, its a filepath. If the filepath is absolute already,
+      // Then its likely a local developer pointing at a locally crafted patch.
+      if (strpos($patch_details['from'],'/') === 0) {
+        $absolute_path = $patch_details['from'];
+        $this->filename = basename($patch_details['from']);
+      } else {
+        $absolute_path = $ancillary_workspace . '/' . basename($patch_details['from']);
+      }
+      $this->filename = basename($patch_details['from']);
+
     }
-    $this->setLocalSource($local_source);
+    $this->absolutePath = $absolute_path;
 
     // Set initial 'applied' state
     $this->applied = false;
@@ -210,14 +186,14 @@ class Patch implements PatchInterface, Injectable {
    */
   protected function download()
   {
-    $url = $this->getSource();
+    $url = $this->url;
     $file_info = pathinfo($url);
     $directory = $this->working_dir;
-
     $destination_file = $directory . '/' . $file_info['basename'];
     $this->httpClient()
       ->get($url, ['save_to' => "$destination_file"]);
     $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</options=bold></info>");
+    $this->setPatchFileName($file_info['basename']);
     return $destination_file;
   }
 
@@ -241,7 +217,7 @@ class Patch implements PatchInterface, Injectable {
    */
   public function validate_file()
   {
-    $source = $this->getLocalSource();
+    $source = $this->absolutePath;
     $real_file = realpath($source);
     if ($real_file === FALSE) {
       // Invalid patch file
@@ -258,7 +234,7 @@ class Patch implements PatchInterface, Injectable {
    */
   public function validate_target()
   {
-    $apply_dir = $this->working_dir . '/' . $this->getApplyDir();
+    $apply_dir = $this->targetApplyDir;
     $real_directory = realpath($apply_dir);
     if ($real_directory === FALSE) {
       // Invalid target directory
@@ -276,10 +252,10 @@ class Patch implements PatchInterface, Injectable {
   public function apply()
   {
 
-    $source = realpath($this->getLocalSource());
-    $target = realpath($this->working_dir . '/' . $this->getApplyDir());
+    $absolutePath = $this->absolutePath;
+    $target = $this->targetApplyDir;
 
-    $cmd = "cd $target && git apply -p1 $source 2>&1";
+    $cmd = "cd $target && git apply -p1 $absolutePath 2>&1";
 
     exec($cmd, $cmdoutput, $result);
     $this->setPatchApplyResults($cmdoutput);
@@ -290,7 +266,7 @@ class Patch implements PatchInterface, Injectable {
       // TODO: Pass on the actual return value for the patch attempt
       return $result;
     }
-    $this->io->writeLn("<comment>Patch <options=bold>$source</options=bold> applied to directory <options=bold>$target</options=bold></comment>");
+    $this->io->writeLn("<comment>Patch <options=bold>$absolutePath</options=bold> applied to directory <options=bold>$target</options=bold></comment>");
     $this->applied = TRUE;
     return $result;
   }
@@ -309,9 +285,9 @@ class Patch implements PatchInterface, Injectable {
     if (empty($this->modified_files)) {
       // Calculate modified files
 
-      $apply_dir = $this->working_dir . '/' . $this->getApplyDir();
+      $target = $this->getTargetApplyDir();
       // TODO: refactor this exec out of here.
-      $cmd = "cd $apply_dir && git diff --name-only";
+      $cmd = "cd $target && git diff --name-only";
       exec($cmd, $cmdoutput, $return);
       if ($return !== 0) {
         // git diff returned a non-zero error code
@@ -322,7 +298,7 @@ class Patch implements PatchInterface, Injectable {
 
       $this->modified_files = array();
       foreach ($files as $file) {
-        $this->modified_files[] = $this->getApplyDir(). '/' . $file;
+        $this->modified_files[] = $this->getTargetApplyDir(). '/' . $file;
       }
     }
     return $this->modified_files;

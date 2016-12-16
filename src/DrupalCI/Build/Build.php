@@ -447,7 +447,7 @@ class Build implements BuildInterface, Injectable {
   protected function saveYaml($config) {
 
     $buildfile = $this->getArtifactDirectory() . '/build.' . $this->getBuildId() . '.yml';
-    $yamlstring = $this->yaml->dump($config);
+    $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, FALSE, FALSE);
     file_put_contents($buildfile, $yamlstring);
 
   }
@@ -489,18 +489,9 @@ class Build implements BuildInterface, Injectable {
   /**
    * @inheritDoc
    */
-  public function getSourceDirectory() {
-    return $this->buildDirectory . '/source';
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getDBDirectory() {
     return $this->buildDirectory . '/database';
   }
-
-
 
   /**
    * Generate a Build ID for this build
@@ -575,13 +566,7 @@ class Build implements BuildInterface, Injectable {
     // If we arrive here, we have a valid empty working directory.
     $this->buildDirectory = $build_directory;
 
-
-
     $result =  $this->setupDirectory($this->getArtifactDirectory());
-    if (!$result) {
-      return FALSE;
-    }
-    $result =  $this->setupDirectory($this->getSourceDirectory());
     if (!$result) {
       return FALSE;
     }
@@ -602,12 +587,12 @@ class Build implements BuildInterface, Injectable {
    *
    * @return bool
    */
-  protected function setupDirectory($directory) {
+  public function setupDirectory($directory) {
     if (!is_dir($directory)) {
       $result = mkdir($directory, 0777, TRUE);
       if (!$result) {
         // Error creating checkout directory
-        $this->io->drupalCIError('Directory Creation Error', 'Error encountered while attempting to create  directory');
+        $this->io->drupalCIError('Directory Creation Error', 'Error encountered while attempting to create directory');
         return FALSE;
       }
       else {
@@ -626,6 +611,9 @@ class Build implements BuildInterface, Injectable {
    * @TODO: this needs some reworking, because ideally none of this code
    * should live here in the build, and the build objects themselves
    * ought to know how to clean up after themselves.
+   * Especially since this cleanup is going to throw an exception if there is
+   * an earlier exception in the codebase construction prior to the
+   * environment being built.
    *
    * Probably what needs to happen in the build needs to be an iterable tree,
    * and that tree gets iterated over several times, once to run the start and
@@ -657,7 +645,10 @@ class Build implements BuildInterface, Injectable {
 
     // Delete the source code and database files
     $fs = new Filesystem();
-    $fs->remove($this->getSourceDirectory());
+    // TODO 2597778: cleanup the Source and Tmp Directories from the codebase
+    // when finished
+    //$fs->remove($this->getSourceDirectory());
+
     $fs->remove($this->getDBDirectory());
   }
 

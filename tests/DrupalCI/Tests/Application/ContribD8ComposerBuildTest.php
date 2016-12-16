@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
+class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
@@ -23,14 +23,15 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
 
   protected $dciConfig = [
     'DCI_ComposerInstall=true',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=c187f1d',
+    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
+    'DCI_CoreBranch=8.3.x',
     'DCI_JobType=simpletest',
-    'DCI_TestItem=Url',
-    'DCI_PHPVersion=7',
+    'DCI_TestItem=directory:modules/monolog',
+    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/monolog.git,8.x-1.x,modules/monolog,1;',
+    'DCI_PHPVersion=5.5',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
+    'DCI_DEBUG=TRUE',
   ];
 
 
@@ -44,13 +45,13 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
     ], $options);
     $build = $this->getCommand('run')->getBuild();
     $display = $app_tester->getDisplay();
-    $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
-    $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
+    $this->assertRegExp('/.*Drupal\\\\Tests\\\\monolog\\\\Unit\\\\Logger\\\\LoggerTest*/', $app_tester->getDisplay());
+    // Drupal\Tests\monolog\Unit\Logger\LoggerTest
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
-    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
+    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8ComposerBuildTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
 }

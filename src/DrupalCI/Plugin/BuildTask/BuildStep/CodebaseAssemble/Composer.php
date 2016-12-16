@@ -15,10 +15,12 @@ use Pimple\Container;
  */
 class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
-
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
+    $this->codebase = $container['codebase'];
 
   }
 
@@ -27,9 +29,9 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    */
   public function run() {
 
-    $source_dir = $this->build->getSourceDirectory();
+    $source_dir = $this->codebase->getSourceDirectory();
 
-    $cmd = "./bin/composer " . $this->configuration['options'] . " " . $source_dir;
+    $cmd = "./bin/composer " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->exec($cmd, $cmdoutput, $result);
 
   }
@@ -39,7 +41,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    */
   public function getDefaultConfiguration() {
     return [
-      'options' => 'install --prefer-dist --working-dir',
+      'options' => 'install --prefer-dist --no-progress',
     ];
   }
 

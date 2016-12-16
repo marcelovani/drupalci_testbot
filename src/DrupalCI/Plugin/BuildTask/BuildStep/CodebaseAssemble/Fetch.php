@@ -19,9 +19,12 @@ use Pimple\Container;
 class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
+    $this->codebase = $container['codebase'];
   }
 
   /**
@@ -33,6 +36,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_Fetch'])) {
       $this->configuration['files'] = $this->process($_ENV['DCI_Fetch']);
     }
+
   }
 
   /**
@@ -54,13 +58,8 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
       }
       $url = $details['from'];
-      $source_dir = $this->build->getSourceDirectory();
-      $fetchdir = (!empty($details['to'])) ? $details['to'] : $source_dir;
-      if (!($directory = $this->validateDirectory($source_dir, $fetchdir))) {
-        // Invalid checkout directory
-        $this->io->drupalCIError("Fetch error", "The fetch directory <info>$directory</info> is invalid.");
-        throw new BuildTaskException("The fetch directory $directory is invalid.");
-      }
+
+      $directory = $this->codebase->getAncillarySourceDirectory();
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];

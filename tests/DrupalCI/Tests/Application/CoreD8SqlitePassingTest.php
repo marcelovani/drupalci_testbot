@@ -27,7 +27,7 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
-    'DCI_TestGroups=Url',
+    'DCI_TestItem=Url',
     'DCI_PHPVersion=5.6',
     'DCI_DBType=sqlite',
   ];

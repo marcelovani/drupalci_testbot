@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
+class CoreD8CloneMySqlPassingTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
@@ -23,9 +23,9 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
 
   protected $dciConfig = [
     'DCI_ComposerInstall=true',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=c187f1d',
+    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
+    'DCI_CoreBranch=8.3.x',
+    'DCI_GitCommitHash=f4a242f',
     'DCI_JobType=simpletest',
     'DCI_TestItem=Url',
     'DCI_PHPVersion=7',

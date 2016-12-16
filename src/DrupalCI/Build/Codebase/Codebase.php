@@ -20,8 +20,20 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $io;
 
+  /**
+   * @var \DrupalCI\Build\BuildInterface
+   */
+  protected $build;
+
+  protected $extensionProjectSubDirectory = '';
+
+  protected $projectName = '';
+
+  protected $extensionPaths = '';
+
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->build = $container['build'];
   }
 
   /**
@@ -68,4 +80,79 @@ class Codebase implements CodebaseInterface, Injectable {
       $this->addModifiedFile($file);
     }
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSourceDirectory() {
+    return $this->build->getBuildDirectory() . '/source';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getAncillarySourceDirectory() {
+    return $this->build->getBuildDirectory() . '/ancillary';
+  }
+
+  public function setupDirectories() {
+    $result =  $this->build->setupDirectory($this->getSourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    $result =  $this->build->setupDirectory($this->getAncillarySourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
+  /**
+   * @return string
+   */
+  public function getProjectName() {
+    return $this->projectName;
+  }
+
+  /**
+   * @param string $projectName
+   */
+  public function setProjectName($projectName) {
+    $this->projectName = $projectName;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getExtensionProjectSubdir() {
+    return $this->extensionProjectSubDirectory;
+  }
+
+  /**
+   * @param string $extensionProjectDir
+   */
+  public function setExtensionProjectSubdir($extensionProjectDir) {
+    $this->extensionProjectSubDirectory = $extensionProjectDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getExtensionPaths() {
+    return $this->extensionPaths;
+  }
+
+  /**
+   * @param string $extensionPaths
+   */
+  public function setExtensionPaths($extensionPaths) {
+    $this->extensionPaths = $extensionPaths;
+  }
+  // TODO: get rid of this
+  // this is a helper convenience function for geting the ultimate calculated
+  // path set by composer.
+  public function getTrueModuleDirectory($type){
+    return $this->extensionPaths[$type] . '/' . $this->projectName;
+  }
+
 }
