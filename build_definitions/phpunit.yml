@@ -1,0 +1,22 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer:
+      composer_contrib:
+      fetch:
+      patch:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+    testing:
+      phpunit.standard:
+        name: test
