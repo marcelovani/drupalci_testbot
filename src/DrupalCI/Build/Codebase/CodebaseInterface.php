@@ -45,7 +45,7 @@ interface CodebaseInterface {
    */
   public function getExtensionProjectSubdir();
 
-  public function setExtensionProjectSubdir($ancillaryDirectory);
+  public function setExtensionProjectSubdir($extensionDir);
 
   /**
    * This is the directory for the 'Project under test'.

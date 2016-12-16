@@ -129,10 +129,10 @@ class Codebase implements CodebaseInterface, Injectable {
   }
 
   /**
-   * @param string $ancillaryProjectDirectory
+   * @param string $extensionProjectDir
    */
-  public function setExtensionProjectSubdir($ancillaryProjectDirectory) {
-    $this->extensionProjectSubDirectory = $ancillaryProjectDirectory;
+  public function setExtensionProjectSubdir($extensionProjectDir) {
+    $this->extensionProjectSubDirectory = $extensionProjectDir;
   }
 
   /**
