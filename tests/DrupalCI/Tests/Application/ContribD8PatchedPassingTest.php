@@ -24,7 +24,6 @@ class ContribD8PatchedPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/config_readonly.git,8.x-1.x,modules/config_readonly,1;',
     'DCI_Fetch=https://www.drupal.org/files/issues/stop_block_placement-2728679-8.patch,modules/config_readonly',
     'DCI_Patch=stop_block_placement-2728679-8.patch,modules/config_readonly',
-    'DCI_ComposerInstall=true',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=mysql',

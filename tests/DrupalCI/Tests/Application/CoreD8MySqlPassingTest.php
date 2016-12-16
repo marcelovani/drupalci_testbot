@@ -22,7 +22,6 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
    */
 
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_LocalCommitHash=c187f1d',

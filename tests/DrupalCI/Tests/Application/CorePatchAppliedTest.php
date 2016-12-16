@@ -23,7 +23,6 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
     'DCI_LocalBranch=8.1.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',

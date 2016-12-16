@@ -21,7 +21,6 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_Color=True',
-    'DCI_ComposerInstall=True',
     'DCI_Concurrency=2',
     'DCI_LocalBranch=8.1.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',

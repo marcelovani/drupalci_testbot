@@ -645,7 +645,7 @@ class Build implements BuildInterface, Injectable {
 
     // Delete the source code and database files
     $fs = new Filesystem();
-    // TODO 2597778: cleanup the Source and Tmp Directories from the codebase
+    // TODO cleanup the Source and Tmp Directories from the codebase
     // when finished
     //$fs->remove($this->getSourceDirectory());
 

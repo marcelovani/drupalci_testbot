@@ -22,7 +22,6 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/forena.git,7.x-4.x,sites/all/modules/forena,1;',
-    'DCI_ComposerInstall=true',
     'DCI_LocalBranch=7.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',

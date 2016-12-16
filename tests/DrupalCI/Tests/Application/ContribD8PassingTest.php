@@ -22,7 +22,6 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/block_field.git,8.x-1.x,modules/block_field,1;',
-    'DCI_ComposerInstall=true',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',

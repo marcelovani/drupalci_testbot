@@ -22,7 +22,6 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
    */
 
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
     'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
     'DCI_CoreBranch=8.3.x',
     'DCI_JobType=simpletest',

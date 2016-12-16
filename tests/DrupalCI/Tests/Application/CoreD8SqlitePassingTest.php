@@ -22,7 +22,6 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
    */
 
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
     'DCI_LocalBranch=8.3.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalCommitHash=c187f1d',
