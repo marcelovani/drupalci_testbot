@@ -25,7 +25,11 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $build;
 
-  protected $ancillaryProjectDirectory;
+  protected $extensionProjectSubDirectory = '';
+
+  protected $projectName = '';
+
+  protected $extensionPaths = '';
 
   public function inject(Container $container) {
     $this->io = $container['console.io'];
@@ -88,7 +92,7 @@ class Codebase implements CodebaseInterface, Injectable {
    * @inheritDoc
    */
   public function getAncillarySourceDirectory() {
-    return $this->build->getBuildDirectory() . '/tmp';
+    return $this->build->getBuildDirectory() . '/ancillary';
   }
 
   public function setupDirectories() {
@@ -104,19 +108,51 @@ class Codebase implements CodebaseInterface, Injectable {
   }
 
   /**
+   * @return string
+   */
+  public function getProjectName() {
+    return $this->projectName;
+  }
+
+  /**
+   * @param string $projectName
+   */
+  public function setProjectName($projectName) {
+    $this->projectName = $projectName;
+  }
+
+  /**
    * @inheritDoc
    */
-  public function getAncillaryProjectSubdir() {
-    return $this->ancillaryProjectDirectory;
+  public function getExtensionProjectSubdir() {
+    return $this->extensionProjectSubDirectory;
   }
 
   /**
    * @param string $ancillaryProjectDirectory
    */
-  public function setAncillaryProjectSubdir($ancillaryProjectDirectory) {
-    $this->ancillaryProjectDirectory = $ancillaryProjectDirectory;
+  public function setExtensionProjectSubdir($ancillaryProjectDirectory) {
+    $this->extensionProjectSubDirectory = $ancillaryProjectDirectory;
   }
 
+  /**
+   * @return string
+   */
+  public function getExtensionPaths() {
+    return $this->extensionPaths;
+  }
 
+  /**
+   * @param string $extensionPaths
+   */
+  public function setExtensionPaths($extensionPaths) {
+    $this->extensionPaths = $extensionPaths;
+  }
+  // TODO: get rid of this
+  // this is a helper convenience function for geting the ultimate calculated
+  // path set by composer.
+  public function getTrueModuleDirectory($type){
+    return $this->extensionPaths[$type] . '/' . $this->projectName;
+  }
 
 }

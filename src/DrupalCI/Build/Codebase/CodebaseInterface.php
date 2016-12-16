@@ -38,12 +38,34 @@ interface CodebaseInterface {
   public function setupDirectories();
 
   /**
+   * This is a temporary hack so that we can utilize the directory subdir
+   * to identify fetches/patches/repos that belong to the project vs. deps.
+   *
+   * @return string
+   */
+  public function getExtensionProjectSubdir();
+
+  public function setExtensionProjectSubdir($ancillaryDirectory);
+
+  /**
    * This is the directory for the 'Project under test'.
    *
    * @return string
    */
-  public function getAncillaryProjectSubdir();
+  public function getProjectName();
 
-  public function setAncillaryProjectSubdir($ancillaryDirectory);
+  public function setProjectName($ancillaryDirectory);
+
+  /**
+   * For contributed modules, this is where the modules will get checked out
+   * Needed so we can know where to run the tests.
+   * It is a key value array of extension type to path location
+   *
+   * @return array
+   */
+  public function getExtensionPaths();
+
+  public function setExtensionPaths($extensionPaths);
+
 
 }
