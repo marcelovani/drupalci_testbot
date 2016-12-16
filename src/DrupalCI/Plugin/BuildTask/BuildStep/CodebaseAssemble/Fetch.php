@@ -36,7 +36,6 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_Fetch'])) {
       $this->configuration['files'] = $this->process($_ENV['DCI_Fetch']);
     }
-    $this->configuration['type'] = 'standard';
 
   }
 
@@ -59,13 +58,8 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
       }
       $url = $details['from'];
-      $source_or_tmpdir = $this->getCheckoutDirectory($details);
-      $fetchdir = (!empty($details['to'])) ? $details['to'] : $source_or_tmpdir;
-      if (!($directory = $this->validateDirectory($source_or_tmpdir, $fetchdir))) {
-        // Invalid checkout directory
-        $this->io->drupalCIError("Fetch error", "The fetch directory <info>$directory</info> is invalid.");
-        throw new BuildTaskException("The fetch directory $directory is invalid.");
-      }
+
+      $directory = $this->codebase->getAncillarySourceDirectory();
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];
