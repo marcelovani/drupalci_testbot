@@ -29,6 +29,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   protected $environment;
 
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
   protected $runscript = '/core/scripts/run-tests.sh';
 
   public function inject(Container $container) {
@@ -36,7 +39,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->system_database = $container['db.system'];
     $this->results_database = $container['db.results'];
     $this->environment = $container['environment'];
-
+    $this->codebase = $container['codebase'];
   }
 
   /**
@@ -60,7 +63,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       $this->configuration['color'] = $_ENV['DCI_RTColor'];
     }
     if (isset($_ENV['DCI_TestItem'])) {
-      $this->configuration['testgroups'] = $this->parseTestGroups($_ENV['DCI_TestItem']);
+      $this->configuration['testgroups'] = $this->parseTestItems($_ENV['DCI_TestItem']);
     }
     if (isset($_ENV['DCI_RTDieOnFail'])) {
       $this->configuration['die-on-fail'] = $_ENV['DCI_RTDieOnFail'];
@@ -91,8 +94,13 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->configuration['dburl'] = $this->system_database->getUrl();
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
-    $command[] = $this->configuration['testgroups'];
 
+
+    if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
+      $command[] = "--directory " . $this->codebase->getTrueModuleDirectory('modules');
+    } else {
+      $command[] = $this->configuration['testgroups'];
+    }
     $command_line = implode(' ', $command);
 
     $result = $this->environment->executeCommands($command_line);
@@ -136,10 +144,12 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results' => TRUE,
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
+      // testing modules or themes?
+      'extension_test' => FALSE,
     ];
   }
 
-  protected function parseTestGroups($testitem) {
+  protected function parseTestItems($testitem) {
     // Special case for 'all'
     if (strtolower($testitem) === 'all') {
       return "--all";
@@ -153,7 +163,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     }
 
     $testgroups = "--" . $components[0] . " " . $components[1];
-
+    // Perhaps this crude hack could go somewhere else.
+    // If this is a directory testItem, flag it as an extension test.
+    if ($components[0] == 'directory') {
+      $this->configuration['extension_test'] = TRUE;
+    }
     return $testgroups;
   }
 
@@ -205,7 +219,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
    *
-   * @param type $config
+   * @param array $config
    *   This plugin's config, from run().
    *
    * @return string
@@ -233,7 +247,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /**
    * Turn run-test.sh values into their command-line equivalents.
    *
-   * @param type $config
+   * @param array $config
    *   This plugin's config, from run().
    *
    * @return string
