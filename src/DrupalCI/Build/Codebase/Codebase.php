@@ -151,7 +151,7 @@ class Codebase implements CodebaseInterface, Injectable {
   // TODO: get rid of this
   // this is a helper convenience function for geting the ultimate calculated
   // path set by composer.
-  public function getTrueModuleDirectory($type){
+  public function getTrueExtensionDirectory($type){
     return $this->extensionPaths[$type] . '/' . $this->projectName;
   }
 
