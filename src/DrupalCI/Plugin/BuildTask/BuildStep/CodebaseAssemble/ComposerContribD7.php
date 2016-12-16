@@ -3,6 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
+use Composer\Json\JsonFile;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -13,97 +14,57 @@ use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
- * @PluginID("composer_contrib")
+ * @PluginID("composer_contrib_d7")
  */
-class ComposerContrib extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, BuildTaskInterface {
 
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
-  protected $drupalPackageRepository = 'https://packages.drupal.org/8';
+  protected $drupalPackageRepository = 'https://packages.drupal.org/7';
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->codebase = $container['codebase'];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    return [
-      'repositories' => [],
-    ];
-
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function configure() {
-
-    // Currently DCI_AdditionalRepositories, in conjunction with DCI_TestItem,
-    // are the mechanisms we use to sort out which contrib module to check out.
-    //
-    if (isset($_ENV['DCI_AdditionalRepositories'])) {
-      // Parse the provided repository string into it's components
-      $entries = explode(';', $_ENV['DCI_AdditionalRepositories']);
-      foreach ($entries as $entry) {
-        if (empty($entry)) {
-          continue;
-        }
-        $components = explode(',', $entry);
-        // Ensure we have at least 3 components
-        if (count($components) < 4) {
-          $this->io->writeln("<error>Unable to parse repository information for value <options=bold>$entry</options=bold>.</error>");
-          throw new BuildTaskException("Unable to parse repository information for value $entry");
-        }
-        // Create the build definition entry
-        $output = [
-          'repo' => $components[1],
-          'branch' => $components[2],
-          'checkout_dir' => $components[3]
-        ];
-        $this->configuration['repositories'][] = $output;
-      }
-    }
-  }
 
   /**
    * @inheritDoc
    */
   public function run() {
 
+
     foreach ($this->configuration['repositories'] as $checkout_repo) {
       $checkout_directory = $checkout_repo['checkout_dir'];
       if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
-        $branch = $checkout_repo['branch'];
-        $composer_branch = $this->getSemverBranch($branch);
-
 
         $source_dir = $this->codebase->getSourceDirectory();
-        $cmd = "./bin/composer config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
-        $this->io->writeln("Adding packages.drupal.org as composer repository");
+        $cmd = "composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
+        $this->io->writeln("Initializing composer repository");
         $this->exec($cmd, $cmdoutput, $result);
-
         if ($result > 1) {
-          // Git threw an error.
-          throw new BuildTaskException("Composer config failure.  Error Code: $result");
+          // Composer threw an error.
+          throw new BuildTaskException("Composer init failure.  Error Code: $result");
         }
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --working-dir " . $source_dir;
-
+        $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
-
         if ($result > 1) {
-          // Git threw an error.
+          // Composer threw an error.
           throw new BuildTaskException("Composer require failure.  Error Code: $result");
+        }
+
+        $composer_json = $source_dir . '/composer.json';
+        if (file_exists($composer_json)) {
+          $composerFile = new JsonFile($composer_json);
+          $composer_config = $composerFile->read();
+            foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
+              $path = $path . '/{$name}';
+              $extension_type = rtrim($extension_type,'s');
+              $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
+            }
+          $composerFile->write($composer_config);
         }
       }
     }
-
-
+    parent::run();
   }
 
   /**
