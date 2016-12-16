@@ -31,7 +31,6 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=5.5',
     'DCI_Patch=2684095-2.patch,.',
-    'DCI_RunScript=/var/www/html/core/scripts/run-tests.sh ',
     'DCI_TestItem=--class "Drupal\comment\Tests\CommentItemTest"',
   ];
 
