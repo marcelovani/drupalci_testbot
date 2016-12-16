@@ -39,7 +39,6 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_Patch'])) {
       $this->configuration['patches'] = $this->process($_ENV['DCI_Patch']);
     }
-    $this->configuration['type'] = 'standard';
   }
 
   /**
@@ -59,9 +58,16 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
           throw new BuildTaskException('No valid patch file provided for the patch command.');
 
         }
+        if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
+          // This patch should be applied to wherever composer checks out to.
+          $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueModuleDirectory('modules');
+        } else {
+          $details['to'] = $this->codebase->getSourceDirectory();
+        }
+
         // Create a new patch object
-        $source_or_tmpdir = $this->getCheckoutDirectory($details);
-        $patch = new PatchFile($details, $source_or_tmpdir);
+        $directory = $this->codebase->getAncillarySourceDirectory();
+        $patch = new PatchFile($details, $directory);
         $patch->inject($this->container);
         $this->codebase->addPatch($patch);
         // Validate our patch's source file and target directory
@@ -89,7 +95,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $xml_error = '<?xml version="1.0"?>
 
                       <testsuite errors="1" failures="0" name="Error: Patch failed to apply" tests="1">
-                        <testcase classname="Apply Patch" name="' . $patch->getSource() . '">
+                        <testcase classname="Apply Patch" name="' . $patch->getFilename() . '">
                           <error message="Patch Failed to apply" type="PatchFailure">Patch failed to apply</error>
                         </testcase>
                         <system-out><![CDATA[' . $output . ']]></system-out>
