@@ -123,6 +123,8 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
     return [
       'exclude' => [],
       'local_dir' => '',
+      'git_branch' => '',
+      'git_commit_hash' => '',
     ];
   }
 }
