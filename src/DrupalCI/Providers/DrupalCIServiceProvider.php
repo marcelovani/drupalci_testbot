@@ -9,6 +9,7 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use DrupalCI\Providers\DatabaseServiceProvider;
 use DrupalCI\Providers\YamlServiceProvider;
+use DrupalCI\Providers\CommandResultServiceProvider;
 
 /**
  * Registers application-level services.
@@ -27,6 +28,7 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
     $container->register(new BuildServiceProvider());
     $container->register(new CodebaseServiceProvider());
     $container->register(new EnvironmentServiceProvider());
+    $container->register(new CommandResultServiceProvider());
     $container['console'] = function ($container) {
       $console = new DrupalCIConsoleApp('DrupalCI - CommandLine', '0.2');
       $console->inject($container);

@@ -22,12 +22,11 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
    */
 
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.3.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
-    'DCI_GitCommitHash=c187f1d',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.3.x',
+    'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
-    'DCI_TestGroups=Url',
+    'DCI_TestItem=Url',
     'DCI_PHPVersion=7',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
@@ -47,7 +46,7 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
     $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
     // Look for junit xml results file
-    $output_file = $build->getXmlDirectory() . "/testresults.xml";
+    $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);

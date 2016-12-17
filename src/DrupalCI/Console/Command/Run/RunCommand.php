@@ -9,7 +9,6 @@ namespace DrupalCI\Console\Command\Run;
 
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;
 use DrupalCI\Injectable;
-use DrupalCI\Console\Output;
 use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Plugin\PluginManager;

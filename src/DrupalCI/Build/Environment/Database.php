@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
@@ -263,7 +262,7 @@ class Database implements DatabaseInterface, Injectable {
    */
   public function createDB() {
     try {
-      $this->connection->exec('CREATE DATABASE ' . $this->dbname);
+      $this->connect()->exec('CREATE DATABASE ' . $this->dbname);
     } catch (\PDOException $e) {
       $this->io->writeln("<comment>Could not create database $this->dbname.</comment>");
       return FALSE;
@@ -317,6 +316,30 @@ class Database implements DatabaseInterface, Injectable {
       }
       return $this->connection;
    // }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getDataDir() {
+
+    $type = $this->dbtype;
+    // @TODO find out what happens if we percona?
+    switch ($type) {
+      case 'pgsql':
+        $dir = "/var/lib/postgresql/" . $this->version;
+        break;
+      case 'mysql':
+      case 'mariadb':
+        $dir = "/var/lib/mysql";
+        break;
+      case 'sqlite':
+        $dir = "/var/www/html/sites/default/files/db.sqlite";
+        break;
+      default:
+        $dir = "/var/lib/" . $this->dbtype;
+    }
+    return $dir;
   }
 
 

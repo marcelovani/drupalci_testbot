@@ -70,13 +70,25 @@ interface BuildInterface {
   public function getXmlDirectory();
 
   /**
-   * This is where we checkout the code to. It should be volume mounted over
-   * to /var/www/html inside the docker containers.
+   * This is where we put the database It should be volume mounted over
+   * to wherever the data directory specifies from the Database Environment
    *
    * @return mixed
    */
-  public function getSourceDirectory();
-
+  public function getDBDirectory();
 
   public function generateBuildId();
+
+  public function addArtifact($path);
+
+  public function addContainerArtifact($path);
+
+  /**
+   * @param $filename
+   * @param $string
+   *
+   * Takes in a string, and saves it as an artifact in the artifact directory.
+   */
+  public function saveStringArtifact($filename, $string);
+
 }

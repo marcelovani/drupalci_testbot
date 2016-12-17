@@ -19,20 +19,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected $dciConfig = [
-    'DCI_AdditionalRepositories=git,https://git.drupal.org/sandbox/Mile23/2683655.git,8.x-1.x,modules/drupalci_d8_module_no_tests,1;',
-    'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.1.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_JobType=simpletest',
-    'DCI_PHPVersion=7',
-    'DCI_TestItem=directory:modules/drupalci_d8_module_no_tests',
-  ];
 
   public function testD8ContribNoTests() {
     $app = $this->getConsoleApp();
@@ -40,6 +26,7 @@ class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8NoTestsTest.yml',
     ], $options);
     $this->assertRegExp('/ERROR: No valid tests were specified./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
