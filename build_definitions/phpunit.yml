@@ -2,7 +2,7 @@ build:
   codebase:
     assemble_codebase:
 #      replicate:
-      checkout_dogfood:
+      checkout:
       composer:
 #      fetch:
 #      patch:
