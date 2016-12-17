@@ -62,7 +62,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
   }
 
   protected function discoverExentionPaths(){
-    $extension_paths = '';
+    $extension_paths = [];
     $core_dir = $this->codebase->getSourceDirectory();
 
     $composer_json = $core_dir . '/composer.json';
