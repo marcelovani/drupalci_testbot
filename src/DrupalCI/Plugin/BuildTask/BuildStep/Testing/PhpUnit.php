@@ -26,12 +26,6 @@ use Pimple\Container;
  */
 class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
-  /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
-  protected $system_database;
-
-  /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
-  protected $results_database;
-
   /**
    * The current container environment
    *
@@ -39,17 +33,11 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   protected $environment;
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
   protected $runscript = '/bin/phpunit';
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->system_database = $container['db.system'];
-    $this->results_database = $container['db.results'];
     $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
   }
 
   /**
@@ -66,9 +54,13 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function run() {
+    // Generate the testgroups as an artifact.
+    $status = $this->generateTestGroups();
+    if ($status > 0) {
+      return $status;
+    }
     // Build a phpunit command.
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-//    $this->configuration['dburl'] = $this->system_database->getUrl();
     $command[] = $this->getPhpUnitFlagValues($this->configuration);
     $command[] = $this->getPhpUnitValues($this->configuration);
     // Special case for log-junit, since it's the file name rather than the
@@ -85,11 +77,6 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE){
       $result->setSignal(0);
     }
-
-    //Save some artifacts for the build
-    $this->build->addContainerArtifact("/var/log/apache2/error.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
 
     $label = '';
     if (isset($this->pluginLabel)) {
@@ -115,72 +102,13 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     ];
   }
 
-  protected function parseTestItems($testitem) {
-    // Special case for 'all'
-    if (strtolower($testitem) === 'all') {
-      return "--all";
-    }
-
-    // Split the string components
-    $components = explode(':', $testitem);
-    if (!in_array($components[0], array('module', 'class', 'file', 'directory'))) {
-      // Invalid entry.
-      return $testitem;
-    }
-
-    $testgroups = "--" . $components[0] . " " . $components[1];
-    // Perhaps this crude hack could go somewhere else.
-    // If this is a directory testItem, flag it as an extension test.
-    if ($components[0] == 'directory') {
-      $this->configuration['extension_test'] = TRUE;
-    }
-    return $testgroups;
-  }
-
-  protected function setupSimpletestDB(BuildInterface $build) {
-
-
-    // This is a rare instance where we're meddling with config after the object
-    // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel .".sqlite";
-    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel .".sqlite";
-    $this->results_database->setDBFile($dbfile);
-    $this->results_database->setDbType('sqlite');
-    $this->build->addContainerArtifact($this->configuration['sqlite']);
-  }
-
   protected function generateTestGroups() {
-    $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
+    $testgroups_file = $this->environment->getContainerArtifactDir() . "/phpunit.testgroups.txt";
+    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list-groups > " . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
-    $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $this->build->addContainerArtifact($testgroups_file);
     return $result->getSignal();
   }
-  /**
-   * @param $test_list
-   *
-   * @return array
-   */
-  protected function parseGroups($test_list): array {
-    // Set an initial default group, in case leading tests are found with no group.
-    $group = 'nogroup';
-    $test_groups = [];
-
-    foreach ($test_list as $output_line) {
-      if (substr($output_line, 0, 3) == ' - ') {
-        // This is a class
-        $class = substr($output_line, 3);
-        $test_groups[$class] = $group;
-      }
-      else {
-        // This is a group
-        $group = ucwords($output_line);
-      }
-    }
-    return $test_groups;
-  }
-
 
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
