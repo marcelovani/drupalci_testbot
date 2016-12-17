@@ -21,8 +21,8 @@ class TestbotPassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_DogfoodRepository=https://git.drupal.org/project/drupalci_testbot.git',
-    'DCI_DogfoodBranch=dev',
+    'DCI_Checkout_Repo=https://git.drupal.org/project/drupalci_testbot.git',
+    'DCI_Checkout_Branch=dev',
     'DCI_JobType=phpunit',
     'DCI_PHPVersion=7',
   ];
