@@ -1,22 +1,21 @@
 build:
   codebase:
     assemble_codebase:
-      replicate:
-      checkout_core:
+#      replicate:
+      checkout_dogfood:
       composer:
-      composer_contrib:
-      fetch:
-      patch:
+#      fetch:
+#      patch:
   environment:
     startcontainers:
       runcontainers:
-    create_db:
-      dbcreate:
+#    create_db:
+#      dbcreate:
     filesystem:
       prepare_filesystem:
   assessment:
-    validate_codebase:
-      phplint:
+#    validate_codebase:
+#      phplint:
     testing:
-      phpunit.standard:
+      phpunit.dogfood:
         name: test
