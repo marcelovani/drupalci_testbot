@@ -28,7 +28,7 @@ class TestbotPassingTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testTestbot() {
-    $this->markTestIncomplete("This test fails because the testbot's test fails, probably because it has so many dependencies.");
+    //$this->markTestIncomplete("This test fails because the testbot's test fails, probably because it has so many dependencies.");
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);

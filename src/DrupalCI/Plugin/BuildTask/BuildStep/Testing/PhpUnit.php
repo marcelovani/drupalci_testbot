@@ -44,10 +44,8 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * {@inheritDoc}
    */
   public function configure() {
-    // Override any Environment Variables
-    if (isset($_ENV['DCI_PHPInterpreter'])) {
-      $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
-    }
+    // Override any Configuration Variables
+
   }
 
   /**
@@ -59,15 +57,16 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     if ($status > 0) {
       return $status;
     }
+    // Special case for log-junit, since it's the file name rather than the
+    // whole path.
+    if (isset($this->configuration['log-junit'])) {
+      // TODO: obvs we need to have that xml dir inside the container too.
+      $this->configuration['log-junit'] = $this->environment->getContainerArtifactDir() . "/xml/" . $this->configuration['log-junit'];
+    }
     // Build a phpunit command.
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     $command[] = $this->getPhpUnitFlagValues($this->configuration);
     $command[] = $this->getPhpUnitValues($this->configuration);
-    // Special case for log-junit, since it's the file name rather than the
-    // whole path.
-/*    if (isset($this->configuration['log-junit'])) {
-      $command['log-junit'] = $this->build->getXmlDirectory() . "/" . $this->pluginLabel . "testresults.xml";
-    }*/
 
     $command_line = implode(' ', $command);
 
@@ -94,17 +93,16 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'php' => '/opt/phpenv/shims/php',
       'color' => TRUE,
       'stop-on-error' => TRUE,
       'stop-on-failure' => FALSE,
-      'log-junit' => $this->pluginLabel . '.testresults.xml',
+      'log-junit' => 'phpunit.testresults.xml',
     ];
   }
 
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerArtifactDir() . "/phpunit.testgroups.txt";
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list-groups > " . $testgroups_file;
+    $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list-groups > " . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     $this->build->addContainerArtifact($testgroups_file);
     return $result->getSignal();
@@ -148,6 +146,7 @@ class PhpUnit extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   protected function getPhpUnitValues($config) {
     $command = [];
     $args = [
+      'log-junit',
     ];
     foreach ($config as $key => $value) {
       if (in_array($key, $args)) {
