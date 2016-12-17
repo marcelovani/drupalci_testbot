@@ -647,7 +647,10 @@ class Build implements BuildInterface, Injectable {
     $fs = new Filesystem();
     // TODO cleanup the Source and Tmp Directories from the codebase
     // when finished
-    //$fs->remove($this->getSourceDirectory());
+    /* @var $codebase \DrupalCI\Build\Codebase\CodebaseInterface*/
+    $codebase = $this->container['codebase'];
+    $fs->remove($codebase->getSourceDirectory());
+    $fs->remove($codebase->getAncillarySourceDirectory());
 
     $fs->remove($this->getDBDirectory());
   }
