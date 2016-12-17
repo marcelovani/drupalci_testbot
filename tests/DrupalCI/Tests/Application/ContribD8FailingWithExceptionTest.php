@@ -22,7 +22,6 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/flag.git,8.x-4.x,modules/flag,1;',
-    'DCI_ComposerInstall=true',
     'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
     'DCI_CoreBranch=8.3.x',
     'DCI_DBType=mysql',
