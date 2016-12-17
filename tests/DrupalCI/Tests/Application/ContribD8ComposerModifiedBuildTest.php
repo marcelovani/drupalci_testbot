@@ -15,40 +15,26 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
+class ContribD8ComposerModifiedBuildTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-
-  protected $dciConfig = [
-    'DCI_LocalBranch=7.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_JobType=simpletestlegacy7',
-    'DCI_LocalCommitHash=3d5bcd3',
-    'DCI_TestItem=Syslog',
-    'DCI_PHPVersion=7',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-  ];
-
-  public function testCoreD7Passes() {
-
-    $this->setUp();
+  public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8ComposerModifiedBuildTest.yml',
+
     ], $options);
     $build = $this->getCommand('run')->getBuild();
-    $this->assertRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
-    $this->assertRegExp('/.*Syslog functionality 17 passes, 0 fails, and 0 exceptions*/', $app_tester->getDisplay());
+    $display = $app_tester->getDisplay();
+    $this->assertRegExp('/.*Drupal\\\\Tests\\\\monolog\\\\Unit\\\\Logger\\\\LoggerTest*/', $app_tester->getDisplay());
+    // Drupal\Tests\monolog\Unit\Logger\LoggerTest
     // Look for junit xml results file
-    $output_file = $build->getXmlDirectory() . "/testresults.xml";
+    $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
-    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD7PassingTest_testresults.xml', $output_file);
+    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8ComposerBuildTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
 }

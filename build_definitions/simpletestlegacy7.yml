@@ -6,6 +6,7 @@ build:
       composer_contrib_d7:
       fetch:
       patch:
+      #update_dependencies_d7:
   environment:
     startcontainers:
       runcontainers:

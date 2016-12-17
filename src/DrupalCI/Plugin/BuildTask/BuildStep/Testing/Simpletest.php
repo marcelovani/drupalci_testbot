@@ -97,7 +97,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
 
     if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
-      $command[] = "--directory " . $this->codebase->getTrueModuleDirectory('modules');
+      $command[] = "--directory " . $this->codebase->getTrueExtensionDirectory('modules');
     } else {
       $command[] = $this->configuration['testgroups'];
     }
