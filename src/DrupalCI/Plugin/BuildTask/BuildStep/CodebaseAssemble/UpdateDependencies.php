@@ -50,9 +50,8 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     $project_name = $this->codebase->getProjectName();
     $ancillary_dir = $this->codebase->getAncillarySourceDirectory() . '/' . $project_name;
     $contrib_dir = $source_dir . '/' . $this->codebase->getTrueExtensionDirectory('modules');
-    foreach ($modified_files as $filepath) {
-      if (basename($filepath) == 'composer.json') {
 
+      if (in_array($contrib_dir . '/composer.json', $modified_files)) {
         // 1. Get the currently checked out composer branch name <CBRANCH>
         $cmd = "composer show --working-dir " . $source_dir . " |grep drupal/$project_name |awk '{print $2}'";
         $this->io->writeln("Determining composer branch: $cmd");
@@ -129,5 +128,5 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       }
     }
 
-  }
+
 }
