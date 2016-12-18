@@ -91,7 +91,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
           throw new BuildTaskException("Composer config failure.  Error Code: $result");
         }
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --working-dir --no-suggest " . $source_dir;
+        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
