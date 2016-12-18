@@ -66,17 +66,4 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
     }
     parent::run();
   }
-
-  /**
-   * Converts a drupal branch string that is stored in git into a composer
-   * based branch string. For d8 contrib
-   *
-   * @param $branch
-   *
-   * @return mixed
-   */
-  protected function getSemverBranch($branch) {
-    $converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
-    return $converted_version;
-  }
 }
