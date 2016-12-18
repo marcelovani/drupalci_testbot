@@ -315,8 +315,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
         $classname = $test_groups[$test_class] . '.' . $test_class;
 
         // Cleanup the class, and the parens from the test method name
-        $test_method = substr($result['function'], strpos($result['function'], '>') + 1);
-        $test_method = substr($test_method, 0, strlen($test_method) - 2);
+        $test_method = preg_replace('/.*>/', '', $result['function']);
+        $test_method = preg_replace('/\(\)/', '', $test_method);
 
         //$classes[$test_group][$test_class][$test_method]['classname'] = $classname;
         $length = strlen($this->environment->getExecContainerSourceDir());
