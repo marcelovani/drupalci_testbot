@@ -100,23 +100,44 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
           // Git threw an error.
           throw new BuildTaskException("Composer require failure.  Error Code: $result");
         }
+        // Composer does not respect require-dev anywhere but the root package
+        // Lets probe for require-dev in our newly installed module, and add
+        // Those dependencies in as well.
+        $install_json = $this->codebase->getSourceDirectory() . '/vendor/composer/installed.json';
+        if (file_exists($install_json)) {
+          $installed_json = json_decode(file_get_contents($install_json), TRUE);
+          foreach ($installed_json as $package) {
+            if ($package['name'] == "drupal/" . $this->codebase->getProjectName()) {
+              foreach ($package['require-dev'] as $dev_package => $constraint) {
+                $cmd = "./bin/composer require " . $dev_package . " " . escapeshellarg($constraint) . " --prefer-source --working-dir " . $source_dir;
+
+                $this->io->writeln("Composer Command: $cmd");
+                $this->exec($cmd, $cmdoutput, $result);
+
+                if ($result > 1) {
+                  // Git threw an error.
+                  throw new BuildTaskException("Composer require failure.  Error Code: $result");
+                }
+              }
+            }
+          }
+        }
       }
     }
-
-
   }
 
-  /**
-   * Converts a drupal branch string that is stored in git into a composer
-   * based branch string. For d8 contrib
-   *
-   * @param $branch
-   *
-   * @return mixed
-   */
-  protected function getSemverBranch($branch) {
-    //$converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
-    $converted_version = 'dev-' . $branch;
-    return $converted_version;
-  }
+/**
+ * Converts a drupal branch string that is stored in git into a composer
+ * based branch string. For d8 contrib
+ *
+ * @param $branch
+ *
+ * @return mixed
+ */
+protected
+function getSemverBranch($branch) {
+  //$converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
+  $converted_version = 'dev-' . $branch;
+  return $converted_version;
+}
 }
