@@ -41,7 +41,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    */
   public function getDefaultConfiguration() {
     return [
-      'options' => 'install --prefer-dist --no-progress',
+      'options' => 'install --prefer-dist --no-suggest --no-progress',
     ];
   }
 
