@@ -135,8 +135,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
  * @return mixed
  */
   protected function getSemverBranch($branch) {
-    //$converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
-    $converted_version = 'dev-' . $branch;
+    $converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
     return $converted_version;
   }
 }
