@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<testsuites name="TODO SET" time="TODO SET" tests="17" failures="0" errors="0"><testsuite id="0" name="Syslog" hostname="TODO: Set Hostname" package="Syslog" tests="17" failures="0" errors="0"><testcase classname="Syslog.SyslogTestCase" name="setUp" status="pass" assertions="1"><system-out><![CDATA[]]></system-out></testcase><testcase classname="Syslog.SyslogTestCase" name="testSettings" status="pass" assertions="16"><system-out><![CDATA[]]></system-out></testcase></testsuite></testsuites>

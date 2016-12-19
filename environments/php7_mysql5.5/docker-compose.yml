@@ -1,0 +1,16 @@
+ version: '2'
+ services:
+   web:
+     image: drupalci/web-7
+     links:
+       - db
+     volumes:
+       - "/var/lib/drupalci/web/simpletest_1475877017:/var/www/html"
+       - "/var/lib/drupalci/docker-tmp:/tmp"
+       - "/var/lib/drupalci/artifacts:/var/www/html/sites/simpletest"
+     depends_on:
+       - db
+   db:
+     image: drupalci/mysql-5.5
+     volumes:
+       - "/var/lib/drupalci/database/mysql-5-5:/var/lib/mysql"

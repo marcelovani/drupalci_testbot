@@ -1,0 +1,25 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core_d7:
+      composer_contrib_d7:
+      fetch:
+      patch:
+      #update_dependencies_d7:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+    testing:
+      simpletest_d7:
+
+
+
+

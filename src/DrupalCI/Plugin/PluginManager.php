@@ -8,13 +8,14 @@ namespace DrupalCI\Plugin;
 
 use Drupal\Component\Annotation\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use DrupalCI\Injectable;
+use DrupalCI\InjectableTrait;
+use Pimple\Container;
+use DrupalCI\Plugin\PluginManagerInterface;
 
-class PluginManager {
+class PluginManager implements PluginManagerInterface, Injectable {
 
-  /**
-   * @var array
-   */
-  protected $plugins;
+  use InjectableTrait;
 
   /**
    * @var string
@@ -26,8 +27,9 @@ class PluginManager {
    */
   protected $pluginDefinitions;
 
-  public function __construct($super_plugin_type) {
+  public function __construct($super_plugin_type, Container $container) {
     $this->superPluginType = $super_plugin_type;
+    $this->container = $container;
   }
 
   /**
@@ -61,16 +63,16 @@ class PluginManager {
    * {@inheritdoc}
    */
   public function getPlugin($type, $plugin_id, $configuration = []) {
-    if (!isset($this->plugins[$type][$plugin_id])) {
       if (!$this->hasPlugin($type, $plugin_id)) {
         throw new PluginNotFoundException("Plugin type $type plugin id $plugin_id not found.");
       }
       $plugin_definition = isset($this->pluginDefinitions[$type][$plugin_id]) ?
         $this->pluginDefinitions[$type][$plugin_id] :
         $this->pluginDefinitions['generic'][$plugin_id];
-      $this->plugins[$type][$plugin_id] = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
-    }
-    return $this->plugins[$type][$plugin_id];
+      $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
+      if ($plugin instanceof Injectable) {
+        $plugin->inject($this->container);
+      }
+    return $plugin;
   }
-
 }

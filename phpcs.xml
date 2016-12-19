@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="drupalci_testbot">
+  <description>Default PHP CodeSniffer configuration for DrupalCI testbot.</description>
+
+  <file>.</file>
+  <exclude-pattern>./bin</exclude-pattern>
+  <exclude-pattern>./containers</exclude-pattern>
+  <exclude-pattern>./vendor</exclude-pattern>
+
+  <!-- Only include specific sniffs that pass. This ensures that, if new sniffs are added, HEAD does not fail.-->
+  <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+
+</ruleset>

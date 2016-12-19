@@ -7,35 +7,47 @@
 
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
-use DrupalCI\Plugin\BuildSteps\setup\Fetch;
+use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Fetch;
 use DrupalCI\Tests\DrupalCITestCase;
-use Guzzle\Http\ClientInterface;
+use GuzzleHttp\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use DrupalCI\Build\Codebase\Codebase;
+use DrupalCI\Build\BuildInterface;
 
+/**
+ * @coversDefaultClass DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Fetch
+ */
 class FetchTest extends DrupalCITestCase {
 
-  function testRun() {
+  /**
+   * @covers ::run
+   */
+  public function testRun() {
     $file = 'file.patch';
     $url = 'http://example.com/site/dir/' . $file;
     $dir = 'test/dir';
 
-    $request = $this->getMock('Guzzle\Http\Message\RequestInterface');
-    $request->expects($this->once())
-      ->method('setResponseBody')
-      ->with("$dir/$file")
-      ->will($this->returnSelf());
-    $request->expects($this->once())
-      ->method('send');
+    $request = $this->getMock(RequestInterface::class);
 
-    $http_client = $this->getMock('Guzzle\Http\ClientInterface');
+    $http_client = $this->getMock(ClientInterface::class, array('get','send','sendAsync','request','requestAsync','getConfig'));
     $http_client->expects($this->once())
       ->method('get')
-      ->with($url)
+      ->with($url, ['save_to' => "$dir/$file"])
       ->will($this->returnValue($request));
 
-    $fetch = new TestFetch();
+    $codebase = $this->getMock(Codebase::class);
+    $build = $this->getMockBuilder(BuildInterface::class)
+      ->getMockForAbstractClass();
+
+    $data = [
+      'files' => [['from' => "$url",'to' => "."]]
+    ];
+    $fetch = new TestFetch($data);
+    $fetch->inject($this->getContainer(['build' => $build]));
     $fetch->setValidate($dir);
     $fetch->setHttpClient($http_client);
-    $fetch->run($this->job, [['url' => $url]]);
+
+    $fetch->run();
   }
 }
 

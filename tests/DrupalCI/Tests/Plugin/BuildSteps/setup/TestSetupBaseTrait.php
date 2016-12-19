@@ -7,8 +7,6 @@
 
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
-use DrupalCI\Plugin\JobTypes\JobInterface;
-
 trait TestSetupBaseTrait {
 
   protected $validate;
@@ -17,7 +15,7 @@ trait TestSetupBaseTrait {
 
   protected $execResult;
 
-  function validateDirectory(JobInterface $job, $dir) {
+  function validateDirectory($firstdir, $dir) {
     return $this->validate;
   }
 
@@ -27,6 +25,7 @@ trait TestSetupBaseTrait {
 
   function exec($command, &$output, &$result) {
     $this->commands[] = $command;
+    $output = [];
     $result = $this->execResult;
   }
 

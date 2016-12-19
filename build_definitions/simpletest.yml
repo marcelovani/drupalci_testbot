@@ -1,0 +1,26 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer:
+      composer_contrib:
+      fetch:
+      patch:
+      update_dependencies:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+    testing:
+      simpletest.standard:
+        concurrency: 31
+      simpletest.js:
+        concurrency: 1
+        types: 'PHPUnit-FunctionalJavascript'
