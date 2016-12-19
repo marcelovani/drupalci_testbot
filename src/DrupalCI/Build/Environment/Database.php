@@ -364,7 +364,7 @@ class Database implements DatabaseInterface, Injectable {
    *
    * @return string
    */
-  protected function getPDODsn($database = NULL): string {
+  protected function getPDODsn($database = NULL) {
 
     $conn_string = $this->getScheme();
     // @TODO FIX: again, I think I wanna see subclasses vs If's n switches.
