@@ -91,7 +91,7 @@ class SimpletestD7 extends Simpletest {
    *
    * @return array
    */
-  protected function parseGroups($test_list): array {
+  protected function parseGroups($test_list) {
     // Set an initial default group, in case leading tests are found with no group.
     $group = 'nogroup';
     $test_groups = [];
