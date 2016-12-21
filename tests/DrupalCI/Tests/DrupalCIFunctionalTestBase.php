@@ -91,6 +91,7 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
       // Complain if there is no config.
       // throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
     }
+    $build_id = putenv('BUILD_TAG');
 
     $app = $this->getConsoleApp();
     $app->setAutoExit(FALSE);
