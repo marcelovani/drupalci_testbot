@@ -108,15 +108,17 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
           $installed_json = json_decode(file_get_contents($install_json), TRUE);
           foreach ($installed_json as $package) {
             if ($package['name'] == "drupal/" . $this->codebase->getProjectName()) {
-              foreach ($package['require-dev'] as $dev_package => $constraint) {
-                $cmd = "./bin/composer require " . $dev_package . " " . escapeshellarg($constraint) . " --prefer-source --working-dir " . $source_dir;
+              if (!empty($package['require-dev'])) {
+                foreach ($package['require-dev'] as $dev_package => $constraint) {
+                  $cmd = "./bin/composer require " . $dev_package . " " . escapeshellarg($constraint) . " --prefer-source --working-dir " . $source_dir;
 
-                $this->io->writeln("Composer Command: $cmd");
-                $this->exec($cmd, $cmdoutput, $result);
+                  $this->io->writeln("Composer Command: $cmd");
+                  $this->exec($cmd, $cmdoutput, $result);
 
-                if ($result > 1) {
-                  // Git threw an error.
-                  throw new BuildTaskException("Composer require failure.  Error Code: $result");
+                  if ($result > 1) {
+                    // Git threw an error.
+                    throw new BuildTaskException("Composer require failure.  Error Code: $result");
+                  }
                 }
               }
             }
