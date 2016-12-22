@@ -95,7 +95,12 @@ class Environment implements Injectable, EnvironmentInterface {
         $id = $container_id;
       } else {
         $container = $this->getExecContainer();
-        $id = $container['id'];
+        if (!empty($container)) {
+          $id = $container['id'];
+        } else {
+          // No existing container to run commands on.
+          return 1;
+        }
       }
 
       $short_id = substr($id, 0, 8);
@@ -199,10 +204,11 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $manager = $this->docker->getContainerManager();
 
-    // Kill the containers we started.
-    $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
-
-    if ($this->database->getDbType() !== 'sqlite') {
+    if (!empty($this->executableContainer['id'])) {
+      // Kill the containers we started.
+      $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
+    }
+    if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
       $manager->remove($this->databaseContainer['id'],['force' => TRUE]);
     }
   }
