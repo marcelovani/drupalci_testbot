@@ -91,7 +91,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
           throw new BuildTaskException("Composer config failure.  Error Code: $result");
         }
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --prefer-stable --working-dir " . $source_dir;
+        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
@@ -112,7 +112,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
                 foreach ($package['require-dev'] as $dev_package => $constraint) {
                   $packages[] = escapeshellarg($dev_package . ":" . $constraint);
                 }
-                $cmd = "./bin/composer require " . implode($packages," ") . " --prefer-stable --working-dir " . $source_dir;
+                $cmd = "./bin/composer require " . implode($packages," ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
 
                 $this->io->writeln("Composer Command: $cmd");
                 $this->exec($cmd, $cmdoutput, $result);

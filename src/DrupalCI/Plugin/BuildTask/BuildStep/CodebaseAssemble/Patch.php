@@ -102,11 +102,13 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
                       </testsuite>';
         file_put_contents($output_directory . "/patchfailure.xml", $xml_error);
 
-        throw $e;
+        //throw $e;
+
       };
       // Update our list of modified files
       $this->codebase->addModifiedFiles($patch->getModifiedFiles());
     }
+    return 0;
   }
 
 
