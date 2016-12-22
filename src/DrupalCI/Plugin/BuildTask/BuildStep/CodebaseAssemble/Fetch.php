@@ -71,7 +71,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         throw new BuildTaskException("An error was encountered while attempting to write $url to $destination_file");
 
       }
-      $this->io->writeln("<comment>Fetch of <options=bold>$url</options=bold> to <options=bold>$destination_file</options=bold> complete.</comment>");
+      $this->io->writeln("<comment>Fetch of <options=bold>$url</> to <options=bold>$destination_file</> complete.</comment>");
     }
   }
 

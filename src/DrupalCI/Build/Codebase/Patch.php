@@ -192,7 +192,7 @@ class Patch implements PatchInterface, Injectable {
     $destination_file = $directory . '/' . $file_info['basename'];
     $this->httpClient()
       ->get($url, ['save_to' => "$destination_file"]);
-    $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</options=bold></info>");
+    $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</></info>");
     $this->setPatchFileName($file_info['basename']);
     return $destination_file;
   }
@@ -266,7 +266,7 @@ class Patch implements PatchInterface, Injectable {
       // TODO: Pass on the actual return value for the patch attempt
       return $result;
     }
-    $this->io->writeLn("<comment>Patch <options=bold>$absolutePath</options=bold> applied to directory <options=bold>$target</options=bold></comment>");
+    $this->io->writeLn("<comment>Patch <options=bold>$absolutePath</> applied to directory <options=bold>$target</></comment>");
     $this->applied = TRUE;
     return $result;
   }

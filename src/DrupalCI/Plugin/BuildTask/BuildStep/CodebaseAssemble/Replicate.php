@@ -66,7 +66,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         throw new BuildTaskException("The source directory $local_dir does not exist.");
       }
       $directory = $this->codebase->getSourceDirectory();
-      $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</options=bold> to the local checkout directory <options=bold>$directory</options=bold> ... </comment>");
+      $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
 
       $excludes = '';
       foreach ($this->configuration['exclude'] as $exclude_dir) {

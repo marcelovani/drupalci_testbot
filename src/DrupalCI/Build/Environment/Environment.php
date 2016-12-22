@@ -217,11 +217,11 @@ class Environment implements Injectable, EnvironmentInterface {
     try {
       $image = $manager->find($name);
       $id = substr($image->getID(), 0, 8);
-      $this->io->writeln("<comment>Found image <options=bold>$name/options=bold> with ID <options=bold>$id</options=bold></comment>");
+      $this->io->writeln("<comment>Found image <options=bold>$name</> with ID <options=bold>$id</></comment>");
     }
     catch (ClientErrorException $e) {
       // @TODO this is where we go ahead and pull the image if it doesnt exist.
-      $this->io->drupalCIError("Missing Image", "Required container image <options=bold>'$name'</options=bold> not found.");
+      $this->io->drupalCIError("Missing Image", "Required container image <options=bold>'$name'</> not found.");
       $this->pull($name);
     }
 
@@ -256,7 +256,7 @@ class Environment implements Injectable, EnvironmentInterface {
       $container['image'] = $config['Image'];
 
       $short_id = substr($container['id'], 0, 8);
-      $this->io->writeln("<comment>Container <options=bold>${container['name']}</options=bold> created from image <options=bold>${config['Image']}</options=bold> with ID <options=bold>$short_id</options=bold></comment>");
+      $this->io->writeln("<comment>Container <options=bold>${container['name']}</> created from image <options=bold>${config['Image']}</> with ID <options=bold>$short_id</></comment>");
       return $container;
     }
     else {
