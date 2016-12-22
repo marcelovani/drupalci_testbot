@@ -504,7 +504,7 @@ class Build implements BuildInterface, Injectable {
       $build_id = $this->buildType . '_' . time();
     }
     $this->setBuildId($build_id);
-    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</options=bold></info>");
+    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
   }
 
   /**
@@ -596,7 +596,7 @@ class Build implements BuildInterface, Injectable {
         return FALSE;
       }
       else {
-        $this->io->writeLn("<info>Directory created at <options=bold>$directory</options=bold></info>");
+        $this->io->writeLn("<info>Directory created at <options=bold>$directory</></info>");
         return TRUE;
       }
     }
