@@ -109,6 +109,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
           foreach ($installed_json as $package) {
             if ($package['name'] == "drupal/" . $this->codebase->getProjectName()) {
               if (!empty($package['require-dev'])) {
+                $this->io->writeln("<error>Adding testing (require-dev) dependencies.</error>");
                 foreach ($package['require-dev'] as $dev_package => $constraint) {
                   $packages[] = escapeshellarg($dev_package . ":" . $constraint);
                 }
