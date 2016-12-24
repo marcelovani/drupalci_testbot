@@ -66,6 +66,22 @@ class Codebase implements CodebaseInterface, Injectable {
     return $this->modified_files;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getModifiedFilesForNewPath($new_path) {
+    $new_modified_files = [];
+
+    $source_dir = $this->getSourceDirectory();
+    foreach($this->getModifiedFiles() as $file) {
+      if (strpos($file, $source_dir) === 0) {
+        $new_modified_files[] = str_replace($source_dir, $new_path, $file);
+      }
+    }
+
+    return $new_modified_files;
+  }
+
   public function addModifiedFile($filename) {
     if (!is_array($this->modified_files)) {
       $this->modified_files = [];

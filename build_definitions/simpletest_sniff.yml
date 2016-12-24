@@ -1,0 +1,18 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer_phpcs:
+      fetch:
+      patch:
+      update_dependencies:
+  environment:
+    startcontainers:
+      runcontainers:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+      core_phpcs:

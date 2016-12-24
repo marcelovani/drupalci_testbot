@@ -12,6 +12,14 @@ interface CodebaseInterface {
 
   public function getModifiedFiles();
 
+  /**
+   * Get the modified files, but substituting a new path to the source.
+   *
+   * @param string $new_path
+   *   The new path prefix for the modified files.
+   */
+  public function getModifiedFilesForNewPath($new_path);
+
   public function addModifiedFile($filename);
 
   public function addModifiedFiles($files);
