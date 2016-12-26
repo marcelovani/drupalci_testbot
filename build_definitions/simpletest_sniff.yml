@@ -3,7 +3,7 @@ build:
     assemble_codebase:
       replicate:
       checkout_core:
-      composer_phpcs:
+      composer_force_coder:
       fetch:
       patch:
       update_dependencies:
@@ -15,4 +15,4 @@ build:
   assessment:
     validate_codebase:
       phplint:
-      core_phpcs:
+      core_coder_sniff:

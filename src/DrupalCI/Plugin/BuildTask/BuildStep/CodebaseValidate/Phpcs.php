@@ -2,39 +2,34 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Build\Environment\EnvironmentInterface;
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
- * @PluginID("core_phpcs")
+ * @PluginID("phpcs")
  */
-class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
+   * The testing environment.
    *
    * @var \DrupalCI\Build\Environment\EnvironmentInterface
    */
   protected $environment;
 
   /**
+   * The codebase.
    *
    * @var \DrupalCI\Build\Codebase\CodebaseInterface
    */
   protected $codebase;
 
-  protected $appRoot;
-
   public function inject(Container $container) {
     parent::inject($container);
     $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
-    $this->appRoot = $container['app.root'];
   }
 
   /**
@@ -42,7 +37,8 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
    */
   public function getDefaultConfiguration() {
     return [
-      'start_directory' => 'core',
+      'start_directory' => '',
+      'installed_paths' => '',
       'sniff_fails_test' => FALSE,
       'warning_fails_sniff' => FALSE,
     ];
@@ -57,6 +53,9 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
     if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
       $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
     }
+    if (isset($_ENV['DCI_CS_ConfigInstalledPaths'])) {
+      $this->configuration['installed_paths'] = $_ENV['DCI_CS_ConfigInstalledPaths'];
+    }
     if (isset($_ENV['DCI_CS_SniffFailsTest'])) {
       $this->configuration['sniff_fails_test'] = $_ENV['DCI_CS_SniffFailsTest'];
     }
@@ -69,6 +68,19 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
    * @inheritDoc
    */
   public function run() {
+    $this->io->writeln('<info>Checking for phpcs tool in codebase.</info>');
+
+    try {
+      $phpcs_bin = $this->getPhpcsExecutable();
+    }
+    catch (\RuntimeException $e) {
+      $this->io->writeln($e->getMessage());
+      // @todo: Not all core versions are expected to have phpcs installed, so
+      //        we just return 0 for this plugin if it's not. In the future we
+      //        might want this to be an error.
+      return 0;
+    }
+
     $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
 
     $modified_files = $this->codebase
@@ -79,7 +91,8 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
       return 0;
     }
 
-    // Note: Core's phpcs.xml should determine what file types get sniffed.
+    // Note: Core's phpcs.xml(.dist) should determine what file types get
+    // sniffed.
     $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
     $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
     file_put_contents($sniffable_file, implode("\n", $modified_files));
@@ -94,7 +107,6 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
 
       // Figure out executable path and sniff start directory.
       $source_dir = $this->environment->getExecContainerSourceDir();
-      $phpcs_bin = $source_dir . '/vendor/bin/phpcs';
       $phpcs_start_dir = $source_dir;
       // Add the start directory from config.
       if (!empty($this->configuration['start_directory'])) {
@@ -104,14 +116,15 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
       // We have to configure phpcs to use drupal/coder. We can't do this during
       // code assemble time because config and path will change under the
       // container.
-      // @todo: Remove this after https://www.drupal.org/node/2744463
-      $cmd = [
-        $phpcs_bin,
-        '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/vendor/drupal/coder/coder_sniffer/',
-      ];
-      $result = $this->environment->executeCommands(implode(' ', $cmd));
-      // Verify that it worked.
-      $result = $this->environment->executeCommands("$phpcs_bin -i");
+      if (!empty($this->configuration['installed_paths'])) {
+        $cmd = [
+          $phpcs_bin,
+          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . $this->configuration['installed_paths'],
+        ];
+        $this->environment->executeCommands(implode(' ', $cmd));
+        // Verify that it worked.
+        $this->environment->executeCommands("$phpcs_bin -i");
+      }
 
       // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
       // error.
@@ -138,6 +151,25 @@ class CoreCodeSniffer extends BuildTaskBase implements BuildStepInterface, Build
       }
     }
     return 0;
+  }
+
+  /**
+   * Get the full path to the phpcs executable.
+   *
+   * @return string
+   *   The full path to the phpcs executable.
+   *
+   * @throws \RuntimeException
+   *   Thrown when the phpcs executable can't be found.
+   */
+  protected function getPhpcsExecutable() {
+    $source_dir = $this->environment->getExecContainerSourceDir();
+    $phpcs_bin = $source_dir . '/vendor/bin/phpcs';
+    $result = $this->environment->executeCommands('test -e ' . $phpcs_bin);
+    if ($result->getSignal() == 0) {
+      return $phpcs_bin;
+    }
+    throw new \RuntimeException('phpcs file does not exist: ' . $phpcs_bin);
   }
 
 }
