@@ -37,6 +37,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function getDefaultConfiguration() {
     return [
+      'sniff_only_changed' => TRUE,
+      'config_directory' => '',
       'start_directory' => '',
       'installed_paths' => '',
       'sniff_fails_test' => FALSE,
@@ -50,6 +52,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
+    if (isset($_ENV['DCI_CS_SniffOnlyChanged'])) {
+      $this->configuration['sniff_only_changed'] = $_ENV['DCI_CS_SniffOnlyChanged'];
+    }
+    if (isset($_ENV['DCI_CS_ConfigDirectory'])) {
+      $this->configuration['config_directory'] = $_ENV['DCI_CS_ConfigDirectory'];
+    }
     if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
       $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
     }
@@ -83,72 +91,87 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
 
-    $modified_files = $this->codebase
-      ->getModifiedFilesForNewPath($this->environment->getExecContainerSourceDir());
+    // Make a list of of modified files to this file.
+    $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
 
-    if (empty($modified_files)) {
-      $this->io->writeln('No modified files for PHPCS.');
-      return 0;
+    // Check if we should only sniff modified files.
+    if ($this->configuration['sniff_only_changed']) {
+      $modified_files = $this->codebase
+        ->getModifiedFilesForNewPath($this->environment->getExecContainerSourceDir());
+      // No modified files? We're done.
+      if (empty($modified_files)) {
+        $this->io->writeln('<info>No modified files to sniff.</info>');
+        return 0;
+      }
+      $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
+      file_put_contents($sniffable_file, implode("\n", $modified_files));
+      $this->build->addArtifact($sniffable_file);
+    }
+    else {
+      $this->io->writeln('<info>Sniffing all files in repo.</info>');
     }
 
-    // Note: Core's phpcs.xml(.dist) should determine what file types get
-    // sniffed.
-    $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
-    $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
-    file_put_contents($sniffable_file, implode("\n", $modified_files));
+    // Set up the report file artifact.
+    $report_file = $this->build->getArtifactDirectory() . '/phpcs_checkstyle.xml';
+    touch($report_file);
+    $this->build->addArtifact($report_file);
 
-    // Make sure the file was written.
-    if (0 < filesize($sniffable_file)) {
-      // Set up artifacts.
-      $this->build->addArtifact($sniffable_file);
-      $report_file = $this->build->getArtifactDirectory() . '/phpcs_checkstyle.xml';
-      touch($report_file);
-      $this->build->addArtifact($report_file);
+    // Figure out sniff config directory.
+    $source_dir = $this->environment->getExecContainerSourceDir();
+    $phpcs_config_dir = $source_dir;
+    // Add the start directory from config.
+    if (!empty($this->configuration['config_directory'])) {
+      $phpcs_config_dir = $source_dir . '/' . $this->configuration['config_directory'];
+    }
 
-      // Figure out executable path and sniff start directory.
-      $source_dir = $this->environment->getExecContainerSourceDir();
-      $phpcs_start_dir = $source_dir;
-      // Add the start directory from config.
-      if (!empty($this->configuration['start_directory'])) {
-        $phpcs_start_dir = $source_dir . '/' . $this->configuration['start_directory'];
-      }
-
-      // We have to configure phpcs to use drupal/coder. We can't do this during
-      // code assemble time because config and path will change under the
-      // container.
-      if (!empty($this->configuration['installed_paths'])) {
-        $cmd = [
-          $phpcs_bin,
-          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . $this->configuration['installed_paths'],
-        ];
-        $this->environment->executeCommands(implode(' ', $cmd));
-        // Verify that it worked.
-        $this->environment->executeCommands("$phpcs_bin -i");
-      }
-
-      // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
-      // error.
-      $minimum_error = 2;
-      if ($this->configuration['warning_fails_sniff']) {
-        $minimum_error = 1;
-      }
-
-      // Execute phpcs.
+    // We have to configure phpcs to use drupal/coder. We can't do this during
+    // code assemble time because config and path will change under the PHP
+    // container. Just running phpcs without adding an installed path will still
+    // work in a generic way, but core needs specific sniffs which should be
+    // added with this config.
+    if (!empty($this->configuration['installed_paths'])) {
       $cmd = [
-        'cd ' . $phpcs_start_dir . ' &&',
         $phpcs_bin,
-        '-ps',
-        '--warning-severity=' . $minimum_error,
-        '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/phpcs_checkstyle.xml',
-        '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt',
+        '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . $this->configuration['installed_paths'],
       ];
-      $this->io->writeln('Executing PHPCS.');
-      $result = $this->environment->executeCommands(implode(' ', $cmd));
+      $this->environment->executeCommands(implode(' ', $cmd));
+      // Verify that it worked.
+      $this->environment->executeCommands("$phpcs_bin -i");
+    }
 
-      // Allow for failing the test run if CS was bad.
-      if ($this->configuration['sniff_fails_test']) {
-        return $result->getSignal();
+    // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
+    // error.
+    $minimum_error = 2;
+    if ($this->configuration['warning_fails_sniff']) {
+      $minimum_error = 1;
+    }
+
+    // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
+    // and all other constraints.
+    $cmd = [
+      'cd ' . $phpcs_config_dir . ' &&',
+      $phpcs_bin,
+      '-ps',
+      '--warning-severity=' . $minimum_error,
+      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/phpcs_checkstyle.xml',
+    ];
+
+    // Should we only sniff modified files? --file-list lets us specify.
+    if ($this->configuration['sniff_only_changed']) {
+      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+    }
+    else {
+      // We can use start_directory since there is not a file-list.
+      if (!empty($this->configuration['start_directory'])) {
+        $cmd[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
       }
+    }
+    $this->io->writeln('Executing PHPCS.');
+    $result = $this->environment->executeCommands(implode(' ', $cmd));
+
+    // Allow for failing the test run if CS was bad.
+    if ($this->configuration['sniff_fails_test']) {
+      return $result->getSignal();
     }
     return 0;
   }

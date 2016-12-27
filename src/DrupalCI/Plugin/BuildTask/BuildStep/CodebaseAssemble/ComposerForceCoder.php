@@ -34,11 +34,11 @@ class ComposerForceCoder extends Composer implements BuildStepInterface, BuildTa
    */
   public function configure() {
     parent::configure();
-    if (isset($_ENV['DCI_Composer_Force_Coder_Version'])) {
-      $this->configuration['force_coder_version'] = $this->process($_ENV['DCI_Composer_Force_Coder_Version']);
+    if (isset($_ENV['DCI_Composer_ForceCoderVersion'])) {
+      $this->configuration['force_coder_version'] = $_ENV['DCI_Composer_ForceCoderVersion'];
     }
-    if (isset($_ENV['DCI_Composer_Force_Coder_Install'])) {
-      $this->configuration['force_coder_install'] = $this->process($_ENV['DCI_Composer_Force_Coder_Install']);
+    if (isset($_ENV['DCI_Composer_ForceCoderInstall'])) {
+      $this->configuration['force_coder_install'] = $_ENV['DCI_Composer_ForceCoderInstall'];
     }
   }
 

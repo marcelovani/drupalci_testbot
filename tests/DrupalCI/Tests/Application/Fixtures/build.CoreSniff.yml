@@ -14,5 +14,4 @@ build:
       prepare_filesystem:
   assessment:
     validate_codebase:
-      phplint:
-      core_coder_sniff:
+      phpcs:
