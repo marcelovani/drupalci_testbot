@@ -47,9 +47,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (isset($_ENV['DCI_PHPInterpreter'])) {
-      $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
-    }
     if (isset($_ENV['DCI_Concurrency'])) {
       $this->configuration['concurrency'] = $_ENV['DCI_Concurrency'];
     }
@@ -188,7 +185,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
+    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list > " . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $this->build->addContainerArtifact($testgroups_file);
