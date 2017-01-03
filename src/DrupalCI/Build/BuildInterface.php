@@ -91,4 +91,6 @@ interface BuildInterface {
    */
   public function saveStringArtifact($filename, $string);
 
+  public function setupDirectory($directory);
+
 }
