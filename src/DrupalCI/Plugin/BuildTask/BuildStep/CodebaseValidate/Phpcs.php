@@ -116,7 +116,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
 
     // Set up the report file artifact.
-    $report_file = $this->build->getArtifactDirectory() . '/phpcs_checkstyle.xml';
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/phpcs');
+    $report_file = $this->build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
     touch($report_file);
     $this->build->addArtifact($report_file);
 
@@ -157,7 +158,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/phpcs_checkstyle.xml',
+      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/phpcs/phpcs_checkstyle.xml',
     ];
 
     // Should we only sniff modified files? --file-list lets us specify.
