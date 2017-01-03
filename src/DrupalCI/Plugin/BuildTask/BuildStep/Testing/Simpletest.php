@@ -138,7 +138,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
       'url' => 'http://localhost/checkout',
-      'php' => '/opt/phpenv/shims/php',
       'color' => TRUE,
       'die-on-fail' => FALSE,
       'keep-results' => TRUE,
