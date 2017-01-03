@@ -74,7 +74,6 @@ class SimpletestD7 extends Simpletest {
     $args = [
       'concurrency',
       'url',
-      'php',
     ];
     foreach ($config as $key => $value) {
       if (in_array($key, $args)) {
