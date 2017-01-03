@@ -37,7 +37,7 @@ class CoreCoderPhpcsOnlyChangedFailTest extends DrupalCIFunctionalTestBase {
     'DCI_CS_SniffFailsTest=TRUE',
   ];
 
-  public function testCoderSniffWithNoPhpcs() {
+  public function testCoderSniffOnlyChangedFailTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);

@@ -15,7 +15,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
+class PhpLintFailTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
@@ -28,8 +28,8 @@ class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=7',
     'DCI_DEBUG=TRUE',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2809565_will_fail_linting.patch,.',
-    'DCI_Patch=2839170-coder-phpcs-sniff-error.patch,.',
+    'DCI_Fetch=https://www.drupal.org/files/issues/2809565_actually_fails_linting.patch,.',
+    'DCI_Patch=2809565_actually_fails_linting.patch,.',
   ];
 
   public function testCoderSniffOnlyChangedFailTest() {
@@ -41,7 +41,7 @@ class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.PhpLint.yml',
     ], $options);
     $display = $app_tester->getDisplay();
-    $this->assertRegExp('/No syntax errors detected/', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/Parse error: syntax error, unexpected end of file/', $app_tester->getDisplay());
+    $this->assertEquals(4096, $app_tester->getStatusCode());
   }
 }

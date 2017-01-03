@@ -1,9 +1,10 @@
+#Fixture that exercises phplint without any other tests.
 build:
   codebase:
     assemble_codebase:
       replicate:
       checkout_core:
-      composer_force_coder:
+      composer:
       fetch:
       patch:
       update_dependencies:
@@ -14,4 +15,4 @@ build:
       prepare_filesystem:
   assessment:
     validate_codebase:
-      phpcs:
+      phplint:
