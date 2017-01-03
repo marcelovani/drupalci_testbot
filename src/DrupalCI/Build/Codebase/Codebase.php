@@ -69,17 +69,21 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function getModifiedFilesForNewPath($new_path) {
-    $new_modified_files = [];
-
-    $source_dir = $this->getSourceDirectory();
-    foreach($this->getModifiedFiles() as $file) {
-      if (strpos($file, $source_dir) === 0) {
-        $new_modified_files[] = str_replace($source_dir, $new_path, $file);
+  public function getModifiedPhpFiles() {
+    $host_source_dir = $this->getSourceDirectory();
+    $phpfiles = [];
+    foreach ($this->modified_files as $file) {
+      $file_path = $host_source_dir . "/" . $file;
+      // Checking for: if not in a vendor dir, if the file still exists, and if the first 32 (length - 1) bytes of the file contain <?php
+      if (file_exists($file_path)) {
+        $isphpfile = strpos(fgets(fopen($file_path, 'r'), 33), '<?php') !== FALSE;
+        $not_vendor = strpos($file, 'vendor/') === FALSE;
+        if ($not_vendor && $isphpfile) {
+          $phpfiles[] = $file;
+        }
       }
     }
-
-    return $new_modified_files;
+    return $phpfiles;
   }
 
   public function addModifiedFile($filename) {
