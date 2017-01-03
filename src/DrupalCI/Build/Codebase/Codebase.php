@@ -87,6 +87,11 @@ class Codebase implements CodebaseInterface, Injectable {
   }
 
   public function addModifiedFile($filename) {
+    // Codebase' modified files should be a relative path and not
+    // contain the host or container environments' source path.
+    if (substr($filename, 0, strlen($this->getSourceDirectory())) == $this->getSourceDirectory()) {
+      $filename = substr($filename, strlen($this->getSourceDirectory())+1);
+    }
     if (!is_array($this->modified_files)) {
       $this->modified_files = [];
     }

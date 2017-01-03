@@ -96,15 +96,19 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Check if we should only sniff modified files.
     if ($this->configuration['sniff_only_changed']) {
-      $modified_files = $this->codebase
-        ->getModifiedFilesForNewPath($this->environment->getExecContainerSourceDir());
+      $modified_php_files = $this->codebase->getModifiedPhpFiles();
+
       // No modified files? We're done.
-      if (empty($modified_files)) {
+      if (empty($modified_php_files)) {
         $this->io->writeln('<info>No modified files to sniff.</info>');
         return 0;
       }
+      foreach ($modified_php_files as $file) {
+        $sniffable_file_list[] = $this->environment->getExecContainerSourceDir() . "/" . $file;
+      }
+
       $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
-      file_put_contents($sniffable_file, implode("\n", $modified_files));
+      file_put_contents($sniffable_file, implode("\n", $sniffable_file_list));
       $this->build->addArtifact($sniffable_file);
     }
     else {
