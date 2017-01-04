@@ -279,7 +279,11 @@ class Environment implements Injectable, EnvironmentInterface {
   protected function pull($name) {
     $manager = $this->docker->getImageManager();
     $progressInformation = null;
-    $response = $manager->create('', ['fromImage' => $name . ':latest'],  $manager::FETCH_STREAM);
+    $image_name = explode(':',$name);
+    if (empty($image_name[1])){
+      $image_name[1] = 'latest';
+    }
+    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]],  $manager::FETCH_STREAM);
 
     //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {

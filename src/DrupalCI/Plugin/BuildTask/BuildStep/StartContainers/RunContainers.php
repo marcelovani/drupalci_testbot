@@ -36,7 +36,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
   public function configure() {
 
     if (isset($_ENV['DCI_PHPVersion'])) {
-      $this->configuration['phpversion'] = $_ENV['DCI_PHPVersion'];
+      $this->configuration['phpversion'] = 'web-' . $_ENV['DCI_PHPVersion'];
     }
 
   }
@@ -48,9 +48,8 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
 
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
     $php_version = $this->configuration['phpversion'];
-   // $images['web']['image'] = "drupalci/web-$php_version";
-    $images['web'] = ["Image" => "drupalci/web-$php_version"];
-    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/web-$php_version</></comment>");
+    $images['web'] = ["Image" => "drupalci/$php_version"];
+    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$php_version</></comment>");
     $this->environment->startExecContainer($images['web']);
 
     $this->io->writeln("<info>Parsing required database container image names ...</info>");
@@ -66,7 +65,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function getDefaultConfiguration() {
     return [
-      'phpversion' => '5.5',
+      'phpversion' => 'web-5.5',
     ];
   }
 
