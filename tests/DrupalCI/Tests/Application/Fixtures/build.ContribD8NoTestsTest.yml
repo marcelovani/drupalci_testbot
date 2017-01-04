@@ -29,7 +29,7 @@ build:
   environment:
     startcontainers:
       runcontainers:
-        phpversion: '7'
+        phpversion: 'web-7'
     create_db:
       dbcreate: {  }
     filesystem:

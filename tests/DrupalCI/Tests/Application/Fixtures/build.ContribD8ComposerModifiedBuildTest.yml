@@ -35,7 +35,7 @@ build:
   environment:
     startcontainers:
       runcontainers:
-        phpversion: '5.5'
+        phpversion: 'web-5.5'
     create_db:
       dbcreate: {  }
     filesystem:
