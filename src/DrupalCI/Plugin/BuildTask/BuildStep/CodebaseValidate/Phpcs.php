@@ -38,11 +38,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     return [
       'sniff_only_changed' => TRUE,
-      'config_directory' => '',
-      'start_directory' => '',
-      'installed_paths' => '',
-      'sniff_fails_test' => FALSE,
+      'config_directory' => 'core/',
+      'start_directory' => 'core/',
+      'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning_fails_sniff' => FALSE,
+      'sniff_fails_test' => FALSE,
     ];
   }
 
@@ -78,6 +78,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function run() {
     $this->io->writeln('<info>Checking for phpcs tool in codebase.</info>');
 
+    // If there's no phpcs executable in the codebase then there's nothing else
+    // to do.
     try {
       $phpcs_bin = $this->getPhpcsExecutable();
     }
@@ -89,13 +91,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       return 0;
     }
 
-    $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
-
     // Make a list of of modified files to this file.
     $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
 
     // Check if we should only sniff modified files.
     if ($this->configuration['sniff_only_changed']) {
+      $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
       $modified_php_files = $this->codebase->getModifiedPhpFiles();
 
       // No modified files? We're done.
@@ -121,10 +122,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     touch($report_file);
     $this->build->addArtifact($report_file);
 
-    // Figure out sniff config directory.
+    // Figure out sniff config directory. This is the directory where the
+    // phpcs.xml file is presumed to reside.
     $source_dir = $this->environment->getExecContainerSourceDir();
     $phpcs_config_dir = $source_dir;
-    // Add the start directory from config.
+    // Add the config directory from configuration.
     if (!empty($this->configuration['config_directory'])) {
       $phpcs_config_dir = $source_dir . '/' . $this->configuration['config_directory'];
     }
@@ -137,10 +139,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (!empty($this->configuration['installed_paths'])) {
       $cmd = [
         $phpcs_bin,
-        '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . $this->configuration['installed_paths'],
+        '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed_paths'],
       ];
       $this->environment->executeCommands(implode(' ', $cmd));
-      // Verify that it worked.
+      // Let the user figure out if it worked.
       $this->environment->executeCommands("$phpcs_bin -i");
     }
 
@@ -166,7 +168,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
     }
     else {
-      // We can use start_directory since there is not a file-list.
+      // We can use start_directory since we're supposed to sniff the codebase.
       if (!empty($this->configuration['start_directory'])) {
         $cmd[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
       }
