@@ -111,6 +111,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     //Save some artifacts for the build
     $this->build->addContainerArtifact("/var/log/apache2/error.log");
+    $this->build->addContainerArtifact("/var/log/apache2/test.apache.error.log");
     $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
     $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
     $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
