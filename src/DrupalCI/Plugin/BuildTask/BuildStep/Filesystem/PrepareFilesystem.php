@@ -45,7 +45,7 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
    $setup_commands = [
       'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
       'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
-      'chown -fR www-data:www-data ' . $sourcedir,
+      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
       'supervisorctl start phantomjs',
