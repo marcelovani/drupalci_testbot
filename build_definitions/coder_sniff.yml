@@ -1,0 +1,24 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer_force_coder:
+        force_coder_install: TRUE
+        force_coder_version: 8.2.8
+      fetch:
+      patch:
+      update_dependencies:
+  environment:
+    startcontainers:
+      runcontainers:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+      phpcs:
+        sniff_only_changed: TRUE
+        installed_paths: /vendor/drupal/coder/coder_sniffer/
+        config_directory: core/
+        start_directory: core/lib/Drupal/Component/Utility/

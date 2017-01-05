@@ -12,6 +12,11 @@ interface CodebaseInterface {
 
   public function getModifiedFiles();
 
+  /**
+   * Returns an array of modified php files, relative to the source directory.
+   */
+  public function getModifiedPhpFiles();
+
   public function addModifiedFile($filename);
 
   public function addModifiedFiles($files);
