@@ -49,7 +49,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     $source_dir = $this->codebase->getSourceDirectory();
     $project_name = $this->codebase->getProjectName();
     $ancillary_dir = $this->codebase->getAncillarySourceDirectory() . '/' . $project_name;
-    $contrib_dir = $source_dir . '/' . $this->codebase->getTrueExtensionDirectory('modules');
+    $contrib_dir = $this->codebase->getTrueExtensionDirectory('modules');
 
       if (in_array($contrib_dir . '/composer.json', $modified_files)) {
         // 1. Get the currently checked out composer branch name <CBRANCH>
@@ -62,11 +62,12 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         }
 
         $composer_branchname = $cmdoutput[0];
-        // 2. rsync directory to ancillary
-        $this->exec("mv $contrib_dir $ancillary_dir", $cmdoutput, $result);
+        // 2. move directory to ancillary
+        $project_dir = $source_dir . '/' . $contrib_dir;
+        $this->exec("mv $project_dir $ancillary_dir", $cmdoutput, $result);
         if ($result !== 0) {
           // Git threw an error.
-          throw new BuildTaskException("Rsync Failure.  Error Code: $result");
+          throw new BuildTaskException("mv Failure.  Error Code: $result");
         }
         // 3. make a fake branch in ancillary <TBRANCH>
         $cmd = "cd " . $ancillary_dir . " && git checkout -b ancillary-branch";

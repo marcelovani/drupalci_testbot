@@ -287,7 +287,7 @@ class Patch implements PatchInterface, Injectable {
 
       $target = $this->getTargetApplyDir();
       // TODO: refactor this exec out of here.
-      $cmd = "cd $target && git diff --name-only";
+      $cmd = "cd $target && git ls-files --other --modified --exclude-standard --exclude=vendor";
       exec($cmd, $cmdoutput, $return);
       if ($return !== 0) {
         // git diff returned a non-zero error code
