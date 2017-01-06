@@ -479,6 +479,16 @@ class Build implements BuildInterface, Injectable {
   public function getArtifactDirectory() {
     return $this->buildDirectory . '/artifacts';
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function getHostCoredumpDirectory() {
+    // @TODO: make this more resilient for envs other than vagrant box
+    // and linux local testing.
+    return '/var/lib/drupalci/coredumps';
+  }
+
   /**
    * @inheritDoc
    */
