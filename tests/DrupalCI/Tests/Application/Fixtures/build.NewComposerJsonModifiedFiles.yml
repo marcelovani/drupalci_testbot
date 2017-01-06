@@ -1,0 +1,35 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: ''
+        git_branch: ''
+        git_commit_hash: ''
+      checkout_core:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/drupal.git'
+            branch: 8.3.x
+      composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/jsonapi.git'
+            branch: 8.x-1.x
+            checkout_dir: modules/jsonapi
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/pp_1_validate-2840677-14.patch'
+            to: modules/jsonapi
+      patch:
+        patches:
+          -
+            from: pp_1_validate-2840677-14.patch
+            to: modules/jsonapi
+      update_dependencies: {  }
+    project_subdir: modules/jsonapi
+    project_name: jsonapi
+
