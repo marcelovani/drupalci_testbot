@@ -74,5 +74,7 @@ interface CodebaseInterface {
 
   public function getTrueExtensionDirectory($type);
 
+  public function getComposerDevRequirements();
+
 
 }
