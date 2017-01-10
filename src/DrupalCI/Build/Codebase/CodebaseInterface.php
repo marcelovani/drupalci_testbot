@@ -76,5 +76,7 @@ interface CodebaseInterface {
 
   public function getComposerDevRequirements();
 
+  public function getInstalledComposerPackages();
+
 
 }

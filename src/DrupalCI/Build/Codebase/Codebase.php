@@ -186,23 +186,28 @@ class Codebase implements CodebaseInterface, Injectable {
    * @return array
    */
   public function getComposerDevRequirements() {
-    $install_json = $this->getSourceDirectory() . '/vendor/composer/installed.json';
     $packages = [];
-    if (file_exists($install_json)) {
-      $installed_json = json_decode(file_get_contents($install_json), TRUE);
-      foreach ($installed_json as $package) {
-        if ($package['name'] == "drupal/" . $this->projectName) {
-          if (!empty($package['require-dev'])) {
-            $this->io->writeln("<error>Adding testing (require-dev) dependencies.</error>");
-            foreach ($package['require-dev'] as $dev_package => $constraint) {
-              $packages[] = escapeshellarg($dev_package . ":" . $constraint);
-            }
+    $installed_json = $this->getInstalledComposerPackages();
+    foreach ($installed_json as $package) {
+      if ($package['name'] == "drupal/" . $this->projectName) {
+        if (!empty($package['require-dev'])) {
+          $this->io->writeln("<error>Adding testing (require-dev) dependencies.</error>");
+          foreach ($package['require-dev'] as $dev_package => $constraint) {
+            $packages[] = escapeshellarg($dev_package . ":" . $constraint);
           }
         }
       }
-      return $packages;
     }
-    return [];
+    return $packages;
+  }
+
+  public function getInstalledComposerPackages() {
+    $installed_json = [];
+    $install_json = $this->getSourceDirectory() . '/vendor/composer/installed.json';
+    if (file_exists($install_json)) {
+      $installed_json = json_decode(file_get_contents($install_json), TRUE);
+    }
+    return $installed_json;
   }
 
 }
