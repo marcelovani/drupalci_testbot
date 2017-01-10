@@ -173,9 +173,8 @@ class Codebase implements CodebaseInterface, Injectable {
   public function setExtensionPaths($extensionPaths) {
     $this->extensionPaths = $extensionPaths;
   }
-  // TODO: get rid of this
-  // this is a helper convenience function for geting the ultimate calculated
-  // path set by composer.
+  // This is the path, relative to the source where composer installers p
+  // laces our extensions.
   public function getTrueExtensionDirectory($type){
     return $this->extensionPaths[$type] . '/' . $this->projectName;
   }

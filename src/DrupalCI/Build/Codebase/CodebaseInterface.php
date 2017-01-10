@@ -43,8 +43,8 @@ interface CodebaseInterface {
   public function setupDirectories();
 
   /**
-   * This is a temporary hack so that we can utilize the directory subdir
-   * to identify fetches/patches/repos that belong to the project vs. deps.
+   * ExtensionProjectSubDir is what gets passed to us via the --directory
+   * command. It is *not* where the extensions actually exist.
    *
    * @return string
    */
