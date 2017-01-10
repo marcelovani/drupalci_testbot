@@ -160,6 +160,11 @@ class Build implements BuildInterface, Injectable {
     $this->addArtifact($artifactFile);
   }
 
+  public function getBuildArtifacts() {
+    return $this->buildArtifacts;
+  }
+
+
   public function getBuildId() {
     return $this->buildId;
   }
