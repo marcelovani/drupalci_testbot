@@ -113,7 +113,7 @@ class Build implements BuildInterface, Injectable {
   protected $buildId;
 
   /**
-   * @var array of \DrupalCI\Build\Artifact\TaskArtifactInterface
+   * @var array of \DrupalCI\Build\Artifact\BuildArtifactInterface
    */
   protected $buildArtifacts = [];
 

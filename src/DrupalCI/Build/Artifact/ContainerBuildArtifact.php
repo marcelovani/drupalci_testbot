@@ -23,15 +23,15 @@ class ContainerBuildArtifact extends BuildArtifact {
     $fs = new Filesystem();
     $uid = posix_getuid();
     $gid = posix_getgid();
-    if (strpos($this->path, $this->environment->getContainerArtifactDir()) === FALSE) {
+    if (strpos($this->sourcePath, $this->environment->getContainerArtifactDir()) === FALSE) {
       $commands = [
-        'cp -R ' . $this->path . ' ' . $this->environment->getContainerArtifactDir(),
+        'cp -R ' . $this->sourcePath . ' ' . $this->environment->getContainerArtifactDir(),
       ];
       $result = $this->environment->executeCommands($commands);
 
     }
     $commands = [
-      'chown -R '. $uid . ':' . $gid . ' ' .  $this->environment->getContainerArtifactDir() . "/" . basename($this->path),
+      'chown -R '. $uid . ':' . $gid . ' ' .  $this->environment->getContainerArtifactDir() . "/" . basename($this->sourcePath),
     ];
     $result = $this->environment->executeCommands($commands);
   }
