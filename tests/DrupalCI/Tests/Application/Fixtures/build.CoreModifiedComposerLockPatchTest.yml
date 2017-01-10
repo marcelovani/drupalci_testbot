@@ -1,0 +1,32 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: /var/lib/drupalci/drupal-checkout
+        git_branch: 8.3.x
+        git_commit_hash: 83018b7
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
+      composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories: {  }
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/2840596-2.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: 2840596-2.patch
+            to: .
+      update_dependencies: {  }
+    project_subdir: ''
+    project_name: ''
