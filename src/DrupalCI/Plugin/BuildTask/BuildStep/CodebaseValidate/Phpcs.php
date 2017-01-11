@@ -38,7 +38,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     return [
       'sniff_only_changed' => TRUE,
-      'config_directory' => 'core/',
       'start_directory' => 'core/',
       'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning_fails_sniff' => FALSE,
@@ -54,9 +53,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // source directory.
     if (isset($_ENV['DCI_CS_SniffOnlyChanged'])) {
       $this->configuration['sniff_only_changed'] = $_ENV['DCI_CS_SniffOnlyChanged'];
-    }
-    if (isset($_ENV['DCI_CS_ConfigDirectory'])) {
-      $this->configuration['config_directory'] = $_ENV['DCI_CS_ConfigDirectory'];
     }
     if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
       $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
@@ -88,6 +84,23 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // @todo: Not all core versions are expected to have phpcs installed, so
       //        we just return 0 for this plugin if it's not. In the future we
       //        might want this to be an error.
+      return 0;
+    }
+
+    // Check if we're testing contrib, adjust start path accordingly.
+    $project = $this->codebase->getProjectName();
+    $this->io->writeln("Sniffing this project: $project");
+    // @todo: For now, core has no project name, but contrib does. This could
+    // easily change, so we'll need to change the behavior here.
+    if (!empty($project)) {
+      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionDirectory('modules');
+    }
+
+    // The rule is that we never perform a sniff unless there is a
+    // phpcs.xml(.dist) file present in start_directory.
+    $this->io->writeln('<info>Checking for phpcs.xml(.dist) file.</info>');
+    if (!$this->projectHasPhpcsConfig()) {
+      $this->io->writeln('PHPCS config file not found.');
       return 0;
     }
 
@@ -125,10 +138,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Figure out sniff config directory. This is the directory where the
     // phpcs.xml file is presumed to reside.
     $source_dir = $this->environment->getExecContainerSourceDir();
-    $phpcs_config_dir = $source_dir;
+    $start_dir = $source_dir;
     // Add the config directory from configuration.
-    if (!empty($this->configuration['config_directory'])) {
-      $phpcs_config_dir = $source_dir . '/' . $this->configuration['config_directory'];
+    if (!empty($this->configuration['start_directory'])) {
+      $start_dir = $source_dir . '/' . $this->configuration['start_directory'];
     }
 
     // We have to configure phpcs to use drupal/coder. We can't do this during
@@ -156,7 +169,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
     // and all other constraints.
     $cmd = [
-      'cd ' . $phpcs_config_dir . ' &&',
+      'cd ' . $start_dir . ' &&',
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
@@ -199,7 +212,30 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($result->getSignal() == 0) {
       return $phpcs_bin;
     }
-    throw new \RuntimeException('phpcs file does not exist: ' . $phpcs_bin);
+    throw new \RuntimeException('phpcs executable does not exist: ' . $phpcs_bin);
+  }
+
+  /**
+   * Determine whether the project has a phpcs.xml(.dist) file.
+   *
+   * Uses start_directory as the place to look.
+   *
+   * @return bool
+   *   TRUE if the config file exists, false otherwise.
+   */
+  protected function projectHasPhpcsConfig() {
+    // Get the project root.
+    $source_dir = $this->environment->getExecContainerSourceDir();
+    $config_dir = $source_dir;
+    // Add the start directory from configuration.
+    if (!empty($this->configuration['start_directory'])) {
+      $config_dir = $source_dir . '/' . $this->configuration['start_directory'];
+    }
+    // Check if phpcs.xml(.dist) exists.
+    $config_file = $config_dir . '/phpcs.xml*';
+    $this->io->writeln('Checking for PHPCS config file: ' . $config_file);
+    $result = $this->environment->executeCommands('test -e ' . $config_file);
+    return ($result->getSignal() == 0);
   }
 
 }

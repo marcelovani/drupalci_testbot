@@ -1,0 +1,60 @@
+# This test definition is based on build.ContribD8PatchedPassingTest.yml.
+# It builds a codebase containing a patched contrib project, forces the addition
+# of Coder, and then runs phpcs. It does not include simpletest tests.
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: /var/lib/drupalci/drupal-checkout
+        git_branch: 8.3.x
+        git_commit_hash: 765c10b
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
+      composer.install:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/config_readonly.git'
+            branch: 8.x-1.x
+            checkout_dir: modules/config_readonly
+      composer.force_coder:
+        options: require drupal/coder 8.2.8 --dev --prefer-dist --no-suggest --no-progress
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/stop_block_placement-2728679-8.patch'
+            to: modules/config_readonly
+      patch:
+        patches:
+          -
+            from: stop_block_placement-2728679-8.patch
+            to: modules/config_readonly
+      composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      update_dependencies: {  }
+    project_subdir: modules/config_readonly
+    project_name: config_readonly
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'web-5.6'
+    create_db:
+      dbcreate: {  }
+    filesystem:
+      prepare_filesystem: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '4'
+      phpcs:

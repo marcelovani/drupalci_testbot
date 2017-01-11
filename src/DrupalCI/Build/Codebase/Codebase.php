@@ -27,6 +27,11 @@ class Codebase implements CodebaseInterface, Injectable {
 
   protected $extensionProjectSubDirectory = '';
 
+  /**
+   * The name of the project under test.
+   *
+   * @var string
+   */
   protected $projectName = '';
 
   protected $extensionPaths = '';
@@ -133,14 +138,14 @@ class Codebase implements CodebaseInterface, Injectable {
   }
 
   /**
-   * @return string
+   * {@inheritdoc}
    */
   public function getProjectName() {
     return $this->projectName;
   }
 
   /**
-   * @param string $projectName
+   * {@inheritdoc}
    */
   public function setProjectName($projectName) {
     $this->projectName = $projectName;
