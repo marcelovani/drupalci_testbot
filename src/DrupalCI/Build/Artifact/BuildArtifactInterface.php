@@ -17,6 +17,12 @@ interface BuildArtifactInterface {
    *   Returns the full path to the artifact. It can either be a directory or
    * full filename.
    */
-  public function getPath();
+  public function getSourcePath();
+
+  /**
+   * @return string
+   *   Returns the full path to the artifact after it has been preserved
+   */
+  public function getArtifactPath();
 
 }

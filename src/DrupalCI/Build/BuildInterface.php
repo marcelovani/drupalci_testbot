@@ -98,6 +98,8 @@ interface BuildInterface {
    */
   public function saveStringArtifact($filename, $string);
 
+  public function getBuildArtifacts();
+
   public function setupDirectory($directory);
 
 }

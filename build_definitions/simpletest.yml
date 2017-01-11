@@ -3,10 +3,11 @@ build:
     assemble_codebase:
       replicate:
       checkout_core:
+      composer.core_install:
+      composer_contrib:
       fetch:
       patch:
-      composer:
-      composer_contrib:
+      composer.post_patch:
       update_dependencies:
   environment:
     startcontainers:

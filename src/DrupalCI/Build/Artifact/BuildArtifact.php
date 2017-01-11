@@ -13,7 +13,13 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
    * @var string
    *   The path to the artifact. Could be a directory or a file
    */
-  protected $path;
+  protected $sourcePath;
+
+  /**
+   * @var string
+   *   The path to the artifact once it has been stored.
+   */
+  protected $artifactPath;
 
   /**
    * @var \DrupalCI\Build\BuildInterface
@@ -29,7 +35,7 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
    * container, depending on whether its a ContainerTaskArtifact or not.
    */
   public function __construct($path) {
-    $this->path = $path;
+    $this->sourcePath = $path;
   }
 
   /**
@@ -47,23 +53,31 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
     $uid = posix_getuid();
     $gid = posix_getgid();
     $fs = new Filesystem();
+    $this->artifactPath = $this->build->getArtifactDirectory() . "/" . basename($this->sourcePath);
     // Only copy files that are not already under the artifacts directory.
-    if (strpos($this->path, $this->build->getArtifactDirectory()) === FALSE) {
-      if (is_dir($this->path)){
-        $fs->mirror($this->path, $this->build->getArtifactDirectory() . "/" . basename($this->path));
+    if (strpos($this->sourcePath, $this->build->getArtifactDirectory()) === FALSE) {
+      if (is_dir($this->sourcePath)){
+        $fs->mirror($this->sourcePath, $this->artifactPath);
       } else {
-        $fs->copy($this->path, $this->build->getArtifactDirectory() . "/" . basename($this->path));
+        $fs->copy($this->sourcePath, $this->artifactPath);
       }
     }
-    $fs->chown($this->path, $uid, TRUE);
-    $fs->chgrp($this->path, $gid, TRUE);
+    $fs->chown($this->sourcePath, $uid, TRUE);
+    $fs->chgrp($this->sourcePath, $gid, TRUE);
   }
 
   /**
    * @inheritDoc
    */
-  public function getPath() {
-    return $this->path;
+  public function getSourcePath() {
+    return $this->sourcePath;
+  }
+
+  /**
+   *  @inheritDoc
+   */
+  public function getArtifactPath() {
+    return $this->artifactPath;
   }
 
 }

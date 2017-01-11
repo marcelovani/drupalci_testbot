@@ -28,7 +28,6 @@ class ContribD7ManyTestingDepsTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
     ], $options);
-    $foo = $app_tester->getDisplay();
     $this->assertRegExp('/Adding testing \(require-dev\) dependencies./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }

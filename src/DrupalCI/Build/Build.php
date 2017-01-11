@@ -113,7 +113,7 @@ class Build implements BuildInterface, Injectable {
   protected $buildId;
 
   /**
-   * @var array of \DrupalCI\Build\Artifact\TaskArtifactInterface
+   * @var array of \DrupalCI\Build\Artifact\BuildArtifactInterface
    */
   protected $buildArtifacts = [];
 
@@ -159,6 +159,11 @@ class Build implements BuildInterface, Injectable {
     file_put_contents($artifactFile, $string);
     $this->addArtifact($artifactFile);
   }
+
+  public function getBuildArtifacts() {
+    return $this->buildArtifacts;
+  }
+
 
   public function getBuildId() {
     return $this->buildId;
