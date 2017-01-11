@@ -11,6 +11,7 @@ build:
           -
             repo: 'git://git.drupal.org/project/drupal.git'
             branch: 7.x
+      composer_core_install:
       composer_contrib_d7:
         repositories:
           -
@@ -101,6 +102,8 @@ build:
         files: {  }
       patch:
         patches: {  }
+      composer.post_patch:
+      update_dependencies:
     project_subdir: sites/all/modules/metatag
     project_name: metatag
 

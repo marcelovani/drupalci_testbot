@@ -45,7 +45,6 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
       }
     }
 
-    $this->assertRegExp('/Adding testing \(require-dev\) dependencies./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
 

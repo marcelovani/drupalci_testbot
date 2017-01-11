@@ -59,7 +59,7 @@ interface CodebaseInterface {
    */
   public function getProjectName();
 
-  public function setProjectName($ancillaryDirectory);
+  public function setProjectName($projectName);
 
   /**
    * For contributed modules, this is where the modules will get checked out

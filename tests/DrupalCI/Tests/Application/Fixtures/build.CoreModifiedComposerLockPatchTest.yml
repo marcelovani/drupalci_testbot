@@ -13,7 +13,7 @@ build:
             branch: ''
             commit_hash: ''
             checkout_dir: ''
-      composer:
+      composer.core_install:
         options: 'install --prefer-dist --no-suggest --no-progress'
       composer_contrib:
         repositories: {  }
@@ -27,6 +27,8 @@ build:
           -
             from: 2840596-2.patch
             to: .
+      composer.post_patch:
+        options: 'install --prefer-dist --no-progress'
       update_dependencies: {  }
     project_subdir: ''
     project_name: ''
