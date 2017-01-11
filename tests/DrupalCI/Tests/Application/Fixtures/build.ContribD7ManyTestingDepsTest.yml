@@ -3,14 +3,10 @@ build:
     assemble_codebase:
       replicate:
         exclude: {  }
-        local_dir: ''
-        git_branch: ''
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '7.x'
         git_commit_hash: ''
       checkout_core_d7:
-        repositories:
-          -
-            repo: 'git://git.drupal.org/project/drupal.git'
-            branch: 7.x
       composer_core_install:
       composer_contrib_d7:
         repositories:
