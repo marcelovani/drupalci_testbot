@@ -1,14 +1,13 @@
-# This test definition is based on build.ContribD8PatchedPassingTest.yml.
-# It builds a codebase containing a patched contrib project, forces the addition
-# of Coder, and then runs phpcs. It does not include simpletest tests.
+# This is a test definition to require the Examples project.
+# It forces the addition of Coder, and then runs phpcs. It does not include
+# simpletest tests.
 build:
   codebase:
     assemble_codebase:
       replicate:
         exclude: {  }
         local_dir: /var/lib/drupalci/drupal-checkout
-        git_branch: 8.3.x
-        git_commit_hash: 765c10b
+        git_branch: 8.2.x
       checkout_core:
         repositories:
           -
@@ -21,26 +20,18 @@ build:
       composer_contrib:
         repositories:
           -
-            repo: 'git://git.drupal.org/project/config_readonly.git'
+            repo: 'git://git.drupal.org/project/examples.git'
             branch: 8.x-1.x
-            checkout_dir: modules/config_readonly
+            checkout_dir: modules/examples
       composer.force_coder:
         options: require drupal/coder 8.2.8 --dev --prefer-dist --no-suggest --no-progress
       fetch:
-        files:
-          -
-            from: 'https://www.drupal.org/files/issues/stop_block_placement-2728679-8.patch'
-            to: modules/config_readonly
       patch:
-        patches:
-          -
-            from: stop_block_placement-2728679-8.patch
-            to: modules/config_readonly
       composer:
         options: 'install --prefer-dist --no-suggest --no-progress'
       update_dependencies: {  }
-    project_subdir: modules/config_readonly
-    project_name: config_readonly
+    project_subdir: modules/examples
+    project_name: examples
   environment:
     startcontainers:
       runcontainers:
@@ -49,10 +40,7 @@ build:
       dbcreate: {  }
     filesystem:
       prepare_filesystem: {  }
-    db_type: mysql
-    db_version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
+    db_type: sqlite
   assessment:
     validate_codebase:
       phplint:
