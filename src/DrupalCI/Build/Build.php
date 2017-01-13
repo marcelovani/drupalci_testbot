@@ -139,9 +139,11 @@ class Build implements BuildInterface, Injectable {
   }
 
   public function addArtifact($path) {
-    $buildArtifact = new BuildArtifact($path);
-    $buildArtifact->inject($this->container);
-    $this->buildArtifacts[] = $buildArtifact;
+    if (file_exists($path)) {
+      $buildArtifact = new BuildArtifact($path);
+      $buildArtifact->inject($this->container);
+      $this->buildArtifacts[] = $buildArtifact;
+  }
 
   }
 
