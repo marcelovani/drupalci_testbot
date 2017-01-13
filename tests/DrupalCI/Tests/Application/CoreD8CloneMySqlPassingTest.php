@@ -27,7 +27,7 @@ class CoreD8CloneMySqlPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_GitCommitHash=f4a242f',
     'DCI_JobType=simpletest',
     'DCI_TestItem=Url',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
   ];

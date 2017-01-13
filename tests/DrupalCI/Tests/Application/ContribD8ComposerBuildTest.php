@@ -27,7 +27,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_TestItem=directory:modules/monolog',
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/monolog.git,8.x-1.x,modules/monolog,1;',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_DEBUG=TRUE',
