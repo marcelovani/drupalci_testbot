@@ -2,6 +2,7 @@
 
 namespace DrupalCI\Providers;
 
+use DrupalCI\Build\Codebase\PatchFactory;
 use DrupalCI\Console\DrupalCIConsoleApp;
 use DrupalCI\Plugin\PluginManagerFactory;
 use DrupalCI\Providers\DockerServiceProvider;
@@ -39,6 +40,8 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
     };
     // fugly.
     $container['app.root'] = __DIR__ . "/../../..";
-
+    $container['patch_factory'] = function ($container) {
+      return new PatchFactory($container);
+    };
   }
 }

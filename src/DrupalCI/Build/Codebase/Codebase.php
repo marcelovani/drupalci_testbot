@@ -7,7 +7,7 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\Patch;
+use DrupalCI\Build\Codebase\PatchInterface;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
@@ -39,10 +39,13 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * Any patches used to generate this codebase
    *
-   * @var \DrupalCI\Build\Codebase\Patch[]
+   * @var \DrupalCI\Build\Codebase\PatchInterface[]
    */
   protected $patches;
 
+  /**
+   * {@inheritdoc}
+   */
   public function getPatches() {
     return $this->patches;
   }
@@ -51,7 +54,7 @@ class Codebase implements CodebaseInterface, Injectable {
     $this->patches = $patches;
   }
 
-  public function addPatch(Patch $patch) {
+  public function addPatch(PatchInterface $patch) {
     if (!empty($this->patches) && !in_array($patch, $this->patches)) {
       $this->patches[] = $patch;
     }

@@ -25,13 +25,13 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_LocalBranch=8.1.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+    'DCI_LocalCommitHash=bdb434a',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
-    'DCI_LocalCommitHash=bdb434a',
+    'DCI_Fetch=https://www.drupal.org/files/issues/2572307-30.patch,.',
+    'DCI_Patch=2572307-30.patch,.',
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=php-5.5.38-apache:production',
-    'DCI_Patch=Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
     'DCI_TestItem=Url',
   ];
 
@@ -42,7 +42,7 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*Generic.PHP_.UpperCaseConstant-2572307-24.patch applied.*/', $app_tester->getDisplay());
+    $this->assertRegExp('/.*2572307-30.patch applied.*/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\system\\\\Tests\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }

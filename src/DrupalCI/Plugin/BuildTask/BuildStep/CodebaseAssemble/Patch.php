@@ -4,6 +4,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\PatchFactoryInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -21,13 +22,20 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
   use FileHandlerTrait;
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  /**
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   */
   protected $codebase;
+
+  /**
+   * @var \DrupalCI\Build\Codebase\PatchFactoryInterface
+   */
+  protected $patchFactory;
 
   public function inject(Container $container) {
     parent::inject($container);
     $this->codebase = $container['codebase'];
-
+    $this->patchFactory = $container['patch_factory'];
   }
 
   /**
@@ -52,24 +60,26 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->io->writeln('No patches to apply.');
     }
     foreach ($files as $key => $details) {
+      // Validate from.
+      if (empty($details['from'])) {
+        $this->io->drupalCIError("Patch error", "No valid patch file provided for the patch command.");
+        throw new BuildTaskException('No valid patch file provided for the patch command.');
+      }
+      // Adjust 'to' so the patch applies to the correct place.
+      if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
+        // This patch should be applied to wherever composer checks out to.
+        $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionDirectory('modules');
+      } else {
+        $details['to'] = $this->codebase->getSourceDirectory();
+      }
+      // Create a new patch object
+      $patch = $this->patchFactory->getPatch(
+        $details,
+        $this->codebase->getAncillarySourceDirectory()
+      );
+      $this->codebase->addPatch($patch);
+
       try {
-        if (empty($details['from'])) {
-          $this->io->drupalCIError("Patch error", "No valid patch file provided for the patch command.");
-          throw new BuildTaskException('No valid patch file provided for the patch command.');
-
-        }
-        if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
-          // This patch should be applied to wherever composer checks out to.
-          $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionDirectory('modules');
-        } else {
-          $details['to'] = $this->codebase->getSourceDirectory();
-        }
-
-        // Create a new patch object
-        $directory = $this->codebase->getAncillarySourceDirectory();
-        $patch = new PatchFile($details, $directory);
-        $patch->inject($this->container);
-        $this->codebase->addPatch($patch);
         // Validate our patch's source file and target directory
         if (!$patch->validate()) {
           throw new BuildTaskException('Failed to validate the patch source and/or target directory.');
@@ -82,16 +92,19 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
       catch (BuildTaskException $e) {
 
-        // Hack to create a xml file for processing by Jenkins.
+        // Hack to save an xml file to the Jenkins artifact directory.
         // TODO: Remove once proper build failure processing is in place
 
-        // Save an xmlfile to the jenkins artifact directory.
-        // find jenkins artifact dir
-        //
-        $output_directory = $this->build->getXmlDirectory();
+        // Not all BuildTaskExceptions represent a failed command line
+        // operation, so we have to handle that case.
+        $output = '';
 
-        $output = preg_replace('/[^\x{0009}\x{000A}\x{000D}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '�', implode("\n", $patch->getPatchApplyResults()));
+        $results = $patch->getPatchApplyResults();
+        if (!empty($results)) {
+          $output = preg_replace('/[^\x{0009}\x{000A}\x{000D}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '�', implode("\n", $results));
+        }
 
+        // Build the XML.
         $xml_error = '<?xml version="1.0"?>
 
                       <testsuite errors="1" failures="0" name="Error: Patch failed to apply" tests="1">
@@ -100,10 +113,10 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
                         </testcase>
                         <system-out><![CDATA[' . $output . ']]></system-out>
                       </testsuite>';
+        $output_directory = $this->build->getXmlDirectory();
         file_put_contents($output_directory . "/patchfailure.xml", $xml_error);
 
-        //throw $e;
-        return 0;
+        throw $e;
       };
       // Update our list of modified files
       $this->codebase->addModifiedFiles($patch->getModifiedFiles());

@@ -2,10 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
-use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTaskBase;
-use Pimple\Container;
-
 trait FileHandlerTrait {
 
   /**
@@ -16,8 +12,8 @@ trait FileHandlerTrait {
    *
    * Input format: (string) $value = "http://example.com/file1.patch,destination_directory1;[http://example.com/file2.patch,destination_directory2];..."
    * Desired Result: [
-   * array('url' => 'http://example.com/file1.patch', 'fetch_directory' => 'fetch_directory1')
-   * array('url' => 'http://example.com/file2.patch', 'fetch_directory' => 'fetch_directory2')
+   *   ['from' => 'http://example.com/file1.patch', 'to' => 'fetch_directory1'],
+   *   ['from' => 'http://example.com/file2.patch', 'to' => 'fetch_directory2'],
    *      ...   ]
    *
    * @param $value

@@ -198,9 +198,7 @@ class Patch implements PatchInterface, Injectable {
   }
 
   /**
-   * Validate patch file and target directory
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function validate()
   {
@@ -254,6 +252,8 @@ class Patch implements PatchInterface, Injectable {
 
     $absolutePath = $this->absolutePath;
     $target = $this->targetApplyDir;
+
+    $this->io->writeln("Applying patch $absolutePath to $target");
 
     $cmd = "cd $target && git apply -p1 $absolutePath 2>&1";
 
