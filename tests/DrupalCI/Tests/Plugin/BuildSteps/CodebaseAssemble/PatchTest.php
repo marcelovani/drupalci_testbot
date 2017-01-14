@@ -10,12 +10,15 @@ use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Build\BuildInterface;
 use org\bovigo\vfs\vfsStream;
 
+/**
+ * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Patch
+ */
 class PatchTest extends DrupalCITestCase {
 
   /**
    * Mock a build object that has a vfs xml directory.
    */
-  protected function getMockBuild() {
+  protected function mockBuild() {
     vfsStream::setup('xml_directory');
     // Make a build service that will output files to the place we like.
     $build = $this->getMockBuilder(BuildInterface::class)
@@ -27,7 +30,10 @@ class PatchTest extends DrupalCITestCase {
     return $build;
   }
 
-  protected function getPatchFactory($patch_worker) {
+  /**
+   * Mock a patch factory service object.
+   */
+  protected function mockPatchFactory($patch_worker) {
     // Have the factory 'generate' the mock patch object.
     $patch_factory = $this->getMockBuilder(PatchFactoryInterface::class)
       ->setMethods(['getPatch'])
@@ -38,6 +44,9 @@ class PatchTest extends DrupalCITestCase {
     return $patch_factory;
   }
 
+  /**
+   * @covers ::run
+   */
   public function testNoFromConfig() {
     $this->setExpectedException(
       BuildTaskException::class,
@@ -46,16 +55,24 @@ class PatchTest extends DrupalCITestCase {
 
     $container = $this->getContainer();
 
+    // Make a config that does not have a 'from' key.
+    $configuration = [
+      'patches' => [
+        ['not-from' => 'value'],
+      ]
+    ];
+
     // Use the plugin factory to get a patch plugin to test.
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
-    // We pass in incomplete configuration, so there are no 'from' files.
-    $patch_plugin = $plugin_factory->getPlugin('BuildStep', 'patch', ['patches' => ['not-from' => 'value']]);
+    $patch_plugin = $plugin_factory->getPlugin('BuildStep', 'patch', $configuration);
 
     $patch_plugin->run();
   }
 
   /**
    * Test behavior when the patch fails validation.
+   *
+   * @covers ::run
    */
   public function testFailPatchValidate() {
     $this->setExpectedException(
@@ -72,8 +89,8 @@ class PatchTest extends DrupalCITestCase {
       ->willReturn(FALSE);
 
     $container = $this->getContainer([
-      'patch_factory' => $this->getPatchFactory($patch_worker),
-      'build' => $this->getMockBuild(),
+      'patch_factory' => $this->mockPatchFactory($patch_worker),
+      'build' => $this->mockBuild(),
     ]);
 
     $configuration = [
@@ -90,6 +107,8 @@ class PatchTest extends DrupalCITestCase {
 
   /**
    * Test behavior when the patch is unable to apply.
+   *
+   * @covers ::run
    */
   public function testFailPatchApply() {
     $this->setExpectedException(
@@ -97,20 +116,21 @@ class PatchTest extends DrupalCITestCase {
       'Unable to apply the patch.'
     );
 
-    // Make a patch file object that validates but refuses to patch.
+    // Make a patch file object that validates.
     $patch_worker = $this->getMockBuilder(PatchInterface::class)
       ->setMethods(['validate', 'apply'])
       ->getMockForAbstractClass();
     $patch_worker->expects($this->once())
       ->method('validate')
       ->willReturn(TRUE);
+    // Ensure that the mocked patch object fails to apply the patch.
     $patch_worker->expects($this->once())
       ->method('apply')
       ->willReturn(1);
 
     $container = $this->getContainer([
-      'patch_factory' => $this->getPatchFactory($patch_worker),
-      'build' => $this->getMockBuild(),
+      'patch_factory' => $this->mockPatchFactory($patch_worker),
+      'build' => $this->mockBuild(),
     ]);
 
     // We need valid config with a 'to' and a 'from'.

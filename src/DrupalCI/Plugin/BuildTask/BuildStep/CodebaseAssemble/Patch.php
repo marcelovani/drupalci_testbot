@@ -2,17 +2,12 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Build\Codebase\PatchFactoryInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Build\Codebase\PatchInterface;
-use DrupalCI\Build\Codebase\Patch as PatchFile;
 use Pimple\Container;
 
 /**
@@ -50,17 +45,16 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   }
 
   /**
-   * @inheritDoc
+   * {@inheritDoc}
    */
   public function run() {
-
     $files = $this->configuration['patches'];
 
     if (empty($files)) {
       $this->io->writeln('No patches to apply.');
     }
     foreach ($files as $key => $details) {
-      // Validate from.
+      // Validate 'from'.
       if (empty($details['from'])) {
         $this->io->drupalCIError("Patch error", "No valid patch file provided for the patch command.");
         throw new BuildTaskException('No valid patch file provided for the patch command.');
@@ -72,7 +66,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       } else {
         $details['to'] = $this->codebase->getSourceDirectory();
       }
-      // Create a new patch object
+      // Create a new patch object based on the adjusted 'to'.
       $patch = $this->patchFactory->getPatch(
         $details,
         $this->codebase->getAncillarySourceDirectory()
