@@ -6,6 +6,7 @@
 
 namespace DrupalCI\Build;
 
+use DrupalCI\Build\BuildResultsInterface;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\HostConfig;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
@@ -340,11 +341,12 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = $this->processTask($this->computedBuildPlugins);
-      $this->saveBuildState();
+      $buildResults = new BuildResults('Build Successful','');
+      $this->saveBuildState($buildResults);
       return $statuscode;
     }
     catch (BuildTaskException $e) {
-      $this->saveBuildState($e->getMessage());
+      $this->saveBuildState($e->getBuildResults());
       return 2;
     } finally {
       // TODO: we need to have a step that goes through the build objects
@@ -462,15 +464,16 @@ class Build implements BuildInterface, Injectable {
   /**
    * Given a file, returns an array containing the parsed YAML contents from that file
    *
-   * @param $message
+   * @param \DrupalCI\Build\BuildResultsInterface $buildResults
    *
+   * @internal param $message
    */
-  protected function saveBuildState($message = 'Build Successful') {
+  protected function saveBuildState(BuildResultsInterface $buildResults) {
+    # @TODO: $message should probably be a buildState object or something like that.
 
     $buildstate = $this->getArtifactDirectory() . '/buildstate.json';
-    $json = json_encode($message);
+    $json = $buildResults->serializeResults();
     file_put_contents($buildstate, $json);
-
   }
 
   /**
