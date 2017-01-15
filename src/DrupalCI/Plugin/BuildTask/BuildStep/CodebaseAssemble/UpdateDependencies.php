@@ -58,7 +58,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         $this->exec($cmd, $cmdoutput, $result);
         if ($result !== 0) {
           // Git threw an error.
-          throw new BuildTaskException("Unable to determine composer branch.  Error Code: $result");
+          $this->terminateBuild("Unable to determine composer branch.  Error Code: $result");
         }
 
         $composer_branchname = $cmdoutput[0];
@@ -67,7 +67,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         $this->exec("mv $project_dir $ancillary_dir", $cmdoutput, $result);
         if ($result !== 0) {
           // Git threw an error.
-          throw new BuildTaskException("mv Failure.  Error Code: $result");
+          $this->terminateBuild("mv Failure.  Error Code: $result");
         }
         // 3. make a fake branch in ancillary <TBRANCH>
         $cmd = "cd " . $ancillary_dir . " && git checkout -b ancillary-branch";
@@ -75,7 +75,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         $this->exec($cmd, $cmdoutput, $result);
         if ($result !== 0) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary branch creation failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary branch creation failure.  Error Code: $result");
         }
         // 4. commit to ancillary
         $cmd = "cd " . $ancillary_dir . " && git add . && git commit -am 'intermediate commit'";
@@ -83,7 +83,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         $this->exec($cmd, $cmdoutput, $result);
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary commit failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary commit failure.  Error Code: $result");
         }
         // 5. unset pdo
         $cmd = "./bin/composer config repositories.pdo --unset --working-dir " . $source_dir;
@@ -92,7 +92,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary repository config failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary repository config failure.  Error Code: $result");
         }
         // 6. add ancillary as a composer repo
         $cmd = "./bin/composer config repositories.ancillary '{\"type\": \"path\", \"url\": \"" . $ancillary_dir . "\", \"options\": {\"symlink\": false}}' --working-dir " . $source_dir;
@@ -102,7 +102,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary repository config failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary repository config failure.  Error Code: $result");
         }
 
         // 7. reset pdo
@@ -113,7 +113,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary repository config failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary repository config failure.  Error Code: $result");
         }
         // 8. composer require drupal/project "<TBRANCH> AS <CBRANCH>"
         $cmd = "./bin/composer require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --working-dir " . $source_dir;
@@ -123,7 +123,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Ancillary require failure.  Error Code: $result");
+          $this->terminateBuild("Ancillary require failure.  Error Code: $result");
         }
 
         // 9. Look for changes to require-dev too:
@@ -136,7 +136,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
           if ($result > 1) {
             // Git threw an error.
-            throw new BuildTaskException("Composer require failure.  Error Code: $result");
+            $this->terminateBuild("Composer require failure.  Error Code: $result");
           }
         }
       }

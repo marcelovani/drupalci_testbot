@@ -6,7 +6,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -63,7 +62,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // Validate local directory
       if (!is_dir($local_dir)) {
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
-        throw new BuildTaskException("The source directory $local_dir does not exist.");
+        $this->terminateBuild("The source directory $local_dir does not exist.");
       }
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
@@ -74,8 +73,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       }
       $this->exec("rsync -a $excludes  $local_dir/. $directory", $cmdoutput, $result);
       if ($result !== 0) {
-        $this->io->drupalCIError("Copy error", "Error encountered while attempting to copy code to the local checkout directory.");
-        throw new BuildTaskException("The rsync returned an error.  Error Code: $result");
+        $this->terminateBuild("The rsync returned an error.", "Error encountered while attempting to copy code to the local checkout directory.");
       }
 
       $this->io->writeln("<comment>Copying files complete</comment>");
@@ -88,7 +86,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
           $this->exec($cmd, $cmdoutput, $result);
           if ($result !==0) {
             // Git threw an error.
-            throw new BuildTaskException("git checkout returned an error.  Error Code: $result");
+            $this->terminateBuild("git checkout returned an error.  Error Code: $result");
           }
         }
         if (!empty($this->configuration['git_commit_hash'])) {
@@ -97,7 +95,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
           $this->exec($cmd, $cmdoutput, $result);
           if ($result !==0) {
             // Git threw an error.
-            throw new BuildTaskException("git reset returned an error.  Error Code: $result");
+            $this->terminateBuild("git reset returned an error.  Error Code: $result");
           }
         }
 

@@ -7,7 +7,6 @@ use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
@@ -73,8 +72,7 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $result = $this->environment->executeCommands($cmd);
       if ($result->getSignal() !== 0) {
         // Git threw an error.
-        $this->io->drupalCIError("PHPLint Failed", "Error Code: " . $result->getSignal());
-        throw new BuildTaskException("PHPLint Failed: " . $result->getError());
+        $this->terminateBuild("PHPLint Failed", "Error Code: " . $result->getSignal());
       }
     }
     return 0;

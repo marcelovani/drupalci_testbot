@@ -2,6 +2,8 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
+use DrupalCI\Build\BuildResults;
+
 /**
  * Class BuildTaskException
  *
