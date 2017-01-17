@@ -62,7 +62,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // Validate local directory
       if (!is_dir($local_dir)) {
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
-        $this->terminateBuild("The source directory $local_dir does not exist.");
+        $this->terminateBuild("Replication Failed" , "The source directory $local_dir does not exist.");
       }
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
@@ -86,7 +86,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
           $this->exec($cmd, $cmdoutput, $result);
           if ($result !==0) {
             // Git threw an error.
-            $this->terminateBuild("git checkout returned an error.  Error Code: $result");
+            $this->terminateBuild("git checkout returned an error.", "git checkout returned an error. Error Code: $result");
           }
         }
         if (!empty($this->configuration['git_commit_hash'])) {
@@ -95,7 +95,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
           $this->exec($cmd, $cmdoutput, $result);
           if ($result !==0) {
             // Git threw an error.
-            $this->terminateBuild("git reset returned an error.  Error Code: $result");
+            $this->terminateBuild("git reset returned an error.", "git reset returned an error. Error Code: $result");
           }
         }
 

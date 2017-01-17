@@ -70,12 +70,12 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->codebase->addPatch($patch);
         // Validate our patch's source file and target directory
         if (!$patch->validate()) {
-          $this->terminateBuild('Failed to validate the patch source and/or target directory.');
+          $this->terminateBuild("Patch Validation Error", "Failed to validate the patch.");
         }
 
         // Apply the patch
         if ($patch->apply() !== 0) {
-          $this->terminateBuild('Unable to apply the patch.');
+          $this->terminateBuild("Patch Failed to Apply", "Unable to apply the patch.");
         }
       }
       catch (BuildTaskException $e) {

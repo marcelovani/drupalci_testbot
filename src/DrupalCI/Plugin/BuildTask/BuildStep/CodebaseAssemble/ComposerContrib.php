@@ -54,7 +54,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $components = explode(',', $entry);
         // Ensure we have at least 3 components
         if (count($components) < 4) {
-          $this->terminateBuild("Unable to parse repository information for value $entry");
+          $this->terminateBuild("Unable to parse repository info",  "Unable to parse repository info for value $entry");
         }
         // Create the build definition entry
         $output = [
@@ -86,7 +86,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
 
         if ($result > 1) {
           // Git threw an error.
-          $this->terminateBuild("Composer config failure.  Error Code: $result");
+          $this->terminateBuild("Composer config failure.", "Composer config failure.  Error Code: $result");
         }
 
         $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
@@ -96,7 +96,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
 
         if ($result > 1) {
           // Git threw an error.
-          $this->terminateBuild("Composer require failure.  Error Code: $result");
+          $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
         }
         // Composer does not respect require-dev anywhere but the root package
         // Lets probe for require-dev in our newly installed module, and add
@@ -109,7 +109,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
 
           if ($result > 1) {
             // Git threw an error.
-            $this->terminateBuild("Composer require failure.  Error Code: $result");
+            $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
           }
         }
       }
