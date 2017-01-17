@@ -21,8 +21,6 @@ class CoreCoderPhpcsOnlyChangedFailTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',

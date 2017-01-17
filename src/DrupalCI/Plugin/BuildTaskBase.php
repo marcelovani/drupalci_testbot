@@ -175,7 +175,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   }
 
 
-  public function terminateBuild($errorLabel, $errorDetails){
+  public function terminateBuild($errorLabel, $errorDetails = ''){
     $this->io->drupalCIError($errorLabel, $errorDetails);
     throw new BuildTaskException($errorLabel, $errorDetails);
   }

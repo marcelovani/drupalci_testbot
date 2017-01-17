@@ -10,6 +10,7 @@ use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Build\Codebase\PatchInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Build\Codebase\Patch as PatchFile;
 use Pimple\Container;
 

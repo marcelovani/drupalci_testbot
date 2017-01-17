@@ -4,6 +4,12 @@ build:
     assemble_codebase:
       replicate:
       checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
       composer:
       fetch:
       patch:
