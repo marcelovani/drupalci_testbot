@@ -30,13 +30,6 @@ class BuildResults implements BuildResultsInterface {
   /**
    * {@inheritdoc}
    */
-  public function setResultLabel($resultLabel) {
-    $this->resultLabel = $resultLabel;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getResultDetails() {
     return $this->resultDetails;
   }
@@ -44,16 +37,11 @@ class BuildResults implements BuildResultsInterface {
   /**
    * {@inheritdoc}
    */
-  public function setResultDetails($resultDetails) {
-    $this->resultDetails = $resultDetails;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function serializeResults() {
-    $results = ['buildLabel' => $this->resultLabel, 'buildDetails' => $this->resultDetails];
-    return  json_encode($results);
+  public function jsonSerialize() {
+    return [
+      'buildLabel' => $this->getResultLabel(),
+      'buildDetails' => $this->getResultDetails(),
+    ];
   }
 
 }

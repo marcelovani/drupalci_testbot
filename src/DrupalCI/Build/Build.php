@@ -469,11 +469,8 @@ class Build implements BuildInterface, Injectable {
    * @internal param $message
    */
   protected function saveBuildState(BuildResultsInterface $buildResults) {
-    # @TODO: $message should probably be a buildState object or something like that.
-
     $build_outcome = $this->getArtifactDirectory() . '/buildoutcome.json';
-    $json = $buildResults->serializeResults();
-    file_put_contents($build_outcome, $json);
+    file_put_contents($build_outcome, json_encode($buildResults));
   }
 
   /**

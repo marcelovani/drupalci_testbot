@@ -2,19 +2,20 @@
 
 namespace DrupalCI\Build;
 
+/**
+ * A place to store result information for builds.
+ *
+ * This object is eventually serialized for JSON, and written to a status file
+ * uses by D.O to display to the user.
+ */
+interface BuildResultsInterface extends \JsonSerializable {
 
-interface BuildResultsInterface {
   /**
    * @return mixed
    *
-   * Returns the short 50 character description that is used in d.o.'s UI
+   * Returns the short 50 character description that is used in d.o.'s UI.
    */
   public function getResultLabel();
-
-  /**
-   * @param mixed $resultLabel
-   */
-  public function setResultLabel($resultLabel);
 
   /**
    * @return mixed
@@ -25,15 +26,4 @@ interface BuildResultsInterface {
    */
   public function getResultDetails();
 
-  /**
-   * @param mixed $resultDetails
-   */
-  public function setResultDetails($resultDetails);
-
-  /**
-   * @return string
-   *
-   * Returns a serialized json representation of the build results.
-   */
-  public function serializeResults();
 }
