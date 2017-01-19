@@ -45,5 +45,10 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
     // When we can send back proper signals to jenkins, we'll change this back.
     //$this->assertEquals(255, $app_tester->getStatusCode());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

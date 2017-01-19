@@ -38,8 +38,12 @@ class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.PhpLint.yml',
     ], $options);
-    $display = $app_tester->getDisplay();
     $this->assertRegExp('/No syntax errors detected/', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

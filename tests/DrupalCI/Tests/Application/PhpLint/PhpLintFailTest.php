@@ -42,5 +42,10 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     $this->assertRegExp('/Parse error:  syntax error, unexpected end of file/', $app_tester->getDisplay());
     $this->assertRegExp('/PHPLint Failed/', $app_tester->getDisplay());
     $this->assertEquals(2, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'PHPLint Failed');
+    $this->assertBuildOutputJson($build, 'buildDetails', 'Error Code: 124');
   }
 }
