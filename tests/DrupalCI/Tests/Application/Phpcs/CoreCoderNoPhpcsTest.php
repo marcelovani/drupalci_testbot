@@ -37,7 +37,7 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniffNoPhpcs.yml',
     ], $options);
     $this->assertRegExp('/Checking for phpcs tool in codebase./', $app_tester->getDisplay());
-    $this->assertRegExp('/phpcs file does not exist/', $app_tester->getDisplay());
+    $this->assertRegExp('/phpcs executable does not exist/', $app_tester->getDisplay());
     $this->assertNotRegExp('/Executing phpcs./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
