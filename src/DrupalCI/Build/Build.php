@@ -518,7 +518,7 @@ class Build implements BuildInterface, Injectable {
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
     if (empty($build_id)) {
-      $build_id = $this->buildType . '_' . time();
+      $build_id = $this->buildType . '_' . md5(microtime());
     }
     $this->setBuildId($build_id);
     $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
