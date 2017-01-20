@@ -68,10 +68,27 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
   }
 
-  /**
-   * @inheritDoc
-   */
   public function run() {
+    $return = $this->doRun();
+    $this->adjustCheckstylePaths();
+    return $return;
+  }
+
+  /**
+   * Perform the step run.
+   *
+   * The rules for phpcs go like this:
+   *
+   * If the project under test does not have a phpcs executable then exit with
+   * no complaints.
+   *
+   * If the project under test does not have a phpcs.xml or phpcs.xml.dist file
+   * within start_directory, then exit with no complaints.
+   *
+   * If {start_directory}/phpcs.xml or .dist have been modified, then override
+   * the sniff_only_changed config to sniff the whole project.
+   */
+  protected function doRun() {
     $this->io->writeln('<info>Checking for phpcs tool in codebase.</info>');
 
     // If there's no phpcs executable in the codebase then there's nothing else
@@ -107,6 +124,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Make a list of of modified files to this file.
     $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
 
+    // Sniff all files if phpcs.xml(.dist) has been modified.
+    if ($this->phpcsConfigFileIsModified()) {
+      $this->io->writeln('<info>PHPCS config file modified, sniffing entire project.</info>');
+      $this->configuration['sniff_only_changed'] = FALSE;
+    }
+
     // Check if we should only sniff modified files.
     if ($this->configuration['sniff_only_changed']) {
       $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
@@ -117,8 +140,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->io->writeln('<info>No modified files to sniff.</info>');
         return 0;
       }
+      $container_source = $this->environment->getExecContainerSourceDir();
       foreach ($modified_php_files as $file) {
-        $sniffable_file_list[] = $this->environment->getExecContainerSourceDir() . "/" . $file;
+        $sniffable_file_list[] = $container_source . "/" . $file;
       }
 
       $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
@@ -126,7 +150,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->build->addArtifact($sniffable_file);
     }
     else {
-      $this->io->writeln('<info>Sniffing all files in repo.</info>');
+      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '/.</info>');
     }
 
     // Set up the report file artifact.
@@ -135,14 +159,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     touch($report_file);
     $this->build->addArtifact($report_file);
 
-    // Figure out sniff config directory. This is the directory where the
+    // Figure out sniff start directory. This is the directory where the
     // phpcs.xml file is presumed to reside.
-    $source_dir = $this->environment->getExecContainerSourceDir();
-    $start_dir = $source_dir;
-    // Add the config directory from configuration.
-    if (!empty($this->configuration['start_directory'])) {
-      $start_dir = $source_dir . '/' . $this->configuration['start_directory'];
-    }
+    $start_dir = $this->getStartDirectory();
 
     // We have to configure phpcs to use drupal/coder. We can't do this during
     // code assemble time because config and path will change under the PHP
@@ -215,6 +234,17 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     throw new \RuntimeException('phpcs executable does not exist: ' . $phpcs_bin);
   }
 
+  protected function getStartDirectory() {
+    // Get the project root.
+    $source_dir = $this->environment->getExecContainerSourceDir();
+    $start_dir = $source_dir;
+    // Add the start directory from configuration.
+    if (!empty($this->configuration['start_directory'])) {
+      $start_dir = $source_dir . '/' . $this->configuration['start_directory'];
+    }
+    return $start_dir;
+  }
+
   /**
    * Determine whether the project has a phpcs.xml(.dist) file.
    *
@@ -224,18 +254,42 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    *   TRUE if the config file exists, false otherwise.
    */
   protected function projectHasPhpcsConfig() {
-    // Get the project root.
-    $source_dir = $this->environment->getExecContainerSourceDir();
-    $config_dir = $source_dir;
-    // Add the start directory from configuration.
-    if (!empty($this->configuration['start_directory'])) {
-      $config_dir = $source_dir . '/' . $this->configuration['start_directory'];
-    }
     // Check if phpcs.xml(.dist) exists.
+    $config_dir = $this->getStartDirectory();
     $config_file = $config_dir . '/phpcs.xml*';
     $this->io->writeln('Checking for PHPCS config file: ' . $config_file);
     $result = $this->environment->executeCommands('test -e ' . $config_file);
     return ($result->getSignal() == 0);
   }
 
+  /**
+   * Check if the phpcs.xml or phpcs.xml.dist file has been modified by git.
+   *
+   * We should return true for a modification to either, because we don't want
+   * drupalci to have an opinion about which config is more important.
+   *
+   * @returns bool
+   *   TRUE if config file if either file is modified, FALSE otherwise.
+   */
+  protected function phpcsConfigFileIsModified() {
+    // Get the list of modified files.
+    $modified_files = $this->codebase->getModifiedFiles();
+    $start_dir = '';
+    if (!empty($this->configuration['start_directory'])) {
+      $start_dir = $this->configuration['start_directory'];
+    }
+    return (
+      in_array($start_dir . 'phpcs.xml', $modified_files) ||
+      in_array($start_dir . 'phpcs.xml.dist', $modified_files)
+    );
+  }
+
+  protected function adjustCheckstylePaths() {
+    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
+    if (file_exists($checkstyle_report_filename)) {
+      $checkstyle_xml = file_get_contents($checkstyle_report_filename);
+      $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!","<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
+      file_put_contents($checkstyle_report_filename, $checkstyle_xml);
+    }
+  }
 }
