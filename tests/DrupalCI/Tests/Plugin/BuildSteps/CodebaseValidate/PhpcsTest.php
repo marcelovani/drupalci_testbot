@@ -18,5 +18,5 @@ class PhpcsTest extends \PHPUnit_Framework_TestCase {
     // all.
     $this->assertEquals(TRUE, $default_config['sniff_only_changed']);
   }
-  
+
 }

@@ -284,6 +284,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     );
   }
 
+  /**
+   * Adjust paths in the checkstyle report.
+   *
+   * The checkstyle report will show file paths inside the container, and we
+   * want it to show paths in the host environment. We do a preg_replace() to
+   * swap out paths.
+   */
   protected function adjustCheckstylePaths() {
     $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
     if (file_exists($checkstyle_report_filename)) {
