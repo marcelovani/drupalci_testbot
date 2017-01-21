@@ -518,6 +518,8 @@ class Build implements BuildInterface, Injectable {
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
     if (empty($build_id)) {
+      // Hash microtime() so we don't end up with the same ID for builds shorter
+      // than a second.
       $build_id = $this->buildType . '_' . md5(microtime());
     }
     $this->setBuildId($build_id);
