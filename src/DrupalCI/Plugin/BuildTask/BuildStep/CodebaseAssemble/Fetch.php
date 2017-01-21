@@ -18,7 +18,19 @@ use Pimple\Container;
 class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+
+  /**
+   * The Guzzle client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
+   * The codebase service.
+   *
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   */
   protected $codebase;
 
   public function inject(Container $container) {
@@ -47,6 +59,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     if (empty($files)) {
       $this->io->writeln('No files to fetch.');
+      return 0;
     }
     foreach ($files as $details) {
       // URL and target directory
@@ -69,6 +82,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
       $this->io->writeln("<comment>Fetch of <options=bold>$url</> to <options=bold>$destination_file</> complete.</comment>");
     }
+    return 0;
   }
 
   /**
@@ -79,7 +93,10 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'files' => [],
     ];
   }
+
   /**
+   * Get the Guzzle client, generating one if necessary.
+   *
    * @return \GuzzleHttp\ClientInterface
    */
   protected function httpClient() {
