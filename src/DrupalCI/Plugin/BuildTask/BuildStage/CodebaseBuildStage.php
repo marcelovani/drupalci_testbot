@@ -48,8 +48,14 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
       $this->codebase->setProjectName($this->configuration['project_name']);
     }
     $this->codebase->setupDirectories();
-    $this->build->addArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json');
 
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function complete($childStatus) {
+    $this->build->addArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json');
   }
 
   /**

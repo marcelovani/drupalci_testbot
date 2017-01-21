@@ -27,7 +27,7 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
     'DCI_TestItem=Url',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=pgsql',
     'DCI_DBVersion=9.1',
   ];

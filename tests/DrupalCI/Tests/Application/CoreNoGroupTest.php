@@ -30,7 +30,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
     'DCI_LocalCommitHash=5d97345',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2827218-2-field_denormalize.patch,.',
   ];
 

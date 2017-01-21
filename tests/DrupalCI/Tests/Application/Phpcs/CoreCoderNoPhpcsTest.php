@@ -24,7 +24,7 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalCommitHash=e1c5a1e',
     'DCI_DBType=sqlite',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DEBUG=TRUE',
   ];
 
