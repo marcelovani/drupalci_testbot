@@ -128,6 +128,19 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
           throw new BuildTaskException("Ancillary require failure.  Error Code: $result");
         }
 
+        // 9. Look for changes to require-dev too:
+        $packages = $this->codebase->getComposerDevRequirements();
+        if (!empty($packages)) {
+
+          $cmd = "./bin/composer require " . implode($packages, " ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $this->io->writeln("Composer Command: $cmd");
+          $this->exec($cmd, $cmdoutput, $result);
+
+          if ($result > 1) {
+            // Git threw an error.
+            throw new BuildTaskException("Composer require failure.  Error Code: $result");
+          }
+        }
       }
     }
 

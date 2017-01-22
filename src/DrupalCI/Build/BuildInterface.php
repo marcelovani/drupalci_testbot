@@ -61,6 +61,13 @@ interface BuildInterface {
   public function getArtifactDirectory();
 
   /**
+   * This is the directory where core dumps should end up on the host os
+   *
+   * @return mixed
+   */
+  public function getHostCoredumpDirectory();
+
+  /**
    * This is the directory where we place artifacts that can be parsed
    * by jenkins xml parsing. It is usually located *under* the artifacts
    * directory
@@ -90,6 +97,8 @@ interface BuildInterface {
    * Takes in a string, and saves it as an artifact in the artifact directory.
    */
   public function saveStringArtifact($filename, $string);
+
+  public function getBuildArtifacts();
 
   public function setupDirectory($directory);
 

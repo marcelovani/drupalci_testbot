@@ -21,18 +21,16 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2809565_actually_fails_linting.patch,.',
     'DCI_Patch=2809565_actually_fails_linting.patch,.',
   ];
 
-  public function testCoderSniffOnlyChangedFailTest() {
+  public function testPhpLintFailTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
@@ -40,8 +38,9 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.PhpLint.yml',
     ], $options);
-    $display = $app_tester->getDisplay();
-    $this->assertRegExp('/Parse error: syntax error, unexpected end of file/', $app_tester->getDisplay());
-    $this->assertEquals(4096, $app_tester->getStatusCode());
+    $foo = $app_tester->getDisplay();
+    $this->assertRegExp('/Parse error:  syntax error, unexpected end of file/', $app_tester->getDisplay());
+    $this->assertRegExp('/PHPLint Failed/', $app_tester->getDisplay());
+    $this->assertEquals(2, $app_tester->getStatusCode());
   }
 }

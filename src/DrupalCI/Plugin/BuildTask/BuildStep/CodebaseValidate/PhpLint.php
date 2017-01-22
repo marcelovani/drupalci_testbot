@@ -73,8 +73,8 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $result = $this->environment->executeCommands($cmd);
       if ($result->getSignal() !== 0) {
         // Git threw an error.
-        $this->io->drupalCIError("PHPLint Failed", "  Error Code: $result");
-        throw new BuildTaskException("PHPLint Failed: $result");
+        $this->io->drupalCIError("PHPLint Failed", "Error Code: " . $result->getSignal());
+        throw new BuildTaskException("PHPLint Failed: " . $result->getError());
       }
     }
     return 0;

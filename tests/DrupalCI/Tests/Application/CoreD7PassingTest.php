@@ -27,7 +27,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletestlegacy7',
     'DCI_LocalCommitHash=3d5bcd3',
     'DCI_TestItem=Syslog',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
   ];

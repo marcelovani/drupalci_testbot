@@ -113,7 +113,7 @@ class Build implements BuildInterface, Injectable {
   protected $buildId;
 
   /**
-   * @var array of \DrupalCI\Build\Artifact\TaskArtifactInterface
+   * @var array of \DrupalCI\Build\Artifact\BuildArtifactInterface
    */
   protected $buildArtifacts = [];
 
@@ -139,9 +139,11 @@ class Build implements BuildInterface, Injectable {
   }
 
   public function addArtifact($path) {
-    $buildArtifact = new BuildArtifact($path);
-    $buildArtifact->inject($this->container);
-    $this->buildArtifacts[] = $buildArtifact;
+    if (file_exists($path)) {
+      $buildArtifact = new BuildArtifact($path);
+      $buildArtifact->inject($this->container);
+      $this->buildArtifacts[] = $buildArtifact;
+  }
 
   }
 
@@ -159,6 +161,11 @@ class Build implements BuildInterface, Injectable {
     file_put_contents($artifactFile, $string);
     $this->addArtifact($artifactFile);
   }
+
+  public function getBuildArtifacts() {
+    return $this->buildArtifacts;
+  }
+
 
   public function getBuildId() {
     return $this->buildId;
@@ -479,6 +486,16 @@ class Build implements BuildInterface, Injectable {
   public function getArtifactDirectory() {
     return $this->buildDirectory . '/artifacts';
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function getHostCoredumpDirectory() {
+    // @TODO: make this more resilient for envs other than vagrant box
+    // and linux local testing.
+    return '/var/lib/drupalci/coredumps';
+  }
+
   /**
    * @inheritDoc
    */
@@ -501,7 +518,9 @@ class Build implements BuildInterface, Injectable {
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
     if (empty($build_id)) {
-      $build_id = $this->buildType . '_' . time();
+      // Hash microtime() so we don't end up with the same ID for builds shorter
+      // than a second.
+      $build_id = $this->buildType . '_' . md5(microtime());
     }
     $this->setBuildId($build_id);
     $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");

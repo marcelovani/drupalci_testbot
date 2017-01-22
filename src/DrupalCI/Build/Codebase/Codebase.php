@@ -173,11 +173,40 @@ class Codebase implements CodebaseInterface, Injectable {
   public function setExtensionPaths($extensionPaths) {
     $this->extensionPaths = $extensionPaths;
   }
-  // TODO: get rid of this
-  // this is a helper convenience function for geting the ultimate calculated
-  // path set by composer.
+  // This is the path, relative to the source where composer installers p
+  // laces our extensions.
   public function getTrueExtensionDirectory($type){
     return $this->extensionPaths[$type] . '/' . $this->projectName;
+  }
+
+  /**
+   * Returns a list of require-dev packages for the current project.
+   *
+   * @return array
+   */
+  public function getComposerDevRequirements() {
+    $packages = [];
+    $installed_json = $this->getInstalledComposerPackages();
+    foreach ($installed_json as $package) {
+      if ($package['name'] == "drupal/" . $this->projectName) {
+        if (!empty($package['require-dev'])) {
+          $this->io->writeln("<error>Adding testing (require-dev) dependencies.</error>");
+          foreach ($package['require-dev'] as $dev_package => $constraint) {
+            $packages[] = escapeshellarg($dev_package . ":" . $constraint);
+          }
+        }
+      }
+    }
+    return $packages;
+  }
+
+  public function getInstalledComposerPackages() {
+    $installed_json = [];
+    $install_json = $this->getSourceDirectory() . '/vendor/composer/installed.json';
+    if (file_exists($install_json)) {
+      $installed_json = json_decode(file_get_contents($install_json), TRUE);
+    }
+    return $installed_json;
   }
 
 }

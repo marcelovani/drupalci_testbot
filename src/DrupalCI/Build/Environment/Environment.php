@@ -68,6 +68,12 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
 
+  /**
+   * @var string
+   * This *must* match the /proc/sys/kernel/core_pattern of the docker host
+   */
+  protected $containerCoreDumpDir = '/var/lib/drupalci/coredumps';
+
   public function inject(Container $container) {
 
     $this->io = $container['console.io'];
@@ -185,6 +191,8 @@ class Environment implements Injectable, EnvironmentInterface {
     // Map working directory
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
+    $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
     $this->executableContainer = $this->startContainer($container);
 
   }
@@ -194,6 +202,8 @@ class Environment implements Injectable, EnvironmentInterface {
       return;
     }
     $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
+    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $db_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
 
     $this->databaseContainer = $this->startContainer($db_container);
     $this->database->setHost($this->databaseContainer['ip']);
@@ -245,6 +255,7 @@ class Environment implements Injectable, EnvironmentInterface {
       $container_config->setImage($config['Image']);
       $host_config = new HostConfig();
       $host_config->setBinds($config['HostConfig']['Binds']);
+      $host_config->setUlimits($config['HostConfig']['Ulimits']);
       $container_config->setHostConfig($host_config);
       $parameters = [];
       $create_result = $manager->create($container_config, $parameters);
