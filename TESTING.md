@@ -10,7 +10,7 @@ When developing, the full test suite can take a long time to fully complete, so 
 of the functionality you are working on first, then run the full suite as a final regression test.
 
 Running drupalci locally is fully supported as a virtualbox/vagrant machine that exactly replicates the environments
- that drupalci runs in on aws. It requires at least 4gb of spare ram, and 20GB of local disk.
+ that drupalci runs in on aws. It requires at least 4gb of spare ram, and at most 25GB of local disk.
 
  Installing drupalci in a local linux host may be possible, but there are many dependencies required by the host os.
  Please refer to the packer build scripts here for more information regarding what that might entail:
@@ -53,6 +53,6 @@ that are currently pulled to the official testbots.
 On occasion you may see that the vagrant box has been updated to a newer version.
 
         // upgrade to newer version of the host
-        $ vagrant box upgrade
+        $ vagrant box update
         // prune older versions of the host to free up space.
         $ vagrant box prune
