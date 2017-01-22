@@ -36,6 +36,9 @@ development resources. Primarily you would want to adjust the 'v.memory = 8192',
         $ vagrant up
         // Wait a while...
         $ vagrant ssh
+        $ cd /home/testbot/testrunner
+        $ composer install
+        // @TODO: composer install should be run by vagrant.
 
 At this point you have a couple of options. The vagrant box does not come with any containers pulled by default.  You
 can either let drupalci pull any missing containers it needs, or, if you know you are going to be working on
