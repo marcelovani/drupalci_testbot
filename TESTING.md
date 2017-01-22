@@ -10,7 +10,7 @@ When developing, the full test suite can take a long time to fully complete, so 
 of the functionality you are working on first, then run the full suite as a final regression test.
 
 Running drupalci locally is fully supported as a virtualbox/vagrant machine that exactly replicates the environments
- that drupalci runs in on aws.
+ that drupalci runs in on aws. It requires at least 4gb of spare ram, and 20GB of local disk.
 
  Installing drupalci in a local linux host may be possible, but there are many dependencies required by the host os.
  Please refer to the packer build scripts here for more information regarding what that might entail:
@@ -20,6 +20,7 @@ Running drupalci locally is fully supported as a virtualbox/vagrant machine that
 - You need to have vagrant installed.
 - You need to have the vagrant vbguest plugin installed. This will make it so that if your virtualbox
   app is upgraded, then the underlying guest OS's stay in sync.
+
        $ vagrant plugin install vagrant-vbguest
 
 - Use a native environment, either on a testbot machine or using the virtual machine provided by vagrant or similar.
@@ -28,6 +29,10 @@ Running drupalci locally is fully supported as a virtualbox/vagrant machine that
 
         $ git clone --branch dev https://git.drupal.org/project/drupalci_testbot.git
         $ cd drupalci_testbot
+
+Before you create your vagrant box, you may wish to adjust some vagrantfile settings, depending upon your local
+development resources. Primarily you would want to adjust the 'v.memory = 8192', and 'v.cpus = 7' in the Vagrantfile.
+
         $ vagrant up
         // Wait a while...
         $ vagrant ssh
