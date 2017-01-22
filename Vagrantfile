@@ -13,8 +13,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :private_network, ip: "192.168.42.42"
   config.vm.synced_folder ".", "/home/testbot/testrunner"
   config.vm.provider "virtualbox" do |v|
-    v.memory = 8192
-    v.cpus = 7
+    v.memory = 4096
+    v.cpus = 4
   end
 end
 
