@@ -80,7 +80,8 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
           $this->terminateBuild("Ancillary branch creation failure.", "Ancillary branch creation failure. Error Code: $result");
         }
         // 4. commit to ancillary
-        $cmd = "cd " . $ancillary_dir . " && git add . && git commit -am 'intermediate commit'";
+        $cmd = "cd " . $ancillary_dir . " && git add . && git config --global user.email \"drupalci@drupalci.org\" &&
+git config --global user.name \"The Testbot\" && git commit -am 'intermediate commit'";
         $this->io->writeln("Git Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
         if ($result > 1) {
