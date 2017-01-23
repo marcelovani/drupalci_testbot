@@ -36,12 +36,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
   public function configure() {
 
     if (isset($_ENV['DCI_PHPVersion'])) {
-      if (0 !== strpos($_ENV['DCI_PHPVersion'], 'php')) {
-        // Old Containers didnt have the 'web' name configured on d.o.
-        $this->configuration['phpversion'] = 'web-' . $_ENV['DCI_PHPVersion'];
-      } else {
-        $this->configuration['phpversion'] = $_ENV['DCI_PHPVersion'];
-      }
+      $this->configuration['phpversion'] = $_ENV['DCI_PHPVersion'];
     }
 
   }
@@ -70,7 +65,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function getDefaultConfiguration() {
     return [
-      'phpversion' => 'web-5.5',
+      'phpversion' => 'php-5.5.38-apache:production',
     ];
   }
 

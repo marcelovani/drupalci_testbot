@@ -7,6 +7,12 @@ build:
     assemble_codebase:
       replicate:
       checkout_core:
+        repositories:
+            -
+              repo: ''
+              branch: ''
+              commit_hash: ''
+              checkout_dir: ''
       composer.install:
       composer.force_coder:
         options: require drupal/coder 8.2.8 --dev --prefer-dist --no-suggest --no-progress

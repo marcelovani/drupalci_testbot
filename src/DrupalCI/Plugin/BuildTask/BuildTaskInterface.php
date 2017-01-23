@@ -97,6 +97,20 @@ interface BuildTaskInterface {
    */
   public function setChildTasks($buildTasks);
 
+
+  /**
+   * @param $errorLabel
+   *   A short, < 50 character label describing the reason the build was
+   *   terminated. This is what should display in the UI.
+   * @param $errorDetails
+   *   Comprehensive details/error messages for why the build failed.
+   *
+   * If a buildTask reaches a point in execution where it should not proceed,
+   * It can terminate the build which will thrown an exception. The message
+   * should be < 50 characters,
+   */
+  public function terminateBuild($errorLabel, $errorDetails);
+
   /* TODO: each task should be able to define their own command line switches
    * that override config like the environment variables do.
    * public function getCLIHelp();

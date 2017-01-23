@@ -44,5 +44,10 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $foo = $app_tester->getDisplay();
     $this->assertRegExp('/.*MissingGroupException.*/', $app_tester->getDisplay());
     $this->assertEquals(2, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }
