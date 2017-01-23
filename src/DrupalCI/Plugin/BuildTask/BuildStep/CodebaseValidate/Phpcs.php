@@ -42,6 +42,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning_fails_sniff' => FALSE,
       'sniff_fails_test' => FALSE,
+      // @todo: Add a test which changes this.
       'report_file_path' => 'phpcs/checkstyle.xml'
     ];
   }
