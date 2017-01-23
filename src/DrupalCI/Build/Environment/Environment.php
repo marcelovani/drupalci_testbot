@@ -277,7 +277,7 @@ class Environment implements Injectable, EnvironmentInterface {
       return $container;
     }
     else {
-      // TODO: Build Objects should throw BuildExceptions not BuildTaskExceptions
+     // @TODO: Should not throw BuildTaskExceptions from Environment
       throw new BuildTaskException("Starting Container Failed");
     }
   }

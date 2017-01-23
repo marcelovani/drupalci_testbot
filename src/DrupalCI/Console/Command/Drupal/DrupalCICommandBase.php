@@ -43,15 +43,6 @@ class DrupalCICommandBase extends Command {
     $this->io = $this->container['console.io'];
   }
 
-  // Defaults for the underlying commands i.e. when commands run with --no-interaction or
-  // when we are given options to setup containers.
-  // @todo Remove this.
-  protected $default_build = array(
-    'base'     => 'all',
-    'web'      => 'drupalci/web-5.5',
-    'database' => 'drupalci/mysql-5.5',
-    'php'      => 'all'
-  );
 
   protected function showArguments(InputInterface $input, OutputInterface $output) {
     $output->writeln('<info>Arguments:</info>');

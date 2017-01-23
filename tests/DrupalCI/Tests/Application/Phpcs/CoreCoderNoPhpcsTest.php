@@ -21,8 +21,6 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
@@ -43,5 +41,10 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
     $this->assertRegExp('/phpcs file does not exist/', $app_tester->getDisplay());
     $this->assertNotRegExp('/Executing phpcs./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }
