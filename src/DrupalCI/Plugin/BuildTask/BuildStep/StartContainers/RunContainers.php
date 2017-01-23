@@ -70,7 +70,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function getDefaultConfiguration() {
     return [
-      'phpversion' => 'web-5.5',
+      'phpversion' => 'php-5.5.38-apache:production',
     ];
   }
 
