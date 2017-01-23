@@ -42,7 +42,7 @@ class FetchTest extends DrupalCITestCase {
   public function testRunNoFrom() {
     $this->setExpectedException(
       BuildTaskException::class,
-      'No valid target file provided for fetch command.'
+      'Fetch error'
     );
 
     $configuration = [
@@ -101,7 +101,7 @@ class FetchTest extends DrupalCITestCase {
 
     $this->setExpectedException(
       BuildTaskException::class,
-      "An error was encountered while attempting to write $from to /ancillary/$file"
+      "Fetch save error"
     );
 
     $configuration = [
