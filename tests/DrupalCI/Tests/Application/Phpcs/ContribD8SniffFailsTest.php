@@ -11,6 +11,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *
  * @group Application
+ * @group phpcs
  *
  * @see TESTING.md
  */
@@ -42,7 +43,7 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     // Assert report.
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];
-    $artifact_file = $build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
+    $artifact_file = $build->getArtifactDirectory() . '/phpcs/checkstyle.xml';
     $this->assertTrue(file_exists($artifact_file));
   }
 }

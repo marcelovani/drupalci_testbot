@@ -42,6 +42,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning_fails_sniff' => FALSE,
       'sniff_fails_test' => FALSE,
+      'report_file_path' => 'phpcs/checkstyle.xml'
     ];
   }
 
@@ -66,8 +67,14 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
       $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
     }
+    if (isset($_ENV['DCI_CS_ReportFilePath'])) {
+      $this->configuration['report_file_path'] = $_ENV['DCI_CS_ReportFilePath'];
+    }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function run() {
     $return = $this->doRun();
     $this->adjustCheckstylePaths();
@@ -150,13 +157,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->build->addArtifact($sniffable_file);
     }
     else {
-      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '/.</info>');
+      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '.</info>');
     }
 
     // Set up the report file artifact.
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/phpcs');
-    $report_file = $this->build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
-    touch($report_file);
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->configuration['report_file_path']));
+    $report_file = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
     $this->build->addArtifact($report_file);
 
     // Figure out sniff start directory. This is the directory where the
@@ -192,7 +198,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/phpcs/phpcs_checkstyle.xml',
+      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->configuration['report_file_path'],
     ];
 
     // Should we only sniff modified files? --file-list lets us specify.
@@ -234,6 +240,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     throw new \RuntimeException('phpcs executable does not exist: ' . $phpcs_bin);
   }
 
+  /**
+   * Get the start directory within the container.
+   *
+   * @return string
+   *   Container path to the configured start directory. If no config was
+   *   specified, return the root path to the container source directory.
+   */
   protected function getStartDirectory() {
     // Get the project root.
     $source_dir = $this->environment->getExecContainerSourceDir();
@@ -292,8 +305,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/phpcs/phpcs_checkstyle.xml';
+    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
+    $this->io->writeln('now processing: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
+      // The file is probably owned by root and not writable.
+      // @todo remove this when container and host uids have parity.
+      exec('sudo chmod 666 ' . $checkstyle_report_filename);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
       $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!","<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
