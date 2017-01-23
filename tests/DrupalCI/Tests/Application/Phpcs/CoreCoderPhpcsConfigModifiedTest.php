@@ -24,7 +24,7 @@ class CoreCoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalCommitHash=4b65a2b',
     'DCI_DBType=sqlite',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/patch_phpcs_xml_dist.patch,.',
     'DCI_Patch=patch_phpcs_xml_dist.patch,.',
