@@ -6,7 +6,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -70,7 +69,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
       if ($result !== 0) {
         // Git threw an error.
-        $this->io->drupalCIError("Checkout Error", "The git checkout returned an error.  Error Code: $result");
+        $this->terminateBuild("Checkout Error", "The git checkout returned an error.  Error Code: $result");
       }
 
 
@@ -80,7 +79,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         $this->exec($cmd, $cmdoutput, $result);
         if ($result !==0) {
           // Git threw an error.
-          throw new BuildTaskException("git reset returned an error.  Error Code: $result");
+          $this->terminateBuild("git reset returned an error.",  "Error Code: $result");
         }
       }
 

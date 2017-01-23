@@ -26,6 +26,7 @@ class ContribD8ComposerModifiedBuildTest extends DrupalCIFunctionalTestBase {
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8ComposerModifiedBuildTest.yml',
 
     ], $options);
+    /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $app_tester->getDisplay();
     $this->assertRegExp('/.*Drupal\\\\Tests\\\\monolog\\\\Unit\\\\Logger\\\\LoggerTest*/', $app_tester->getDisplay());
@@ -36,5 +37,8 @@ class ContribD8ComposerModifiedBuildTest extends DrupalCIFunctionalTestBase {
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8ComposerBuildTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

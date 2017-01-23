@@ -52,5 +52,10 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     $this->assertContains('Drupal\flag\Tests\UserFlagTypeTest                            38 passes   6 fails   2 exceptions', $app_tester->getDisplay());
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8FailingWithExceptionTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

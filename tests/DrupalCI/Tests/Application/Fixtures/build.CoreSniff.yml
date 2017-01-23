@@ -3,6 +3,12 @@ build:
     assemble_codebase:
       replicate:
       checkout_core:
+        repositories:
+            -
+              repo: ''
+              branch: ''
+              commit_hash: ''
+              checkout_dir: ''
       composer_force_coder:
       fetch:
       patch:
