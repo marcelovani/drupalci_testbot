@@ -45,6 +45,21 @@ class ContainerComposerFailTest extends DrupalCIFunctionalTestBase {
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Composer error. Unable to continue.');
-    $this->assertBuildOutputJson($build, 'buildDetails', '');
+    $this->assertBuildOutputJson($build, 'buildDetails', '
+
+EXECUTING: /usr/local/bin/composer install --prefer-dist --no-suggest --no-progress --working-dir /var/www/html
+
+Loading composer repositories with package information
+Installing dependencies (including require-dev) from lock file
+Your requirements could not be resolved to an installable set of packages.
+
+  Problem 1
+    - This package requires php >=5.5.9 but your PHP version (5.3.29) does not satisfy that requirement.
+  Problem 2
+    - guzzlehttp/promises 1.2.0 requires php >=5.5.0 -> your PHP version (5.3.29) does not satisfy that requirement.
+    - guzzlehttp/promises 1.2.0 requires php >=5.5.0 -> your PHP version (5.3.29) does not satisfy that requirement.
+    - Installation request for guzzlehttp/promises 1.2.0 -> satisfiable by guzzlehttp/promises[1.2.0].
+
+');
   }
 }
