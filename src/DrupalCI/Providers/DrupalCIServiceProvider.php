@@ -9,6 +9,7 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use DrupalCI\Providers\DatabaseServiceProvider;
 use DrupalCI\Providers\YamlServiceProvider;
+use DrupalCI\Providers\GuzzleClientServiceProvider;
 use DrupalCI\Providers\CommandResultServiceProvider;
 
 /**
@@ -25,6 +26,7 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
     $container->register(new DockerServiceProvider());
     $container->register(new DatabaseServiceProvider());
     $container->register(new YamlServiceProvider());
+    $container->register(new GuzzleClientServiceProvider());
     $container->register(new BuildServiceProvider());
     $container->register(new CodebaseServiceProvider());
     $container->register(new EnvironmentServiceProvider());
