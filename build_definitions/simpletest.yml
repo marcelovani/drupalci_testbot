@@ -7,7 +7,6 @@ build:
       composer_contrib:
       fetch:
       patch:
-      composer.post_patch:
       update_dependencies:
   environment:
     startcontainers:
@@ -19,6 +18,7 @@ build:
   assessment:
     validate_codebase:
       phplint:
+      container_composer:
     testing:
       simpletest.standard:
         concurrency: 31

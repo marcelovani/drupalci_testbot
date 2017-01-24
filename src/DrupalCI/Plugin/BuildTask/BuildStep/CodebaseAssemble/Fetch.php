@@ -36,6 +36,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function inject(Container $container) {
     parent::inject($container);
     $this->codebase = $container['codebase'];
+    $this->httpClient = $container['http.client'];
   }
 
   /**
@@ -73,7 +74,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];
-        $this->httpClient()
+        $this->httpClient
           ->get($url, ['save_to' => $destination_file]);
       }
       catch (\Exception $e) {
@@ -93,18 +94,5 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'files' => [],
     ];
   }
-
-  /**
-   * Get the Guzzle client, generating one if necessary.
-   *
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient() {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client();
-    }
-    return $this->httpClient;
-  }
-
 
 }

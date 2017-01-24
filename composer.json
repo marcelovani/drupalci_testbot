@@ -39,7 +39,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~4",
-        "drupal/coder": "8.2.8"
+        "drupal/coder": "8.2.8",
+        "mikey179/vfsStream": "^1.6"
     },
     "prefer-stable": true,
     "scripts": {
