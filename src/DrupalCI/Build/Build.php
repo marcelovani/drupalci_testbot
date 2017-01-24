@@ -119,12 +119,20 @@ class Build implements BuildInterface, Injectable {
   protected $buildArtifacts = [];
 
   /**
+   * The Guzzle client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
     $this->container = $container;
     $this->io = $container['console.io'];
     $this->yaml = $container['yaml.parser'];
+    $this->httpClient = $container['http.client'];
     $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
   }
 
@@ -223,8 +231,23 @@ class Build implements BuildInterface, Injectable {
     }
     if ($arg) {
       if (strtolower(substr(trim($arg), -4)) == ".yml") {
-        $this->buildFile = $arg;
-        $this->buildType = 'custom';
+
+        $type = filter_var($arg, FILTER_VALIDATE_URL) ? "remote" : "local";
+
+        // If a remote file, download a local copy
+        if ($type == "remote") {
+          $file_info = pathinfo($arg);
+          $destination_file = sys_get_temp_dir() . '/' . $file_info['basename'];
+          $this->httpClient
+            ->get($arg, ['save_to' => "$destination_file"]);
+          $this->io->writeln("<info>Build downloaded to <options=bold>$destination_file</></info>");
+          $this->buildFile = $destination_file;
+          $this->buildType = 'remote';
+        } else {
+          // If its not a url, its a filepath.
+          $this->buildFile = $arg;
+          $this->buildType = 'local';
+        }
       }
       else {
         $this->buildFile = $this->container['app.root'] . '/build_definitions/' . $arg . '.yml';
