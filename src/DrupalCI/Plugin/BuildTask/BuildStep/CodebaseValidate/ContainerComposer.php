@@ -38,6 +38,7 @@ class ContainerComposer extends Composer {
       parent::getDefaultConfiguration(),
       [
         'executable_path' => '/usr/local/bin/composer',
+        'fail_should_terminate' => TRUE,
       ]
      );
   }
@@ -58,10 +59,12 @@ class ContainerComposer extends Composer {
     $result = $this->environment->executeCommands(implode(' ', $command));
 
     if ($result->getSignal() != 0) {
-      $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
+      if ($this->configuration['fail_should_terminate']) {
+        $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
+      }
     }
 
-    return 0;
+    return $result->getSignal();
   }
 
 }
