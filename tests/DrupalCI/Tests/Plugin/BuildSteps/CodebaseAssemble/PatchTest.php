@@ -48,6 +48,7 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testNoFromConfig() {
+    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
       'No valid patch file provided for the patch command.'
@@ -75,6 +76,7 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchValidate() {
+    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
       'Failed to validate the patch source and/or target directory.'
@@ -111,6 +113,7 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchApply() {
+    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
       'Unable to apply the patch.'
