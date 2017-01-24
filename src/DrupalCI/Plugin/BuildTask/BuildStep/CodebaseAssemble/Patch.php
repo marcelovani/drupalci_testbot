@@ -109,7 +109,9 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $output_directory = $this->build->getXmlDirectory();
         file_put_contents($output_directory . "/patchfailure.xml", $xml_error);
 
-        throw $e;
+        // TODO: return 0 for now until https://www.drupal.org/node/2846398 goes
+        // in.
+        //throw $e;
       };
       // Update our list of modified files
       $this->codebase->addModifiedFiles($patch->getModifiedFiles());
