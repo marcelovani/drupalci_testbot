@@ -1,27 +1,25 @@
+# This build definition supports testing the behavior of ComposerContainer
+# plugin.
 build:
   codebase:
     assemble_codebase:
       replicate:
       checkout_core:
-      composer.core_install:
-      composer_contrib:
+        repositories:
+            -
+              repo: ''
+              branch: ''
+              commit_hash: ''
+              checkout_dir: ''
       fetch:
       patch:
       update_dependencies:
   environment:
     startcontainers:
       runcontainers:
-    create_db:
-      dbcreate:
     filesystem:
       prepare_filesystem:
   assessment:
     validate_codebase:
-      phplint:
+      # Re-install under the container.
       container_composer:
-    testing:
-      simpletest.standard:
-        concurrency: 31
-      simpletest.js:
-        concurrency: 1
-        types: 'PHPUnit-FunctionalJavascript'

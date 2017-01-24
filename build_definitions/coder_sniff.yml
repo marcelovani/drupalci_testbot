@@ -19,5 +19,7 @@ build:
       prepare_filesystem:
   assessment:
     validate_codebase:
+      # Re-install under the container.
+      container_composer:
       phplint:
       phpcs:
