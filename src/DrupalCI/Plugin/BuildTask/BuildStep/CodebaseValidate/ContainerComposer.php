@@ -58,7 +58,7 @@ class ContainerComposer extends Composer {
     $result = $this->environment->executeCommands(implode(' ', $command));
 
     if ($result->getSignal() != 0) {
-      $this->terminateBuild('Composer error. Unable to continue.');
+      $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
     }
 
     return 0;

@@ -27,8 +27,18 @@ build:
           -
             from: 2840596-2.patch
             to: .
-      composer.post_patch:
-        options: 'install --prefer-dist --no-progress'
       update_dependencies: {  }
     project_subdir: ''
     project_name: ''
+  environment:
+      startcontainers:
+        runcontainers:
+      create_db:
+        dbcreate:
+      filesystem:
+        prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phplint:
+      container_composer:
+        options: 'install --prefer-dist --no-progress'
