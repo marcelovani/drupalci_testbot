@@ -6,7 +6,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -19,12 +18,25 @@ use Pimple\Container;
 class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+
+  /**
+   * The Guzzle client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
+   * The codebase service.
+   *
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   */
   protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
     $this->codebase = $container['codebase'];
+    $this->httpClient = $container['http.client'];
   }
 
   /**
@@ -48,14 +60,13 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     if (empty($files)) {
       $this->io->writeln('No files to fetch.');
+      return 0;
     }
     foreach ($files as $details) {
       // URL and target directory
       // TODO: Ensure $details contains all required parameters
       if (empty($details['from'])) {
-        $this->io->drupalCIError("Fetch error", "No valid target file provided for fetch command.");
-        throw new BuildTaskException("No valid target file provided for fetch command.");
-
+        $this->terminateBuild("Fetch error", "No valid target file provided for fetch command.");
       }
       $url = $details['from'];
 
@@ -63,16 +74,16 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];
-        $this->httpClient()
+        $this->httpClient
           ->get($url, ['save_to' => $destination_file]);
       }
       catch (\Exception $e) {
-        $this->io->drupalCIError("Write error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
-        throw new BuildTaskException("An error was encountered while attempting to write $url to $destination_file");
+        $this->terminateBuild("Fetch save error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
 
       }
       $this->io->writeln("<comment>Fetch of <options=bold>$url</> to <options=bold>$destination_file</> complete.</comment>");
     }
+    return 0;
   }
 
   /**
@@ -83,15 +94,5 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'files' => [],
     ];
   }
-  /**
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient() {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client();
-    }
-    return $this->httpClient;
-  }
-
 
 }

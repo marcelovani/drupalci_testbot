@@ -6,11 +6,9 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Filesystem;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use GuzzleHttp\Client;
 use Pimple\Container;
 
 /**
@@ -53,10 +51,11 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
 
     ];
     $result = $this->environment->executeCommands($setup_commands);
-//    if ($result !== 0) {
-//      // Directory setup failed threw an error.
-//      $this->io->drupalCIError("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
-//      throw new BuildTaskException("Setting up the filesystem failed:  Error Code: $result");
+    //phantomjs still fails on
+    // 5.3 /5.4 so leave this out for now.
+//    if ($result !== 0)
+     // Directory setup failed threw an error.
+//      $this->terminateBuild("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
 //    }
     //return $result->getSignal();
   }

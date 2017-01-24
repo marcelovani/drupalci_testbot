@@ -88,6 +88,7 @@ class Patch implements PatchInterface, Injectable {
 
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->httpClient = $container['http.client'];
   }
   /**
    * @return string
@@ -190,7 +191,7 @@ class Patch implements PatchInterface, Injectable {
     $file_info = pathinfo($url);
     $directory = $this->working_dir;
     $destination_file = $directory . '/' . $file_info['basename'];
-    $this->httpClient()
+    $this->httpClient
       ->get($url, ['save_to' => "$destination_file"]);
     $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</></info>");
     $this->setPatchFileName($file_info['basename']);
@@ -302,16 +303,5 @@ class Patch implements PatchInterface, Injectable {
       }
     }
     return $this->modified_files;
-  }
-
-  /**
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient()
-  {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client;
-    }
-    return $this->httpClient;
   }
 }

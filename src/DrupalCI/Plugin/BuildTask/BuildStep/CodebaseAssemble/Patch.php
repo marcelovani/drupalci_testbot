@@ -3,11 +3,11 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use Pimple\Container;
 
 /**
@@ -56,8 +56,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     foreach ($files as $key => $details) {
       // Validate 'from'.
       if (empty($details['from'])) {
-        $this->io->drupalCIError("Patch error", "No valid patch file provided for the patch command.");
-        throw new BuildTaskException('No valid patch file provided for the patch command.');
+        $this->terminateBuild("Invalid Patch", "No valid patch file provided for the patch command.");
       }
       // Adjust 'to' so the patch applies to the correct place.
       if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
@@ -76,12 +75,12 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       try {
         // Validate our patch's source file and target directory
         if (!$patch->validate()) {
-          throw new BuildTaskException('Failed to validate the patch source and/or target directory.');
+          $this->terminateBuild("Patch Validation Error", "Failed to validate the patch.");
         }
 
         // Apply the patch
         if ($patch->apply() !== 0) {
-          throw new BuildTaskException('Unable to apply the patch.');
+          $this->terminateBuild("Patch Failed to Apply", "Unable to apply the patch.");
         }
       }
       catch (BuildTaskException $e) {

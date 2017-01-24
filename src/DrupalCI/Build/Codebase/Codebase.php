@@ -31,10 +31,10 @@ class Codebase implements CodebaseInterface, Injectable {
 
   protected $extensionPaths = '';
 
-  public function inject(Container $container) {
-    $this->io = $container['console.io'];
-    $this->build = $container['build'];
-  }
+  /**
+   * A storage variable for any modified files
+   */
+  protected $modified_files = [];
 
   /**
    * Any patches used to generate this codebase
@@ -43,15 +43,10 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $patches;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getPatches() {
-    return $this->patches;
-  }
 
-  public function setPatches($patches) {
-    $this->patches = $patches;
+  public function inject(Container $container) {
+    $this->io = $container['console.io'];
+    $this->build = $container['build'];
   }
 
   public function addPatch(PatchInterface $patch) {
@@ -59,11 +54,6 @@ class Codebase implements CodebaseInterface, Injectable {
       $this->patches[] = $patch;
     }
   }
-
-  /**
-   * A storage variable for any modified files
-   */
-  protected $modified_files = [];
 
   public function getModifiedFiles() {
     return $this->modified_files;
@@ -94,9 +84,6 @@ class Codebase implements CodebaseInterface, Injectable {
     // contain the host or container environments' source path.
     if (substr($filename, 0, strlen($this->getSourceDirectory())) == $this->getSourceDirectory()) {
       $filename = substr($filename, strlen($this->getSourceDirectory())+1);
-    }
-    if (!is_array($this->modified_files)) {
-      $this->modified_files = [];
     }
     if (!in_array($filename, $this->modified_files)) {
       $this->modified_files[] = $filename;

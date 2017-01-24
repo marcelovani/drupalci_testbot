@@ -6,6 +6,7 @@
 
 namespace DrupalCI\Build;
 
+use DrupalCI\Build\BuildResultsInterface;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\HostConfig;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
@@ -118,12 +119,20 @@ class Build implements BuildInterface, Injectable {
   protected $buildArtifacts = [];
 
   /**
+   * The Guzzle client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
     $this->container = $container;
     $this->io = $container['console.io'];
     $this->yaml = $container['yaml.parser'];
+    $this->httpClient = $container['http.client'];
     $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
   }
 
@@ -222,8 +231,23 @@ class Build implements BuildInterface, Injectable {
     }
     if ($arg) {
       if (strtolower(substr(trim($arg), -4)) == ".yml") {
-        $this->buildFile = $arg;
-        $this->buildType = 'custom';
+
+        $type = filter_var($arg, FILTER_VALIDATE_URL) ? "remote" : "local";
+
+        // If a remote file, download a local copy
+        if ($type == "remote") {
+          $file_info = pathinfo($arg);
+          $destination_file = sys_get_temp_dir() . '/' . $file_info['basename'];
+          $this->httpClient
+            ->get($arg, ['save_to' => "$destination_file"]);
+          $this->io->writeln("<info>Build downloaded to <options=bold>$destination_file</></info>");
+          $this->buildFile = $destination_file;
+          $this->buildType = 'remote';
+        } else {
+          // If its not a url, its a filepath.
+          $this->buildFile = $arg;
+          $this->buildType = 'local';
+        }
       }
       else {
         $this->buildFile = $this->container['app.root'] . '/build_definitions/' . $arg . '.yml';
@@ -340,11 +364,12 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = $this->processTask($this->computedBuildPlugins);
-      $this->saveBuildState();
+      $buildResults = new BuildResults('Build Successful','');
+      $this->saveBuildState($buildResults);
       return $statuscode;
     }
     catch (BuildTaskException $e) {
-      $this->saveBuildState($e->getMessage());
+      $this->saveBuildState($e->getBuildResults());
       return 2;
     } finally {
       // TODO: we need to have a step that goes through the build objects
@@ -462,15 +487,13 @@ class Build implements BuildInterface, Injectable {
   /**
    * Given a file, returns an array containing the parsed YAML contents from that file
    *
-   * @param $message
+   * @param \DrupalCI\Build\BuildResultsInterface $buildResults
    *
+   * @internal param $message
    */
-  protected function saveBuildState($message = 'Build Successful') {
-
-    $buildstate = $this->getArtifactDirectory() . '/buildstate.json';
-    $json = json_encode($message);
-    file_put_contents($buildstate, $json);
-
+  protected function saveBuildState(BuildResultsInterface $buildResults) {
+    $build_outcome = $this->getArtifactDirectory() . '/buildoutcome.json';
+    file_put_contents($build_outcome, json_encode($buildResults));
   }
 
   /**
@@ -518,7 +541,9 @@ class Build implements BuildInterface, Injectable {
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
     if (empty($build_id)) {
-      $build_id = $this->buildType . '_' . time();
+      // Hash microtime() so we don't end up with the same ID for builds shorter
+      // than a second.
+      $build_id = $this->buildType . '_' . md5(microtime());
     }
     $this->setBuildId($build_id);
     $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");

@@ -6,13 +6,6 @@ use DrupalCI\Build\Codebase\PatchInterface;
 
 interface CodebaseInterface {
 
-  /**
-   * @return DrupalCI\Build\Codebase\PatchInterface[]
-   *   All the patches that have been added or set.
-   */
-  public function getPatches();
-
-  public function setPatches($patches);
 
   public function addPatch(PatchInterface $patch);
 
