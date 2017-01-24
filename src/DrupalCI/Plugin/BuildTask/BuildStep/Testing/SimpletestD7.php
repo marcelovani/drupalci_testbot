@@ -22,6 +22,15 @@ class SimpletestD7 extends Simpletest {
 
     $this->results_database = $this->system_database;
     $dburl = $this->system_database->getUrl();
+    // Fixes sqlite for d7
+    if ($this->system_database->getDbType() === 'sqlite' ) {
+      $dburl = preg_replace('/localhost\//','',$dburl);
+      $this->system_database->setUrl($dburl);
+      $dbfile = $this->codebase->getSourceDirectory() .  preg_replace('/sqlite:\//','',$dburl);
+      $this->results_database->setDBFile($dbfile);
+      $this->results_database->setDbname('');
+    }
+
     $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
       'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' si -y --db-url=' . $dburl . ' --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com',
