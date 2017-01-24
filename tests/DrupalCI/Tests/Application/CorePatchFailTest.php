@@ -43,13 +43,14 @@ class CorePatchFailTest extends DrupalCIFunctionalTestBase {
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $this->assertRegExp('/.*The patch attempt returned an error.*/', $app_tester->getDisplay());
+    /* @todo: The testbot should return 2 if there was an error
+     * https://www.drupal.org/node/2846398 goes in.
     // Make sure that no tests were run.
     $this->assertNotRegExp('/Drupal test run/', $app_tester->getDisplay());
     $this->assertNotRegExp('/Tests to be run:/', $app_tester->getDisplay());
     // The testbot should return 2 if there was an error.
-    //$this->assertEquals(2, $app_tester->getStatusCode());
-    // @todo: The testbot should return 2 if there was an error, once
-    // https://www.drupal.org/node/2846398 goes in.
+    $this->assertEquals(2, $app_tester->getStatusCode());
+    */
     $this->assertEquals(0, $app_tester->getStatusCode());
     $output_file = $build->getXmlDirectory() . "/patchfailure.xml";
     $this->assertFileExists($output_file);
