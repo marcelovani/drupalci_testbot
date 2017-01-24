@@ -112,6 +112,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // TODO: return 0 for now until https://www.drupal.org/node/2846398 goes
         // in.
         //throw $e;
+        return 0;
       };
       // Update our list of modified files
       $this->codebase->addModifiedFiles($patch->getModifiedFiles());
