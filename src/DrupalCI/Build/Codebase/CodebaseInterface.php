@@ -4,10 +4,6 @@ namespace DrupalCI\Build\Codebase;
 
 interface CodebaseInterface {
 
-  public function getPatches();
-
-  public function setPatches($patches);
-
   public function addPatch(Patch $patch);
 
   public function getModifiedFiles();
