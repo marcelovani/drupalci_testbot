@@ -1,6 +1,6 @@
 <?php
 
-namespace DrupalCI\Tests\Plugin\BuildSteps\CodebaseValidate;
+namespace DrupalCI\Tests\Plugin\BuildTask\BuildSteps\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate\Phpcs;
 

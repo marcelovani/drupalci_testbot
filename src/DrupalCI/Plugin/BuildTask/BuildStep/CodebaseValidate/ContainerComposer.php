@@ -47,7 +47,7 @@ class ContainerComposer extends Composer {
    * @inheritDoc
    */
   public function run() {
-    $this->io->writeln('<info>Running Composer install within the environment.</info>');
+    $this->io->writeln('<info>Running Composer within the environment.</info>');
 
     // Build a containerized Composer command.
     $command = [
@@ -64,7 +64,7 @@ class ContainerComposer extends Composer {
       }
     }
 
-    return $result->getSignal();
+    return 0;
   }
 
 }

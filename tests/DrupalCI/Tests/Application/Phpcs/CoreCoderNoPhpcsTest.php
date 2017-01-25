@@ -29,6 +29,7 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testCoderSniffWithNoPhpcs() {
+    $this->markTestIncomplete('Changed behavior if phpcs is not installed.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);

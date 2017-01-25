@@ -14,8 +14,6 @@ build:
               commit_hash: ''
               checkout_dir: ''
       composer.install:
-      composer.force_coder:
-        options: require drupal/coder 8.2.8 --dev --prefer-dist --no-suggest --no-progress
       fetch:
       patch:
       update_dependencies:

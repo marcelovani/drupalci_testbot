@@ -38,7 +38,7 @@ class ContainerComposerPassTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ComposerContainer.yml',
     ], $options);
-    $this->assertRegExp('/Running Composer install within the environment./', $app_tester->getDisplay());
+    $this->assertRegExp('/Running Composer within the environment./', $app_tester->getDisplay());
     $this->assertNotRegExp('/Your requirements could not be resolved to an installable set of packages./', $app_tester->getDisplay());
     $this->assertNotRegExp('/Composer error. Unable to continue./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());

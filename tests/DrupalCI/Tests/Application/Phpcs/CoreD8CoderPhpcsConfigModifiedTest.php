@@ -15,13 +15,14 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class CoreCoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
+class CoreD8CoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected $dciConfig = [
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+    // This commit does not have a phpcs.xml file.
     'DCI_LocalCommitHash=4b65a2b',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
@@ -42,8 +43,8 @@ class CoreCoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
     ], $options);
     $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
     $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $app_tester->getDisplay());
-    $this->assertRegExp('`Sniffing all files starting at core/.`', $app_tester->getDisplay());
-    // Commit hash 4b65a2b always fails.
+    $this->assertRegExp('`Sniffing all files starting at core/`', $app_tester->getDisplay());
+    // Commit hash 4b65a2b always fails CS review.
     $this->assertEquals(1, $app_tester->getStatusCode());
   }
 }
