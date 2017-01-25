@@ -52,13 +52,25 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   /**
    * Whether we should use --standard=Drupal.
    *
-   * This implies the following:
-   * - That there was no phpcs.xml(.dist) file.
-   * - That we should ignore errors.
+   * This implies that there was no phpcs.xml(.dist) file.
    *
    * @var bool
    */
   protected $shouldUseDrupalStandard = FALSE;
+
+  /**
+   * Should we install drupal/coder @stable, or rely on the project's spec?
+   *
+   * @var bool
+   */
+  protected $shouldInstallGenericCoder = FALSE;
+
+  /**
+   * The path where we expect phpcs to reside.
+   *
+   * @var string
+   */
+  protected static $phpcsExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
 
   /**
    * {@inheritdoc}
@@ -132,70 +144,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * Perform the step run.
    */
   protected function doRun() {
-    $this->io->writeln('<info>Checking for phpcs tool in codebase.</info>');
+    // Set up state as much as possible in a mockable method.
+    $this->adjustForUseCase();
 
-    // Check if we're testing contrib, adjust start path accordingly.
-    $project = $this->codebase->getProjectName();
-    // @todo: For now, core has no project name, but contrib does. This could
-    // easily change, so we'll need to change the behavior here.
-    if (!empty($project)) {
-      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionDirectory('modules');
-    }
-
-    // Does the code have a phpcs.xml.dist file after patching?
-    $this->io->writeln('<info>Checking for phpcs.xml(.dist) file.</info>');
-    $has_phpcs_config = $this->projectHasPhpcsConfig();
-
-    // If there is no phpcs.xml(.dist) file, we use the Drupal standard.
-    if (!$has_phpcs_config) {
-      $this->io->writeln('PHPCS config file not found. Using Drupal standard.');
-      $this->shouldUseDrupalStandard = TRUE;
-    }
-
-    // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
-    // 'modified' in that it was removed, in which case we want to preserve the
-    // sniff_only_changed configuration.
-    if ($this->phpcsConfigFileIsModified()) {
-      if ($has_phpcs_config) {
-        $this->io->writeln('<info>PHPCS config file modified, sniffing entire project.</info>');
-        $this->configuration['sniff_only_changed'] = FALSE;
-      }
-    }
-
-    // Make a list of of modified files to this file.
-    $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
-
-    // Check if we should only sniff modified files.
-    if ($this->configuration['sniff_only_changed']) {
-      $modified_php_files = $this->codebase->getModifiedPhpFiles();
-
-      // No modified files? We're done.
-      if (empty($modified_php_files)) {
-        $this->io->writeln('<info>No modified files to sniff.</info>');
-        return 0;
-      }
-
-      $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
-      $container_source = $this->environment->getExecContainerSourceDir();
-      foreach ($modified_php_files as $file) {
-        $sniffable_file_list[] = $container_source . "/" . $file;
-      }
-
-      $this->io->writeln("<info>Writing: " . $sniffable_file . "</info>");
-      file_put_contents($sniffable_file, implode("\n", $sniffable_file_list));
-      $this->build->addArtifact($sniffable_file);
-    }
-    else {
-      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '</info>');
-    }
-
-    // If there's no phpcs executable in the codebase, then we should try to
-    // install drupal/coder.
-    $phpcs_bin = '';
-    try {
-      $phpcs_bin = $this->getPhpcsExecutable();
-    }
-    catch (\RuntimeException $e) {
+    if ($this->shouldInstallGenericCoder) {
       if ($this->installGenericCoder() != 0) {
         // There was an error installing generic drupal/coder. Bail on sniffing,
         // or terminate the build if the config says so.
@@ -206,7 +158,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->io->writeln($msg);
         return 0;
       }
-      $phpcs_bin = $this->getPhpcsExecutable();
     }
 
     // Set up the report file artifact.
@@ -226,6 +177,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
     // and all other constraints.
+    $phpcs_bin = $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable;
     $cmd = [
       'cd ' . $start_dir . ' &&',
       $phpcs_bin,
@@ -266,6 +218,90 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   }
 
   /**
+   * A ton of logic about which use-case we're supporting.
+   *
+   * This method should adjust state as much as possible for different
+   * use-cases. That way we can unit test against it for those states.
+   */
+  protected function adjustForUseCase() {
+    $this->shouldUseDrupalStandard = FALSE;
+    $this->shouldInstallGenericCoder = FALSE;
+ 
+    // Check if we're testing contrib, adjust start path accordingly.
+    $project = $this->codebase->getProjectName();
+    // @todo: For now, core has no project name, but contrib does. This could
+    // easily change, so we'll need to change the behavior here.
+    if (!empty($project)) {
+      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionDirectory('modules');
+    }
+
+    // Does the code have a phpcs.xml.dist file after patching?
+    $this->io->writeln('<info>Checking for phpcs.xml(.dist) file.</info>');
+    $has_phpcs_config = $this->projectHasPhpcsConfig();
+
+    // If there is no phpcs.xml(.dist) file, we use the Drupal standard.
+    if (!$has_phpcs_config) {
+      $this->io->writeln('PHPCS config file not found. Using Drupal standard.');
+      $this->shouldUseDrupalStandard = TRUE;
+    }
+
+    // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
+    // 'modified' in that it was removed, in which case we want to preserve the
+    // sniff_only_changed configuration.
+    if ($this->phpcsConfigFileIsModified()) {
+      if ($has_phpcs_config) {
+        $this->io->writeln('<info>PHPCS config file modified, sniffing entire project.</info>');
+        $this->configuration['sniff_only_changed'] = FALSE;
+      }
+    }
+
+    // Check if we should only sniff modified files.
+    if ($this->configuration['sniff_only_changed']) {
+      $modified_php_files = $this->codebase->getModifiedPhpFiles();
+
+      // No modified files? Sniff the whole repo.
+      if (empty($modified_php_files)) {
+        $this->io->writeln('<info>No modified PHP files. Sniffing all files.</info>');
+        $this->configuration['sniff_only_changed'] = FALSE;
+      }
+
+      $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
+      // Make a list of of modified files to this file.
+      $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+      $this->writeSniffableFiles($modified_php_files, $sniffable_file);
+    }
+    else {
+      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '</info>');
+    }
+
+    // If there's no phpcs executable in the codebase already, then we should
+    // try to install drupal/coder.
+    try {
+      $this->getPhpcsExecutable();
+      $this->shouldInstallGenericCoder = FALSE;
+    }
+    catch (\RuntimeException $e) {
+      $this->shouldInstallGenericCoder = TRUE;
+    }
+  }
+
+  /**
+   * Write out the list of sniffable files.
+   *
+   * @param type $sniffable_files
+   * @param type $file_path
+   */
+  protected function writeSniffableFiles($sniffable_files, $file_path) {
+    $this->io->writeln("<info>Writing: " . $file_path . "</info>");
+    $container_source = $this->environment->getExecContainerSourceDir();
+    foreach ($sniffable_files as $file) {
+      $sniffable_file_list[] = $container_source . "/" . $file;
+    }
+    file_put_contents($file_path, implode("\n", $sniffable_file_list));
+    $this->build->addArtifact($file_path);
+  }
+
+  /**
    * Get the full path to the phpcs executable.
    *
    * @return string
@@ -278,7 +314,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected function getPhpcsExecutable() {
     $source_dir = $this->environment->getExecContainerSourceDir();
-    $phpcs_bin = $source_dir . '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
+    $phpcs_bin = $source_dir . static::$phpcsExecutable;
     $result = $this->environment->executeCommands('test -e ' . $phpcs_bin);
     if ($result->getSignal() == 0) {
       return $phpcs_bin;

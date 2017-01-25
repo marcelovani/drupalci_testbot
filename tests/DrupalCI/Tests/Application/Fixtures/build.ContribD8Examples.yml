@@ -30,7 +30,7 @@ build:
   environment:
     startcontainers:
       runcontainers:
-        phpversion: 'php-5.6-apache:production'
+        phpversion: 'php-7.0-apache:production'
     create_db:
       dbcreate: {  }
     filesystem:
@@ -39,6 +39,4 @@ build:
   assessment:
     validate_codebase:
       container_composer:
-      phplint:
-        concurrency: '4'
       phpcs:
