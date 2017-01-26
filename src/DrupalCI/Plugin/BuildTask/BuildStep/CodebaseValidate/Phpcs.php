@@ -121,24 +121,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   }
 
   /**
-   * {@inheritdoc}
+   * Perform the step run.
    */
   public function run() {
     $this->io->writeln('<info>PHPCS sniffing the project.</info>');
-    $return = $this->doRun();
-    $this->adjustCheckstylePaths();
-    if ($return !== 0) {
-      if ($this->configuration['sniff_fails_test']) {
-        return $return;
-      }
-    }
-    return 0;
-  }
 
-  /**
-   * Perform the step run.
-   */
-  protected function doRun() {
     // Set up state as much as possible in a mockable method.
     $this->adjustForUseCase();
 
@@ -214,6 +201,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     return 0;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function complete($status) {
+    $this->adjustCheckstylePaths();
+  }
   /**
    * A ton of logic about which use-case we're supporting.
    *
