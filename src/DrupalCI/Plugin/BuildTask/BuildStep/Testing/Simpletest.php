@@ -47,9 +47,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (isset($_ENV['DCI_PHPInterpreter'])) {
-      $this->configuration['php'] = $_ENV['DCI_PHPInterpreter'];
-    }
     if (isset($_ENV['DCI_Concurrency'])) {
       $this->configuration['concurrency'] = $_ENV['DCI_Concurrency'];
     }
@@ -114,6 +111,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     //Save some artifacts for the build
     $this->build->addContainerArtifact("/var/log/apache2/error.log");
+    $this->build->addContainerArtifact("/var/log/apache2/test.apache.error.log");
     $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
     $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
     $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
@@ -126,7 +124,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->build->saveStringArtifact($label . 'simpletestoutput.txt', $result->getOutput());
     $this->build->saveStringArtifact($label . 'simpletesterror.txt', $result->getError());
 
-    return $result->getSignal();
+    // TODO: Jenkins fails the build if it sees a 1 in a shell script execution.
+    // So we return a 0 here instead.
+    //return $result->getSignal();
+    return 0;
   }
 
   /**
@@ -138,7 +139,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
       'url' => 'http://localhost/checkout',
-      'php' => '/opt/phpenv/shims/php',
       'color' => TRUE,
       'die-on-fail' => FALSE,
       'keep-results' => TRUE,
@@ -185,7 +185,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list --php " . $this->configuration['php'] . " > " . $testgroups_file;
+    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list > " . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $this->build->addContainerArtifact($testgroups_file);
@@ -196,7 +196,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    *
    * @return array
    */
-  protected function parseGroups($test_list): array {
+  protected function parseGroups($test_list) {
     // Set an initial default group, in case leading tests are found with no group.
     $group = 'nogroup';
     $test_groups = [];
@@ -315,8 +315,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
         $classname = $test_groups[$test_class] . '.' . $test_class;
 
         // Cleanup the class, and the parens from the test method name
-        $test_method = substr($result['function'], strpos($result['function'], '>') + 1);
-        $test_method = substr($test_method, 0, strlen($test_method) - 2);
+        $test_method = preg_replace('/.*>/', '', $result['function']);
+        $test_method = preg_replace('/\(\)/', '', $test_method);
 
         //$classes[$test_group][$test_class][$test_method]['classname'] = $classname;
         $length = strlen($this->environment->getExecContainerSourceDir());
@@ -465,7 +465,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $xml_output_file = $this->build->getXmlDirectory() . "/" . $label . "testresults.xml";
     file_put_contents($xml_output_file, $doc->saveXML());
-    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</options=bold></info>');
+    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</></info>');
     $this->build->addArtifact($xml_output_file);
   }
 

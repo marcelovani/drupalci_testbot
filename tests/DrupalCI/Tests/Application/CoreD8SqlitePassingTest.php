@@ -27,7 +27,7 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
     'DCI_TestItem=Url',
-    'DCI_PHPVersion=5.6',
+    'DCI_PHPVersion=php-5.6-apache:production',
     'DCI_DBType=sqlite',
   ];
 
@@ -40,6 +40,7 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
+    /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $app_tester->getDisplay();
     $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
@@ -50,5 +51,8 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

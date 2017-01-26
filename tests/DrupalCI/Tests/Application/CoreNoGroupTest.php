@@ -30,7 +30,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
     'DCI_LocalCommitHash=5d97345',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2827218-2-field_denormalize.patch,.',
   ];
 
@@ -44,5 +44,10 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $foo = $app_tester->getDisplay();
     $this->assertRegExp('/.*MissingGroupException.*/', $app_tester->getDisplay());
     $this->assertEquals(2, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

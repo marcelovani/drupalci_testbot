@@ -6,7 +6,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -62,7 +61,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
   }
 
   protected function discoverExentionPaths(){
-    $extension_paths = '';
+    $extension_paths = [];
     $core_dir = $this->codebase->getSourceDirectory();
 
     $composer_json = $core_dir . '/composer.json';

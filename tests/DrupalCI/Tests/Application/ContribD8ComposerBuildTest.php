@@ -27,7 +27,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_TestItem=directory:modules/monolog',
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/monolog.git,8.x-1.x,modules/monolog,1;',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_DEBUG=TRUE',
@@ -42,6 +42,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
+    /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $app_tester->getDisplay();
     $this->assertRegExp('/.*Drupal\\\\Tests\\\\monolog\\\\Unit\\\\Logger\\\\LoggerTest*/', $app_tester->getDisplay());
@@ -52,5 +53,8 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8ComposerBuildTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

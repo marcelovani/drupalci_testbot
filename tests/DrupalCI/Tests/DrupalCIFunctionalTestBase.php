@@ -2,6 +2,7 @@
 
 namespace DrupalCI\Tests;
 
+use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -91,9 +92,27 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
       // Complain if there is no config.
       // throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
     }
+    $build_id = putenv('BUILD_TAG');
 
     $app = $this->getConsoleApp();
     $app->setAutoExit(FALSE);
+  }
+
+  /**
+   * Assert buildoutcome.json contains an attribute/value pair.
+   *
+   * @param \DrupalCI\Build\BuildInterface $build
+   *   The build to look inside.
+   * @param string $attribute
+   *   The attribute to look for.
+   * @param mixed $value
+   *   The value for the attribute.
+   */
+  protected function assertBuildOutputJson(BuildInterface $build, $attribute, $value) {
+    $buildoutcome_json = $build->getArtifactDirectory() . '/buildoutcome.json';
+    $this->assertTrue(file_exists($buildoutcome_json));
+    $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
+    $this->assertEquals($value, $buildoutcome->$attribute);
   }
 
 }

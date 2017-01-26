@@ -6,6 +6,7 @@
 
 namespace DrupalCI\Build;
 
+use DrupalCI\Build\BuildResultsInterface;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\HostConfig;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
@@ -113,9 +114,16 @@ class Build implements BuildInterface, Injectable {
   protected $buildId;
 
   /**
-   * @var array of \DrupalCI\Build\Artifact\TaskArtifactInterface
+   * @var array of \DrupalCI\Build\Artifact\BuildArtifactInterface
    */
   protected $buildArtifacts = [];
+
+  /**
+   * The Guzzle client.
+   *
+   * @var \GuzzleHttp\ClientInterface
+   */
+  protected $httpClient;
 
   /**
    * {@inheritdoc}
@@ -124,6 +132,7 @@ class Build implements BuildInterface, Injectable {
     $this->container = $container;
     $this->io = $container['console.io'];
     $this->yaml = $container['yaml.parser'];
+    $this->httpClient = $container['http.client'];
     $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
   }
 
@@ -139,9 +148,11 @@ class Build implements BuildInterface, Injectable {
   }
 
   public function addArtifact($path) {
-    $buildArtifact = new BuildArtifact($path);
-    $buildArtifact->inject($this->container);
-    $this->buildArtifacts[] = $buildArtifact;
+    if (file_exists($path)) {
+      $buildArtifact = new BuildArtifact($path);
+      $buildArtifact->inject($this->container);
+      $this->buildArtifacts[] = $buildArtifact;
+  }
 
   }
 
@@ -159,6 +170,11 @@ class Build implements BuildInterface, Injectable {
     file_put_contents($artifactFile, $string);
     $this->addArtifact($artifactFile);
   }
+
+  public function getBuildArtifacts() {
+    return $this->buildArtifacts;
+  }
+
 
   public function getBuildId() {
     return $this->buildId;
@@ -215,8 +231,23 @@ class Build implements BuildInterface, Injectable {
     }
     if ($arg) {
       if (strtolower(substr(trim($arg), -4)) == ".yml") {
-        $this->buildFile = $arg;
-        $this->buildType = 'custom';
+
+        $type = filter_var($arg, FILTER_VALIDATE_URL) ? "remote" : "local";
+
+        // If a remote file, download a local copy
+        if ($type == "remote") {
+          $file_info = pathinfo($arg);
+          $destination_file = sys_get_temp_dir() . '/' . $file_info['basename'];
+          $this->httpClient
+            ->get($arg, ['save_to' => "$destination_file"]);
+          $this->io->writeln("<info>Build downloaded to <options=bold>$destination_file</></info>");
+          $this->buildFile = $destination_file;
+          $this->buildType = 'remote';
+        } else {
+          // If its not a url, its a filepath.
+          $this->buildFile = $arg;
+          $this->buildType = 'local';
+        }
       }
       else {
         $this->buildFile = $this->container['app.root'] . '/build_definitions/' . $arg . '.yml';
@@ -333,11 +364,12 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = $this->processTask($this->computedBuildPlugins);
-      $this->saveBuildState();
+      $buildResults = new BuildResults('Build Successful','');
+      $this->saveBuildState($buildResults);
       return $statuscode;
     }
     catch (BuildTaskException $e) {
-      $this->saveBuildState($e->getMessage());
+      $this->saveBuildState($e->getBuildResults());
       return 2;
     } finally {
       // TODO: we need to have a step that goes through the build objects
@@ -455,15 +487,13 @@ class Build implements BuildInterface, Injectable {
   /**
    * Given a file, returns an array containing the parsed YAML contents from that file
    *
-   * @param $message
+   * @param \DrupalCI\Build\BuildResultsInterface $buildResults
    *
+   * @internal param $message
    */
-  protected function saveBuildState($message = 'Build Successful') {
-
-    $buildstate = $this->getArtifactDirectory() . '/buildstate.json';
-    $json = json_encode($message);
-    file_put_contents($buildstate, $json);
-
+  protected function saveBuildState(BuildResultsInterface $buildResults) {
+    $build_outcome = $this->getArtifactDirectory() . '/buildoutcome.json';
+    file_put_contents($build_outcome, json_encode($buildResults));
   }
 
   /**
@@ -479,6 +509,16 @@ class Build implements BuildInterface, Injectable {
   public function getArtifactDirectory() {
     return $this->buildDirectory . '/artifacts';
   }
+
+  /**
+   * @inheritDoc
+   */
+  public function getHostCoredumpDirectory() {
+    // @TODO: make this more resilient for envs other than vagrant box
+    // and linux local testing.
+    return '/var/lib/drupalci/coredumps';
+  }
+
   /**
    * @inheritDoc
    */
@@ -501,10 +541,12 @@ class Build implements BuildInterface, Injectable {
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
     if (empty($build_id)) {
-      $build_id = $this->buildType . '_' . time();
+      // Hash microtime() so we don't end up with the same ID for builds shorter
+      // than a second.
+      $build_id = $this->buildType . '_' . md5(microtime());
     }
     $this->setBuildId($build_id);
-    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</options=bold></info>");
+    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
   }
 
   /**
@@ -596,7 +638,7 @@ class Build implements BuildInterface, Injectable {
         return FALSE;
       }
       else {
-        $this->io->writeLn("<info>Directory created at <options=bold>$directory</options=bold></info>");
+        $this->io->writeLn("<info>Directory created at <options=bold>$directory</></info>");
         return TRUE;
       }
     }
@@ -641,13 +683,16 @@ class Build implements BuildInterface, Injectable {
     $environment->executeCommands($commands, $db_container['id']);
 
     // Shut off the containers
-    $this->container['environment']->terminateContainers();
+    $environment->terminateContainers();
 
     // Delete the source code and database files
     $fs = new Filesystem();
     // TODO cleanup the Source and Tmp Directories from the codebase
     // when finished
-    //$fs->remove($this->getSourceDirectory());
+    /* @var $codebase \DrupalCI\Build\Codebase\CodebaseInterface*/
+    $codebase = $this->container['codebase'];
+    $fs->remove($codebase->getSourceDirectory());
+    $fs->remove($codebase->getAncillarySourceDirectory());
 
     $fs->remove($this->getDBDirectory());
   }

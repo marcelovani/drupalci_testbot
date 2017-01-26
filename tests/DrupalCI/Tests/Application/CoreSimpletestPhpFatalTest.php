@@ -29,7 +29,7 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
     'DCI_Fetch=https://www.drupal.org/files/issues/2684095-2.patch,.',
     'DCI_LocalCommitHash=6afe359',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2684095-2.patch,.',
     'DCI_TestItem=--class "Drupal\comment\Tests\CommentItemTest"',
   ];
@@ -42,6 +42,13 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
     ], $options);
     $this->assertRegExp('/Fatal error/', $app_tester->getDisplay());
-    $this->assertEquals(255, $app_tester->getStatusCode());
+    // When we can send back proper signals to jenkins, we'll change this back.
+    //$this->assertEquals(255, $app_tester->getStatusCode());
+    $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

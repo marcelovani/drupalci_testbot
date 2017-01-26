@@ -6,7 +6,6 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -55,8 +54,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $components = explode(',', $entry);
         // Ensure we have at least 3 components
         if (count($components) < 4) {
-          $this->io->writeln("<error>Unable to parse repository information for value <options=bold>$entry</options=bold>.</error>");
-          throw new BuildTaskException("Unable to parse repository information for value $entry");
+          $this->terminateBuild("Unable to parse repository info",  "Unable to parse repository info for value $entry");
         }
         // Create the build definition entry
         $output = [
@@ -88,34 +86,48 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Composer config failure.  Error Code: $result");
+          $this->terminateBuild("Composer config failure.", "Composer config failure.  Error Code: $result");
         }
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --working-dir " . $source_dir;
+        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
 
         if ($result > 1) {
           // Git threw an error.
-          throw new BuildTaskException("Composer require failure.  Error Code: $result");
+          $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
+        }
+        // Composer does not respect require-dev anywhere but the root package
+        // Lets probe for require-dev in our newly installed module, and add
+        // Those dependencies in as well.
+        $packages = $this->codebase->getComposerDevRequirements();
+        if (!empty($packages)) {
+          $cmd = "./bin/composer require " . implode($packages, " ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $this->io->writeln("Composer Command: $cmd");
+          $this->exec($cmd, $cmdoutput, $result);
+
+          if ($result > 1) {
+            // Git threw an error.
+            $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
+          }
         }
       }
     }
-
-
   }
 
-  /**
-   * Converts a drupal branch string that is stored in git into a composer
-   * based branch string. For d8 contrib
-   *
-   * @param $branch
-   *
-   * @return mixed
-   */
+/**
+ * Converts a drupal branch string that is stored in git into a composer
+ * based branch string. For d8 contrib
+ *
+ * @param $branch
+ *
+ * @return mixed
+ */
   protected function getSemverBranch($branch) {
-    $converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
+    $converted_version = 'dev-' . preg_replace('/^\d+\.x-/', '', $branch);
     return $converted_version;
   }
+
+
 }

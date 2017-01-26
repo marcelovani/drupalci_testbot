@@ -2,15 +2,19 @@
 
 namespace DrupalCI\Build\Codebase;
 
+use DrupalCI\Build\Codebase\PatchInterface;
+
 interface CodebaseInterface {
 
-  public function getPatches();
 
-  public function setPatches($patches);
-
-  public function addPatch(Patch $patch);
+  public function addPatch(PatchInterface $patch);
 
   public function getModifiedFiles();
+
+  /**
+   * Returns an array of modified php files, relative to the source directory.
+   */
+  public function getModifiedPhpFiles();
 
   public function addModifiedFile($filename);
 
@@ -38,8 +42,8 @@ interface CodebaseInterface {
   public function setupDirectories();
 
   /**
-   * This is a temporary hack so that we can utilize the directory subdir
-   * to identify fetches/patches/repos that belong to the project vs. deps.
+   * ExtensionProjectSubDir is what gets passed to us via the --directory
+   * command. It is *not* where the extensions actually exist.
    *
    * @return string
    */
@@ -48,13 +52,13 @@ interface CodebaseInterface {
   public function setExtensionProjectSubdir($extensionDir);
 
   /**
-   * This is the directory for the 'Project under test'.
+   * This is the directory/projectname for the 'Project under test'.
    *
    * @return string
    */
   public function getProjectName();
 
-  public function setProjectName($ancillaryDirectory);
+  public function setProjectName($projectName);
 
   /**
    * For contributed modules, this is where the modules will get checked out
@@ -68,6 +72,10 @@ interface CodebaseInterface {
   public function setExtensionPaths($extensionPaths);
 
   public function getTrueExtensionDirectory($type);
+
+  public function getComposerDevRequirements();
+
+  public function getInstalledComposerPackages();
 
 
 }

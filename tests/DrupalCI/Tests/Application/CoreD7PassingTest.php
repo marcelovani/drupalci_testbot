@@ -27,7 +27,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletestlegacy7',
     'DCI_LocalCommitHash=3d5bcd3',
     'DCI_TestItem=Syslog',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
   ];
@@ -41,6 +41,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
+    /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $this->assertRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Syslog functionality 17 passes, 0 fails, and 0 exceptions*/', $app_tester->getDisplay());
@@ -50,5 +51,8 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD7PassingTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

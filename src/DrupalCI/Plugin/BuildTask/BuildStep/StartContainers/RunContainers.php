@@ -48,15 +48,14 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
 
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
     $php_version = $this->configuration['phpversion'];
-   // $images['web']['image'] = "drupalci/web-$php_version";
-    $images['web'] = ["Image" => "drupalci/web-$php_version"];
-    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/web-$php_version</options=bold></comment>");
+    $images['web'] = ["Image" => "drupalci/$php_version"];
+    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$php_version</></comment>");
     $this->environment->startExecContainer($images['web']);
 
     $this->io->writeln("<info>Parsing required database container image names ...</info>");
     $db_version = $this->database->getDbType() . '-' . $this->database->getVersion();
     $images['db'] = ["Image" => "drupalci/$db_version"];
-    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$db_version</options=bold></comment>");
+    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$db_version</></comment>");
     $this->environment->startServiceContainerDaemons($images['db']);
 
   }
@@ -66,7 +65,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function getDefaultConfiguration() {
     return [
-      'phpversion' => '5.5',
+      'phpversion' => 'php-5.5.38-apache:production',
     ];
   }
 

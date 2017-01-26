@@ -27,7 +27,7 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=c187f1d',
     'DCI_JobType=simpletest',
     'DCI_TestItem=Url',
-    'DCI_PHPVersion=7',
+    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=pgsql',
     'DCI_DBVersion=9.1',
   ];
@@ -41,6 +41,7 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
+    /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $app_tester->getDisplay();
     $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
@@ -51,5 +52,8 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

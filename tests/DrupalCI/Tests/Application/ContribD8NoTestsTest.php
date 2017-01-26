@@ -30,5 +30,10 @@ class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
     ], $options);
     $this->assertRegExp('/ERROR: No valid tests were specified./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

@@ -68,6 +68,12 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
 
+  /**
+   * @var string
+   * This *must* match the /proc/sys/kernel/core_pattern of the docker host
+   */
+  protected $containerCoreDumpDir = '/var/lib/drupalci/coredumps';
+
   public function inject(Container $container) {
 
     $this->io = $container['console.io'];
@@ -95,7 +101,12 @@ class Environment implements Injectable, EnvironmentInterface {
         $id = $container_id;
       } else {
         $container = $this->getExecContainer();
-        $id = $container['id'];
+        if (!empty($container)) {
+          $id = $container['id'];
+        } else {
+          // No existing container to run commands on.
+          return 1;
+        }
       }
 
       $short_id = substr($id, 0, 8);
@@ -180,6 +191,8 @@ class Environment implements Injectable, EnvironmentInterface {
     // Map working directory
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
+    $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
     $this->executableContainer = $this->startContainer($container);
 
   }
@@ -189,6 +202,8 @@ class Environment implements Injectable, EnvironmentInterface {
       return;
     }
     $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
+    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $db_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
 
     $this->databaseContainer = $this->startContainer($db_container);
     $this->database->setHost($this->databaseContainer['ip']);
@@ -199,70 +214,44 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $manager = $this->docker->getContainerManager();
 
-    // Kill the containers we started.
-    $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
-
-    if ($this->database->getDbType() !== 'sqlite') {
+    if (!empty($this->executableContainer['id'])) {
+      // Kill the containers we started.
+      $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
+    }
+    if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
       $manager->remove($this->databaseContainer['id'],['force' => TRUE]);
     }
   }
 
-  protected function validateImageName($image_name) {
-    // Verify that the appropriate container images exist
-    $this->io->writeln("<comment>Validating container images exist</comment>");
-
-    $manager = $this->docker->getImageManager();
-
-    $name = $image_name['Image'];
-    try {
-      $image = $manager->find($name);
-      $id = substr($image->getID(), 0, 8);
-      $this->io->writeln("<comment>Found image <options=bold>$name/options=bold> with ID <options=bold>$id</options=bold></comment>");
-    }
-    catch (ClientErrorException $e) {
-      // @TODO this is where we go ahead and pull the image if it doesnt exist.
-      $this->io->drupalCIError("Missing Image", "Required container image <options=bold>'$name'</options=bold> not found.");
-      $this->pull($name);
-    }
-
-
-    return TRUE;
-  }
-
   protected function startContainer($config) {
 
-    $valid = $this->validateImageName($config);
-    if (!empty($valid)) {
+    $this->pull($config['Image']);
+    $manager = $this->docker->getContainerManager();
+    $container_config = new ContainerConfig();
+    $container_config->setImage($config['Image']);
+    $host_config = new HostConfig();
+    $host_config->setBinds($config['HostConfig']['Binds']);
+    $host_config->setUlimits($config['HostConfig']['Ulimits']);
+    $container_config->setHostConfig($host_config);
+    $parameters = [];
+    $create_result = $manager->create($container_config, $parameters);
+    $container_id = $create_result->getId();
 
-      $manager = $this->docker->getContainerManager();
-      $container_config = new ContainerConfig();
-      $container_config->setImage($config['Image']);
-      $host_config = new HostConfig();
-      $host_config->setBinds($config['HostConfig']['Binds']);
-      $container_config->setHostConfig($host_config);
-      $parameters = [];
-      $create_result = $manager->create($container_config, $parameters);
-      $container_id = $create_result->getId();
+    $response = $manager->start($container_id);
+    // TODO: Throw exception if doesn't return 204.
 
-      $response = $manager->start($container_id);
-      // TODO: Throw exception if doesn't return 204.
+    $executable_container = $manager->find($container_id);
 
-      $executable_container = $manager->find($container_id);
+    $container['id'] = $executable_container->getID();
+    $container['name'] = $executable_container->getName();
+    $container['ip'] = $executable_container->getNetworkSettings()
+      ->getIPAddress();
+    $container['image'] = $config['Image'];
 
-      $container['id'] = $executable_container->getID();
-      $container['name'] = $executable_container->getName();
-      $container['ip'] = $executable_container->getNetworkSettings()
-        ->getIPAddress();
-      $container['image'] = $config['Image'];
+    $short_id = substr($container['id'], 0, 8);
+    $this->io->writeln("<comment>Container <options=bold>${container['name']}</> created from image <options=bold>${config['Image']}</> with ID <options=bold>$short_id</></comment>");
 
-      $short_id = substr($container['id'], 0, 8);
-      $this->io->writeln("<comment>Container <options=bold>${container['name']}</options=bold> created from image <options=bold>${config['Image']}</options=bold> with ID <options=bold>$short_id</options=bold></comment>");
-      return $container;
-    }
-    else {
-      // TODO: Build Objects should throw BuildExceptions not BuildTaskExceptions
-      throw new BuildTaskException("Starting Container Failed");
-    }
+    return $container;
   }
 
   /**
@@ -273,7 +262,11 @@ class Environment implements Injectable, EnvironmentInterface {
   protected function pull($name) {
     $manager = $this->docker->getImageManager();
     $progressInformation = null;
-    $response = $manager->create('', ['fromImage' => $name . ':latest'],  $manager::FETCH_STREAM);
+    $image_name = explode(':',$name);
+    if (empty($image_name[1])){
+      $image_name[1] = 'latest';
+    }
+    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]],  $manager::FETCH_STREAM);
 
     //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {

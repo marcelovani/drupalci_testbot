@@ -7,7 +7,6 @@ use Composer\Json\JsonFile;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -40,7 +39,15 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
         $this->exec($cmd, $cmdoutput, $result);
         if ($result > 1) {
           // Composer threw an error.
-          throw new BuildTaskException("Composer init failure.  Error Code: $result");
+          $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
+        }
+
+        $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
+        $this->io->writeln("Setting Minimum Stability");
+        $this->exec($cmd, $cmdoutput, $result);
+        if ($result > 1) {
+          // Composer threw an error.
+          $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
         }
 
         $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
@@ -48,7 +55,7 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
         $this->exec($cmd, $cmdoutput, $result);
         if ($result > 1) {
           // Composer threw an error.
-          throw new BuildTaskException("Composer require failure.  Error Code: $result");
+          $this->terminateBuild("Composer require failure.", "Composer require failure. Error Code: $result");
         }
 
         $composer_json = $source_dir . '/composer.json';
@@ -65,18 +72,5 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
       }
     }
     parent::run();
-  }
-
-  /**
-   * Converts a drupal branch string that is stored in git into a composer
-   * based branch string. For d8 contrib
-   *
-   * @param $branch
-   *
-   * @return mixed
-   */
-  protected function getSemverBranch($branch) {
-    $converted_version = preg_replace('/^\d+\.x-/', '', $branch) . '-dev';
-    return $converted_version;
   }
 }

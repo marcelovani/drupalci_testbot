@@ -88,6 +88,7 @@ class Patch implements PatchInterface, Injectable {
 
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->httpClient = $container['http.client'];
   }
   /**
    * @return string
@@ -190,17 +191,15 @@ class Patch implements PatchInterface, Injectable {
     $file_info = pathinfo($url);
     $directory = $this->working_dir;
     $destination_file = $directory . '/' . $file_info['basename'];
-    $this->httpClient()
+    $this->httpClient
       ->get($url, ['save_to' => "$destination_file"]);
-    $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</options=bold></info>");
+    $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</></info>");
     $this->setPatchFileName($file_info['basename']);
     return $destination_file;
   }
 
   /**
-   * Validate patch file and target directory
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function validate()
   {
@@ -255,6 +254,8 @@ class Patch implements PatchInterface, Injectable {
     $absolutePath = $this->absolutePath;
     $target = $this->targetApplyDir;
 
+    $this->io->writeln("Applying patch $absolutePath to $target");
+
     $cmd = "cd $target && git apply -p1 $absolutePath 2>&1";
 
     exec($cmd, $cmdoutput, $result);
@@ -266,7 +267,7 @@ class Patch implements PatchInterface, Injectable {
       // TODO: Pass on the actual return value for the patch attempt
       return $result;
     }
-    $this->io->writeLn("<comment>Patch <options=bold>$absolutePath</options=bold> applied to directory <options=bold>$target</options=bold></comment>");
+    $this->io->writeLn("<comment>Patch <options=bold>$absolutePath</> applied to directory <options=bold>$target</></comment>");
     $this->applied = TRUE;
     return $result;
   }
@@ -287,7 +288,7 @@ class Patch implements PatchInterface, Injectable {
 
       $target = $this->getTargetApplyDir();
       // TODO: refactor this exec out of here.
-      $cmd = "cd $target && git diff --name-only";
+      $cmd = "cd $target && git ls-files --other --modified --exclude-standard --exclude=vendor";
       exec($cmd, $cmdoutput, $return);
       if ($return !== 0) {
         // git diff returned a non-zero error code
@@ -302,16 +303,5 @@ class Patch implements PatchInterface, Injectable {
       }
     }
     return $this->modified_files;
-  }
-
-  /**
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient()
-  {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client;
-    }
-    return $this->httpClient;
   }
 }

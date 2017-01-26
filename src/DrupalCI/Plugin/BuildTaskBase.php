@@ -9,6 +9,7 @@ namespace DrupalCI\Plugin;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
 use DrupalCI\Injectable;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use Pimple\Container;
@@ -171,6 +172,12 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   public function getDefaultConfiguration() {
     return [];
+  }
+
+
+  public function terminateBuild($errorLabel, $errorDetails = ''){
+    $this->io->drupalCIError($errorLabel, $errorDetails);
+    throw new BuildTaskException($errorLabel, $errorDetails);
   }
 
 }
