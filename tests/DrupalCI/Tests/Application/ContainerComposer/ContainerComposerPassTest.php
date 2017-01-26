@@ -30,7 +30,7 @@ class ContainerComposerPassTest extends DrupalCIFunctionalTestBase {
     'DCI_DEBUG=TRUE',
     ];
 
-  public function testContainerComposerWithPlatformMismatch() {
+  public function testPlatform() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
