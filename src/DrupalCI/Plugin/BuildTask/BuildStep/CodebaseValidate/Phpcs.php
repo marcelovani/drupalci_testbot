@@ -70,7 +70,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    *
    * @var string
    */
-  protected static $reportFilePath = 'phpcs/checkstyle.xml';
+  protected $reportFilePath = 'phpcs/checkstyle.xml';
 
   /**
    * {@inheritdoc}
@@ -404,7 +404,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
       $cmd = "composer require --dev drupal/coder " . $coder_version;
       $result = $this->environment->executeCommands($cmd);
-      if ($result !== 0) {
+      if ($result->getSignal() !== 0) {
         // If it didn't work, then we bail, but we don't halt build execution.
         $this->io->writeln('Unable to install generic drupal/coder.');
         return 2;
