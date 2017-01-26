@@ -7,7 +7,7 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\Patch;
+use DrupalCI\Build\Codebase\PatchInterface;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
@@ -36,36 +36,29 @@ class Codebase implements CodebaseInterface, Injectable {
 
   protected $extensionPaths = '';
 
+  /**
+   * A storage variable for any modified files
+   */
+  protected $modified_files = [];
+
+  /**
+   * Any patches used to generate this codebase
+   *
+   * @var \DrupalCI\Build\Codebase\PatchInterface[]
+   */
+  protected $patches;
+
+
   public function inject(Container $container) {
     $this->io = $container['console.io'];
     $this->build = $container['build'];
   }
 
-  /**
-   * Any patches used to generate this codebase
-   *
-   * @var \DrupalCI\Build\Codebase\Patch[]
-   */
-  protected $patches;
-
-  public function getPatches() {
-    return $this->patches;
-  }
-
-  public function setPatches($patches) {
-    $this->patches = $patches;
-  }
-
-  public function addPatch(Patch $patch) {
+  public function addPatch(PatchInterface $patch) {
     if (!empty($this->patches) && !in_array($patch, $this->patches)) {
       $this->patches[] = $patch;
     }
   }
-
-  /**
-   * A storage variable for any modified files
-   */
-  protected $modified_files = [];
 
   public function getModifiedFiles() {
     return $this->modified_files;
@@ -96,9 +89,6 @@ class Codebase implements CodebaseInterface, Injectable {
     // contain the host or container environments' source path.
     if (substr($filename, 0, strlen($this->getSourceDirectory())) == $this->getSourceDirectory()) {
       $filename = substr($filename, strlen($this->getSourceDirectory())+1);
-    }
-    if (!is_array($this->modified_files)) {
-      $this->modified_files = [];
     }
     if (!in_array($filename, $this->modified_files)) {
       $this->modified_files[] = $filename;

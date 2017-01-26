@@ -88,6 +88,7 @@ class Patch implements PatchInterface, Injectable {
 
   public function inject(Container $container) {
     $this->io = $container['console.io'];
+    $this->httpClient = $container['http.client'];
   }
   /**
    * @return string
@@ -190,7 +191,7 @@ class Patch implements PatchInterface, Injectable {
     $file_info = pathinfo($url);
     $directory = $this->working_dir;
     $destination_file = $directory . '/' . $file_info['basename'];
-    $this->httpClient()
+    $this->httpClient
       ->get($url, ['save_to' => "$destination_file"]);
     $this->io->writeln("<info>Patch downloaded to <options=bold>$destination_file</></info>");
     $this->setPatchFileName($file_info['basename']);
@@ -198,9 +199,7 @@ class Patch implements PatchInterface, Injectable {
   }
 
   /**
-   * Validate patch file and target directory
-   *
-   * @return bool
+   * {@inheritdoc}
    */
   public function validate()
   {
@@ -255,6 +254,8 @@ class Patch implements PatchInterface, Injectable {
     $absolutePath = $this->absolutePath;
     $target = $this->targetApplyDir;
 
+    $this->io->writeln("Applying patch $absolutePath to $target");
+
     $cmd = "cd $target && git apply -p1 $absolutePath 2>&1";
 
     exec($cmd, $cmdoutput, $result);
@@ -302,16 +303,5 @@ class Patch implements PatchInterface, Injectable {
       }
     }
     return $this->modified_files;
-  }
-
-  /**
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient()
-  {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client;
-    }
-    return $this->httpClient;
   }
 }
