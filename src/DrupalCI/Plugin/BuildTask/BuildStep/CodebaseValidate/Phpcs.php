@@ -43,13 +43,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected $codebase;
 
   /**
-   * Manager for BuildTask plugins.
-   *
-   * @var DrupalCI\Plugin\PluginManagerInterface
-   */
-  protected $buildTaskPluginManager;
-
-  /**
    * Whether we should use --standard=Drupal.
    *
    * This implies that there was no phpcs.xml(.dist) file.
@@ -415,24 +408,17 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function installGenericCoder() {
     // Install drupal/coder.
     $coder_version = '^8.2@stable';
-
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-    $configuration = [
-      'options' => 'require --dev drupal/coder ' . $coder_version,
-      'fail_should_terminate' => FALSE,
-    ];
-
-    // No exception should ever bubble up from here.
-    try {
-      $container_composer = $this->buildTaskPluginManager
-        ->getPlugin('BuildStep', 'container_composer', $configuration);
-      $status = $container_composer->run();
-
-      // If it didn't work, then we bail, but we don't halt build execution.
-      if ($status != 0) {
+      $cmd = "composer require --dev drupal/coder " . $coder_version;
+      $result = $this->environment->executeCommands($cmd);
+      if ($result !== 0) {
+        // If it didn't work, then we bail, but we don't halt build execution.
         $this->io->writeln('Unable to install generic drupal/coder.');
         return 2;
       }
+
+    // No exception should ever bubble up from here.
+    try {
 
       $phpcs_bin = $this->getPhpcsExecutable();
 
