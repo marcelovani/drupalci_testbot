@@ -264,11 +264,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->io->writeln('<info>No modified PHP files. Sniffing all files.</info>');
         $this->configuration['sniff_only_changed'] = FALSE;
       }
-
-      $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
-      // Make a list of of modified files to this file.
-      $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
-      $this->writeSniffableFiles($modified_php_files, $sniffable_file);
+      else {
+        $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
+        // Make a list of of modified files to this file.
+        $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+        $this->writeSniffableFiles($modified_php_files, $sniffable_file);
+      }
     }
     else {
       $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '</info>');
@@ -294,6 +295,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function writeSniffableFiles($sniffable_files, $file_path) {
     $this->io->writeln("<info>Writing: " . $file_path . "</info>");
     $container_source = $this->environment->getExecContainerSourceDir();
+    $sniffable_file_list = [];
     foreach ($sniffable_files as $file) {
       $sniffable_file_list[] = $container_source . "/" . $file;
     }
@@ -313,6 +315,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * @todo Figure out a better way to make this determination.
    */
   protected function getPhpcsExecutable() {
+    $this->io->writeln('Checking for phpcs tool in codebase.');
     $source_dir = $this->environment->getExecContainerSourceDir();
     $phpcs_bin = $source_dir . static::$phpcsExecutable;
     $result = $this->environment->executeCommands('test -e ' . $phpcs_bin);

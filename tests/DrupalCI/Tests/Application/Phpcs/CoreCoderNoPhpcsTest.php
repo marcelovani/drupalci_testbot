@@ -29,7 +29,6 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testCoderSniffWithNoPhpcs() {
-    $this->markTestIncomplete('Changed behavior if phpcs is not installed.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
@@ -37,9 +36,12 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniffNoPhpcs.yml',
     ], $options);
+
     $this->assertRegExp('/Checking for phpcs tool in codebase./', $app_tester->getDisplay());
-    $this->assertRegExp('/phpcs executable does not exist/', $app_tester->getDisplay());
-    $this->assertNotRegExp('/Executing phpcs./', $app_tester->getDisplay());
+    $this->assertRegExp('`Attempting to install drupal/coder`', $app_tester->getDisplay());
+    $this->assertRegExp('/No modified PHP files. Sniffing all files./', $app_tester->getDisplay());
+    $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
+
     $this->assertEquals(0, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
