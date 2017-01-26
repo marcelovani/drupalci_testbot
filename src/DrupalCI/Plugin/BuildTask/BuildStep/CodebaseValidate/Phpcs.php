@@ -73,6 +73,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected static $phpcsExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
 
   /**
+   * The path where we expect phpcs to reside.
+   *
+   * @var string
+   */
+  protected static $reportFilePath = 'phpcs/checkstyle.xml';
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
@@ -94,8 +101,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
-      // @todo: Add a test which changes this.
-      'report_file_path' => 'phpcs/checkstyle.xml'
     ];
   }
 
@@ -119,9 +124,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
       $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
-    }
-    if (isset($_ENV['DCI_CS_ReportFilePath'])) {
-      $this->configuration['report_file_path'] = $_ENV['DCI_CS_ReportFilePath'];
     }
   }
 
@@ -161,8 +163,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
 
     // Set up the report file artifact.
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->configuration['report_file_path']));
-    $report_file = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
+    // @TODO when plugins add artifacts, the build should make a namespaced
+    // directory for them to end up in.
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->reportFilePath));
+    $report_file = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
     $this->build->addArtifact($report_file);
 
     // Get the sniff start directory.
@@ -183,7 +187,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->configuration['report_file_path'],
+      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->reportFilePath,
     ];
 
     // For generic sniffs, use the Drupal standard.
@@ -226,7 +230,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function adjustForUseCase() {
     $this->shouldUseDrupalStandard = FALSE;
     $this->shouldInstallGenericCoder = FALSE;
- 
+
     // Check if we're testing contrib, adjust start path accordingly.
     $project = $this->codebase->getProjectName();
     // @todo: For now, core has no project name, but contrib does. This could
@@ -390,7 +394,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
+    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
