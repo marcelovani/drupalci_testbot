@@ -34,21 +34,21 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
   public function configure() {
 
     // The source directory to copy
-    if (isset($_ENV['DCI_UseLocalCodebase'])) {
-      $this->configuration['local_dir'] = $_ENV['DCI_UseLocalCodebase'];
+    if (false !== getenv(('DCI_UseLocalCodebase'))) {
+      $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
     }
     // Comma separated list of directories to exclude from the rsync (like .git)
-    if (isset($_ENV['DCI_Exclude'])) {
-      $this->configuration['excludes'] = explode(',', $_ENV['DCI_Exclude']);
+    if (false !== getenv(('DCI_Exclude'))) {
+      $this->configuration['excludes'] = explode(',', getenv(('DCI_Exclude')));
     }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
-    if (isset($_ENV['DCI_LocalBranch'])) {
-      $this->configuration['git_branch'] = $_ENV['DCI_LocalBranch'];
+    if (false !== getenv(('DCI_LocalBranch'))) {
+      $this->configuration['git_branch'] = getenv(('DCI_LocalBranch'));
     }
 
-    if (isset($_ENV['DCI_LocalCommitHash'])) {
-      $this->configuration['git_commit_hash'] = $_ENV['DCI_LocalCommitHash'];
+    if (false !== getenv(('DCI_LocalCommitHash'))) {
+      $this->configuration['git_commit_hash'] = getenv(('DCI_LocalCommitHash'));
     }
   }
 

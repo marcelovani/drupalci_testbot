@@ -28,9 +28,9 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
     // DCI_TestItem may have --directory modules/<projectname>, if it does,
     // we can assume that it is the module we wish to test, and therefore needs
     // to be built in the codebase tmp directory and pointed to by composer.
-    if (isset($_ENV['DCI_TestItem'])) {
-      $this->configuration['project_subdir'] = $this->getProjectSubDir($_ENV['DCI_TestItem']);
-      $this->configuration['project_name'] = $this->getContribProjectName($_ENV['DCI_TestItem']);
+    if (false !== getenv(('DCI_TestItem'))) {
+      $this->configuration['project_subdir'] = $this->getProjectSubDir(getenv(('DCI_TestItem')));
+      $this->configuration['project_name'] = $this->getContribProjectName(getenv(('DCI_TestItem')));
     }
     // @TODO: add an API for this vs. scraping it from DCI_TestItem
 

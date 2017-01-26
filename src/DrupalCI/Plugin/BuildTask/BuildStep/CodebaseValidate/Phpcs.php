@@ -52,23 +52,23 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
-    if (isset($_ENV['DCI_CS_SniffOnlyChanged'])) {
-      $this->configuration['sniff_only_changed'] = $_ENV['DCI_CS_SniffOnlyChanged'];
+    if (false !== getenv(('DCI_CS_SniffOnlyChanged'))) {
+      $this->configuration['sniff_only_changed'] = getenv(('DCI_CS_SniffOnlyChanged'));
     }
-    if (isset($_ENV['DCI_CS_ConfigDirectory'])) {
-      $this->configuration['config_directory'] = $_ENV['DCI_CS_ConfigDirectory'];
+    if (false !== getenv(('DCI_CS_ConfigDirectory'))) {
+      $this->configuration['config_directory'] = getenv(('DCI_CS_ConfigDirectory'));
     }
-    if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
-      $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
+    if (false !== getenv(('DCI_CS_SniffStartDirectory'))) {
+      $this->configuration['start_directory'] = getenv(('DCI_CS_SniffStartDirectory'));
     }
-    if (isset($_ENV['DCI_CS_ConfigInstalledPaths'])) {
-      $this->configuration['installed_paths'] = $_ENV['DCI_CS_ConfigInstalledPaths'];
+    if (false !== getenv(('DCI_CS_ConfigInstalledPaths'))) {
+      $this->configuration['installed_paths'] = getenv(('DCI_CS_ConfigInstalledPaths'));
     }
-    if (isset($_ENV['DCI_CS_SniffFailsTest'])) {
-      $this->configuration['sniff_fails_test'] = $_ENV['DCI_CS_SniffFailsTest'];
+    if (false !== getenv(('DCI_CS_SniffFailsTest'))) {
+      $this->configuration['sniff_fails_test'] = getenv(('DCI_CS_SniffFailsTest'));
     }
-    if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
-      $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
+    if (false !== getenv(('DCI_CS_WarningFailsSniff'))) {
+      $this->configuration['warning_fails_sniff'] = getenv(('DCI_CS_WarningFailsSniff'));
     }
   }
 

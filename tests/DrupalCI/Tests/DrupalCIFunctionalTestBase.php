@@ -82,8 +82,7 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
 
     if (!empty($this->dciConfig)) {
       foreach ($this->dciConfig as $variable) {
-        list($env_var, $value) = explode('=', $variable);
-        putenv($value);
+        putenv($variable);
       }
     }
     else {
