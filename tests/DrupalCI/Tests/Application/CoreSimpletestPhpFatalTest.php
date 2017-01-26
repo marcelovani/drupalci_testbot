@@ -21,19 +21,17 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_Color=True',
-    'DCI_ComposerInstall=True',
     'DCI_Concurrency=2',
-    'DCI_CoreBranch=8.1.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.1.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/2684095-2.patch,.',
-    'DCI_GitCommitHash=6afe359',
+    'DCI_LocalCommitHash=6afe359',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=5.5',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2684095-2.patch,.',
-    'DCI_RunScript=/var/www/html/core/scripts/run-tests.sh ',
-    'DCI_TestGroups=--class "Drupal\comment\Tests\CommentItemTest"',
+    'DCI_TestItem=--class "Drupal\comment\Tests\CommentItemTest"',
   ];
 
   public function testSimpletestPhpFatal() {
@@ -44,6 +42,13 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
     ], $options);
     $this->assertRegExp('/Fatal error/', $app_tester->getDisplay());
+    // When we can send back proper signals to jenkins, we'll change this back.
+    //$this->assertEquals(255, $app_tester->getStatusCode());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }

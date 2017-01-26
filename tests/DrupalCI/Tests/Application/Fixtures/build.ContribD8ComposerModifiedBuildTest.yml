@@ -1,0 +1,71 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.3.x'
+        git_commit_hash: ''
+      checkout_core:
+      composer:
+        options: 'install --prefer-dist --no-progress'
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/monolog.git'
+            branch: 8.x-1.x
+            checkout_dir: modules/monolog
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/monolog.patch'
+            to: modules/monolog
+      patch:
+        patches:
+          -
+            from: monolog.patch
+            to: modules/monolog
+      update_dependencies: {  }
+    project_subdir: modules/monolog
+    project_name: monolog
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.5.38-apache:production'
+    create_db:
+      dbcreate: {  }
+    filesystem:
+      prepare_filesystem: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '4'
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: '--directory modules/monolog'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/checkout'
+        php: /opt/phpenv/shims/php
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true
+      simpletest.js:
+        concurrency: 1
+        types: PHPUnit-FunctionalJavascript
+        testgroups: '--directory modules/monolog'
+        url: 'http://localhost/checkout'
+        php: /opt/phpenv/shims/php
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true

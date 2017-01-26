@@ -35,33 +35,6 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
     $container['command.status'] = function ($container) {
       return new StatusCommand();
     };
-    $container['command.build'] = function ($container) {
-      return new DockerBuildCommand();
-    };
-    $container['command.pull'] = function ($container) {
-      return new DockerPullCommand();
-    };
-    $container['command.docker.remove'] = function ($container) {
-      return new DockerRemoveCommand();
-    };
-    $container['command.init.all'] = function ($container) {
-      return new InitAllCommand();
-    };
-    $container['command.init.base'] = function ($container) {
-      return new InitBaseContainersCommand();
-    };
-    $container['command.init.db'] = function ($container) {
-      return new InitDatabaseContainersCommand();
-    };
-    $container['command.init.dependencies'] = function ($container) {
-      return new InitDependenciesCommand();
-    };
-    $container['command.init.docker'] = function ($container) {
-      return new InitDockerCommand();
-    };
-    $container['command.init.web'] = function ($container) {
-      return new InitWebContainersCommand();
-    };
     $container['command.run'] = function ($container) {
       return new RunCommand();
     };
@@ -69,15 +42,6 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
     $container['commands'] = function ($container) {
       return array(
         $container['command.status'],
-        $container['command.build'],
-        $container['command.pull'],
-        $container['command.docker.remove'],
-        $container['command.init.all'],
-        $container['command.init.base'],
-        $container['command.init.db'],
-        $container['command.init.dependencies'],
-        $container['command.init.docker'],
-        $container['command.init.web'],
         $container['command.run']
       );
     };

@@ -1,0 +1,77 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: /var/lib/drupalci/drupal-checkout
+        git_branch: 8.3.x
+        git_commit_hash: 765c10b
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
+      composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/config_readonly.git'
+            branch: 8.x-1.x
+            checkout_dir: modules/config_readonly
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/stop_block_placement-2728679-8.patch'
+            to: modules/config_readonly
+      patch:
+        patches:
+          -
+            from: stop_block_placement-2728679-8.patch
+            to: modules/config_readonly
+      composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+      update_dependencies: {  }
+    project_subdir: modules/config_readonly
+    project_name: config_readonly
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.6-apache:production'
+    create_db:
+      dbcreate: {  }
+    filesystem:
+      prepare_filesystem: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '4'
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: '--directory modules/config_readonly'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/checkout'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true
+      simpletest.js:
+        concurrency: 1
+        types: PHPUnit-FunctionalJavascript
+        testgroups: '--directory modules/config_readonly'
+        url: 'http://localhost/checkout'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true

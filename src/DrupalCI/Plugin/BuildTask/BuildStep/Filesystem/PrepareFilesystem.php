@@ -4,14 +4,11 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Filesystem;
 
 
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use GuzzleHttp\Client;
 use Pimple\Container;
 
 /**
@@ -21,9 +18,8 @@ use Pimple\Container;
  *
  * @PluginID("prepare_filesystem")
  */
-class PrepareFilesystem extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
 
-  use BuildTaskTrait;
   use FileHandlerTrait;
 
   /* @var \DrupalCI\Build\Environment\DatabaseInterface */
@@ -42,89 +38,25 @@ class PrepareFilesystem extends PluginBase implements BuildStepInterface, BuildT
   /**
    * @inheritDoc
    */
-  public function configure() {
-    // @TODO make into a test
-     // $_ENV['DCI_Fetch']='https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.';
-    if (isset($_ENV['DCI_Fetch'])) {
-      $this->configuration['files'] = $this->process($_ENV['DCI_Fetch']);
-    }
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function run() {
+    $sourcedir = $this->environment->getExecContainerSourceDir();
    $setup_commands = [
-      'mkdir -p /var/www/html/artifacts',
-      'mkdir -p /var/www/html/sites/simpletest/xml',
-      'ln -s /var/www/html /var/www/html/checkout',
-      'chown -fR www-data:www-data /var/www/html/sites',
-      'chmod 0777 /var/www/html/artifacts',
+      'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
+      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
+      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
+      'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
       'supervisorctl start phantomjs',
       'php -v',
-      # TODO: figure out what to do with this.
-      'sudo bash -c "/opt/phpenv/shims/pecl list | grep -q yaml && cd /opt/phpenv/versions/ && ls | xargs -I {} -i bash -c \'echo extension=yaml.so > ./{}/etc/conf.d/yaml.ini\' || echo -n"',
+
     ];
-    $this->environment->executeCommands($setup_commands);
-
+    $result = $this->environment->executeCommands($setup_commands);
+    //phantomjs still fails on
+    // 5.3 /5.4 so leave this out for now.
+//    if ($result !== 0)
+     // Directory setup failed threw an error.
+//      $this->terminateBuild("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
+//    }
+    //return $result->getSignal();
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function complete() {
-    // TODO: Implement complete() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    // TODO: Implement getDefaultConfiguration() method.
-
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
 }

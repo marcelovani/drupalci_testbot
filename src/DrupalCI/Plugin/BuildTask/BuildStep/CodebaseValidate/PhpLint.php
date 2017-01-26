@@ -5,20 +5,16 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("phplint")
  */
-class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterface {
-
-  use BuildTaskTrait;
+class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
   protected $environment;
@@ -26,19 +22,11 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
-  /**
-   * The current build.
-   *
-   * @var \DrupalCI\Build\BuildInterface
-   */
-  protected $build;
-
 
   public function inject(Container $container) {
     parent::inject($container);
     $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
-    $this->build = $container['build'];
   }
 
   /**
@@ -54,44 +42,40 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
    * @inheritDoc
    */
   public function run() {
-    // TODO Throw a BuildException if there are syntax errors.
+
     $this->io->writeln('<info>SyntaxCheck checking for php syntax errors.</info>');
 
-    $modified_files = $this->codebase->getModifiedFiles();
+    $modified_php_files = $this->codebase->getModifiedPhpFiles();
 
-    if (empty($modified_files)) {
+    if (empty($modified_php_files)) {
       return 0;
     }
 
-    $workingdir = $this->build->getSourceDirectory();
-    $concurrency = $this->configuration['concurrency'];
-    $bash_array = "";
-    foreach ($modified_files as $file) {
-      $file_path = $workingdir . "/" . $file;
-      // Checking for: if not in a vendor dir, if the file still exists, and if the first 32 (length - 1) bytes of the file contain <?php
-      if ((strpos($file, '/vendor/') === FALSE) && file_exists($file_path) && (strpos(fgets(fopen($file_path, 'r'), 33), '<?php') !== FALSE)) {
-        $bash_array .= "$file\n";
-      }
+    $file_list = [];
+
+    foreach ($modified_php_files as $file) {
+      $file_list[] = $this->environment->getExecContainerSourceDir() . "/" . $file;
     }
 
     $lintable_files = $this->build->getArtifactDirectory() .'/lintable_files.txt';
     $this->io->writeln("<info>" . $lintable_files . "</info>");
-    file_put_contents($lintable_files, $bash_array);
+    file_put_contents($lintable_files, implode("\n", $file_list));
+
     // Make sure
     if (0 < filesize($lintable_files)) {
-      // TODO: Remove hardcoded /var/www/html.
+      $this->build->addArtifact($lintable_files);
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
-      $cmd = "cd /var/www/html && xargs -P $concurrency -a $lintable_files -I {} php -l '{}'";
-      $this->environment->executeCommands($cmd);
+      $concurrency = $this->configuration['concurrency'];
+      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerArtifactDir() . "/lintable_files.txt -I {} php -l '{}'";
+      // TODO Throw a BuildException if there are syntax errors.
+      $result = $this->environment->executeCommands($cmd);
+      if ($result->getSignal() !== 0) {
+        // Git threw an error.
+        $this->terminateBuild("PHPLint Failed", "Error Code: " . $result->getSignal());
+      }
     }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function complete() {
-    // TODO: Implement complete() method.
+    return 0;
   }
 
   /**
@@ -101,48 +85,6 @@ class PhpLint extends PluginBase implements BuildStepInterface, BuildTaskInterfa
     return [
       'concurrency' => '4',
     ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
   }
 
 }

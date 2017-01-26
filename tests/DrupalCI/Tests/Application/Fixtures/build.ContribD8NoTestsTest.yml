@@ -1,0 +1,69 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: /var/lib/drupalci/drupal-checkout
+        git_branch: 8.1.x
+        git_commit_hash: ''
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
+      checkout:
+      -
+        repo: 'https://git.drupal.org/sandbox/Mile23/2683655.git'
+        branch: 8.x-1.x
+        checkout_dir: modules/drupalci_d8_module_no_tests
+      composer:
+        options: 'install --prefer-dist --no-progress'
+      fetch:
+        files: {  }
+      patch:
+        patches: {  }
+    project_subdir: modules/drupalci_d8_module_no_tests
+    project_name: drupalci_d8_module_no_tests
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    filesystem:
+      prepare_filesystem: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '4'
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: '--directory modules/drupalci_d8_module_no_tests'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/checkout'
+        php: /opt/phpenv/shims/php
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true
+      simpletest.js:
+        concurrency: 1
+        types: PHPUnit-FunctionalJavascript
+        testgroups: '--directory modules/drupalci_d8_module_no_tests'
+        url: 'http://localhost/checkout'
+        php: /opt/phpenv/shims/php
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true

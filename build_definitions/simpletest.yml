@@ -1,48 +1,27 @@
-# The yml build definition is the "roadmap" for a build, that tells DrupalCI what steps to execute, in what order, and
-# Provides a way to "lock" configuration values.
-# The structure of a build.yml will always follow the following conventions:
-# There are five levels:
-# 1. The build
-# 2. Build stages and build level configuration.
-# 3. Build phases and build stage configuration.
-# 4. Build steps and Build phase configuration.
-# 5. Build step configuration.
-
-
-# The keys at each level are one of two possibilities: either the plugin name for a buildstage/job/buildtask,
-# *or* they are a configuration override that will take precedence over all other configuration directives.
-# The default build.yml file may contain keys who's default configuration is a no-op.
-# this is to allow for those configurations to be overridden, such as composer, and patches.
-
-# If any build task is an indexed array, and not a keyed array, the assumption is that we want to
-# run that build task multiple times, with different configuration overrides each time
-
-# The build level really only exists to provide for a possibility to run entire, multiple builds. It might go away.
 build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer.core_install:
+      composer_contrib:
+      fetch:
+      patch:
+      update_dependencies:
   environment:
     startcontainers:
       runcontainers:
     create_db:
       dbcreate:
-  codebase:
-    assemble_codebase:
-      checkout:
-      composer:
-      # The default configuration for the patch plugin is to do nothing. But if we do not define it, it wont run at all
-      # This allows us to optionally enable it with env variables, user config overrides, or command line overrides.
-      fetch:
-      patch:
-      # This filesystem step *should* be in the environment stage,
-      # But our organization currently expects to be able to git clone
-      # to an empty directory, *then* add in more folders.
     filesystem:
       prepare_filesystem:
+  assessment:
     validate_codebase:
       phplint:
-  assessment:
+      container_composer:
     testing:
-      simpletest:
-
-
-
-
+      simpletest.standard:
+        concurrency: 31
+      simpletest.js:
+        concurrency: 1
+        types: 'PHPUnit-FunctionalJavascript'

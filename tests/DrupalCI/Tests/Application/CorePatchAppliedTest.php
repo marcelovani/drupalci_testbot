@@ -23,18 +23,16 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_ComposerInstall=true',
-    'DCI_CoreBranch=8.1.x',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_LocalBranch=8.1.x',
+    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
+    'DCI_LocalCommitHash=bdb434a',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
-    'DCI_GitCommitHash=bdb434a',
+    'DCI_Fetch=https://www.drupal.org/files/issues/2572307-30.patch,.',
+    'DCI_Patch=2572307-30.patch,.',
     'DCI_JobType=simpletest',
-    'DCI_PHPVersion=5.5',
-    'DCI_Patch=Generic.PHP_.UpperCaseConstant-2572307-24.patch,.',
-//    'DCI_RunScript=/var/www/html/core/scripts/run-tests.sh',
-    'DCI_TestGroups=Url',
+    'DCI_PHPVersion=php-5.5.38-apache:production',
+    'DCI_TestItem=Url',
   ];
 
   public function testCorePatchApplied() {
@@ -44,8 +42,13 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
     $app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*Generic.PHP_.UpperCaseConstant-2572307-24.patch applied.*/', $app_tester->getDisplay());
+    $this->assertRegExp('/.*2572307-30.patch applied.*/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\system\\\\Tests\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
+
+    /* @var $build \DrupalCI\Build\BuildInterface */
+    $build = $app->getContainer()['build'];
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 }
