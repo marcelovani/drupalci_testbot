@@ -38,13 +38,21 @@ interface BuildTaskInterface {
 
   /**
    * Decorator for complete functions to stop their timer.
+   *
+   * @param $childStatus
+   *   aggregate status code of all child tasks
+   *
    */
-  public function finish();
+  public function finish($childStatus);
 
   /**
    * Called when a Task and all of its children have finished processing.
+   *
+   * @param $childStatus
+   *   aggregate status code of all child tasks
+   *
    */
-  public function complete();
+  public function complete($childStatus);
 
   /**
    * @param boolean $inclusive
@@ -68,6 +76,15 @@ interface BuildTaskInterface {
   public function getDefaultConfiguration();
 
   /**
+   * Returns the computed configuration array for this plugin
+   *
+   * @return array
+   *   An array of configuration values this buildtask will use. Used primarily
+   *   to generate a build template for repeatability.
+   */
+  public function getComputedConfiguration();
+
+  /**
    * @return array
    *   This returns any child tasks as strings.
    */
@@ -80,34 +97,19 @@ interface BuildTaskInterface {
    */
   public function setChildTasks($buildTasks);
 
-  /**
-   * @return string
-   *   This is a short error string to describe the failure
-   */
-  public function getShortError();
 
   /**
-   * @return string
-   *   Returns the full error details/exception/error message when a BuildTask
-   *   encounters an error.
-   */
-  public function getErrorDetails();
-
-  /**
-   * @return int
-   *   Returns the integer status code of this BuildTask (0 = success, 1 =
-   *   failure, 2 = exception, > 2 is abnormal)
-   */
-  public function getResultCode();
-
-  /**
-   * @return array
+   * @param $errorLabel
+   *   A short, < 50 character label describing the reason the build was
+   *   terminated. This is what should display in the UI.
+   * @param $errorDetails
+   *   Comprehensive details/error messages for why the build failed.
    *
-   *   Returns an array of artifact paths that this buildtask creates.
-   *   The build should copy and rename these to an overall build artifact
-   *   location.
+   * If a buildTask reaches a point in execution where it should not proceed,
+   * It can terminate the build which will thrown an exception. The message
+   * should be < 50 characters,
    */
-  public function getArtifacts();
+  public function terminateBuild($errorLabel, $errorDetails);
 
   /* TODO: each task should be able to define their own command line switches
    * that override config like the environment variables do.

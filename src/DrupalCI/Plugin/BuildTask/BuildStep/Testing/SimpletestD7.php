@@ -5,11 +5,9 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
@@ -18,18 +16,30 @@ use Pimple\Container;
  */
 class SimpletestD7 extends Simpletest {
 
+  protected $runscript = '/scripts/run-tests.sh';
+
   protected function setupSimpletestDB(BuildInterface $build) {
 
     $this->results_database = $this->system_database;
     $dburl = $this->system_database->getUrl();
+    // Fixes sqlite for d7
+    if ($this->system_database->getDbType() === 'sqlite' ) {
+      $dburl = preg_replace('/localhost\//','',$dburl);
+      $this->system_database->setUrl($dburl);
+      $dbfile = $this->codebase->getSourceDirectory() .  preg_replace('/sqlite:\//','',$dburl);
+      $this->results_database->setDBFile($dbfile);
+      $this->results_database->setDbname('');
+    }
 
+    $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html si -y --db-url=' . $dburl . ' --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html vset simpletest_clear_results \'0\' 2>&1',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html vset simpletest_verbose \'0\' 2>&1',
-      'cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /.composer/vendor/drush/drush/drush -r /var/www/html en -y simpletest 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' si -y --db-url=' . $dburl . ' --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' vset simpletest_clear_results \'0\' 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' vset simpletest_verbose \'0\' 2>&1',
+      'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' en -y simpletest 2>&1',
     ];
-    $this->environment->executeCommands($setup_commands);
+    $result = $this->environment->executeCommands($setup_commands);
+    return $result->getSignal();
   }
 
 
@@ -73,7 +83,6 @@ class SimpletestD7 extends Simpletest {
     $args = [
       'concurrency',
       'url',
-      'php',
     ];
     foreach ($config as $key => $value) {
       if (in_array($key, $args)) {
@@ -90,7 +99,7 @@ class SimpletestD7 extends Simpletest {
    *
    * @return array
    */
-  protected function parseGroups($test_list): array {
+  protected function parseGroups($test_list) {
     // Set an initial default group, in case leading tests are found with no group.
     $group = 'nogroup';
     $test_groups = [];

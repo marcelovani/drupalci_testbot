@@ -25,6 +25,7 @@ trait TestSetupBaseTrait {
 
   function exec($command, &$output, &$result) {
     $this->commands[] = $command;
+    $output = [];
     $result = $this->execResult;
   }
 

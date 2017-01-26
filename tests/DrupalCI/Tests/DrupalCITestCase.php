@@ -7,7 +7,6 @@
 
 namespace DrupalCI\Tests;
 
-use DrupalCI\Console\Output;
 use DrupalCI\Providers\ConsoleIOServiceProvider;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
@@ -28,7 +27,6 @@ class DrupalCITestCase extends \PHPUnit_Framework_TestCase {
 
   public function setUp() {
     $this->output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
-    Output::setOutput($this->output);
     $this->build = $this->getMock('DrupalCI\Build\BuildInterface');
   }
 

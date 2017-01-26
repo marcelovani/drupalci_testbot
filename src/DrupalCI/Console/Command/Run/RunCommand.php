@@ -9,7 +9,6 @@ namespace DrupalCI\Console\Command\Run;
 
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;
 use DrupalCI\Injectable;
-use DrupalCI\Console\Output;
 use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Plugin\PluginManager;
@@ -84,7 +83,7 @@ class RunCommand extends DrupalCICommandBase  {
     $arg = $input->getArgument('definition');
     $this->build->generateBuild($arg);
 
-    $this->io->writeln("<info>Using build definition template: <options=bold>" . $this->build->getBuildFile() ."</options></options=bold></info>");
+    $this->io->writeln("<info>Using build definition template: <options=bold>" . $this->build->getBuildFile() . "</options></></info>");
 
     // Execute the build.
     $statuscode = $this->build->executeBuild();

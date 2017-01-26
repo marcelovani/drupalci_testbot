@@ -223,4 +223,11 @@ interface DatabaseInterface {
    */
   public function createDB();
 
+  /**
+   * @return string
+   *
+   * This is the data directory inside of the container. It is database version
+   * dependent for now.  TODO: make it not dependent?
+   */
+  public function getDataDir();
 }

@@ -61,6 +61,13 @@ interface BuildInterface {
   public function getArtifactDirectory();
 
   /**
+   * This is the directory where core dumps should end up on the host os
+   *
+   * @return mixed
+   */
+  public function getHostCoredumpDirectory();
+
+  /**
    * This is the directory where we place artifacts that can be parsed
    * by jenkins xml parsing. It is usually located *under* the artifacts
    * directory
@@ -70,13 +77,29 @@ interface BuildInterface {
   public function getXmlDirectory();
 
   /**
-   * This is where we checkout the code to. It should be volume mounted over
-   * to /var/www/html inside the docker containers.
+   * This is where we put the database It should be volume mounted over
+   * to wherever the data directory specifies from the Database Environment
    *
    * @return mixed
    */
-  public function getSourceDirectory();
-
+  public function getDBDirectory();
 
   public function generateBuildId();
+
+  public function addArtifact($path);
+
+  public function addContainerArtifact($path);
+
+  /**
+   * @param $filename
+   * @param $string
+   *
+   * Takes in a string, and saves it as an artifact in the artifact directory.
+   */
+  public function saveStringArtifact($filename, $string);
+
+  public function getBuildArtifacts();
+
+  public function setupDirectory($directory);
+
 }

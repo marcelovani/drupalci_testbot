@@ -8,17 +8,20 @@
 
 namespace DrupalCI\Build\Environment;
 
+use Build\Environment\CommandResult;
 use Docker\API\Model\ContainerConfig;
+use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
 use Docker\API\Model\HostConfig;
 use Docker\Manager\ExecManager;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
+use DrupalCI\Plugin\BuildTaskBase;
 use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 
 class Environment implements Injectable, EnvironmentInterface {
@@ -35,341 +38,252 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $docker;
 
-  // Holds the name and Docker IDs of our executable containers.
-  public $executableContainers = [];
+  // Holds the name and Docker IDs of our executable container.
+  protected $executableContainer = [];
 
-  // Holds the name and Docker IDs of our service containers.
-  public $serviceContainers;
+  // Holds the name and Docker IDs of our service container.
+  protected $databaseContainer;
 
   /* @var DatabaseInterface */
   protected $database;
 
-  /**
-   * @var \Symfony\Component\Yaml\Parser
-   *
-   *   Parsed Yaml of the build definition.
-   */
-  protected $yamlparser;
-
   /* @var \DrupalCI\Build\BuildInterface */
   protected $build;
 
+  /* @var \Pimple\Container */
+  protected $container;
 
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
+  /**
+   * @var string
+   * The source directory within the exec container.
+   */
+  protected $execContainerSourceDir = '/var/www/html';
+
+  /**
+   * @var string
+   * Build directory for artifacts exposed within the container.
+   */
+  protected $containerArtifactDir = '/var/lib/drupalci/artifacts';
+
+  /**
+   * @var string
+   * This *must* match the /proc/sys/kernel/core_pattern of the docker host
+   */
+  protected $containerCoreDumpDir = '/var/lib/drupalci/coredumps';
 
   public function inject(Container $container) {
 
     $this->io = $container['console.io'];
     $this->docker = $container['docker'];
+    $this->codebase = $container['codebase'];
     $this->database = $container['db.system'];
-    $this->yamlparser = $container['yaml.parser'];
     $this->build = $container['build'];
+    $this->container = $container;
 
   }
 
   /**
    * {@inheritdoc}
    */
-  public function executeCommands($commands) {
+  public function executeCommands($commands, $container_id = '') {
+
+    $executionResult = $this->container['command.result'];
+    $maxExitCode = 0;
     // Data format: 'command [arguments]' or array('command [arguments]', 'command [arguments]')
     // $data May be a string if one version required, or array if multiple
     // Normalize data to the array format, if necessary
     $commands = is_array($commands) ? $commands : [$commands];
-
-
     if (!empty($commands)) {
-      // Check that we have a container to execute on
-      $configs = $this->getExecContainers();
-      foreach ($configs as $type => $containers) {
-        foreach ($containers as $container) {
+      if (!empty($container_id)){
+        $id = $container_id;
+      } else {
+        $container = $this->getExecContainer();
+        if (!empty($container)) {
           $id = $container['id'];
-          $short_id = substr($id, 0, 8);
-          $this->io->writeLn("<info>Executing on container instance $short_id:</info>");
-          foreach ($commands as $cmd) {
-            $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
-
-            $exec_config = new ExecConfig();
-            $exec_config->setTty(FALSE);
-            $exec_config->setAttachStderr(TRUE);
-            $exec_config->setAttachStdout(TRUE);
-            $exec_config->setAttachStdin(FALSE);
-            $command = ["/bin/bash", "-c", $cmd];
-            $exec_config->setCmd($command);
-
-            $exec_manager = $this->docker->getExecManager();
-            $response = $exec_manager->create($id, $exec_config);
-
-            $exec_id = $response->getId();
-            $this->io->writeLn("<info>Command created as exec id " . substr($exec_id, 0, 8) . "</info>");
-
-            $exec_start_config = new ExecStartConfig();
-            $exec_start_config->setTty(FALSE);
-            $exec_start_config->setDetach(FALSE);
-
-            $stream = $exec_manager->start($exec_id, $exec_start_config, [], ExecManager::FETCH_STREAM);
-
-            $stdoutFull = "";
-            $stderrFull = "";
-            $stream->onStdout(function ($stdout) use (&$stdoutFull) {
-              $stdoutFull .= $stdout;
-              $this->io->write($stdout);
-            });
-            $stream->onStderr(function ($stderr) use (&$stderrFull) {
-              $stderrFull .= $stderr;
-              $this->io->write($stderr);
-            });
-            $stream->wait();
-
-            $exec_command_exit_code = $exec_manager->find($exec_id)->getExitCode();
-
-            if ($this->checkCommandStatus($exec_command_exit_code) !==0) {
-              return $exec_command_exit_code;
-            }
-          }
+        } else {
+          // No existing container to run commands on.
+          return 1;
         }
       }
-    }
-  }
 
-  protected function checkCommandStatus($signal) {
-    if ($signal !==0) {
-      $this->io->drupalCIError('Error', "Received a non-zero return code from the last command executed on the container.  (Return status: " . $signal . ")");
-      return 1;
-    }
-    else {
-      return 0;
-    }
-  }
+      $short_id = substr($id, 0, 8);
+      // TODO: add a way to add debugging information, and make this a debug
+      // ouput
+      //$this->io->writeLn("<info>Executing on container instance $short_id:</info>");
+      foreach ($commands as $cmd) {
+        $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
+        $executionResult->appendOutput("\nEXECUTING: " . $cmd . "\n");
+        $executionResult->appendError("\nEXECUTING: " . $cmd . "\n");
+        $exec_config = new ExecConfig();
+        $exec_config->setTty(FALSE);
+        $exec_config->setAttachStderr(TRUE);
+        $exec_config->setAttachStdout(TRUE);
+        $exec_config->setAttachStdin(FALSE);
+        $command = ["/bin/bash", "-c", $cmd];
+        $exec_config->setCmd($command);
 
+        $exec_manager = $this->docker->getExecManager();
+        $response = $exec_manager->create($id, $exec_config);
 
-  public function getExecContainers() {
+        $exec_id = $response->getId();
+        // $this->io->writeLn("<info>Command created as exec id " . substr($exec_id, 0, 8) . "</info>");
 
-    $configs = $this->executableContainers;
-    foreach ($configs as $type => $containers) {
-      foreach ($containers as $key => $container) {
-        // Check if container is created.  If not, create it
-        if (empty($container['created'])) {
-          // TODO: This may be causing duplicate containers to be created
-          // due to a race condition during short-running exec calls.
-          $this->startContainer($container);
-          $this->executableContainers[$type][$key] = $container;
-        }
+        $exec_start_config = new ExecStartConfig();
+        $exec_start_config->setTty(FALSE);
+        $exec_start_config->setDetach(FALSE);
+
+        $stream = $exec_manager->start($exec_id, $exec_start_config, [], ExecManager::FETCH_STREAM);
+
+        $stdoutFull = "";
+        $stderrFull = "";
+        $stream->onStdout(function ($stdout) use (&$stdoutFull) {
+          $stdoutFull .= $stdout;
+          $this->io->write($stdout);
+        });
+        $stream->onStderr(function ($stderr) use (&$stderrFull) {
+          $stderrFull .= $stderr;
+          $this->io->write($stderr);
+        });
+        $stream->wait();
+        $exit_code = $exec_manager->find($exec_id)->getExitCode();
+        $maxExitCode = max($exit_code, $maxExitCode);
+        $executionResult->appendOutput($stdoutFull);
+        $executionResult->appendError($stderrFull);
       }
+      $executionResult->setSignal($maxExitCode);
     }
-    return $this->executableContainers;
+    return $executionResult;
   }
 
-  public function setExecContainers(array $containers) {
-    $this->executableContainers = $containers;
+  /**
+   * @return mixed
+   */
+  public function getDatabaseContainer() {
+    return $this->databaseContainer;
   }
 
-  protected function startContainer(&$container) {
+  public function getExecContainer() {
+    return $this->executableContainer;
+  }
+
+  /**
+   * @return string
+   */
+  public function getExecContainerSourceDir() {
+    return $this->execContainerSourceDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getContainerArtifactDir() {
+    return $this->containerArtifactDir;
+  }
+
+  /**
+   * @param array $container
+   */
+  public function startExecContainer($container) {
+
+    // Map working directory
+    $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
+    $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
+    $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
+    $this->executableContainer = $this->startContainer($container);
+
+  }
+
+  public function startServiceContainerDaemons($db_container) {
+    if (strpos($this->database->getDbType(), 'sqlite') === 0) {
+      return;
+    }
+    $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
+    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $db_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
+
+    $this->databaseContainer = $this->startContainer($db_container);
+    $this->database->setHost($this->databaseContainer['ip']);
+
+  }
+
+  public function terminateContainers() {
+
     $manager = $this->docker->getContainerManager();
-    // Get container configuration, which defines parameters such as exposed ports, etc.
-    $configs = $this->getContainerConfiguration($container['image']);
-    $config = $configs[$container['image']];
-    // Add service container links
-    $this->createContainerLinks($config);
-    // Add volumes
-    $this->createContainerVolumes($config);
-    // Set a default CMD in case the container config does not set one.
-    if (empty($config['Cmd'])) {
-      $this->setDefaultCommand($config);
-    }
 
-    // Instantiate container
+    if (!empty($this->executableContainer['id'])) {
+      // Kill the containers we started.
+      $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
+    }
+    if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
+      $manager->remove($this->databaseContainer['id'],['force' => TRUE]);
+    }
+  }
+
+  protected function startContainer($config) {
+
+    $this->pull($config['Image']);
+    $manager = $this->docker->getContainerManager();
     $container_config = new ContainerConfig();
     $container_config->setImage($config['Image']);
-    $container_config->setCmd($config['Cmd']);
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
-    if (!empty($config['HostConfig']['Links'])) {
-      $host_config->setLinks($config['HostConfig']['Links']);
-    }
+    $host_config->setUlimits($config['HostConfig']['Ulimits']);
     $container_config->setHostConfig($host_config);
     $parameters = [];
-    if (!empty($config['name'])) {
-      $parameters = ['name' => $config['name']];
-    }
-
     $create_result = $manager->create($container_config, $parameters);
     $container_id = $create_result->getId();
 
-    // TODO: Ensure there are no stopped containers with the same name (currently throws fatal)
     $response = $manager->start($container_id);
-    // TODO: Catch and exception if doesn't return 204.
+    // TODO: Throw exception if doesn't return 204.
 
-    $service_container = $manager->find($container_id);
-    $container['id'] = $service_container->getID();
-    $container['name'] = $service_container->getName();
-    $container['ip'] = $service_container->getNetworkSettings()->getIPAddress();
-    $container['created'] = TRUE;
+    $executable_container = $manager->find($container_id);
+
+    $container['id'] = $executable_container->getID();
+    $container['name'] = $executable_container->getName();
+    $container['ip'] = $executable_container->getNetworkSettings()
+      ->getIPAddress();
+    $container['image'] = $config['Image'];
+
     $short_id = substr($container['id'], 0, 8);
-    $this->io->writeln("<comment>Container <options=bold>${container['name']}</options=bold> created from image <options=bold>${container['image']}</options=bold> with ID <options=bold>$short_id</options=bold></comment>");
+    $this->io->writeln("<comment>Container <options=bold>${container['name']}</> created from image <options=bold>${config['Image']}</> with ID <options=bold>$short_id</></comment>");
+
+    return $container;
   }
 
-  protected function setDefaultCommand(&$config) {
-    $config['Cmd'] = ['/bin/bash', '-c', '/daemon.sh'];
-  }
-
-  protected function createContainerLinks(&$config) {
-    $links = [];
-    if (empty($this->serviceContainers)) {
-      return;
-    }
-    $targets = $this->serviceContainers;
-    foreach ($targets as $type => $containers) {
-      foreach ($containers as $key => $container) {
-        $config['HostConfig']['Links'][] = "${container['name']}:${container['name']}";
-      }
-    }
-  }
-
-  protected function createContainerVolumes(&$config) {
-    $volumes = [];
-    // Map working directory
-    $working = $this->build->getSourceDirectory();
-    // TODO: Change this into defaults, and remove the configuration
-    // options.
-    // CREATE One for the artifacts directory as well.
-    $mount_point = (empty($config['Mountpoint'])) ? "/data" : $config['Mountpoint'];
-    $config['HostConfig']['Binds'][] = "$working:$mount_point";
-  }
-
-  protected function getContainerConfiguration($image = NULL) {
-    // TODO Remove the need for this entirely
-    $path = __DIR__ . '/../../Containers';
-    // RecursiveDirectoryIterator recurses into directories and returns an
-    // iterator for each directory. RecursiveIteratorIterator then iterates over
-    // each of the directory iterators, which consecutively return the files in
-    // each directory.
-    $directory = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS));
-    $configs = [];
-    foreach ($directory as $file) {
-      if (!$file->isDir() && $file->isReadable() && $file->getExtension() === 'yml') {
-        $container_name = $file->getBasename('.yml');
-        $dev_suffix = '-dev';
-        $isdev = strpos($container_name, $dev_suffix);
-        if (!$isdev == 0) {
-          $container_name = str_replace('-dev', ':dev', $container_name);
-        }
-        $image_name = 'drupalci/' . $container_name;
-        if (!empty($image) && $image_name != $image) {
-          continue;
-        }
-        // Get the default configuration.
-        $container_config = $this->yamlparser->parse(file_get_contents($file->getPathname()));
-        $configs[$image_name] = $container_config;
-      }
-    }
-    return $configs;
-  }
-
-  public function getServiceContainers() {
-    return $this->serviceContainers;
-  }
-
-  public function setServiceContainers(array $service_containers) {
-    $this->serviceContainers = $service_containers;
-  }
-
-  public function startServiceContainerDaemons($container_type) {
-    // $container_type is *always* 'db'
-    $needs_sleep = FALSE;
-
-    $manager = $this->docker->getContainerManager();
-    $instances = [];
-
-    $images = $manager->findAll();
-
-    // Inexplicably loop through the data and reassign it to an array.
-    foreach ($images as $running) {
-      $running_container_name = explode(':', $running->getImage());
-      $id = substr($running->getID(), 0, 8);
-      $instances[$running_container_name[0]] = $id;
-    };
-    foreach ($this->serviceContainers[$container_type] as $key => $image) {
-      // look for the 'service container' that we want to start.
-      if (in_array($image['image'], array_keys($instances))) {
-        // TODO: Determine service container ports, id, etc, and save it to the build.
-        $this->io->writeln("<comment>Found existing <options=bold>${image['image']}</options=bold> service container instance.</comment>");
-        // TODO: Load up container parameters
-        $container = $manager->find($instances[$image['image']]);
-        $container_id = $container->getID();
-        $container_name = $container->getName();
-        $container_ip = $container->getNetworkSettings()->getIPAddress();
-        $this->serviceContainers[$container_type][$key]['id'] = $container_id;
-        $this->serviceContainers[$container_type][$key]['name'] = $container_name;
-        $this->serviceContainers[$container_type][$key]['ip'] = $container_ip;
-        continue;
-      }
-      // Container not running, so we'll need to create it.
-      $this->io->writeln("<comment>No active <options=bold>${image['image']}</options=bold> service container instances found. Generating new service container.</comment>");
-
-      // Get container configuration, which defines parameters such as exposed ports, etc.
-      $configs = $this->getContainerConfiguration($image['image']);
-      $config = $configs[$image['image']];
-      // TODO: Allow classes to modify the default configuration before processing
-      // Instantiate container
-
-      // TODO: Use a normalizer
-      $container_config = new ContainerConfig();
-      $container_config->setImage($config['Image']);
-      $host_config = new HostConfig();
-      $host_config->setBinds($config['HostConfig']['Binds']);
-      $container_config->setHostConfig($host_config);
-      $parameters = [];
-      if (!empty($config['name'])) {
-        $parameters = ['name' => $config['name']];
-      }
-
-      $create_result = $manager->create($container_config, $parameters);
-      $container_id = $create_result->getId();
-
-      // Create the docker container instance, running as a daemon.
-      // TODO: Ensure there are no stopped containers with the same name (currently throws fatal)
-      $response = $manager->start($container_id);
-      // TODO: Catch and exception if doesn't return 204.
-
-      $container = $manager->find($container_id);
-
-      $container_id = $container->getID();
-      $container_name = $container->getName();
-      $container_ip = $container->getNetworkSettings()->getIPAddress();
-
-      $this->serviceContainers[$container_type][$key]['id'] = $container_id;
-      $this->serviceContainers[$container_type][$key]['name'] = $container_name;
-      $this->serviceContainers[$container_type][$key]['ip'] = $container_ip;
-      $short_id = substr($container_id, 0, 8);
-      $this->io->writeln("<comment>Created new <options=bold>${image['image']}</options> container instance with ID <options=bold>$short_id</options=bold></comment>");
-    }
-    // @TODO: should probably add the container environment as a service
-    $this->database->setHost($container_ip);
-    // @TODO: all of this should probably live inside of the database
-    $this->database->connect();
-
-  }
-
-  public function validateImageNames($containers) {
-    // Verify that the appropriate container images exist
-    $this->io->writeln("<comment>Validating container images exist</comment>");
-
+  /**
+   * (#inheritdoc)
+   *
+   * @param $name
+   */
+  protected function pull($name) {
     $manager = $this->docker->getImageManager();
-    foreach ($containers as $key => $image_name) {
-      $container_string = explode(':', $image_name['image']);
-      $name = $container_string[0];
-
-      try {
-        $image = $manager->find($name);
-      }
-      catch (ClientErrorException $e) {
-        $this->io->drupalCIError("Missing Image", "Required container image <options=bold>'$name'</options=bold> not found.");
-        return FALSE;
-      }
-      $id = substr($image->getID (), 0, 8);
-      $this->io->writeln("<comment>Found image <options=bold>$name/options=bold> with ID <options=bold>$id</options=bold></comment>");
+    $progressInformation = null;
+    $image_name = explode(':',$name);
+    if (empty($image_name[1])){
+      $image_name[1] = 'latest';
     }
-    return TRUE;
+    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]],  $manager::FETCH_STREAM);
+
+    //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
+    $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
+      $createImageInfoList[] = $createImageInfo;
+      if ($createImageInfo->getStatus() === "Downloading") {
+        $progress = $createImageInfo->getProgress();
+        preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/",$progress,$status);
+        // OPUT
+//        $progressbar = new ProgressBar($this->io, $status['total']);
+//        $progressbar->start();
+//        $progressbar->advance($status['current']);
+      } else {
+        $this->io->writeln("<comment>" . $createImageInfo->getStatus() . "</comment>");
+      }
+    });
+    $response->wait();
+
+    $this->io->writeln("");
   }
-
-
 }

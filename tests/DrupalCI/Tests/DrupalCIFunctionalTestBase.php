@@ -2,6 +2,7 @@
 
 namespace DrupalCI\Tests;
 
+use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -78,22 +79,40 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
    */
   public function setUp() {
     parent::setUp();
-    // Keep local environment from leaking into tests. JIC.
-    foreach ($_ENV as $env_var => $value) {
-      if (strpos($env_var,'DCI_') === 0){
-        putenv($env_var);
+
+    if (!empty($this->dciConfig)) {
+      foreach ($this->dciConfig as $variable) {
+        list($env_var, $value) = explode('=', $variable);
+        putenv($value);
       }
     }
-    // Complain if there is no config.
-    if (empty($this->dciConfig)) {
-      throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
+    else {
+      // TODO: if there isnt config *or* a build definition yml specified, then
+      // we should complain
+      // Complain if there is no config.
+      // throw new \PHPUnit_Framework_Exception('You must provide ' . get_class($this) . '::$dciConfig.');
     }
-    foreach ($this->dciConfig as $variable) {
-      putenv($variable);
-    }
+    $build_id = putenv('BUILD_TAG');
 
     $app = $this->getConsoleApp();
     $app->setAutoExit(FALSE);
+  }
+
+  /**
+   * Assert buildoutcome.json contains an attribute/value pair.
+   *
+   * @param \DrupalCI\Build\BuildInterface $build
+   *   The build to look inside.
+   * @param string $attribute
+   *   The attribute to look for.
+   * @param mixed $value
+   *   The value for the attribute.
+   */
+  protected function assertBuildOutputJson(BuildInterface $build, $attribute, $value) {
+    $buildoutcome_json = $build->getArtifactDirectory() . '/buildoutcome.json';
+    $this->assertTrue(file_exists($buildoutcome_json));
+    $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
+    $this->assertEquals($value, $buildoutcome->$attribute);
   }
 
 

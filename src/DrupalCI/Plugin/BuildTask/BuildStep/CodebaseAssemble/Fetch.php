@@ -6,9 +6,8 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\PluginBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use GuzzleHttp\Client;
 use Pimple\Container;
@@ -16,22 +15,28 @@ use Pimple\Container;
 /**
  * @PluginID("fetch")
  */
-class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
-  use BuildTaskTrait;
   use FileHandlerTrait;
 
   /**
-   * The current build.
+   * The Guzzle client.
    *
-   * @var \DrupalCI\Build\BuildInterface
+   * @var \GuzzleHttp\ClientInterface
    */
-  protected $build;
+  protected $httpClient;
 
+  /**
+   * The codebase service.
+   *
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   */
+  protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->build = $container['build'];
+    $this->codebase = $container['codebase'];
+    $this->httpClient = $container['http.client'];
   }
 
   /**
@@ -43,6 +48,7 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
     if (false !== getenv('DCI_Fetch')) {
       $this->configuration['files'] = $this->process(getenv('DCI_Fetch'));
     }
+
   }
 
   /**
@@ -54,44 +60,30 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
 
     if (empty($files)) {
       $this->io->writeln('No files to fetch.');
+      return 0;
     }
     foreach ($files as $details) {
       // URL and target directory
       // TODO: Ensure $details contains all required parameters
       if (empty($details['from'])) {
-        $this->io->drupalCIError("Fetch error", "No valid target file provided for fetch command.");
-
-        return;
+        $this->terminateBuild("Fetch error", "No valid target file provided for fetch command.");
       }
       $url = $details['from'];
-      $source_dir = $this->build->getSourceDirectory();
-      $fetchdir = (!empty($details['to'])) ? $details['to'] : $source_dir;
-      if (!($directory = $this->validateDirectory($source_dir, $fetchdir))) {
-        // Invalid checkout directory
-        $this->io->drupalCIError("Fetch error", "The fetch directory <info>$directory</info> is invalid.");
 
-        return;
-      }
+      $directory = $this->codebase->getAncillarySourceDirectory();
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];
-        $this->httpClient()
+        $this->httpClient
           ->get($url, ['save_to' => $destination_file]);
       }
       catch (\Exception $e) {
-        $this->io->drupalCIError("Write error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
+        $this->terminateBuild("Fetch save error", "An error was encountered while attempting to write <info>$url</info> to <info>$destination_file</info>");
 
-        return;
       }
-      $this->io->writeln("<comment>Fetch of <options=bold>$url</options=bold> to <options=bold>$destination_file</options=bold> complete.</comment>");
+      $this->io->writeln("<comment>Fetch of <options=bold>$url</> to <options=bold>$destination_file</> complete.</comment>");
     }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function complete() {
-    // TODO: Implement complete() method.
+    return 0;
   }
 
   /**
@@ -102,58 +94,5 @@ class Fetch extends PluginBase implements BuildStepInterface, BuildTaskInterface
       'files' => [],
     ];
   }
-
-  /**
-   * @inheritDoc
-   */
-  public function getChildTasks() {
-    // TODO: Implement getChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function setChildTasks($buildTasks) {
-    // TODO: Implement setChildTasks() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortError() {
-    // TODO: Implement getShortError() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getErrorDetails() {
-    // TODO: Implement getErrorDetails() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getResultCode() {
-    // TODO: Implement getResultCode() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getArtifacts() {
-    // TODO: Implement getArtifacts() method.
-  }
-
-  /**
-   * @return \GuzzleHttp\ClientInterface
-   */
-  protected function httpClient() {
-    if (!isset($this->httpClient)) {
-      $this->httpClient = new Client();
-    }
-    return $this->httpClient;
-  }
-
 
 }
