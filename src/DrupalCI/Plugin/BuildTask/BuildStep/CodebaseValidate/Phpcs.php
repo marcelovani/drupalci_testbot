@@ -43,13 +43,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected $codebase;
 
   /**
-   * Manager for BuildTask plugins.
-   *
-   * @var DrupalCI\Plugin\PluginManagerInterface
-   */
-  protected $buildTaskPluginManager;
-
-  /**
    * Whether we should use --standard=Drupal.
    *
    * This implies that there was no phpcs.xml(.dist) file.
@@ -73,6 +66,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected static $phpcsExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
 
   /**
+   * The path where we expect phpcs to reside.
+   *
+   * @var string
+   */
+  protected $reportFilePath = 'phpcs/checkstyle.xml';
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
@@ -94,8 +94,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
-      // @todo: Add a test which changes this.
-      'report_file_path' => 'phpcs/checkstyle.xml'
     ];
   }
 
@@ -120,30 +118,14 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
       $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
     }
-    if (isset($_ENV['DCI_CS_ReportFilePath'])) {
-      $this->configuration['report_file_path'] = $_ENV['DCI_CS_ReportFilePath'];
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function run() {
-    $this->io->writeln('<info>PHPCS sniffing the project.</info>');
-    $return = $this->doRun();
-    $this->adjustCheckstylePaths();
-    if ($return !== 0) {
-      if ($this->configuration['sniff_fails_test']) {
-        return $return;
-      }
-    }
-    return 0;
   }
 
   /**
    * Perform the step run.
    */
-  protected function doRun() {
+  public function run() {
+    $this->io->writeln('<info>PHPCS sniffing the project.</info>');
+
     // Set up state as much as possible in a mockable method.
     $this->adjustForUseCase();
 
@@ -161,8 +143,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
 
     // Set up the report file artifact.
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->configuration['report_file_path']));
-    $report_file = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
+    // @TODO when plugins add artifacts, the build should make a namespaced
+    // directory for them to end up in.
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->reportFilePath));
+    $report_file = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
     $this->build->addArtifact($report_file);
 
     // Get the sniff start directory.
@@ -183,7 +167,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->configuration['report_file_path'],
+      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->reportFilePath,
     ];
 
     // For generic sniffs, use the Drupal standard.
@@ -218,6 +202,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function complete($status) {
+    $this->adjustCheckstylePaths();
+  }
+  /**
    * A ton of logic about which use-case we're supporting.
    *
    * This method should adjust state as much as possible for different
@@ -226,7 +216,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function adjustForUseCase() {
     $this->shouldUseDrupalStandard = FALSE;
     $this->shouldInstallGenericCoder = FALSE;
- 
+
     // Check if we're testing contrib, adjust start path accordingly.
     $project = $this->codebase->getProjectName();
     // @todo: For now, core has no project name, but contrib does. This could
@@ -390,7 +380,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->configuration['report_file_path'];
+    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
@@ -411,24 +401,17 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function installGenericCoder() {
     // Install drupal/coder.
     $coder_version = '^8.2@stable';
-
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-    $configuration = [
-      'options' => 'require --dev drupal/coder ' . $coder_version,
-      'fail_should_terminate' => FALSE,
-    ];
-
-    // No exception should ever bubble up from here.
-    try {
-      $container_composer = $this->buildTaskPluginManager
-        ->getPlugin('BuildStep', 'container_composer', $configuration);
-      $status = $container_composer->run();
-
-      // If it didn't work, then we bail, but we don't halt build execution.
-      if ($status != 0) {
+      $cmd = "composer require --dev drupal/coder " . $coder_version;
+      $result = $this->environment->executeCommands($cmd);
+      if ($result->getSignal() !== 0) {
+        // If it didn't work, then we bail, but we don't halt build execution.
         $this->io->writeln('Unable to install generic drupal/coder.');
         return 2;
       }
+
+    // No exception should ever bubble up from here.
+    try {
 
       $phpcs_bin = $this->getPhpcsExecutable();
 
