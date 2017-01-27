@@ -514,9 +514,16 @@ class Build implements BuildInterface, Injectable {
    * @inheritDoc
    */
   public function getHostCoredumpDirectory() {
-    // @TODO: make this more resilient for envs other than vagrant box
-    // and linux local testing.
+    // Host path expectation
     return '/var/lib/drupalci/coredumps';
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getHostComposerCacheDirectory(){
+    // Host path expectation
+    return '/opt/drupalci/composer-cache';
   }
 
   /**

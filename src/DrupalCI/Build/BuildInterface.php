@@ -68,6 +68,13 @@ interface BuildInterface {
   public function getHostCoredumpDirectory();
 
   /**
+   * This is the directory on the host where composer cache lives.
+   *
+   * @return mixed
+   */
+  public function getHostComposerCacheDirectory();
+
+  /**
    * This is the directory where we place artifacts that can be parsed
    * by jenkins xml parsing. It is usually located *under* the artifacts
    * directory
