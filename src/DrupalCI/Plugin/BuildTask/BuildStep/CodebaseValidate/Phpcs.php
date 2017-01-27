@@ -234,6 +234,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->io->writeln('PHPCS config file not found. Using Drupal standard.');
       $this->shouldUseDrupalStandard = TRUE;
     }
+    else {
+      $this->io->writeln('Using exiting PHPCS config file.');
+      $this->shouldUseDrupalStandard = FALSE;
+    }
 
     // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
     // 'modified' in that it was removed, in which case we want to preserve the
