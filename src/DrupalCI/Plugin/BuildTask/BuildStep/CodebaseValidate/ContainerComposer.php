@@ -55,8 +55,11 @@ class ContainerComposer extends Composer {
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
-
-    $result = $this->environment->executeCommands(implode(' ', $command));
+    // TODO: revert the next three lines once the containers have git in them.
+    $commands[] = 'apt-get update;apt-get install git -y';
+    $commands[] = implode(' ', $command);
+    $result = $this->environment->executeCommands($commands);
+    //$result = $this->environment->executeCommands(implode(' ', $command));
 
     if ($result->getSignal() != 0) {
       if ($this->configuration['fail_should_terminate']) {
