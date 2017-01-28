@@ -74,6 +74,13 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerCoreDumpDir = '/var/lib/drupalci/coredumps';
 
+  /**
+   * @var string
+   *
+   * Directory for composer cahces
+   */
+  protected $containerComposerCacheDir = '/root/.composer/cache';
+
   public function inject(Container $container) {
 
     $this->io = $container['console.io'];
@@ -192,6 +199,7 @@ class Environment implements Injectable, EnvironmentInterface {
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $container['HostConfig']['Binds'][] = $this->build->getHostComposerCacheDirectory() . ':' . $this->containerComposerCacheDir;
     $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
     $this->executableContainer = $this->startContainer($container);
 

@@ -1,0 +1,42 @@
+# This is a test definition to require the Examples project.
+# It forces the addition of Coder, and then runs phpcs. It does not include
+# simpletest tests.
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: /var/lib/drupalci/drupal-checkout
+        git_branch: 8.2.x
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
+      composer.core_install:
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/examples.git'
+            branch: 8.x-1.x
+            checkout_dir: modules/examples
+      fetch:
+      patch:
+      update_dependencies: {  }
+    project_subdir: modules/examples
+    project_name: examples
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    filesystem:
+      prepare_filesystem: {  }
+    db_type: sqlite
+  assessment:
+    validate_codebase:
+      container_composer:
+      phpcs:

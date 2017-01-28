@@ -38,6 +38,7 @@ class ContainerComposer extends Composer {
       parent::getDefaultConfiguration(),
       [
         'executable_path' => '/usr/local/bin/composer',
+        'fail_should_terminate' => TRUE,
       ]
      );
   }
@@ -46,7 +47,7 @@ class ContainerComposer extends Composer {
    * @inheritDoc
    */
   public function run() {
-    $this->io->writeln('<info>Running Composer install within the environment.</info>');
+    $this->io->writeln('<info>Running Composer within the environment.</info>');
 
     // Build a containerized Composer command.
     $command = [
@@ -54,11 +55,16 @@ class ContainerComposer extends Composer {
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
-
-    $result = $this->environment->executeCommands(implode(' ', $command));
+    // TODO: revert the next three lines once the containers have git in them.
+    $commands[] = 'apt-get update;apt-get install git -y';
+    $commands[] = implode(' ', $command);
+    $result = $this->environment->executeCommands($commands);
+    //$result = $this->environment->executeCommands(implode(' ', $command));
 
     if ($result->getSignal() != 0) {
-      $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
+      if ($this->configuration['fail_should_terminate']) {
+        $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
+      }
     }
 
     return 0;

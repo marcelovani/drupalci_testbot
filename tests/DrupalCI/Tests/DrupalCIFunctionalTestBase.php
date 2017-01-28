@@ -115,4 +115,21 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $this->assertEquals($value, $buildoutcome->$attribute);
   }
 
+  /**
+   * Assert buildoutcome.json has an attribute containing some text.
+   *
+   * @param \DrupalCI\Build\BuildInterface $build
+   *   The build to look inside.
+   * @param string $attribute
+   *   The attribute to look for.
+   * @param mixed $fragment
+   *   The fragment to find within the attribute.
+   */
+  protected function assertBuildOutputJsonContains(BuildInterface $build, $attribute, $fragment) {
+    $buildoutcome_json = $build->getArtifactDirectory() . '/buildoutcome.json';
+    $this->assertTrue(file_exists($buildoutcome_json));
+    $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
+    $this->assertContains($fragment, $buildoutcome->$attribute);
+  }
+
 }

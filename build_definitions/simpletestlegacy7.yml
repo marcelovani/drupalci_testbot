@@ -16,10 +16,12 @@ build:
       prepare_filesystem:
   assessment:
     validate_codebase:
+      container_composer:
+        fail_should_terminate: FALSE
       phplint:
+      phpcs:
+        # Start sniffing at the root of D7. This will be modified to the
+        # extension's directory for contrib.
+        start_directory:
     testing:
       simpletest_d7:
-
-
-
-

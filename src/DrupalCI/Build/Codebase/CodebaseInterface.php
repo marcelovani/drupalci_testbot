@@ -52,7 +52,7 @@ interface CodebaseInterface {
   public function setExtensionProjectSubdir($extensionDir);
 
   /**
-   * This is the directory/projectname for the 'Project under test'.
+   * The name of the project under test.
    *
    * @return string
    */
