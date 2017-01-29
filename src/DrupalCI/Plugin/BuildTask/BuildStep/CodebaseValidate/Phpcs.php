@@ -255,15 +255,15 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Check if we should only sniff modified files.
     if ($this->configuration['sniff_only_changed']) {
-      $modified_php_files = $this->codebase->getModifiedPhpFiles();
 
       // No modified files? Sniff the whole repo.
-      if (empty($modified_php_files)) {
-        $this->io->writeln('<info>No modified PHP files. Sniffing all files.</info>');
+      if (empty($this->codebase->getModifiedFiles())) {
+        $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
         $this->configuration['sniff_only_changed'] = FALSE;
       }
       else {
-        $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
+        $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
+        $modified_php_files = $this->codebase->getModifiedPhpFiles();
         // Make a list of of modified files to this file.
         $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
         $this->writeSniffableFiles($modified_php_files, $sniffable_file);
