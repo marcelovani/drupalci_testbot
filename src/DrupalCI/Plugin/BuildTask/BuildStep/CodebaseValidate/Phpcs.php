@@ -94,6 +94,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
+      'coder_version' => '^8.2@stable'
     ];
   }
 
@@ -117,6 +118,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
       $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
+    }
+    if (isset($_ENV['DCI_CS_CoderVersion'])) {
+      $this->configuration['coder_version'] = $_ENV['DCI_CS_CoderVersion'];
     }
   }
 
@@ -178,7 +182,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Should we only sniff modified files? --file-list lets us specify.
     if ($this->configuration['sniff_only_changed']) {
-      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      $sniff_path = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+      if (filesize($sniff_path) != 0 ){
+        $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      } else {
+        $this->io->writeln('<info>No changed files are eligible to be sniffed</info>');
+        return 0;
+      }
     }
     else {
       // We can use start_directory since we're supposed to sniff the codebase.
@@ -251,15 +261,15 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Check if we should only sniff modified files.
     if ($this->configuration['sniff_only_changed']) {
-      $modified_php_files = $this->codebase->getModifiedPhpFiles();
 
       // No modified files? Sniff the whole repo.
-      if (empty($modified_php_files)) {
-        $this->io->writeln('<info>No modified PHP files. Sniffing all files.</info>');
+      if (empty($this->codebase->getModifiedFiles())) {
+        $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
         $this->configuration['sniff_only_changed'] = FALSE;
       }
       else {
-        $this->io->writeln('<info>Running PHP Code Sniffer review on modified files.</info>');
+        $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
+        $modified_php_files = $this->codebase->getModifiedPhpFiles();
         // Make a list of of modified files to this file.
         $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
         $this->writeSniffableFiles($modified_php_files, $sniffable_file);
@@ -404,7 +414,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected function installGenericCoder() {
     // Install drupal/coder.
-    $coder_version = '^8.2@stable';
+    $coder_version = $this->configuration['coder_version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
       $cmd = "composer require --dev drupal/coder " . $coder_version;
       $result = $this->environment->executeCommands($cmd);
