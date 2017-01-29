@@ -94,6 +94,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
+      'coder_version' => '^8.2@stable'
     ];
   }
 
@@ -117,6 +118,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
       $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
+    }
+    if (isset($_ENV['DCI_CS_CoderVersion'])) {
+      $this->configuration['coder_version'] = $_ENV['DCI_CS_CoderVersion'];
     }
   }
 
@@ -404,7 +408,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected function installGenericCoder() {
     // Install drupal/coder.
-    $coder_version = '^8.2@stable';
+    $coder_version = $this->configuration['coder_version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
       $cmd = "composer require --dev drupal/coder " . $coder_version;
       $result = $this->environment->executeCommands($cmd);
