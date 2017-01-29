@@ -182,7 +182,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Should we only sniff modified files? --file-list lets us specify.
     if ($this->configuration['sniff_only_changed']) {
-      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      $sniff_path = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+      if (filesize($sniff_path) != 0 ){
+        $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      } else {
+        $this->io->writeln('<info>No changed files are eligible to be sniffed</info>');
+        return 0;
+      }
     }
     else {
       // We can use start_directory since we're supposed to sniff the codebase.
