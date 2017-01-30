@@ -155,27 +155,27 @@ class PhpcsTest extends DrupalCITestCase {
   public function provideSniffScenarios() {
     return [
       'sniff_all_files' =>
-        ['all', TRUE, [],[]],
+        ['all', TRUE, [], []],
       'sniff_all_files_modified' =>
         ['all', TRUE, ['index.php'], ['index.php']],
       'no_modified_files' =>
-        ['all', FALSE, [],[]],
+        ['all', FALSE, [], []],
       'phpcs_config_modified' =>
-        ['all', FALSE, ['core/phpcs.xml'],[]],
+        ['all', FALSE, ['core/phpcs.xml'], []],
       'phpcs_config_modified2' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'],[]],
+        ['all', FALSE, ['core/phpcs.xml.dist'], []],
       'phpcs_config_modified3' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'],['index.php']],
+        ['all', FALSE, ['core/phpcs.xml.dist'], ['index.php']],
       'no_modified_php_files' =>
         ['none', FALSE, ['README.md'], []],
       'modified_php_files' =>
         [['index.php'], FALSE, ['index.php'], ['index.php']],
       'multiple_php_files' =>
-        [['index.php','run-tests.php'], FALSE, ['index.php','run-tests.php'], ['index.php', 'run-tests.php']],
+        [['index.php', 'run-tests.php'], FALSE, ['index.php', 'run-tests.php'], ['index.php', 'run-tests.php']],
       'modified_php_etc_files' =>
         [['index.php'], FALSE, ['index.php', 'README.md'], ['index.php']],
       'php_and_config' =>
-        ['all', FALSE, ['index.php', 'README.md','core/phpcs.xml.dist'], ['index.php']],
+        ['all', FALSE, ['index.php', 'README.md', 'core/phpcs.xml.dist'], ['index.php']],
     ];
   }
   /**

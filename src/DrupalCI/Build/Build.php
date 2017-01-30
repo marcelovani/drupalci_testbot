@@ -277,7 +277,7 @@ class Build implements BuildInterface, Injectable {
     // There is no BuildStepConfig, but if we're at depth 3, thats what we
     // fake ourselves into believing, because everything at that level is
     // configuration for the level above.
-    $task_type = ['BuildStage','BuildPhase','BuildStep','BuildStepConfig'];
+    $task_type = ['BuildStage', 'BuildPhase', 'BuildStep', 'BuildStepConfig'];
     foreach ($config as $config_key => $task_configurations) {
       $plugin_key = preg_replace('/\..*/', '', $config_key);
       $keyparts = explode('.', $config_key);
