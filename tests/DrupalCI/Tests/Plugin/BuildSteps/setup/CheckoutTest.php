@@ -66,4 +66,5 @@ class CheckoutTest extends DrupalCITestCase {
 
 class TestCheckout extends Checkout {
   use TestSetupBaseTrait;
+
 }

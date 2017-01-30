@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\PatchInterface;
 
 interface CodebaseInterface {
 
@@ -76,6 +75,5 @@ interface CodebaseInterface {
   public function getComposerDevRequirements();
 
   public function getInstalledComposerPackages();
-
 
 }

@@ -2,8 +2,6 @@
 
 namespace DrupalCI\Plugin;
 
-use DrupalCI\Build\Artifact\ContainerBuildArtifact;
-use DrupalCI\Build\Artifact\BuildArtifact;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;

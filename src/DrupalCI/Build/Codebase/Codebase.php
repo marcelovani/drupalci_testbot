@@ -4,7 +4,6 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\PatchInterface;
 use DrupalCI\Injectable;
 use Pimple\Container;
 

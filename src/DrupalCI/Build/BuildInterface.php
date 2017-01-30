@@ -2,8 +2,6 @@
 
 namespace DrupalCI\Build;
 
-use DrupalCI\Build\Codebase\Codebase;
-use Symfony\Component\Console\Output\OutputInterface;
 
 interface BuildInterface {
 

@@ -48,4 +48,5 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'PHPLint Failed');
     $this->assertBuildOutputJson($build, 'buildDetails', 'Error Code: 124');
   }
+
 }

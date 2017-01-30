@@ -2,11 +2,9 @@
 
 namespace DrupalCI\Providers;
 
-use DrupalCI\Build\Build;
 use DrupalCI\Build\Codebase\Codebase;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Symfony\Component\Yaml\Parser;
 
 class CodebaseServiceProvider implements ServiceProviderInterface {
   /**

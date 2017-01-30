@@ -35,4 +35,5 @@ class ContainerBuildArtifact extends BuildArtifact {
     ];
     $result = $this->environment->executeCommands($commands);
   }
+
 }

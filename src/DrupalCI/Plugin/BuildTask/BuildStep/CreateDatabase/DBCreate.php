@@ -40,4 +40,5 @@ class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $this->database->createDB();
     }
   }
+
 }

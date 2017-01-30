@@ -41,4 +41,5 @@ interface EnvironmentInterface {
    *   The artifact directory on all containers
    */
   public function getContainerArtifactDir();
+
 }

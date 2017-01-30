@@ -4,13 +4,8 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
 use Composer\Json\JsonFile;
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * @PluginID("composer_contrib_d7")
@@ -73,4 +68,5 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
     }
     parent::run();
   }
+
 }

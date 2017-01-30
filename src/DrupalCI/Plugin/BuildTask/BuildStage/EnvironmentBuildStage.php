@@ -2,10 +2,8 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStage;
 
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\BuildTask\BuildStage\BuildStageInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
@@ -13,7 +11,7 @@ use Pimple\Container;
  * @PluginID("environment")
  */
 
-class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
+class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface, BuildTaskInterface, Injectable {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface

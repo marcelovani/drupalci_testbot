@@ -34,4 +34,5 @@ class StaticDiscovery implements DiscoveryInterface {
   public function deleteDefinition($plugin) {
     unset($this->definitions[$plugin]);
   }
+
 }

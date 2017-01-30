@@ -46,4 +46,5 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     $artifact_file = $build->getArtifactDirectory() . '/phpcs/checkstyle.xml';
     $this->assertTrue(file_exists($artifact_file));
   }
+
 }

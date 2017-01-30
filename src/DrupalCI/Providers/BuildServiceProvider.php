@@ -5,7 +5,6 @@ namespace DrupalCI\Providers;
 use DrupalCI\Build\Build;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use Symfony\Component\Yaml\Parser;
 
 class BuildServiceProvider implements ServiceProviderInterface {
   /**

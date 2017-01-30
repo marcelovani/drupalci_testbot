@@ -230,4 +230,5 @@ interface DatabaseInterface {
    * dependent for now.  TODO: make it not dependent?
    */
   public function getDataDir();
+
 }

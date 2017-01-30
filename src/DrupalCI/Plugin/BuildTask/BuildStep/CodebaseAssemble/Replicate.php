@@ -3,7 +3,6 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
@@ -125,4 +124,5 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       'git_commit_hash' => '',
     ];
   }
+
 }

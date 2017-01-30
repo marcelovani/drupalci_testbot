@@ -64,4 +64,5 @@ interface PatchInterface {
    * @return array|bool
    */
   public function getModifiedFiles();
+
 }

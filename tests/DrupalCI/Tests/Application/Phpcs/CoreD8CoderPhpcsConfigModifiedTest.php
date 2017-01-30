@@ -46,4 +46,5 @@ class CoreD8CoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
     // Commit hash 4b65a2b always fails CS review.
     $this->assertEquals(1, $app_tester->getStatusCode());
   }
+
 }

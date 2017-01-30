@@ -62,6 +62,4 @@ class CommandResult implements CommandResultInterface {
     $this->error = $this->error . "\n" . $error;
   }
 
-
-
 }

@@ -40,4 +40,5 @@ abstract class CommandTestBase extends \PHPUnit_Framework_TestCase {
     rewind($stream);
     return $stream;
   }
+
 }

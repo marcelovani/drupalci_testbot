@@ -449,5 +449,4 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
   }
 
-
 }

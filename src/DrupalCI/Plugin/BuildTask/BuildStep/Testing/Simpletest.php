@@ -14,7 +14,7 @@ use Pimple\Container;
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
@@ -467,6 +467,5 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</></info>');
     $this->build->addArtifact($xml_output_file);
   }
-
 
 }

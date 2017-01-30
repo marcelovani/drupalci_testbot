@@ -13,7 +13,7 @@ use Pimple\Container;
 /**
  * @PluginID("patch")
  */
-class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
 

@@ -3,10 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
@@ -128,6 +125,5 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     $converted_version = 'dev-' . preg_replace('/^\d+\.x-/', '', $branch);
     return $converted_version;
   }
-
 
 }

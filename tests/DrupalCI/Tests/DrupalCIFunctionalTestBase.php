@@ -5,7 +5,6 @@ namespace DrupalCI\Tests;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
-use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Framework for test-controlled runs of drupalci.

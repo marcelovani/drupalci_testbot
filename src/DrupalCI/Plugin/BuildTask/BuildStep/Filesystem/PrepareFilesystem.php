@@ -18,7 +18,7 @@ use Pimple\Container;
  *
  * @PluginID("prepare_filesystem")
  */
-class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
 
@@ -59,4 +59,5 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
 //    }
     //return $result->getSignal();
   }
+
 }

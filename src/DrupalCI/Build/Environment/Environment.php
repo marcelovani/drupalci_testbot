@@ -2,20 +2,14 @@
 
 namespace DrupalCI\Build\Environment;
 
-use Build\Environment\CommandResult;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
 use Docker\API\Model\HostConfig;
 use Docker\Manager\ExecManager;
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use DrupalCI\Plugin\BuildTaskBase;
-use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;
-use Symfony\Component\Console\Helper\ProgressBar;
 
 
 class Environment implements Injectable, EnvironmentInterface {
@@ -288,4 +282,5 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $this->io->writeln("");
   }
+
 }

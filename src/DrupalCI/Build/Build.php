@@ -2,29 +2,13 @@
 
 namespace DrupalCI\Build;
 
-use DrupalCI\Build\BuildResultsInterface;
-use Docker\API\Model\ContainerConfig;
-use Docker\API\Model\HostConfig;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
-use DrupalCI\InjectableTrait;
-use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tests\Output\ConsoleOutputTest;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Process;
-use Docker\Docker;
-use Docker\DockerClient as Client;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Pimple\Container;
-use PDO;
-use Symfony\Component\Console\Event\ConsoleExceptionEvent;
-use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Yaml\Yaml;
 
 class Build implements BuildInterface, Injectable {

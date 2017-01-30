@@ -2,10 +2,7 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Injectable;
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Pimple\Container;
 
 /**
@@ -299,4 +296,5 @@ class Patch implements PatchInterface, Injectable {
     }
     return $this->modified_files;
   }
+
 }

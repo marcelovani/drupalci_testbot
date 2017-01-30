@@ -2,9 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Plugin\BuildTask;
-use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 
 /**
  * @TODO: this should probably be rethought of as a Timer Trait that can be
@@ -52,4 +49,5 @@ trait BuildTaskTrait {
   public function getElapsedTime($inclusive = TRUE) {
     return $this->elapsedTime;
   }
+
 }

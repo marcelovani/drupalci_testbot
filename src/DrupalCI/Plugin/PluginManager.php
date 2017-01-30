@@ -7,7 +7,6 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use DrupalCI\Injectable;
 use DrupalCI\InjectableTrait;
 use Pimple\Container;
-use DrupalCI\Plugin\PluginManagerInterface;
 
 class PluginManager implements PluginManagerInterface, Injectable {
 
@@ -71,4 +70,5 @@ class PluginManager implements PluginManagerInterface, Injectable {
       }
     return $plugin;
   }
+
 }
