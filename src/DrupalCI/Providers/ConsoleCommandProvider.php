@@ -3,7 +3,6 @@
 namespace DrupalCI\Providers;
 
 use DrupalCI\Console\Command\Run\RunCommand;
-use DrupalCI\Console\Command\Status\StatusCommand;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -22,9 +21,6 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
    */
   public function register(Container $container) {
     // Console Commands
-    $container['command.status'] = function ($container) {
-      return new StatusCommand();
-    };
     $container['command.run'] = function ($container) {
       return new RunCommand();
     };
