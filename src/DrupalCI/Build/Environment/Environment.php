@@ -11,7 +11,6 @@ use Docker\Manager\ExecManager;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
-
 class Environment implements Injectable, EnvironmentInterface {
 
   /**
@@ -92,13 +91,15 @@ class Environment implements Injectable, EnvironmentInterface {
     // Normalize data to the array format, if necessary
     $commands = is_array($commands) ? $commands : [$commands];
     if (!empty($commands)) {
-      if (!empty($container_id)){
+      if (!empty($container_id)) {
         $id = $container_id;
-      } else {
+      }
+      else {
         $container = $this->getExecContainer();
         if (!empty($container)) {
           $id = $container['id'];
-        } else {
+        }
+        else {
           // No existing container to run commands on.
           return 1;
         }
@@ -259,7 +260,7 @@ class Environment implements Injectable, EnvironmentInterface {
     $manager = $this->docker->getImageManager();
     $progressInformation = NULL;
     $image_name = explode(':', $name);
-    if (empty($image_name[1])){
+    if (empty($image_name[1])) {
       $image_name[1] = 'latest';
     }
     $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], $manager::FETCH_STREAM);
@@ -271,10 +272,11 @@ class Environment implements Injectable, EnvironmentInterface {
         $progress = $createImageInfo->getProgress();
         preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/", $progress, $status);
         // OPUT
-//        $progressbar = new ProgressBar($this->io, $status['total']);
-//        $progressbar->start();
-//        $progressbar->advance($status['current']);
-      } else {
+        //        $progressbar = new ProgressBar($this->io, $status['total']);
+        //        $progressbar->start();
+        //        $progressbar->advance($status['current']);
+      }
+      else {
         $this->io->writeln("<comment>" . $createImageInfo->getStatus() . "</comment>");
       }
     });

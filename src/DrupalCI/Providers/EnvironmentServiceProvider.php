@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Providers;
 
-
 use DrupalCI\Build\Environment\Environment;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;

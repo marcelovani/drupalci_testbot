@@ -7,6 +7,7 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
 class CodebaseServiceProvider implements ServiceProviderInterface {
+
   /**
    * @inheritDoc
    */

@@ -32,8 +32,6 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=9.1',
   ];
 
-
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];

@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Codebase;
 
-
 /**
  * Class Patch
  *

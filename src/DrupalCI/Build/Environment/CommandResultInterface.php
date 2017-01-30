@@ -2,8 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-
-
 interface CommandResultInterface {
 
   /**

@@ -7,6 +7,7 @@ use Pimple\ServiceProviderInterface;
 use GuzzleHttp\Client;
 
 class GuzzleClientServiceProvider implements ServiceProviderInterface {
+
   /**
    * @inheritDoc
    */

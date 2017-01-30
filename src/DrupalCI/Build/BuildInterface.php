@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build;
 
-
 interface BuildInterface {
 
   /**

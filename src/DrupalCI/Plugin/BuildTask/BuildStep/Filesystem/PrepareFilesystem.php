@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Filesystem;
 
-
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -40,7 +39,7 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
    */
   public function run() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
-   $setup_commands = [
+    $setup_commands = [
       'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
       'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
       'chown -fR www-data:www-data ' . $sourcedir . '/sites',
@@ -53,10 +52,10 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
     $result = $this->environment->executeCommands($setup_commands);
     //phantomjs still fails on
     // 5.3 /5.4 so leave this out for now.
-//    if ($result !== 0)
-     // Directory setup failed threw an error.
-//      $this->terminateBuild("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
-//    }
+    //    if ($result !== 0)
+    // Directory setup failed threw an error.
+    //      $this->terminateBuild("Prepare Filesystem failed", "Setting up the filesystem failed:  Error Code: $result");
+    //    }
     //return $result->getSignal();
   }
 

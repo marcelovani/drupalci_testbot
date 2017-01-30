@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -75,7 +74,6 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $branch = $checkout_repo['branch'];
         $composer_branch = $this->getSemverBranch($branch);
 
-
         $source_dir = $this->codebase->getSourceDirectory();
         $cmd = "./bin/composer config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
         $this->io->writeln("Adding packages.drupal.org as composer repository");
@@ -113,7 +111,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     }
   }
 
-/**
+  /**
  * Converts a drupal branch string that is stored in git into a composer
  * based branch string. For d8 contrib
  *

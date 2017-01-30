@@ -192,9 +192,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // If there's no start_directory, use .
         $cmd[] = $this->environment->getExecContainerSourceDir();
       }
-    } elseif ($files_to_sniff == 'none') {
+    }
+    elseif ($files_to_sniff == 'none') {
       return 0;
-    } else {
+    }
+    else {
       $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
     }
 
@@ -214,6 +216,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function complete($status) {
     $this->adjustCheckstylePaths();
   }
+
   /**
    * A ton of logic about which use-case we're supporting.
    *
@@ -368,7 +371,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // @todo remove this when container and host uids have parity.
       exec('sudo chmod 666 ' . $checkstyle_report_filename);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
-      $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
+      $checkstyle_xml = preg_replace("!<file name=\"" . $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
     }
   }
@@ -383,13 +386,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Install drupal/coder.
     $coder_version = $this->configuration['coder_version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-      $cmd = "composer require --dev drupal/coder " . $coder_version;
-      $result = $this->environment->executeCommands($cmd);
-      if ($result->getSignal() !== 0) {
-        // If it didn't work, then we bail, but we don't halt build execution.
-        $this->io->writeln('Unable to install generic drupal/coder.');
-        return 2;
-      }
+    $cmd = "composer require --dev drupal/coder " . $coder_version;
+    $result = $this->environment->executeCommands($cmd);
+    if ($result->getSignal() !== 0) {
+      // If it didn't work, then we bail, but we don't halt build execution.
+      $this->io->writeln('Unable to install generic drupal/coder.');
+      return 2;
+    }
 
     // No exception should ever bubble up from here.
     try {

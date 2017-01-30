@@ -76,12 +76,11 @@ class PhpcsTest extends DrupalCITestCase {
    * @dataProvider provideUseCase
    * @covers ::adjustForUseCase
    */
-  public function testAdjustForUseCase (
+  public function testAdjustForUseCase(
     $e_should_install_generic,
     $phpcs_already_installed,
     $config_present,
-    $config_modified )
-  {
+    $config_modified ) {
     $artifact_directory = '/test/';
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
@@ -141,7 +140,6 @@ class PhpcsTest extends DrupalCITestCase {
 
   }
 
-
   /**
    *
    * @return bool[]
@@ -178,6 +176,7 @@ class PhpcsTest extends DrupalCITestCase {
         ['all', FALSE, ['index.php', 'README.md', 'core/phpcs.xml.dist'], ['index.php']],
     ];
   }
+
   /**
    * Test filesniff possibilities of the phpcs plugin.
    *
@@ -186,7 +185,7 @@ class PhpcsTest extends DrupalCITestCase {
    * @dataProvider provideSniffScenarios
    * @covers ::getSniffableFiles
    */
-  public function testGetSniffableFiles (
+  public function testGetSniffableFiles(
     $e_sniffable_outcome,
     $sniff_all_files,
     $modified_files,

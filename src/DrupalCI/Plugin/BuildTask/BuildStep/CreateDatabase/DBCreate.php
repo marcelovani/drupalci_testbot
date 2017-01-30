@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CreateDatabase;
 
-
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
@@ -27,7 +26,6 @@ class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function configure() {
-
 
   }
 

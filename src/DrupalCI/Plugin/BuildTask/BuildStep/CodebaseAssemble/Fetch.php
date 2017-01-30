@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
@@ -42,7 +41,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function configure() {
     // @TODO make into a test
-     // putenv('DCI_Fetch=https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.');
+    // putenv('DCI_Fetch=https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.');
     if (FALSE !== getenv('DCI_Fetch')) {
       $this->configuration['files'] = $this->process(getenv('DCI_Fetch'));
     }

@@ -62,7 +62,8 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
         // This patch should be applied to wherever composer checks out to.
         $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionDirectory('modules');
-      } else {
+      }
+      else {
         $details['to'] = $this->codebase->getSourceDirectory();
       }
       // Create a new patch object based on the adjusted 'to'.
@@ -119,7 +120,6 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     return 0;
   }
-
 
   /**
    * @inheritDoc

@@ -5,7 +5,7 @@ namespace DrupalCI\Tests\Build;
 use DrupalCI\Build\BuildResults;
 
 class BuildResultsTest extends \PHPUnit_Framework_TestCase {
-  
+
   /**
    * Ensure that JSON contains the keys we think it should.
    */
@@ -18,7 +18,7 @@ class BuildResultsTest extends \PHPUnit_Framework_TestCase {
     $decode = json_decode($json);
     foreach ($keys_we_expect as $key) {
       $this->assertObjectHasAttribute($key, $decode);
-    }    
+    }
   }
-  
+
 }

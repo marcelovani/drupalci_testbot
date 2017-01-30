@@ -31,8 +31,6 @@ class CoreD8SqlitePassingTest extends DrupalCIFunctionalTestBase {
     'DCI_DBType=sqlite',
   ];
 
-
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];

@@ -40,10 +40,10 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    */
   public function run() {
 
-    if (!empty($this->configuration['project_subdir'])){
+    if (!empty($this->configuration['project_subdir'])) {
       $this->codebase->setExtensionProjectSubdir($this->configuration['project_subdir']);
     }
-    if (!empty($this->configuration['project_name'])){
+    if (!empty($this->configuration['project_name'])) {
       $this->codebase->setProjectName($this->configuration['project_name']);
     }
     $this->codebase->setupDirectories();
@@ -81,7 +81,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       $components = explode(':', $testitem);
       $pathcomponents = explode("/", $components[1]);
     }
-    if (!empty($pathcomponents)){
+    if (!empty($pathcomponents)) {
       return array_pop($pathcomponents);
     }
     return FALSE;

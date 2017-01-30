@@ -19,7 +19,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
 
-
   public function testD8ContribNoTests() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];

@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-
 class CommandResult implements CommandResultInterface {
 
   /**

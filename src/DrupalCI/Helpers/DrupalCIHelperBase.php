@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Helpers;
 
-
 /**
  * Just some helpful debugging stuff for now.
  */

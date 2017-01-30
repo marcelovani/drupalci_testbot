@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
-
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
@@ -91,10 +90,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
-
     if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionDirectory('modules');
-    } else {
+    }
+    else {
       $command[] = $this->configuration['testgroups'];
     }
     $command_line = implode(' ', $command);
@@ -102,7 +101,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $result = $this->environment->executeCommands($command_line);
 
     // Look at the output for no valid tests, and set that to an acceptable signal.
-    if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE){
+    if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE) {
       $result->setSignal(0);
     }
     // Last thing. JunitFormat the output.
@@ -172,11 +171,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
   protected function setupSimpletestDB(BuildInterface $build) {
 
-
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel .".sqlite";
-    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel .".sqlite";
+    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel . ".sqlite";
+    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel . ".sqlite";
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
     $this->build->addContainerArtifact($this->configuration['sqlite']);
@@ -190,6 +188,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->build->addContainerArtifact($testgroups_file);
     return $result->getSignal();
   }
+
   /**
    * @param $test_list
    *
@@ -214,7 +213,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     return $test_groups;
   }
 
-
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
    *
@@ -233,7 +231,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results-table',
       'verbose',
     ];
-    foreach($config as $key => $value) {
+    foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
           $command[] = "--$key";
@@ -272,6 +270,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     }
     return implode(' ', $command);
   }
+
   /**
    * {@inheritdoc}
    */
@@ -397,7 +396,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
               $total_exceptions++;
               $test_case_status = 'failed';
               $exception_output .= $assertion_result;
-            } else if ($assertion['status'] == 'fail'){
+            }
+            else if ($assertion['status'] == 'fail') {
               $test_case_failures++;
               $group_failures++;
               $total_failures++;
@@ -448,7 +448,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       /* TODO: Someday simpletest will disable or skip tests based on environment
       $test_group->setAttribute('disabled', $test_group_id);
       $test_group->setAttribute('skipped', $test_group_id);
-      */
+       */
       $test_suites->appendChild($test_suite);
       $test_group_id++;
     }
@@ -458,7 +458,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
     $label = '';
-    if (isset($this->pluginLabel)){
+    if (isset($this->pluginLabel)) {
       $label = $this->pluginLabel . ".";
     }
 

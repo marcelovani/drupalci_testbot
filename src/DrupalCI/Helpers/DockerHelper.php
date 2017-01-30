@@ -62,8 +62,6 @@ class DockerHelper extends DrupalCIHelperBase {
     }
   }
 
-
-
   /**
    * {@inheritdoc}
    */

@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
 use Composer\Json\JsonFile;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -17,12 +16,10 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
 
   protected $drupalPackageRepository = 'https://packages.drupal.org/7';
 
-
   /**
    * @inheritDoc
    */
   public function run() {
-
 
     foreach ($this->configuration['repositories'] as $checkout_repo) {
       $checkout_directory = $checkout_repo['checkout_dir'];
@@ -57,11 +54,11 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
         if (file_exists($composer_json)) {
           $composerFile = new JsonFile($composer_json);
           $composer_config = $composerFile->read();
-            foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
-              $path = $path . '/{$name}';
-              $extension_type = rtrim($extension_type, 's');
-              $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
-            }
+          foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
+            $path = $path . '/{$name}';
+            $extension_type = rtrim($extension_type, 's');
+            $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
+          }
           $composerFile->write($composer_config);
         }
       }

@@ -119,12 +119,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected function override_config() {
 
     if (!empty($this->configuration_overrides)) {
-      if ($invalid_overrides = array_diff_key($this->configuration_overrides, $this->configuration)){
+      if ($invalid_overrides = array_diff_key($this->configuration_overrides, $this->configuration)) {
         // @TODO: somebody is trying to override a non-existant configuration value. Throw an exception? print a warning?
       }
       $this->configuration = array_merge($this->configuration, array_intersect_key($this->configuration_overrides, $this->configuration));
     }
   }
+
   /**
    * @inheritDoc
    */
@@ -168,8 +169,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return [];
   }
 
-
-  public function terminateBuild($errorLabel, $errorDetails = ''){
+  public function terminateBuild($errorLabel, $errorDetails = '') {
     $this->io->drupalCIError($errorLabel, $errorDetails);
     throw new BuildTaskException($errorLabel, $errorDetails);
   }

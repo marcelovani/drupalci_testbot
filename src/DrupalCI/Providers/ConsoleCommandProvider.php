@@ -20,8 +20,7 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
    *
    * @param Container $container
    */
-  public function register(Container $container)
-  {
+  public function register(Container $container) {
     // Console Commands
     $container['command.status'] = function ($container) {
       return new StatusCommand();

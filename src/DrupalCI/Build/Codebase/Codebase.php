@@ -44,7 +44,6 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $patches;
 
-
   public function inject(Container $container) {
     $this->io = $container['console.io'];
     $this->build = $container['build'];
@@ -164,9 +163,11 @@ class Codebase implements CodebaseInterface, Injectable {
   public function setExtensionPaths($extensionPaths) {
     $this->extensionPaths = $extensionPaths;
   }
+
   // This is the path, relative to the source where composer installers p
   // laces our extensions.
-  public function getTrueExtensionDirectory($type){
+
+  public function getTrueExtensionDirectory($type) {
     return $this->extensionPaths[$type] . '/' . $this->projectName;
   }
 

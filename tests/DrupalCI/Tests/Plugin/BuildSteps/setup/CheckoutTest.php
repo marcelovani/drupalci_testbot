@@ -7,7 +7,6 @@
 
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
-
 use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Checkout;
 use DrupalCI\Tests\DrupalCITestCase;
 

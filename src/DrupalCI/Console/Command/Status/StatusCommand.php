@@ -43,8 +43,6 @@ class StatusCommand extends DrupalCICommandBase {
 
   }
 
-
-
   protected function containerStatus(InputInterface $input, OutputInterface $output) {
     # TODO: Check whether base containers have been built and output list of available containers
   }

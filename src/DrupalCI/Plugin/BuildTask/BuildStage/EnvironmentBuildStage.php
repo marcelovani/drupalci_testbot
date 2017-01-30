@@ -22,6 +22,7 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
     parent::inject($container);
     $this->database = $container['db.system'];
   }
+
   /**
    * @inheritDoc
    */
@@ -36,7 +37,8 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
       if (strpos(getenv('DCI_DBVersion'), '-')) {
         $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
         $this->configuration['db_version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
-      } else {
+      }
+      else {
         $this->configuration['db_version'] = getenv('DCI_DBVersion');
       }
     }

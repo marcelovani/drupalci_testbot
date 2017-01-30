@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
-
 /**
  * @TODO: this should probably be rethought of as a Timer Trait that can be
  * used to time things, and not have the run/complete functions built in.
@@ -29,7 +28,8 @@ trait BuildTaskTrait {
     $statuscode = $this->run();
     if (!isset($statuscode)) {
       return 0;
-    } else {
+    }
+    else {
       return $statuscode;
     }
   }

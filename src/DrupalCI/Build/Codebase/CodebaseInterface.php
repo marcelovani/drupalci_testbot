@@ -2,9 +2,7 @@
 
 namespace DrupalCI\Build\Codebase;
 
-
 interface CodebaseInterface {
-
 
   public function addPatch(PatchInterface $patch);
 

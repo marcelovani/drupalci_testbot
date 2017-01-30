@@ -19,7 +19,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 
-
   public function testCoreD7SqlLiteRemoteBuildTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];

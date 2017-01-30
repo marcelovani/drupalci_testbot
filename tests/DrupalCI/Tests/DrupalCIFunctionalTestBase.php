@@ -130,7 +130,6 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $this->assertContains($fragment, $buildoutcome->$attribute);
   }
 
-
   /**
    * {@inheritdoc}
    */

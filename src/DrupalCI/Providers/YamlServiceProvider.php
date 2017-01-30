@@ -7,6 +7,7 @@ use Pimple\ServiceProviderInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class YamlServiceProvider implements ServiceProviderInterface {
+
   /**
    * @inheritDoc
    */

@@ -32,8 +32,6 @@ class CoreD8CloneMySqlPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=5.5',
   ];
 
-
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
