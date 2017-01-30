@@ -319,11 +319,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
         //$classes[$test_group][$test_class][$test_method]['classname'] = $classname;
         $length = strlen($this->environment->getExecContainerSourceDir());
-        $result['file'] = substr($result['file'],$length+1); // Trim off source dir
+        $result['file'] = substr($result['file'], $length+1); // Trim off source dir
         $classes[$test_group][$test_class][$test_method][] = array(
           'status' => $result['status'],
           'type' => $result['message_group'],
-          'message' => strip_tags(htmlspecialchars_decode($result['message'],ENT_QUOTES)),
+          'message' => strip_tags(htmlspecialchars_decode($result['message'], ENT_QUOTES)),
           'line' => $result['line'],
           'file' => $result['file'],
         );

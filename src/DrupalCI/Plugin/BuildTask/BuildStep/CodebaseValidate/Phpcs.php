@@ -368,7 +368,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // @todo remove this when container and host uids have parity.
       exec('sudo chmod 666 ' . $checkstyle_report_filename);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
-      $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!","<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
+      $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
     }
   }

@@ -48,7 +48,7 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     ], $options);
     $build = $this->getCommand('run')->getBuild();
     $output_file = $build->getXmlDirectory() . "/testresults.xml";
-    $this->assertContains('FATAL Drupal\Tests\flag_follower\Kernel\FlagFollowerInstallUninstallTest: test runner returned a non-zero error code (2).',$app_tester->getDisplay());
+    $this->assertContains('FATAL Drupal\Tests\flag_follower\Kernel\FlagFollowerInstallUninstallTest: test runner returned a non-zero error code (2).', $app_tester->getDisplay());
     $this->assertContains('Drupal\flag\Tests\UserFlagTypeTest                            38 passes   6 fails   2 exceptions', $app_tester->getDisplay());
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/ContribD8FailingWithExceptionTest_testresults.xml', $output_file);
     $this->assertEquals(0, $app_tester->getStatusCode());

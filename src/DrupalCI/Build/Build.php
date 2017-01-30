@@ -335,7 +335,7 @@ class Build implements BuildInterface, Injectable {
           $transformed_config[$config_key]['#plugin'] = $plugin;
 
         } else {
-          $transformed_config[$config_key]['#plugin'] = $this->buildTaskPluginManager->getPlugin($task_type[$depth],$plugin_key);
+          $transformed_config[$config_key]['#plugin'] = $this->buildTaskPluginManager->getPlugin($task_type[$depth], $plugin_key);
 
         }
         if (!empty($config[$config_key])) {
@@ -360,7 +360,7 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = $this->processTask($this->computedBuildPlugins);
-      $buildResults = new BuildResults('Build Successful','');
+      $buildResults = new BuildResults('Build Successful', '');
       $this->saveBuildState($buildResults);
       return $statuscode;
     }

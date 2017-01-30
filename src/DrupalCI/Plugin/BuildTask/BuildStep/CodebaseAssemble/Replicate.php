@@ -62,7 +62,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // Validate local directory
       if (!is_dir($local_dir)) {
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
-        $this->terminateBuild("Replication Failed" , "The source directory $local_dir does not exist.");
+        $this->terminateBuild("Replication Failed", "The source directory $local_dir does not exist.");
       }
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");

@@ -49,7 +49,7 @@
   <!--<rule ref="Generic.Files.ByteOrderMark" />-->
   <!--<rule ref="Generic.Formatting.SpaceAfterCast" />-->
 
-  <!--<rule ref="Generic.Functions.FunctionCallArgumentSpacing" />-->
+  <rule ref="Generic.Functions.FunctionCallArgumentSpacing" />
   <!--<rule ref="Generic.Functions.FunctionCallArgumentSpacing.NoSpaceAfterComma">-->
     <!--<severity>0</severity>-->
   <!--</rule>-->
@@ -68,11 +68,11 @@
   <!--<rule ref="Generic.WhiteSpace.DisallowTabIndent" />-->
 
   <!--&lt;!&ndash; Use Unix newlines &ndash;&gt;-->
-  <!--<rule ref="Generic.Files.LineEndings">-->
-    <!--<properties>-->
-      <!--<property name="eolChar" value="\n"/>-->
-    <!--</properties>-->
-  <!--</rule>-->
+  <rule ref="Generic.Files.LineEndings">
+    <properties>
+      <property name="eolChar" value="\n"/>
+    </properties>
+  </rule>
 
   <!--<rule ref="MySource.Debug.DebugCode" />-->
   <!--<rule ref="PEAR.Files.IncludingFile" />-->

@@ -159,7 +159,7 @@ class Patch implements PatchInterface, Injectable {
     } else {
       // If its not a url, its a filepath. If the filepath is absolute already,
       // Then its likely a local developer pointing at a locally crafted patch.
-      if (strpos($patch_details['from'],'/') === 0) {
+      if (strpos($patch_details['from'], '/') === 0) {
         $absolute_path = $patch_details['from'];
         $this->filename = basename($patch_details['from']);
       } else {

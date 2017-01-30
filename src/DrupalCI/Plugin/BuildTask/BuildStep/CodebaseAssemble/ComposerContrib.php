@@ -54,7 +54,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $components = explode(',', $entry);
         // Ensure we have at least 3 components
         if (count($components) < 4) {
-          $this->terminateBuild("Unable to parse repository info",  "Unable to parse repository info for value $entry");
+          $this->terminateBuild("Unable to parse repository info", "Unable to parse repository info for value $entry");
         }
         // Create the build definition entry
         $output = [

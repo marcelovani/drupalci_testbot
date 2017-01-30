@@ -221,7 +221,7 @@ class Environment implements Injectable, EnvironmentInterface {
       $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
     }
     if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
-      $manager->remove($this->databaseContainer['id'],['force' => TRUE]);
+      $manager->remove($this->databaseContainer['id'], ['force' => TRUE]);
     }
   }
 
@@ -264,18 +264,18 @@ class Environment implements Injectable, EnvironmentInterface {
   protected function pull($name) {
     $manager = $this->docker->getImageManager();
     $progressInformation = null;
-    $image_name = explode(':',$name);
+    $image_name = explode(':', $name);
     if (empty($image_name[1])){
       $image_name[1] = 'latest';
     }
-    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]],  $manager::FETCH_STREAM);
+    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], $manager::FETCH_STREAM);
 
     //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
       $createImageInfoList[] = $createImageInfo;
       if ($createImageInfo->getStatus() === "Downloading") {
         $progress = $createImageInfo->getProgress();
-        preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/",$progress,$status);
+        preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/", $progress, $status);
         // OPUT
 //        $progressbar = new ProgressBar($this->io, $status['total']);
 //        $progressbar->start();

@@ -35,7 +35,7 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
 
     if (false !== getenv('DCI_DBVersion')) {
       // DCI_DBVersion can sometimes be in the format of DBType-DBVersion.
-      if (strpos(getenv('DCI_DBVersion'),'-')) {
+      if (strpos(getenv('DCI_DBVersion'), '-')) {
         $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
         $this->configuration['db_version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
       } else {

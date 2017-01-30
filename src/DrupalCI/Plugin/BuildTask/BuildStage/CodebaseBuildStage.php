@@ -70,7 +70,7 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   }
 
   protected function getProjectSubDir($testitem) {
-    if (strpos($testitem,'directory') === 0) {
+    if (strpos($testitem, 'directory') === 0) {
       $components = explode(':', $testitem);
       return $components[1];
     }
@@ -78,7 +78,7 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   }
 
   protected function getContribProjectName($testitem) {
-    if (strpos($testitem,'directory') === 0) {
+    if (strpos($testitem, 'directory') === 0) {
       $components = explode(':', $testitem);
       $pathcomponents = explode("/", $components[1]);
     }

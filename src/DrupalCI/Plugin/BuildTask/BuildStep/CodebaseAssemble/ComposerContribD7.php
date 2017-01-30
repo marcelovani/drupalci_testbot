@@ -64,7 +64,7 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
           $composer_config = $composerFile->read();
             foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
               $path = $path . '/{$name}';
-              $extension_type = rtrim($extension_type,'s');
+              $extension_type = rtrim($extension_type, 's');
               $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
             }
           $composerFile->write($composer_config);

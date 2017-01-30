@@ -24,9 +24,9 @@ class SimpletestD7 extends Simpletest {
     $dburl = $this->system_database->getUrl();
     // Fixes sqlite for d7
     if ($this->system_database->getDbType() === 'sqlite' ) {
-      $dburl = preg_replace('/localhost\//','',$dburl);
+      $dburl = preg_replace('/localhost\//', '', $dburl);
       $this->system_database->setUrl($dburl);
-      $dbfile = $this->codebase->getSourceDirectory() .  preg_replace('/sqlite:\//','',$dburl);
+      $dbfile = $this->codebase->getSourceDirectory() .  preg_replace('/sqlite:\//', '', $dburl);
       $this->results_database->setDBFile($dbfile);
       $this->results_database->setDbname('');
     }

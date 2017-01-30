@@ -79,7 +79,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         $this->exec($cmd, $cmdoutput, $result);
         if ($result !==0) {
           // Git threw an error.
-          $this->terminateBuild("git reset returned an error.",  "Error Code: $result");
+          $this->terminateBuild("git reset returned an error.", "Error Code: $result");
         }
       }
 
