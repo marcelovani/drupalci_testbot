@@ -75,6 +75,11 @@ class PhpcsTest extends DrupalCITestCase {
    *
    * @dataProvider provideUseCase
    * @covers ::adjustForUseCase
+   *
+   * @param $e_should_install_generic
+   * @param $phpcs_already_installed
+   * @param $config_present
+   * @param $config_modified
    */
   public function testAdjustForUseCase(
     $e_should_install_generic,
@@ -184,6 +189,11 @@ class PhpcsTest extends DrupalCITestCase {
    *
    * @dataProvider provideSniffScenarios
    * @covers ::getSniffableFiles
+   *
+   * @param $e_sniffable_outcome
+   * @param $sniff_all_files
+   * @param $modified_files
+   * @param $modified_php_files
    */
   public function testGetSniffableFiles(
     $e_sniffable_outcome,

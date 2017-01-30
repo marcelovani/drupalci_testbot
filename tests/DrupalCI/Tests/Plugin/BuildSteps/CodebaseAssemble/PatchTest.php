@@ -32,6 +32,10 @@ class PatchTest extends DrupalCITestCase {
 
   /**
    * Mock a patch factory service object.
+   *
+   * @param $patch_worker
+   *
+   * @return \PHPUnit_Framework_MockObject_MockObject
    */
   protected function mockPatchFactory($patch_worker) {
     // Have the factory 'generate' the mock patch object.

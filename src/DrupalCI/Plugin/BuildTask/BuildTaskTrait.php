@@ -36,6 +36,8 @@ trait BuildTaskTrait {
 
   /**
    * Decorator for complete functions to stop their timer.
+   *
+   * @param $childStatus
    */
   public function finish($childStatus) {
     $this->complete($childStatus);

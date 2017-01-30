@@ -23,6 +23,8 @@ class AllCommandsPresentTest extends CommandTestBase {
    *
    * @coversNothing
    * @dataProvider provideCommandNames
+   *
+   * @param $command_name
    */
   public function testAllCommandsPresent($command_name) {
     $c = $this->getConsoleApp();

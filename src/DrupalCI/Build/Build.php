@@ -269,6 +269,11 @@ class Build implements BuildInterface, Injectable {
    * be iterated over, using spl_object_hash to make keys for the objects
    * RecursiveIteratorIterator would be handy too. But this proves it can work.
    *
+   * @param $config
+   * @param array $transformed_config
+   * @param int $depth
+   *
+   * @return array
    */
   protected function processBuildConfig(&$config, &$transformed_config = [], $depth = 0) {
     // $depth determines which type of plugin we're after.

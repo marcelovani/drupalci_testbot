@@ -31,6 +31,8 @@ class Plugin implements AnnotationInterface {
    *
    * Builds up the plugin definition and invokes the get() method for any
    * classed annotations that were used.
+   *
+   * @param $values
    */
   public function __construct($values) {
     $reflection = new \ReflectionClass($this);

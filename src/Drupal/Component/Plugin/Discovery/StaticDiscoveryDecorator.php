@@ -60,6 +60,11 @@ class StaticDiscoveryDecorator extends StaticDiscovery {
 
   /**
    * Passes through all unknown calls onto the decorated object
+   *
+   * @param $method
+   * @param $args
+   *
+   * @return mixed
    */
   public function __call($method, $args) {
     return call_user_func_array(array($this->decorated, $method), $args);
