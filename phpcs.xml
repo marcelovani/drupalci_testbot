@@ -7,9 +7,6 @@
   <exclude-pattern>./containers</exclude-pattern>
   <exclude-pattern>./vendor</exclude-pattern>
 
-  <!-- Only include specific sniffs that pass. This ensures that, if new sniffs are added, HEAD does not fail.-->
-  <rule ref="Generic.PHP.DisallowShortOpenTag"/>
-
   <rule ref="Internal.NoCodeFound">
     <!-- Usually there is no code in txt or info files, so we suppress warnings about
       PHP short tags and what not. -->
@@ -60,12 +57,12 @@
   <!--</rule>-->
 
   <!--<rule ref="Generic.NamingConventions.ConstructorName" />-->
-  <!--<rule ref="Generic.NamingConventions.UpperCaseConstantName" />-->
-  <!--<rule ref="Generic.PHP.DeprecatedFunctions" />-->
-  <!--<rule ref="Generic.PHP.DisallowShortOpenTag" />-->
+  <rule ref="Generic.NamingConventions.UpperCaseConstantName" />
+  <rule ref="Generic.PHP.DeprecatedFunctions" />
+  <rule ref="Generic.PHP.DisallowShortOpenTag" />
   <!--<rule ref="Generic.PHP.LowerCaseKeyword" />-->
-  <!--<rule ref="Generic.PHP.UpperCaseConstant" />-->
-  <!--<rule ref="Generic.WhiteSpace.DisallowTabIndent" />-->
+  <rule ref="Generic.PHP.UpperCaseConstant" />
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
 
   <!--&lt;!&ndash; Use Unix newlines &ndash;&gt;-->
   <rule ref="Generic.Files.LineEndings">
