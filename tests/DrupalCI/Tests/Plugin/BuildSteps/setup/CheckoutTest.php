@@ -41,7 +41,7 @@ class CheckoutTest extends DrupalCITestCase {
       'DCI_Checkout_Branch' => 'branch',
       'DCI_Checkout_Hash' => 'commit_hash',
     ];
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       $_ENV[$key] = $value;
     }
     // Make a checkout plugin object. The constructor calls configure(), which
@@ -53,11 +53,11 @@ class CheckoutTest extends DrupalCITestCase {
     $configuration = $ref_configuration->getValue($checkout);
     $configuration = $configuration['repositories'];
     // Test.
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       $this->assertEquals($value, $configuration[0][$value]);
     }
     // Unset environmental variables.
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       unset($_ENV[$key]);
     }
   }

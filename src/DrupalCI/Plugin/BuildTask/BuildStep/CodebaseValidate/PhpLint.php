@@ -31,7 +31,7 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function configure() {
     if (FALSE !== getenv('DCI_Concurrency')) {
-      $this->configuration['concurrency']= getenv('DCI_Concurrency');
+      $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
   }
 

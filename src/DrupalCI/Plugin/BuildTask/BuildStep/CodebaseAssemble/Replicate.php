@@ -80,19 +80,19 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
         if (!empty($this->configuration['git_branch'])) {
-          $cmd =  "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
+          $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
           $this->io->writeln("Git Command: $cmd");
           $this->exec($cmd, $cmdoutput, $result);
-          if ($result !==0) {
+          if ($result !== 0) {
             // Git threw an error.
             $this->terminateBuild("git checkout returned an error.", "git checkout returned an error. Error Code: $result");
           }
         }
         if (!empty($this->configuration['git_commit_hash'])) {
-          $cmd =  "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
+          $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
           $this->io->writeln("Git Command: $cmd");
           $this->exec($cmd, $cmdoutput, $result);
-          if ($result !==0) {
+          if ($result !== 0) {
             // Git threw an error.
             $this->terminateBuild("git reset returned an error.", "git reset returned an error. Error Code: $result");
           }

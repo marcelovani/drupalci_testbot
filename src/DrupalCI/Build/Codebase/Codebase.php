@@ -84,7 +84,7 @@ class Codebase implements CodebaseInterface, Injectable {
     // Codebase' modified files should be a relative path and not
     // contain the host or container environments' source path.
     if (substr($filename, 0, strlen($this->getSourceDirectory())) == $this->getSourceDirectory()) {
-      $filename = substr($filename, strlen($this->getSourceDirectory())+1);
+      $filename = substr($filename, strlen($this->getSourceDirectory()) + 1);
     }
     if (!in_array($filename, $this->modified_files)) {
       $this->modified_files[] = $filename;
@@ -112,11 +112,11 @@ class Codebase implements CodebaseInterface, Injectable {
   }
 
   public function setupDirectories() {
-    $result =  $this->build->setupDirectory($this->getSourceDirectory());
+    $result = $this->build->setupDirectory($this->getSourceDirectory());
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->build->setupDirectory($this->getAncillarySourceDirectory());
+    $result = $this->build->setupDirectory($this->getAncillarySourceDirectory());
     if (!$result) {
       return FALSE;
     }

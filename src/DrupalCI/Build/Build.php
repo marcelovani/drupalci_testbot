@@ -595,15 +595,15 @@ class Build implements BuildInterface, Injectable {
     // If we arrive here, we have a valid empty working directory.
     $this->buildDirectory = $build_directory;
 
-    $result =  $this->setupDirectory($this->getArtifactDirectory());
+    $result = $this->setupDirectory($this->getArtifactDirectory());
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->setupDirectory($this->getDBDirectory());
+    $result = $this->setupDirectory($this->getDBDirectory());
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->setupDirectory($this->getXMLDirectory());
+    $result = $this->setupDirectory($this->getXMLDirectory());
     if (!$result) {
       return FALSE;
     }

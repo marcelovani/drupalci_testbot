@@ -73,10 +73,10 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
 
       if (!empty($repository['commit_hash'])) {
-        $cmd =  "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
+        $cmd = "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
         $this->io->writeln("Git Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
-        if ($result !==0) {
+        if ($result !== 0) {
           // Git threw an error.
           $this->terminateBuild("git reset returned an error.", "Error Code: $result");
         }
