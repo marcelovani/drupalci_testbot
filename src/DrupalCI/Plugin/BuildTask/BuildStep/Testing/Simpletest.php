@@ -74,7 +74,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (isset($_ENV['DCI_RTVerbose'])) {
       $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
     }
-
   }
 
   /**

@@ -40,7 +40,7 @@ class CoreCoderPhpcsOnlyChangedFailTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniff.yml',
     ], $options);
-    $this->assertRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
+    $this->assertRegExp('/Running PHP Code Sniffer review on modified php files./', $app_tester->getDisplay());
     $this->assertEquals(1, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
