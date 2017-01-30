@@ -42,29 +42,29 @@ class PhpcsTest extends DrupalCITestCase {
   public function provideUseCase() {
     return [
       'phpcs_config_patch' =>
-      [FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE],
+      [FALSE, TRUE, TRUE, FALSE ],
       'phpcs_no_config_patch' =>
-      [FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE],
+      [FALSE, TRUE, FALSE, FALSE ],
       'config_patch' =>
-      [TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, TRUE],
+      [TRUE, FALSE, TRUE, FALSE ],
       'no_config_patch' =>
-      [TRUE, TRUE, TRUE, FALSE, FALSE, FALSE, TRUE],
+      [TRUE, FALSE, FALSE, FALSE ],
       'patch_changes_config' =>
-      [TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE],
+      [TRUE, FALSE, TRUE, TRUE ],
       'phcps_patch_changes_config' =>
-      [FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE],
+      [FALSE, TRUE, TRUE, TRUE ],
       'patch_removes_config' =>
-      [TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE],
+      [TRUE, FALSE, FALSE, TRUE ],
       'patch_adds_config' =>
-      [TRUE, FALSE, TRUE, FALSE, TRUE, TRUE, TRUE],
+      [TRUE, FALSE, TRUE, TRUE ],
       'phpcs_branch_with_config' =>
-      [FALSE, FALSE, TRUE, TRUE, TRUE, FALSE, FALSE],
+      [FALSE, TRUE, TRUE, FALSE],
       'branch_with_config' =>
-      [TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, FALSE],
+      [TRUE, FALSE, TRUE, FALSE],
       'phpcs_branch_no_config' =>
-      [FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, FALSE],
+      [FALSE, TRUE, FALSE, FALSE],
       'branch_no_config' =>
-      [TRUE, FALSE, TRUE, FALSE, FALSE, FALSE, FALSE],
+      [TRUE, FALSE, FALSE, FALSE],
     ];
   }
 
@@ -78,30 +78,19 @@ class PhpcsTest extends DrupalCITestCase {
    */
   public function testAdjustForUseCase (
     $e_should_install_generic,
-    $e_sniff_only_changed,
-    $sniff_only_changed,
     $phpcs_already_installed,
     $config_present,
-    $config_modified,
-    $files_were_modified
-  ) {
+    $config_modified )
+  {
     $artifact_directory = '/test/';
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getProjectName', 'getModifiedPhpFiles'])
+      ->setMethods(['getProjectName'])
       ->getMockForAbstractClass();
     // Always check core for this test.
     $codebase->expects($this->once())
       ->method('getProjectName')
       ->willReturn('');
-    // Generate some modified files if needed.
-    $modified = [];
-    if ($files_were_modified) {
-      $modified = ['afile.txt', 'another.file'];
-    }
-    $codebase->expects($this->any())
-      ->method('getModifiedPhpFiles')
-      ->willReturn($modified);
 
     $build = $this->getMockBuilder(BuildInterface::class)
       ->setMethods(['getArtifactDirectory'])
@@ -123,14 +112,11 @@ class PhpcsTest extends DrupalCITestCase {
         // We just mock writeSniffableFiles() so it does nothing.
         'writeSniffableFiles',
       ])
-      ->setConstructorArgs([['sniff_only_changed' => $sniff_only_changed]])
       ->getMock();
     $phpcs->expects($this->once())
       ->method('projectHasPhpcsConfig')
       ->willReturn($config_present);
-    $phpcs->expects($this->once())
-      ->method('phpcsConfigFileIsModified')
-      ->willReturn($config_modified);
+
     $get_phpcs_executable = $phpcs->expects($this->once())
       ->method('getPhpcsExecutable');
     if ($phpcs_already_installed) {
@@ -153,10 +139,103 @@ class PhpcsTest extends DrupalCITestCase {
     $ref_shouldInstallGenericCoder->setAccessible(TRUE);
     $this->assertEquals($e_should_install_generic, $ref_shouldInstallGenericCoder->getValue($phpcs));
 
-    $ref_configuration = new \ReflectionProperty($phpcs, 'configuration');
-    $ref_configuration->setAccessible(TRUE);
-    $configuration = $ref_configuration->getValue($phpcs);
-    $this->assertEquals($e_sniff_only_changed, $configuration['sniff_only_changed']);
+  }
+
+
+  /**
+   *
+   * @return bool[]
+   * Outcomes:
+   *   - Whether we should sniff all, none, or specific files.
+   * Circumstances:
+   *   - Config sniff_all_files.
+   *   - Modified Files
+   *   - Modified PHP Files
+   */
+  public function provideSniffScenarios() {
+    return [
+      'sniff_all_files' =>
+        ['all', TRUE, [],[]],
+      'sniff_all_files_modified' =>
+        ['all', TRUE, ['index.php'], ['index.php']],
+      'no_modified_files' =>
+        ['all', FALSE, [],[]],
+      'phpcs_config_modified' =>
+        ['all', FALSE, ['core/phpcs.xml'],[]],
+      'phpcs_config_modified2' =>
+        ['all', FALSE, ['core/phpcs.xml.dist'],[]],
+      'phpcs_config_modified3' =>
+        ['all', FALSE, ['core/phpcs.xml.dist'],['index.php']],
+      'no_modified_php_files' =>
+        ['none', FALSE, ['README.md'], []],
+      'modified_php_files' =>
+        [['index.php'], FALSE, ['index.php'], ['index.php']],
+      'multiple_php_files' =>
+        [['index.php','run-tests.php'], FALSE, ['index.php','run-tests.php'], ['index.php', 'run-tests.php']],
+      'modified_php_etc_files' =>
+        [['index.php'], FALSE, ['index.php', 'README.md'], ['index.php']],
+      'php_and_config' =>
+        ['all', FALSE, ['index.php', 'README.md','core/phpcs.xml.dist'], ['index.php']],
+    ];
+  }
+  /**
+   * Test filesniff possibilities of the phpcs plugin.
+   *
+   * The e_ means expected.
+   *
+   * @dataProvider provideSniffScenarios
+   * @covers ::getSniffableFiles
+   */
+  public function testGetSniffableFiles (
+    $e_sniffable_outcome,
+    $sniff_all_files,
+    $modified_files,
+    $modified_php_files
+
+  ) {
+    $artifact_directory = '/test/';
+
+    $codebase = $this->getMockBuilder(CodebaseInterface::class)
+      ->setMethods(['getModifiedFiles', 'getModifiedPhpFiles'])
+      ->getMockForAbstractClass();
+    $codebase->expects($this->any())
+      ->method('getModifiedFiles')
+      ->willReturn($modified_files);
+    $codebase->expects($this->any())
+      ->method('getModifiedPhpFiles')
+      ->willReturn($modified_php_files);
+
+    $build = $this->getMockBuilder(BuildInterface::class)
+      ->setMethods(['getArtifactDirectory'])
+      ->getMockForAbstractClass();
+    $build->expects($this->any())
+      ->method('getArtifactDirectory')
+      ->willReturn($artifact_directory);
+
+    $container = $this->getContainer([
+      'codebase' => $codebase,
+      'build' => $build,
+    ]);
+
+    $phpcs = $this->getMockBuilder(Phpcs::class)
+      ->setMethods([
+        'projectHasPhpcsConfig',
+        'getPhpcsExecutable',
+        // We just mock writeSniffableFiles() so it does nothing.
+        'writeSniffableFiles',
+      ])
+      ->setConstructorArgs([['sniff_all_files' => $sniff_all_files]])
+      ->getMock();
+
+    // Use our mocked codebase and build.
+    $phpcs->inject($container);
+
+    // Run getSniffableFiles().
+    $ref_adjust = new \ReflectionMethod($phpcs, 'getSniffableFiles');
+    $ref_adjust->setAccessible(TRUE);
+    $result = $ref_adjust->invoke($phpcs);
+    $this->assertEquals($e_sniffable_outcome, $result);
+
   }
 
 }
