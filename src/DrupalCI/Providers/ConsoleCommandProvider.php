@@ -27,7 +27,6 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
 
     $container['commands'] = function ($container) {
       return array(
-        $container['command.status'],
         $container['command.run']
       );
     };
