@@ -87,8 +87,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function getDefaultConfiguration() {
     return [
-      'sniff_only_changed' => TRUE,
-      'start_directory' => 'core/',
+      'sniff_all_files' => FALSE,
+      'start_directory' => 'core',
       'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning_fails_sniff' => FALSE,
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
@@ -104,8 +104,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
-    if (isset($_ENV['DCI_CS_SniffOnlyChanged'])) {
-      $this->configuration['sniff_only_changed'] = $_ENV['DCI_CS_SniffOnlyChanged'];
+    if (isset($_ENV['DCI_CS_SniffAllFiles'])) {
+      $this->configuration['sniff_all_files'] = $_ENV['DCI_CS_SniffAllFiles'];
     }
     if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
       $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
@@ -181,16 +181,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
 
     // Should we only sniff modified files? --file-list lets us specify.
-    if ($this->configuration['sniff_only_changed']) {
-      $sniff_path = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
-      if (filesize($sniff_path) != 0 ){
-        $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
-      } else {
-        $this->io->writeln('<info>No changed files are eligible to be sniffed</info>');
-        return 0;
-      }
-    }
-    else {
+    $files_to_sniff = $this->getSniffableFiles();
+
+    if ($files_to_sniff == 'all') {
       // We can use start_directory since we're supposed to sniff the codebase.
       if (!empty($this->configuration['start_directory'])) {
         $cmd[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
@@ -199,6 +192,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // If there's no start_directory, use .
         $cmd[] = $this->environment->getExecContainerSourceDir();
       }
+    } elseif ($files_to_sniff == 'none') {
+      return 0;
+    } else {
+      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
     }
 
     $this->io->writeln('Executing PHPCS.');
@@ -249,36 +246,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->shouldUseDrupalStandard = FALSE;
     }
 
-    // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
-    // 'modified' in that it was removed, in which case we want to preserve the
-    // sniff_only_changed configuration.
-    if ($this->phpcsConfigFileIsModified()) {
-      if ($has_phpcs_config) {
-        $this->io->writeln('<info>PHPCS config file modified, sniffing entire project.</info>');
-        $this->configuration['sniff_only_changed'] = FALSE;
-      }
-    }
-
-    // Check if we should only sniff modified files.
-    if ($this->configuration['sniff_only_changed']) {
-
-      // No modified files? Sniff the whole repo.
-      if (empty($this->codebase->getModifiedFiles())) {
-        $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
-        $this->configuration['sniff_only_changed'] = FALSE;
-      }
-      else {
-        $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
-        $modified_php_files = $this->codebase->getModifiedPhpFiles();
-        // Make a list of of modified files to this file.
-        $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
-        $this->writeSniffableFiles($modified_php_files, $sniffable_file);
-      }
-    }
-    else {
-      $this->io->writeln('<info>Sniffing all files starting at ' . $this->configuration['start_directory'] . '</info>');
-    }
-
     // If there's no phpcs executable in the codebase already, then we should
     // try to install drupal/coder.
     try {
@@ -293,8 +260,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   /**
    * Write out the list of sniffable files.
    *
-   * @param type $sniffable_files
-   * @param type $file_path
+   * @param $sniffable_files
+   * @param $file_path
    */
   protected function writeSniffableFiles($sniffable_files, $file_path) {
     $this->io->writeln("<info>Writing: " . $file_path . "</info>");
@@ -381,8 +348,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $start_dir = $this->configuration['start_directory'];
     }
     return (
-      in_array($start_dir . 'phpcs.xml', $modified_files) ||
-      in_array($start_dir . 'phpcs.xml.dist', $modified_files)
+      in_array($start_dir . '/phpcs.xml', $modified_files) ||
+      in_array($start_dir . '/phpcs.xml.dist', $modified_files)
     );
   }
 
@@ -446,5 +413,41 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     return 0;
   }
+
+  protected function getSniffableFiles() {
+    // Check if we should only sniff modified files.
+    if ($this->configuration['sniff_all_files']) {
+      return 'all';
+    }
+
+    // No modified files? Sniff the whole repo.
+    if (empty($this->codebase->getModifiedFiles())) {
+      $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
+      return 'all';
+    }
+    elseif ($this->phpcsConfigFileIsModified()) {
+      // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
+      // 'modified' in that it was removed, in which case we want to preserve the
+      // sniff_only_changed configuration.
+      $this->io->writeln('<info>PHPCS config file modified, sniffing entire project.</info>');
+      return 'all';
+    }
+    else {
+      $modified_php_files = $this->codebase->getModifiedPhpFiles();
+      if (empty($modified_php_files)) {
+        $this->io->writeln('<info>No modified files are eligible to be sniffed</info>');
+        return 'none';
+      }
+      else {
+        $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
+
+        // Make a list of of modified files to this file.
+        $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+        $this->writeSniffableFiles($modified_php_files, $sniffable_file);
+        return ($modified_php_files);
+      }
+    }
+  }
+
 
 }
