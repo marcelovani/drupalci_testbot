@@ -19,4 +19,3 @@ interface Injectable {
   public function inject(Container $container);
 
 }
-
