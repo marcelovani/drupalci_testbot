@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalCI\Build\Codebase\Patch
- */
-
 namespace DrupalCI\Build\Codebase;
 
 use DrupalCI\Build\Codebase\Codebase;

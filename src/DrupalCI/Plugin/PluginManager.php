@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\PluginManager.
- */
 
 namespace DrupalCI\Plugin;
 

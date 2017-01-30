@@ -1,9 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\DiscoveryCachedTrait.
- */
+
 
 namespace Drupal\Component\Plugin\Discovery;
 

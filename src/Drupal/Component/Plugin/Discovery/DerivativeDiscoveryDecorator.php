@@ -1,9 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\DerivativeDiscoveryDecorator.
- */
+
 
 namespace Drupal\Component\Plugin\Discovery;
 

@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Base Build class for DrupalCI.
- */
 
 namespace DrupalCI\Build;
 

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Command class for Run.
- */
-
 namespace DrupalCI\Console\Command\Run;
 
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;

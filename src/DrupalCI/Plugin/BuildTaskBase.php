@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\BuildTaskBase
- */
 
 namespace DrupalCI\Plugin;
 

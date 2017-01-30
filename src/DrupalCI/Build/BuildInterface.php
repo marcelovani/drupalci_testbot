@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains
- */
+
 namespace DrupalCI\Build;
 
 use DrupalCI\Build\Codebase\Codebase;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Command class for status.
- */
-
 namespace DrupalCI\Console\Command\Status;
 
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;

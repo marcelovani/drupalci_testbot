@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Base command class for Drupal CI.
- */
-
 namespace DrupalCI\Console\Command\Drupal;
 
 use Symfony\Component\Console\Command\Command;

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Base Helper class for Drupal CI.
- */
-
 namespace DrupalCI\Helpers;
 
 use Symfony\Component\Console\Input\InputInterface;

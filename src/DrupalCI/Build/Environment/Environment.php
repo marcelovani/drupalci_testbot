@@ -1,10 +1,4 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\BuildSteps\generic\Command
- *
- * Processes "[build_step]: command:" instructions from within a build definition.
- */
 
 namespace DrupalCI\Build\Environment;
 

@@ -10,23 +10,23 @@
   <!-- Only include specific sniffs that pass. This ensures that, if new sniffs are added, HEAD does not fail.-->
   <rule ref="Generic.PHP.DisallowShortOpenTag"/>
 
-  <!--<rule ref="Internal.NoCodeFound">-->
-    <!--&lt;!&ndash; Usually there is no code in txt or info files, so we suppress warnings about-->
-      <!--PHP short tags and what not. &ndash;&gt;-->
-    <!--<exclude-pattern>*.txt</exclude-pattern>-->
-    <!--<exclude-pattern>*.md</exclude-pattern>-->
-    <!--<exclude-pattern>*.info</exclude-pattern>-->
-    <!--<exclude-pattern>*.yml</exclude-pattern>-->
-  <!--</rule>-->
+  <rule ref="Internal.NoCodeFound">
+    <!-- Usually there is no code in txt or info files, so we suppress warnings about
+      PHP short tags and what not. -->
+    <exclude-pattern>*.txt</exclude-pattern>
+    <exclude-pattern>*.md</exclude-pattern>
+    <exclude-pattern>*.info</exclude-pattern>
+    <exclude-pattern>*.yml</exclude-pattern>
+  </rule>
 
-  <!--<rule ref="Drupal.Commenting.FileComment">-->
-    <!--&lt;!&ndash; Do not run this sniff on txt files. &ndash;&gt;-->
-    <!--<exclude-pattern>*.txt</exclude-pattern>-->
-  <!--</rule>-->
-  <!--<rule ref="Drupal.Commenting.FileComment.SpacingAfterComment">-->
-    <!--&lt;!&ndash; Do not run this sniff on template files. &ndash;&gt;-->
-    <!--<exclude-pattern>*.tpl.php</exclude-pattern>-->
-  <!--</rule>-->
+  <rule ref="Drupal.Commenting.FileComment">
+    <!-- Do not run this sniff on txt files. -->
+    <exclude-pattern>*.txt</exclude-pattern>
+  </rule>
+  <rule ref="Drupal.Commenting.FileComment.SpacingAfterComment">
+    <!-- Do not run this sniff on template files. -->
+    <exclude-pattern>*.tpl.php</exclude-pattern>
+  </rule>
   <!--<rule ref="Drupal.ControlStructures.ControlSignature">-->
     <!--&lt;!&ndash; Do not run this sniff on template files. &ndash;&gt;-->
     <!--<exclude-pattern>*.tpl.php</exclude-pattern>-->
@@ -280,10 +280,10 @@
     <!--<exclude-pattern>*.tpl.php</exclude-pattern>-->
   <!--</rule>-->
 
-  <!--&lt;!&ndash; Ignore various version control directories. &ndash;&gt;-->
-  <!--<exclude-pattern>*/\.git/*</exclude-pattern>-->
-  <!--<exclude-pattern>*/\.svn/*</exclude-pattern>-->
-  <!--<exclude-pattern>*/\.hg/*</exclude-pattern>-->
-  <!--<exclude-pattern>*/\.bzr/*</exclude-pattern>-->
+  <!-- Ignore various version control directories. -->
+  <exclude-pattern>*/\.git/*</exclude-pattern>
+  <exclude-pattern>*/\.svn/*</exclude-pattern>
+  <exclude-pattern>*/\.hg/*</exclude-pattern>
+  <exclude-pattern>*/\.bzr/*</exclude-pattern>
 
 </ruleset>

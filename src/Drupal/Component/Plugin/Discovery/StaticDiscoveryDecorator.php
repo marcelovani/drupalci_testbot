@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\StaticDiscoveryDecorator.
- */
 
 namespace Drupal\Component\Plugin\Discovery;
 

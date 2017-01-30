@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalCI\Tests\Plugin\BuildSteps\setup\TestSetupBase.
- */
-
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
 trait TestSetupBaseTrait {

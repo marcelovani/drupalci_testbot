@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * DrupalCI Docker helper class.
- */
-
 namespace DrupalCI\Helpers;
 
 use DrupalCI\Helpers\DrupalCIHelperBase;

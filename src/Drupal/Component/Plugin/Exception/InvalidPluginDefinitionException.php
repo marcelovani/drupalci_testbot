@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException.
- */
 
 namespace Drupal\Component\Plugin\Exception;
 
