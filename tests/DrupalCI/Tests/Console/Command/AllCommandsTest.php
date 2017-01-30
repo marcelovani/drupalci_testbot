@@ -14,7 +14,6 @@ class AllCommandsPresentTest extends CommandTestBase {
   public function provideCommandNames() {
     return [
       ['run'],
-      ['status'],
     ];
   }
 
