@@ -105,7 +105,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }
-    return;
+    return 0;
   }
 
   /**

@@ -86,7 +86,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }
-    return;
+    return 0;
   }
 
   /**
