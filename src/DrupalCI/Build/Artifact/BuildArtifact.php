@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Artifact;
 
-
 use DrupalCI\Injectable;
 use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
@@ -45,7 +44,6 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
     $this->build = $container['build'];
   }
 
-
   /**
    * @inheritDoc
    */
@@ -56,9 +54,10 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
     $this->artifactPath = $this->build->getArtifactDirectory() . "/" . basename($this->sourcePath);
     // Only copy files that are not already under the artifacts directory.
     if (strpos($this->sourcePath, $this->build->getArtifactDirectory()) === FALSE) {
-      if (is_dir($this->sourcePath)){
+      if (is_dir($this->sourcePath)) {
         $fs->mirror($this->sourcePath, $this->artifactPath);
-      } else {
+      }
+      else {
         $fs->copy($this->sourcePath, $this->artifactPath);
       }
     }

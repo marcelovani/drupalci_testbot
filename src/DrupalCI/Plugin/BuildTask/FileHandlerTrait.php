@@ -40,9 +40,8 @@ trait FileHandlerTrait {
     return $data;
   }
 
-
   protected function getCheckoutDirectory($filehandler) {
-    if (isset($filehandler['type']) && ($filehandler['type'] == 'ancillary')){
+    if (isset($filehandler['type']) && ($filehandler['type'] == 'ancillary')) {
       return $this->codebase->getAncillarySourceDirectory();
     }
     return $this->codebase->getSourceDirectory();

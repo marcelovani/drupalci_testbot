@@ -3,7 +3,6 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStage;
 
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\BuildTask\BuildStage\BuildStageInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
@@ -11,7 +10,7 @@ use Pimple\Container;
  * @PluginID("codebase")
  */
 
-class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, BuildTaskInterface  {
+class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, BuildTaskInterface {
 
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
@@ -28,7 +27,7 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
     // DCI_TestItem may have --directory modules/<projectname>, if it does,
     // we can assume that it is the module we wish to test, and therefore needs
     // to be built in the codebase tmp directory and pointed to by composer.
-    if (false !== getenv(('DCI_TestItem'))) {
+    if (FALSE !== getenv(('DCI_TestItem'))) {
       $this->configuration['project_subdir'] = $this->getProjectSubDir(getenv(('DCI_TestItem')));
       $this->configuration['project_name'] = $this->getContribProjectName(getenv(('DCI_TestItem')));
     }
@@ -41,10 +40,10 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
    */
   public function run() {
 
-    if (!empty($this->configuration['project_subdir'])){
+    if (!empty($this->configuration['project_subdir'])) {
       $this->codebase->setExtensionProjectSubdir($this->configuration['project_subdir']);
     }
-    if (!empty($this->configuration['project_name'])){
+    if (!empty($this->configuration['project_name'])) {
       $this->codebase->setProjectName($this->configuration['project_name']);
     }
     $this->codebase->setupDirectories();
@@ -70,7 +69,7 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   }
 
   protected function getProjectSubDir($testitem) {
-    if (strpos($testitem,'directory') === 0) {
+    if (strpos($testitem, 'directory') === 0) {
       $components = explode(':', $testitem);
       return $components[1];
     }
@@ -78,13 +77,14 @@ class CodebaseBuildStage extends BuildTaskBase  implements BuildStageInterface, 
   }
 
   protected function getContribProjectName($testitem) {
-    if (strpos($testitem,'directory') === 0) {
+    if (strpos($testitem, 'directory') === 0) {
       $components = explode(':', $testitem);
       $pathcomponents = explode("/", $components[1]);
     }
-    if (!empty($pathcomponents)){
+    if (!empty($pathcomponents)) {
       return array_pop($pathcomponents);
     }
     return FALSE;
   }
+
 }

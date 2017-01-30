@@ -2,21 +2,16 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\StartContainers;
 
-
-use Docker\DockerClient;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTaskBase;
-use DrupalCI\Build\Environment\DatabaseInterface;
-use DrupalCI\Providers\DockerServiceProvider;
-use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;
 
 /**
  * @PluginID("runcontainers")
  */
-class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   /* @var DatabaseInterface */
   protected $database;
@@ -35,7 +30,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function configure() {
 
-    if (false !== getenv('DCI_PHPVersion')) {
+    if (FALSE !== getenv('DCI_PHPVersion')) {
       $this->configuration['phpversion'] = getenv('DCI_PHPVersion');
     }
 

@@ -40,12 +40,12 @@ class FileHandlerTraitTest extends \PHPUnit_Framework_TestCase {
       // Test single fetch with directory specified
       ['http://example.com/file1.patch,dir1', [['from' => 'http://example.com/file1.patch', 'to' => 'dir1']]],
       // Test multiple fetches with no directory specified
-      ['http://example.com/file1.patch;http://example.com/file2.patch', [['from' => 'http://example.com/file1.patch', 'to' => '.'],['from' => 'http://example.com/file2.patch', 'to' => '.']]],
+      ['http://example.com/file1.patch;http://example.com/file2.patch', [['from' => 'http://example.com/file1.patch', 'to' => '.'], ['from' => 'http://example.com/file2.patch', 'to' => '.']]],
       // Test multiple fetches with some directories specified
-      ['http://example.com/file1.patch,dir1;http://example.com/file2.patch', [['from' => 'http://example.com/file1.patch', 'to' => 'dir1'],['from' => 'http://example.com/file2.patch', 'to' => '.']]],
-      ['http://example.com/file1.patch;http://example.com/file2.patch,dir2', [['from' => 'http://example.com/file1.patch', 'to' => '.'],['from' => 'http://example.com/file2.patch', 'to' => 'dir2']]],
+      ['http://example.com/file1.patch,dir1;http://example.com/file2.patch', [['from' => 'http://example.com/file1.patch', 'to' => 'dir1'], ['from' => 'http://example.com/file2.patch', 'to' => '.']]],
+      ['http://example.com/file1.patch;http://example.com/file2.patch,dir2', [['from' => 'http://example.com/file1.patch', 'to' => '.'], ['from' => 'http://example.com/file2.patch', 'to' => 'dir2']]],
       // Test multiple fetches with all directories specified
-      ['http://example.com/file1.patch,dir1;http://example.com/file2.patch,dir2', [['from' => 'http://example.com/file1.patch', 'to' => 'dir1'],['from' => 'http://example.com/file2.patch', 'to' => 'dir2']]],
+      ['http://example.com/file1.patch,dir1;http://example.com/file2.patch,dir2', [['from' => 'http://example.com/file1.patch', 'to' => 'dir1'], ['from' => 'http://example.com/file2.patch', 'to' => 'dir2']]],
       // Test single fetch with trailing comma
       ['http://example.com/file1.patch,', [['from' => 'http://example.com/file1.patch', 'to' => '.']]],
       // Test single fetch with trailing semicolon
@@ -56,12 +56,12 @@ class FileHandlerTraitTest extends \PHPUnit_Framework_TestCase {
       // Test single patch with directory specified
       ['file1.patch,dir1', [['from' => 'file1.patch', 'to' => 'dir1']]],
       // Test multiple patches with no directory specified
-      ['file1.patch;file2.patch', [['from' => 'file1.patch', 'to' => '.'],['from' => 'file2.patch', 'to' => '.']]],
+      ['file1.patch;file2.patch', [['from' => 'file1.patch', 'to' => '.'], ['from' => 'file2.patch', 'to' => '.']]],
       // Test multiple patches with some directories specified
-      ['file1.patch,dir1;file2.patch', [['from' => 'file1.patch', 'to' => 'dir1'],['from' => 'file2.patch', 'to' => '.']]],
-      ['file1.patch;file2.patch,dir2', [['from' => 'file1.patch', 'to' => '.'],['from' => 'file2.patch', 'to' => 'dir2']]],
+      ['file1.patch,dir1;file2.patch', [['from' => 'file1.patch', 'to' => 'dir1'], ['from' => 'file2.patch', 'to' => '.']]],
+      ['file1.patch;file2.patch,dir2', [['from' => 'file1.patch', 'to' => '.'], ['from' => 'file2.patch', 'to' => 'dir2']]],
       // Test multiple patches with all directories specified
-      ['file1.patch,dir1;file2.patch,dir2', [['from' => 'file1.patch', 'to' => 'dir1'],['from' => 'file2.patch', 'to' => 'dir2']]],
+      ['file1.patch,dir1;file2.patch,dir2', [['from' => 'file1.patch', 'to' => 'dir1'], ['from' => 'file2.patch', 'to' => 'dir2']]],
       // Test single patch with trailing comma
       ['file1.patch,', [['from' => 'file1.patch', 'to' => '.']]],
       // Test single patch with trailing semicolon

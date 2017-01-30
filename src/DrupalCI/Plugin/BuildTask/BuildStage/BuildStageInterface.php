@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStage;
 
-
 /**
  * Interface BuildStageInterface
  *

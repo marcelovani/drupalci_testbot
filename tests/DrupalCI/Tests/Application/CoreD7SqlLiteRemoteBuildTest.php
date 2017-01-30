@@ -19,7 +19,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 
-
   public function testCoreD7SqlLiteRemoteBuildTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
@@ -39,4 +38,5 @@ class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
+
 }

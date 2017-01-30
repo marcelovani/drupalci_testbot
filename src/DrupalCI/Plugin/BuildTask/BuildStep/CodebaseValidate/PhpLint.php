@@ -2,10 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
-
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Build\Environment\EnvironmentInterface;
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -22,7 +18,6 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
-
   public function inject(Container $container) {
     parent::inject($container);
     $this->environment = $container['environment'];
@@ -33,8 +28,8 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function configure() {
-    if (false !== getenv('DCI_Concurrency')) {
-      $this->configuration['concurrency']= getenv('DCI_Concurrency');
+    if (FALSE !== getenv('DCI_Concurrency')) {
+      $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
   }
 
@@ -57,7 +52,7 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $file_list[] = $this->environment->getExecContainerSourceDir() . "/" . $file;
     }
 
-    $lintable_files = $this->build->getArtifactDirectory() .'/lintable_files.txt';
+    $lintable_files = $this->build->getArtifactDirectory() . '/lintable_files.txt';
     $this->io->writeln("<info>" . $lintable_files . "</info>");
     file_put_contents($lintable_files, implode("\n", $file_list));
 

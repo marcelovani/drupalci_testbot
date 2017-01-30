@@ -7,7 +7,6 @@
 
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
-
 use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Checkout;
 use DrupalCI\Tests\DrupalCITestCase;
 
@@ -31,7 +30,7 @@ class CheckoutTest extends DrupalCITestCase {
     $checkout->setValidate($dir);
     $checkout->setExecResult(0);
     $checkout->run();
-    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\'','cd \'test/dir\' && git log --oneline -n 1 --decorate'], $checkout->getCommands());
+    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\'', 'cd \'test/dir\' && git log --oneline -n 1 --decorate'], $checkout->getCommands());
   }
 
   public function testEnvironmentalVariables() {
@@ -41,7 +40,7 @@ class CheckoutTest extends DrupalCITestCase {
       'DCI_Checkout_Branch' => 'branch',
       'DCI_Checkout_Hash' => 'commit_hash',
     ];
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       $_ENV[$key] = $value;
     }
     // Make a checkout plugin object. The constructor calls configure(), which
@@ -53,11 +52,11 @@ class CheckoutTest extends DrupalCITestCase {
     $configuration = $ref_configuration->getValue($checkout);
     $configuration = $configuration['repositories'];
     // Test.
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       $this->assertEquals($value, $configuration[0][$value]);
     }
     // Unset environmental variables.
-    foreach ($env_variables as $key=>$value) {
+    foreach ($env_variables as $key => $value) {
       unset($_ENV[$key]);
     }
   }
@@ -66,4 +65,5 @@ class CheckoutTest extends DrupalCITestCase {
 
 class TestCheckout extends Checkout {
   use TestSetupBaseTrait;
+
 }

@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\PluginManagerInterface.
- */
 
 namespace DrupalCI\Plugin;
 
@@ -10,8 +6,8 @@ interface PluginManagerInterface {
 
   /**
    *
-   * @param type $type
-   * @param type $plugin_id
+   * @param $type
+   * @param $plugin_id
    */
   public function hasPlugin($type, $plugin_id);
 

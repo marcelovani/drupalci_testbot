@@ -1,13 +1,7 @@
 <?php
 
-/**
- * @file
- * DrupalCI Docker helper class.
- */
-
 namespace DrupalCI\Helpers;
 
-use DrupalCI\Helpers\DrupalCIHelperBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -67,8 +61,6 @@ class DockerHelper extends DrupalCIHelperBase {
       $this->notFoundError($output);
     }
   }
-
-
 
   /**
    * {@inheritdoc}

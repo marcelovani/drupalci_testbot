@@ -2,9 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-
-use phpDocumentor\Reflection\Types\String_;
-
 interface CommandResultInterface {
 
   /**

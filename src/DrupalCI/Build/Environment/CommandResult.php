@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Environment;
 
-
 class CommandResult implements CommandResultInterface {
 
   /**
@@ -61,7 +60,5 @@ class CommandResult implements CommandResultInterface {
   public function appendError($error) {
     $this->error = $this->error . "\n" . $error;
   }
-
-
 
 }

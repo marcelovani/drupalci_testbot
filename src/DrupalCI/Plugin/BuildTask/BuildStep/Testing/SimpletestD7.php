@@ -2,14 +2,8 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
-
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskBase;
-use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * @PluginID("simpletest_d7")
@@ -24,9 +18,9 @@ class SimpletestD7 extends Simpletest {
     $dburl = $this->system_database->getUrl();
     // Fixes sqlite for d7
     if ($this->system_database->getDbType() === 'sqlite' ) {
-      $dburl = preg_replace('/localhost\//','',$dburl);
+      $dburl = preg_replace('/localhost\//', '', $dburl);
       $this->system_database->setUrl($dburl);
-      $dbfile = $this->codebase->getSourceDirectory() .  preg_replace('/sqlite:\//','',$dburl);
+      $dbfile = $this->codebase->getSourceDirectory() . preg_replace('/sqlite:\//', '', $dburl);
       $this->results_database->setDBFile($dbfile);
       $this->results_database->setDbname('');
     }
@@ -41,7 +35,6 @@ class SimpletestD7 extends Simpletest {
     $result = $this->environment->executeCommands($setup_commands);
     return $result->getSignal();
   }
-
 
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
@@ -59,7 +52,7 @@ class SimpletestD7 extends Simpletest {
       'die-on-fail',
       'verbose',
     ];
-    foreach($config as $key => $value) {
+    foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
           $command[] = "--$key";

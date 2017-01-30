@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Codebase;
 
-
 /**
  * Class Patch
  *
@@ -64,4 +63,5 @@ interface PatchInterface {
    * @return array|bool
    */
   public function getModifiedFiles();
+
 }

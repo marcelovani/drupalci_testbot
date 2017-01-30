@@ -5,7 +5,6 @@ namespace DrupalCI\Tests;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
-use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Framework for test-controlled runs of drupalci.
@@ -130,7 +129,6 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
     $this->assertContains($fragment, $buildoutcome->$attribute);
   }
-
 
   /**
    * {@inheritdoc}

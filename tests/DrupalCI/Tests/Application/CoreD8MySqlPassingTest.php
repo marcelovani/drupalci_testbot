@@ -32,8 +32,6 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=5.5',
   ];
 
-
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
@@ -56,4 +54,5 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
+
 }

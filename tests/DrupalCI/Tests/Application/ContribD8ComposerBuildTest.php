@@ -33,8 +33,6 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     'DCI_DEBUG=TRUE',
   ];
 
-
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
@@ -57,4 +55,5 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
+
 }

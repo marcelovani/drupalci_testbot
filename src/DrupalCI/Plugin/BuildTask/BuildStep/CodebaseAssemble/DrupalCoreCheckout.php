@@ -2,14 +2,9 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
-use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * @PluginID("checkout_core")
@@ -21,13 +16,13 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
    */
   public function configure() {
 
-    if (false !== getenv(('DCI_CoreRepository'))) {
+    if (FALSE !== getenv(('DCI_CoreRepository'))) {
       $repo['repo'] = getenv(('DCI_CoreRepository'));
 
-      if (false !== getenv(('DCI_CoreBranch'))) {
+      if (FALSE !== getenv(('DCI_CoreBranch'))) {
         $repo['branch'] = getenv(('DCI_CoreBranch'));
       }
-      if (false !== getenv(('DCI_GitCommitHash'))) {
+      if (FALSE !== getenv(('DCI_GitCommitHash'))) {
         $repo['commit_hash'] = getenv(('DCI_GitCommitHash'));
       }
       $this->configuration['repositories'][0] = $repo;
@@ -60,7 +55,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
     $this->codebase->setExtensionPaths($this->discoverExentionPaths());
   }
 
-  protected function discoverExentionPaths(){
+  protected function discoverExentionPaths() {
     $extension_paths = [];
     $core_dir = $this->codebase->getSourceDirectory();
 
@@ -69,7 +64,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
       $composer_config = json_decode(file_get_contents($composer_json), TRUE);
       if (isset($composer_config['extra']['installer-paths'])) {
         $paths = $composer_config['extra']['installer-paths'];
-        foreach ($paths as $path => $config){
+        foreach ($paths as $path => $config) {
           // Special case for core.
           if ($path == 'core') {
             continue;
@@ -78,10 +73,12 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
           array_pop($pathcomponents);
           $extension_paths[$pathcomponents[0]] = implode($pathcomponents, '/');
         }
-      } else {
+      }
+      else {
         // Older version of core (pre dec 6, 2016) that used the installer paths
         // from the composer/installers plugin.
-        $extension_paths = ['modules' => 'modules',
+        $extension_paths = [
+        'modules' => 'modules',
                             'themes' => 'themes',
                             'profiles' => 'profiles',
                             ];
@@ -90,7 +87,5 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
     return $extension_paths;
 
   }
-
-
 
 }

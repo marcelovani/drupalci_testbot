@@ -2,8 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
@@ -34,20 +32,20 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
   public function configure() {
 
     // The source directory to copy
-    if (false !== getenv(('DCI_UseLocalCodebase'))) {
+    if (FALSE !== getenv(('DCI_UseLocalCodebase'))) {
       $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
     }
     // Comma separated list of directories to exclude from the rsync (like .git)
-    if (false !== getenv(('DCI_Exclude'))) {
+    if (FALSE !== getenv(('DCI_Exclude'))) {
       $this->configuration['excludes'] = explode(',', getenv(('DCI_Exclude')));
     }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
-    if (false !== getenv(('DCI_LocalBranch'))) {
+    if (FALSE !== getenv(('DCI_LocalBranch'))) {
       $this->configuration['git_branch'] = getenv(('DCI_LocalBranch'));
     }
 
-    if (false !== getenv(('DCI_LocalCommitHash'))) {
+    if (FALSE !== getenv(('DCI_LocalCommitHash'))) {
       $this->configuration['git_commit_hash'] = getenv(('DCI_LocalCommitHash'));
     }
   }
@@ -62,7 +60,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // Validate local directory
       if (!is_dir($local_dir)) {
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
-        $this->terminateBuild("Replication Failed" , "The source directory $local_dir does not exist.");
+        $this->terminateBuild("Replication Failed", "The source directory $local_dir does not exist.");
       }
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
@@ -81,19 +79,19 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
         if (!empty($this->configuration['git_branch'])) {
-          $cmd =  "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
+          $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
           $this->io->writeln("Git Command: $cmd");
           $this->exec($cmd, $cmdoutput, $result);
-          if ($result !==0) {
+          if ($result !== 0) {
             // Git threw an error.
             $this->terminateBuild("git checkout returned an error.", "git checkout returned an error. Error Code: $result");
           }
         }
         if (!empty($this->configuration['git_commit_hash'])) {
-          $cmd =  "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
+          $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
           $this->io->writeln("Git Command: $cmd");
           $this->exec($cmd, $cmdoutput, $result);
-          if ($result !==0) {
+          if ($result !== 0) {
             // Git threw an error.
             $this->terminateBuild("git reset returned an error.", "git reset returned an error. Error Code: $result");
           }
@@ -107,7 +105,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }
-    return;
+    return 0;
   }
 
   /**
@@ -125,4 +123,5 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       'git_commit_hash' => '',
     ];
   }
+
 }
