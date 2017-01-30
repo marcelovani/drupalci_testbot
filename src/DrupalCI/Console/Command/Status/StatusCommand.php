@@ -76,6 +76,4 @@ class StatusCommand extends DrupalCICommandBase {
 
   }
 
-  // TODO: Check php configuration to ensure that $_ENV is populated (i.e. variables_order contains 'E').
-
 }

@@ -44,9 +44,9 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     // Currently DCI_AdditionalRepositories, in conjunction with DCI_TestItem,
     // are the mechanisms we use to sort out which contrib module to check out.
     //
-    if (isset($_ENV['DCI_AdditionalRepositories'])) {
+    if (false !== getenv(('DCI_AdditionalRepositories'))) {
       // Parse the provided repository string into it's components
-      $entries = explode(';', $_ENV['DCI_AdditionalRepositories']);
+      $entries = explode(';', getenv(('DCI_AdditionalRepositories')));
       foreach ($entries as $entry) {
         if (empty($entry)) {
           continue;

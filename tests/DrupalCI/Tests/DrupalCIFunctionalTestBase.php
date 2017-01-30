@@ -82,8 +82,7 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
 
     if (!empty($this->dciConfig)) {
       foreach ($this->dciConfig as $variable) {
-        list($env_var, $value) = explode('=', $variable);
-        $_ENV[$env_var] = $value;
+        putenv($variable);
       }
     }
     else {
@@ -130,6 +129,22 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $this->assertTrue(file_exists($buildoutcome_json));
     $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
     $this->assertContains($fragment, $buildoutcome->$attribute);
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown() {
+    parent::tearDown();
+    // Complain if there is no config.
+    if (!empty($this->dciConfig)) {
+      // Ensure anything set by this test doesnt leak into the next.
+      foreach ($this->dciConfig as $variable) {
+        list($env_var, $value) = explode('=', $variable);
+        putenv($env_var);
+      }
+    }
   }
 
 }

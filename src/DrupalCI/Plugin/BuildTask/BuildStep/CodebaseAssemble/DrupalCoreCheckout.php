@@ -21,14 +21,14 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
    */
   public function configure() {
 
-    if (isset($_ENV['DCI_CoreRepository'])) {
-      $repo['repo'] = $_ENV['DCI_CoreRepository'];
+    if (false !== getenv(('DCI_CoreRepository'))) {
+      $repo['repo'] = getenv(('DCI_CoreRepository'));
 
-      if (isset($_ENV['DCI_CoreBranch'])) {
-        $repo['branch'] = $_ENV['DCI_CoreBranch'];
+      if (false !== getenv(('DCI_CoreBranch'))) {
+        $repo['branch'] = getenv(('DCI_CoreBranch'));
       }
-      if (isset($_ENV['DCI_GitCommitHash'])) {
-        $repo['commit_hash'] = $_ENV['DCI_GitCommitHash'];
+      if (false !== getenv(('DCI_GitCommitHash'))) {
+        $repo['commit_hash'] = getenv(('DCI_GitCommitHash'));
       }
       $this->configuration['repositories'][0] = $repo;
     }

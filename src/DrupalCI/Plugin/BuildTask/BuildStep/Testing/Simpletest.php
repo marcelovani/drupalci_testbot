@@ -47,32 +47,32 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (isset($_ENV['DCI_Concurrency'])) {
-      $this->configuration['concurrency'] = $_ENV['DCI_Concurrency'];
+    if (false !== getenv('DCI_Concurrency')) {
+      $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
-    if (isset($_ENV['DCI_RTTypes'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTTypes'];
+    if (false !== getenv('DCI_RTTypes')) {
+      $this->configuration['types'] = getenv('DCI_RTTypes');
     }
-    if (isset($_ENV['DCI_RTUrl'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTUrl'];
+    if (false !== getenv('DCI_RTUrl')) {
+      $this->configuration['types'] = getenv('DCI_RTUrl');
     }
-    if (isset($_ENV['DCI_RTColor'])) {
-      $this->configuration['color'] = $_ENV['DCI_RTColor'];
+    if (false !== getenv('DCI_RTColor')) {
+      $this->configuration['color'] = getenv('DCI_RTColor');
     }
-    if (isset($_ENV['DCI_TestItem'])) {
-      $this->configuration['testgroups'] = $this->parseTestItems($_ENV['DCI_TestItem']);
+    if (false !== getenv('DCI_TestItem')) {
+      $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
     }
-    if (isset($_ENV['DCI_RTDieOnFail'])) {
-      $this->configuration['die-on-fail'] = $_ENV['DCI_RTDieOnFail'];
+    if (false !== getenv('DCI_RTDieOnFail')) {
+      $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
     }
-    if (isset($_ENV['DCI_RTKeepResults'])) {
-      $this->configuration['keep-results'] = $_ENV['DCI_RTKeepResults'];
+    if (false !== getenv('DCI_RTKeepResults')) {
+      $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
     }
-    if (isset($_ENV['DCI_RTKeepResultsTable'])) {
-      $this->configuration['keep-results-table'] = $_ENV['DCI_RTKeepResultsTable'];
+    if (false !== getenv('DCI_RTKeepResultsTable')) {
+      $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
     }
-    if (isset($_ENV['DCI_RTVerbose'])) {
-      $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
+    if (false !== getenv('DCI_RTVerbose')) {
+      $this->configuration['verbose'] = getenv('DCI_RTVerbose');
     }
   }
 

@@ -226,8 +226,8 @@ class Build implements BuildInterface, Injectable {
   public function generateBuild($arg) {
 
 
-    if (isset($_ENV['DCI_JobType'])) {
-      $arg = $_ENV['DCI_JobType'];
+    if (false !== getenv('DCI_JobType')) {
+      $arg = getenv('DCI_JobType');
     }
     if ($arg) {
       if (strtolower(substr(trim($arg), -4)) == ".yml") {

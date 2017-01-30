@@ -30,14 +30,14 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_Checkout_Repo'])) {
-      $repo['repo'] = $_ENV['DCI_Checkout_Repo'];
+    if (false !== getenv('DCI_Checkout_Repo')) {
+      $repo['repo'] = getenv('DCI_Checkout_Repo');
 
-      if (isset($_ENV['DCI_Checkout_Branch'])) {
-        $repo['branch'] = $_ENV['DCI_Checkout_Branch'];
+      if (false !== getenv('DCI_Checkout_Branch')) {
+        $repo['branch'] = getenv('DCI_Checkout_Branch');
       }
-      if (isset($_ENV['DCI_Checkout_Hash'])) {
-        $repo['commit_hash'] = $_ENV['DCI_Checkout_Hash'];
+      if (false !== getenv('DCI_Checkout_Hash')) {
+        $repo['commit_hash'] = getenv('DCI_Checkout_Hash');
       }
       $this->configuration['repositories'][0] = $repo;
     }

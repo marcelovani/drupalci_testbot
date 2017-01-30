@@ -29,25 +29,25 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
    */
   public function configure() {
     // TODO: Overriding configuration should not be a manual process.
-    if (isset($_ENV['DCI_DBType'])) {
-      $this->configuration['db_type'] = $_ENV['DCI_DBType'];
+    if (false !== getenv('DCI_DBType')) {
+      $this->configuration['db_type'] = getenv('DCI_DBType');
     }
 
-    if (isset($_ENV['DCI_DBVersion'])) {
+    if (false !== getenv('DCI_DBVersion')) {
       // DCI_DBVersion can sometimes be in the format of DBType-DBVersion.
-      if (strpos($_ENV['DCI_DBVersion'],'-')) {
-        $this->configuration['db_type'] = explode('-', $_ENV['DCI_DBVersion'], 2)[0];
-        $this->configuration['db_version'] = explode('-', $_ENV['DCI_DBVersion'], 2)[1];
+      if (strpos(getenv('DCI_DBVersion'),'-')) {
+        $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
+        $this->configuration['db_version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
       } else {
-        $this->configuration['db_version'] = $_ENV['DCI_DBVersion'];
+        $this->configuration['db_version'] = getenv('DCI_DBVersion');
       }
     }
 
-    if (isset($_ENV['DCI_DBUser'])) {
-      $this->configuration['dbuser'] = $_ENV['DCI_DBUser'];
+    if (false !== getenv('DCI_DBUser')) {
+      $this->configuration['dbuser'] = getenv('DCI_DBUser');
     }
-    if (isset($_ENV['DCI_DBPassword'])) {
-      $this->configuration['dbpassword'] = $_ENV['DCI_DBPassword'];
+    if (false !== getenv('DCI_DBPassword')) {
+      $this->configuration['dbpassword'] = getenv('DCI_DBPassword');
     }
 
   }
