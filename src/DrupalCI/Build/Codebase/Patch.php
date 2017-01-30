@@ -171,7 +171,7 @@ class Patch implements PatchInterface, Injectable {
     $this->absolutePath = $absolute_path;
 
     // Set initial 'applied' state
-    $this->applied = false;
+    $this->applied = FALSE;
 
   }
 

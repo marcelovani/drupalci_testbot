@@ -39,7 +39,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // @TODO make into a test
     // putenv('DCI_Patch=https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.');
-    if (false !== getenv('DCI_Patch')) {
+    if (FALSE !== getenv('DCI_Patch')) {
       $this->configuration['patches'] = $this->process(getenv('DCI_Patch'));
     }
   }

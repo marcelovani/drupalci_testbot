@@ -34,20 +34,20 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
   public function configure() {
 
     // The source directory to copy
-    if (false !== getenv(('DCI_UseLocalCodebase'))) {
+    if (FALSE !== getenv(('DCI_UseLocalCodebase'))) {
       $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
     }
     // Comma separated list of directories to exclude from the rsync (like .git)
-    if (false !== getenv(('DCI_Exclude'))) {
+    if (FALSE !== getenv(('DCI_Exclude'))) {
       $this->configuration['excludes'] = explode(',', getenv(('DCI_Exclude')));
     }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
-    if (false !== getenv(('DCI_LocalBranch'))) {
+    if (FALSE !== getenv(('DCI_LocalBranch'))) {
       $this->configuration['git_branch'] = getenv(('DCI_LocalBranch'));
     }
 
-    if (false !== getenv(('DCI_LocalCommitHash'))) {
+    if (FALSE !== getenv(('DCI_LocalCommitHash'))) {
       $this->configuration['git_commit_hash'] = getenv(('DCI_LocalCommitHash'));
     }
   }

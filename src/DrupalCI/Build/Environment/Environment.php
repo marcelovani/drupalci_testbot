@@ -263,7 +263,7 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected function pull($name) {
     $manager = $this->docker->getImageManager();
-    $progressInformation = null;
+    $progressInformation = NULL;
     $image_name = explode(':', $name);
     if (empty($image_name[1])){
       $image_name[1] = 'latest';

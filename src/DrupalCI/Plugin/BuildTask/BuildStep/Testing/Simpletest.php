@@ -47,31 +47,31 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (false !== getenv('DCI_Concurrency')) {
+    if (FALSE !== getenv('DCI_Concurrency')) {
       $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
-    if (false !== getenv('DCI_RTTypes')) {
+    if (FALSE !== getenv('DCI_RTTypes')) {
       $this->configuration['types'] = getenv('DCI_RTTypes');
     }
-    if (false !== getenv('DCI_RTUrl')) {
+    if (FALSE !== getenv('DCI_RTUrl')) {
       $this->configuration['types'] = getenv('DCI_RTUrl');
     }
-    if (false !== getenv('DCI_RTColor')) {
+    if (FALSE !== getenv('DCI_RTColor')) {
       $this->configuration['color'] = getenv('DCI_RTColor');
     }
-    if (false !== getenv('DCI_TestItem')) {
+    if (FALSE !== getenv('DCI_TestItem')) {
       $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
     }
-    if (false !== getenv('DCI_RTDieOnFail')) {
+    if (FALSE !== getenv('DCI_RTDieOnFail')) {
       $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
     }
-    if (false !== getenv('DCI_RTKeepResults')) {
+    if (FALSE !== getenv('DCI_RTKeepResults')) {
       $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
     }
-    if (false !== getenv('DCI_RTKeepResultsTable')) {
+    if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
       $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
     }
-    if (false !== getenv('DCI_RTVerbose')) {
+    if (FALSE !== getenv('DCI_RTVerbose')) {
       $this->configuration['verbose'] = getenv('DCI_RTVerbose');
     }
   }

@@ -29,11 +29,11 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
    */
   public function configure() {
     // TODO: Overriding configuration should not be a manual process.
-    if (false !== getenv('DCI_DBType')) {
+    if (FALSE !== getenv('DCI_DBType')) {
       $this->configuration['db_type'] = getenv('DCI_DBType');
     }
 
-    if (false !== getenv('DCI_DBVersion')) {
+    if (FALSE !== getenv('DCI_DBVersion')) {
       // DCI_DBVersion can sometimes be in the format of DBType-DBVersion.
       if (strpos(getenv('DCI_DBVersion'), '-')) {
         $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
@@ -43,10 +43,10 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
       }
     }
 
-    if (false !== getenv('DCI_DBUser')) {
+    if (FALSE !== getenv('DCI_DBUser')) {
       $this->configuration['dbuser'] = getenv('DCI_DBUser');
     }
-    if (false !== getenv('DCI_DBPassword')) {
+    if (FALSE !== getenv('DCI_DBPassword')) {
       $this->configuration['dbpassword'] = getenv('DCI_DBPassword');
     }
 

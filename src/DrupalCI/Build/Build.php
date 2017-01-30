@@ -222,7 +222,7 @@ class Build implements BuildInterface, Injectable {
   public function generateBuild($arg) {
 
 
-    if (false !== getenv('DCI_JobType')) {
+    if (FALSE !== getenv('DCI_JobType')) {
       $arg = getenv('DCI_JobType');
     }
     if ($arg) {
@@ -557,7 +557,7 @@ class Build implements BuildInterface, Injectable {
    */
   protected function setupWorkSpace() {
     // Check if the target working directory has been specified in the env.
-    if (false !== (getenv('DCI_WorkingDir'))) {
+    if (FALSE !== (getenv('DCI_WorkingDir'))) {
       $build_directory = getenv('DCI_WorkingDir');
     }
     // Both the AMI and Vagrant box defines this as /var/lib/drupalci/web

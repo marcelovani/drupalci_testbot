@@ -35,7 +35,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function configure() {
 
-    if (false !== getenv('DCI_PHPVersion')) {
+    if (FALSE !== getenv('DCI_PHPVersion')) {
       $this->configuration['phpversion'] = getenv('DCI_PHPVersion');
     }
 

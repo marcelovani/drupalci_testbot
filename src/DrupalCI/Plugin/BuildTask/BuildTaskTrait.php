@@ -28,7 +28,7 @@ trait BuildTaskTrait {
    *
    */
   public function start() {
-    $this->startTime = microtime(true);
+    $this->startTime = microtime(TRUE);
     $statuscode = $this->run();
     if (!isset($statuscode)) {
       return 0;
@@ -42,7 +42,7 @@ trait BuildTaskTrait {
    */
   public function finish($childStatus) {
     $this->complete($childStatus);
-    $elapsed_time = microtime(true) - $this->startTime;
+    $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
   }
 

@@ -104,22 +104,22 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
-    if (false !== getenv('DCI_CS_SniffAllFiles')) {
+    if (FALSE !== getenv('DCI_CS_SniffAllFiles')) {
       $this->configuration['sniff_all_files'] = getenv('DCI_CS_SniffAllFiles');
     }
-    if (false !== getenv('DCI_CS_SniffStartDirectory')) {
+    if (FALSE !== getenv('DCI_CS_SniffStartDirectory')) {
       $this->configuration['start_directory'] = getenv('DCI_CS_SniffStartDirectory');
     }
-    if (false !== getenv('DCI_CS_ConfigInstalledPaths')) {
+    if (FALSE !== getenv('DCI_CS_ConfigInstalledPaths')) {
       $this->configuration['installed_paths'] = getenv('DCI_CS_ConfigInstalledPaths');
     }
-    if (false !== getenv('DCI_CS_SniffFailsTest')) {
+    if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
       $this->configuration['sniff_fails_test'] = getenv('DCI_CS_SniffFailsTest');
     }
-    if (false !== getenv('DCI_CS_WarningFailsSniff')) {
+    if (FALSE !== getenv('DCI_CS_WarningFailsSniff')) {
       $this->configuration['warning_fails_sniff'] = getenv('DCI_CS_WarningFailsSniff');
     }
-    if (false !== getenv('DCI_CS_CoderVersion')) {
+    if (FALSE !== getenv('DCI_CS_CoderVersion')) {
       $this->configuration['coder_version'] = getenv('DCI_CS_CoderVersion');
     }
   }
