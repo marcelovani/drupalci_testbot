@@ -180,6 +180,13 @@ class Environment implements Injectable, EnvironmentInterface {
   }
 
   /**
+   * @return string
+   */
+  public function getContainerComposerCacheDir() {
+    return $this->containerComposerCacheDir;
+  }
+
+  /**
    * @param array $container
    */
   public function startExecContainer($container) {
