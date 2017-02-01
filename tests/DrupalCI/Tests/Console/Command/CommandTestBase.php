@@ -35,9 +35,10 @@ abstract class CommandTestBase extends \PHPUnit_Framework_TestCase {
   }
 
   protected function getInputStream($input) {
-    $stream = fopen('php://memory', 'r+', false);
+    $stream = fopen('php://memory', 'r+', FALSE);
     fputs($stream, $input);
     rewind($stream);
     return $stream;
   }
+
 }

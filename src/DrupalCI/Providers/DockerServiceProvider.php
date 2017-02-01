@@ -2,13 +2,12 @@
 
 namespace DrupalCI\Providers;
 
-
 use Docker\Docker;
 use Docker\DockerClient;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
-class DockerServiceProvider implements ServiceProviderInterface{
+class DockerServiceProvider implements ServiceProviderInterface {
 
   /**
    * Register all of our Docker managers.

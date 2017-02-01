@@ -1,11 +1,12 @@
+# This is a demonstration build definition, to show how phpcs might be
+# integrated into a build process.
+# @todo: Remove this when phpcs is part of the standard build process.
 build:
   codebase:
     assemble_codebase:
       replicate:
       checkout_core:
-      composer_force_coder:
-        force_coder_install: TRUE
-        force_coder_version: 8.2.8
+      composer.install:
       fetch:
       patch:
       update_dependencies:
@@ -18,9 +19,5 @@ build:
     validate_codebase:
       # Re-install under the container.
       container_composer:
-      phplint:
       phpcs:
-        sniff_only_changed: TRUE
-        installed_paths: /vendor/drupal/coder/coder_sniffer/
-        config_directory: core/
-        start_directory: core/lib/Drupal/Component/Utility/
+        sniff_only_changed: FALSE

@@ -5,9 +5,9 @@ namespace DrupalCI\Providers;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 
 class GuzzleClientServiceProvider implements ServiceProviderInterface {
+
   /**
    * @inheritDoc
    */

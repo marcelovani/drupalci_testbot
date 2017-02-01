@@ -3,7 +3,6 @@
 namespace DrupalCI\Build\Codebase;
 
 use DrupalCI\Injectable;
-use DrupalCI\Build\Codebase\Patch;
 use Pimple\Container;
 
 /**

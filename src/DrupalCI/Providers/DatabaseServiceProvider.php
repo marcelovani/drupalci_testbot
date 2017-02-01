@@ -26,4 +26,5 @@ class DatabaseServiceProvider implements ServiceProviderInterface {
       return $db;
     };
   }
+
 }

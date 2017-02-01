@@ -2,8 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
@@ -30,14 +28,14 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function configure() {
-    if (isset($_ENV['DCI_Checkout_Repo'])) {
-      $repo['repo'] = $_ENV['DCI_Checkout_Repo'];
+    if (FALSE !== getenv('DCI_Checkout_Repo')) {
+      $repo['repo'] = getenv('DCI_Checkout_Repo');
 
-      if (isset($_ENV['DCI_Checkout_Branch'])) {
-        $repo['branch'] = $_ENV['DCI_Checkout_Branch'];
+      if (FALSE !== getenv('DCI_Checkout_Branch')) {
+        $repo['branch'] = getenv('DCI_Checkout_Branch');
       }
-      if (isset($_ENV['DCI_Checkout_Hash'])) {
-        $repo['commit_hash'] = $_ENV['DCI_Checkout_Hash'];
+      if (FALSE !== getenv('DCI_Checkout_Hash')) {
+        $repo['commit_hash'] = getenv('DCI_Checkout_Hash');
       }
       $this->configuration['repositories'][0] = $repo;
     }
@@ -62,7 +60,6 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
       $this->io->writeln("<comment>Performing git checkout of $repo $git_branch to $directory.</comment>");
 
-
       $cmd = "git clone $git_branch $git_depth $repo '$directory'";
       $this->io->writeln("Git Command: $cmd");
       $this->exec($cmd, $cmdoutput, $result);
@@ -72,14 +69,13 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         $this->terminateBuild("Checkout Error", "The git checkout returned an error.  Error Code: $result");
       }
 
-
       if (!empty($repository['commit_hash'])) {
-        $cmd =  "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
+        $cmd = "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
         $this->io->writeln("Git Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
-        if ($result !==0) {
+        if ($result !== 0) {
           // Git threw an error.
-          $this->terminateBuild("git reset returned an error.",  "Error Code: $result");
+          $this->terminateBuild("git reset returned an error.", "Error Code: $result");
         }
       }
 
@@ -90,7 +86,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }
-    return;
+    return 0;
   }
 
   /**
@@ -102,4 +98,5 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     ];
 
   }
+
 }

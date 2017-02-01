@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Tests\Console\Command;
 
-use DrupalCI\Tests\Console\Command\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -15,7 +14,6 @@ class AllCommandsPresentTest extends CommandTestBase {
   public function provideCommandNames() {
     return [
       ['run'],
-      ['status'],
     ];
   }
 
@@ -24,6 +22,8 @@ class AllCommandsPresentTest extends CommandTestBase {
    *
    * @coversNothing
    * @dataProvider provideCommandNames
+   *
+   * @param $command_name
    */
   public function testAllCommandsPresent($command_name) {
     $c = $this->getConsoleApp();

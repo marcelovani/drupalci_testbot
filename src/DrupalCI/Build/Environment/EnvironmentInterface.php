@@ -4,8 +4,8 @@ namespace DrupalCI\Build\Environment;
 use Pimple\Container;
 
 interface EnvironmentInterface {
-  public function inject(Container $container);
 
+  public function inject(Container $container);
 
   /**
    * @param $commands
@@ -41,4 +41,5 @@ interface EnvironmentInterface {
    *   The artifact directory on all containers
    */
   public function getContainerArtifactDir();
+
 }

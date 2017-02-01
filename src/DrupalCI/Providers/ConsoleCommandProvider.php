@@ -2,17 +2,7 @@
 
 namespace DrupalCI\Providers;
 
-use DrupalCI\Console\Command\Docker\DockerBuildCommand;
-use DrupalCI\Console\Command\Docker\DockerRemoveCommand;
-use DrupalCI\Console\Command\Init\InitAllCommand;
-use DrupalCI\Console\Command\Init\InitBaseContainersCommand;
-use DrupalCI\Console\Command\Init\InitDatabaseContainersCommand;
-use DrupalCI\Console\Command\Init\InitDependenciesCommand;
-use DrupalCI\Console\Command\Init\InitDockerCommand;
-use DrupalCI\Console\Command\Init\InitWebContainersCommand;
-use DrupalCI\Console\Command\Docker\DockerPullCommand;
 use DrupalCI\Console\Command\Run\RunCommand;
-use DrupalCI\Console\Command\Status\StatusCommand;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -29,19 +19,14 @@ class ConsoleCommandProvider implements ServiceProviderInterface {
    *
    * @param Container $container
    */
-  public function register(Container $container)
-  {
+  public function register(Container $container) {
     // Console Commands
-    $container['command.status'] = function ($container) {
-      return new StatusCommand();
-    };
     $container['command.run'] = function ($container) {
       return new RunCommand();
     };
 
     $container['commands'] = function ($container) {
       return array(
-        $container['command.status'],
         $container['command.run']
       );
     };

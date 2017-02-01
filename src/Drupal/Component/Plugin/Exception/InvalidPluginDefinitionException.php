@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException.
- */
 
 namespace Drupal\Component\Plugin\Exception;
 
@@ -24,6 +20,10 @@ class InvalidPluginDefinitionException extends PluginException {
    *
    * @param string $plugin_id
    *   The plugin ID of the mapper.
+   *
+   * @param string $message
+   * @param int $code
+   * @param \Exception $previous
    *
    * @see \Exception for the remaining parameters.
    */

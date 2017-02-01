@@ -17,7 +17,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
 
-
   public function testBasicTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
@@ -32,7 +31,6 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
     $this->assertContains('composer.lock',
       $codebase->getModifiedFiles()
     );
-
 
     // TODO: [0] is very brittle. We need to make build artifacts have labels.
     // See: https://www.drupal.org/node/2842547

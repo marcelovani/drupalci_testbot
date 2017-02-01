@@ -5,13 +5,8 @@ namespace DrupalCI\Providers;
 use DrupalCI\Build\Codebase\PatchFactory;
 use DrupalCI\Console\DrupalCIConsoleApp;
 use DrupalCI\Plugin\PluginManagerFactory;
-use DrupalCI\Providers\DockerServiceProvider;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use DrupalCI\Providers\DatabaseServiceProvider;
-use DrupalCI\Providers\YamlServiceProvider;
-use DrupalCI\Providers\GuzzleClientServiceProvider;
-use DrupalCI\Providers\CommandResultServiceProvider;
 
 /**
  * Registers application-level services.
@@ -46,4 +41,5 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
       return new PatchFactory($container);
     };
   }
+
 }

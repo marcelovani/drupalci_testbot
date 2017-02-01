@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Annotation\Reflection\MockFileFinder.
- */
-
 namespace Drupal\Component\Annotation\Reflection;
 
 use Doctrine\Common\Reflection\ClassFinderInterface;
@@ -34,6 +29,10 @@ class MockFileFinder implements ClassFinderInterface {
 
   /**
    * Creates new mock file finder objects.
+   *
+   * @param $filename
+   *
+   * @return static
    */
   static public function create($filename) {
     $object = new static();
