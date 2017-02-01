@@ -2,9 +2,6 @@
 
 namespace DrupalCI\Providers;
 
-
-use Docker\Docker;
-use Docker\DockerClient;
 use DrupalCI\Build\Environment\Environment;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;

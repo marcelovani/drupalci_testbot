@@ -1,0 +1,20 @@
+# This is a standard simpletest build process, up to validating the codebase
+# with phpcs. It is used to test what happens if there is no phpcs tool in the
+# codebase.
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core:
+      composer:
+      fetch:
+      patch:
+      update_dependencies:
+  environment:
+    startcontainers:
+      runcontainers:
+    filesystem:
+      prepare_filesystem:
+  assessment:
+    validate_codebase:
+      phpcs:

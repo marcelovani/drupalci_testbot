@@ -2,12 +2,12 @@
 
 namespace DrupalCI\Providers;
 
-
 use DrupalCI\Build\Environment\CommandResult;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
 class CommandResultServiceProvider implements ServiceProviderInterface {
+
   /**
    * @inheritDoc
    */

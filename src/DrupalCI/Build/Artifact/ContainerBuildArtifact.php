@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Build\Artifact;
 
-
 use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -31,8 +30,9 @@ class ContainerBuildArtifact extends BuildArtifact {
 
     }
     $commands = [
-      'chown -R '. $uid . ':' . $gid . ' ' .  $this->environment->getContainerArtifactDir() . "/" . basename($this->sourcePath),
+      'chown -R ' . $uid . ':' . $gid . ' ' . $this->environment->getContainerArtifactDir() . "/" . basename($this->sourcePath),
     ];
     $result = $this->environment->executeCommands($commands);
   }
+
 }

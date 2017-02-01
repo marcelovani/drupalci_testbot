@@ -8,6 +8,7 @@ namespace DrupalCI\Plugin\BuildTask;
  * @package Plugin
  */
 interface BuildTaskInterface {
+
   /**
    * Prepares this task to run.
    *
@@ -96,7 +97,6 @@ interface BuildTaskInterface {
    *   Sets the subordinate Tasks on this Task
    */
   public function setChildTasks($buildTasks);
-
 
   /**
    * @param $errorLabel

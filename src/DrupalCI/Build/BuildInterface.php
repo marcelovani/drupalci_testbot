@@ -1,12 +1,6 @@
 <?php
-/**
- * @file
- * Contains
- */
-namespace DrupalCI\Build;
 
-use DrupalCI\Build\Codebase\Codebase;
-use Symfony\Component\Console\Output\OutputInterface;
+namespace DrupalCI\Build;
 
 interface BuildInterface {
 
@@ -66,6 +60,13 @@ interface BuildInterface {
    * @return mixed
    */
   public function getHostCoredumpDirectory();
+
+  /**
+   * This is the directory on the host where composer cache lives.
+   *
+   * @return mixed
+   */
+  public function getHostComposerCacheDirectory();
 
   /**
    * This is the directory where we place artifacts that can be parsed

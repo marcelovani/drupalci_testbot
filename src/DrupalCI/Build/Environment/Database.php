@@ -136,11 +136,10 @@ class Database implements DatabaseInterface, Injectable {
    * @inheritDoc
    */
   public function getUrl() {
-// Scheme + "://" + username + ":" + password + "@" + host + path
+    // Scheme + "://" + username + ":" + password + "@" + host + path
     if ($this->dbtype == 'sqlite') {
       return 'sqlite://localhost/sites/default/files/db.sqlite';
     }
-
 
     $new_url = $this->getScheme() . '//';
     if (isset($this->username)) {
@@ -256,14 +255,14 @@ class Database implements DatabaseInterface, Injectable {
     $this->dbfile = $dbfile;
   }
 
-
   /**
    * @inheritDoc
    */
   public function createDB() {
     try {
       $this->connect()->exec('CREATE DATABASE ' . $this->dbname);
-    } catch (\PDOException $e) {
+    }
+    catch (\PDOException $e) {
       $this->io->writeln("<comment>Could not create database $this->dbname.</comment>");
       return FALSE;
     }
@@ -282,9 +281,11 @@ class Database implements DatabaseInterface, Injectable {
       case 'sqlite':
         $scheme = 'sqlite:';
         break;
+
       case 'mariadb':
         $scheme = 'mysql:';
         break;
+
       default:
         $scheme = $this->dbtype . ':';
     }
@@ -296,26 +297,26 @@ class Database implements DatabaseInterface, Injectable {
    */
   public function connect($database = NULL) {
     // @TODO: maybe this can work with sqlite?
-   // if($this->dbtype != 'sqlite') {
-      $counter = 0;
-      $increment = 10;
-      $max_sleep = 120;
-      // @TODO explore using PDO:ATTR_TIMEOUT to see if that works instead of polling in php.
-      while($counter < $max_sleep ){
-        if ($this->establishDBConnection($database)){
-          $this->io->writeln("<comment>Database is active.</comment>");
-          break;
-        }
-        if ($counter >= $max_sleep){
-          $this->io->writeln("<error>Max retries reached, exiting promgram.</error>");
-          exit(1);
-        }
-        $this->io->writeln("<comment>Sleeping " . $increment . " seconds to allow service to start.</comment>");
-        sleep($increment);
-        $counter += $increment;
+    // if($this->dbtype != 'sqlite') {
+    $counter = 0;
+    $increment = 10;
+    $max_sleep = 120;
+    // @TODO explore using PDO:ATTR_TIMEOUT to see if that works instead of polling in php.
+    while ($counter < $max_sleep ) {
+      if ($this->establishDBConnection($database)) {
+        $this->io->writeln("<comment>Database is active.</comment>");
+        break;
       }
-      return $this->connection;
-   // }
+      if ($counter >= $max_sleep) {
+        $this->io->writeln("<error>Max retries reached, exiting promgram.</error>");
+        exit(1);
+      }
+      $this->io->writeln("<comment>Sleeping " . $increment . " seconds to allow service to start.</comment>");
+      sleep($increment);
+      $counter += $increment;
+    }
+    return $this->connection;
+    // }
   }
 
   /**
@@ -329,28 +330,30 @@ class Database implements DatabaseInterface, Injectable {
       case 'pgsql':
         $dir = "/var/lib/postgresql/" . $this->version;
         break;
+
       case 'mysql':
       case 'mariadb':
         $dir = "/var/lib/mysql";
         break;
+
       case 'sqlite':
         $dir = "/var/www/html/sites/default/files/db.sqlite";
         break;
+
       default:
         $dir = "/var/lib/" . $this->dbtype;
     }
     return $dir;
   }
 
-
-  protected function establishDBConnection($database = NULL)
-  {
+  protected function establishDBConnection($database = NULL) {
     try {
       $conn_string = $this->getPDODsn($database);
       $this->io->writeln("<comment>Attempting to connect to database server.</comment>");
       // @TODO: This shouldnt happen here, but lets just do it like this for now.
       $conn = new \PDO($conn_string, $this->username, $this->password);
-    } catch (\PDOException $e) {
+    }
+    catch (\PDOException $e) {
       $this->io->writeln("<comment>Could not connect to database server.</comment>");
       return FALSE;
     }
@@ -370,7 +373,8 @@ class Database implements DatabaseInterface, Injectable {
     // @TODO FIX: again, I think I wanna see subclasses vs If's n switches.
     if ($this->dbtype == 'sqlite') {
       $conn_string .= $this->dbfile;
-    } else {
+    }
+    else {
       $conn_string .= 'host=' . $this->getHost();
       if (!empty($database)) {
         $conn_string .= ';dbname=' . $this->dbname;

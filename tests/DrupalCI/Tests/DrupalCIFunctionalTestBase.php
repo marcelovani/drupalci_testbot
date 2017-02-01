@@ -5,7 +5,6 @@ namespace DrupalCI\Tests;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use Pimple\Container;
-use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * Framework for test-controlled runs of drupalci.
@@ -82,8 +81,7 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
 
     if (!empty($this->dciConfig)) {
       foreach ($this->dciConfig as $variable) {
-        list($env_var, $value) = explode('=', $variable);
-        $_ENV[$env_var] = $value;
+        putenv($variable);
       }
     }
     else {
@@ -113,6 +111,38 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $this->assertTrue(file_exists($buildoutcome_json));
     $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
     $this->assertEquals($value, $buildoutcome->$attribute);
+  }
+
+  /**
+   * Assert buildoutcome.json has an attribute containing some text.
+   *
+   * @param \DrupalCI\Build\BuildInterface $build
+   *   The build to look inside.
+   * @param string $attribute
+   *   The attribute to look for.
+   * @param mixed $fragment
+   *   The fragment to find within the attribute.
+   */
+  protected function assertBuildOutputJsonContains(BuildInterface $build, $attribute, $fragment) {
+    $buildoutcome_json = $build->getArtifactDirectory() . '/buildoutcome.json';
+    $this->assertTrue(file_exists($buildoutcome_json));
+    $buildoutcome = json_decode(file_get_contents($buildoutcome_json));
+    $this->assertContains($fragment, $buildoutcome->$attribute);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function tearDown() {
+    parent::tearDown();
+    // Complain if there is no config.
+    if (!empty($this->dciConfig)) {
+      // Ensure anything set by this test doesnt leak into the next.
+      foreach ($this->dciConfig as $variable) {
+        list($env_var, $value) = explode('=', $variable);
+        putenv($env_var);
+      }
+    }
   }
 
 }

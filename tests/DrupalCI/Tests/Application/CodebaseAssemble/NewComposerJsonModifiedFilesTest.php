@@ -42,4 +42,5 @@ class NewComposerJsonModifiedFilesTest extends DrupalCIFunctionalTestBase {
     $this->assertRegExp('/.*composer.json changed by patch: recalculating depenendices.*/', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());
   }
+
 }

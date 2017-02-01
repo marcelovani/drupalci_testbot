@@ -22,11 +22,10 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
+    'DCI_LocalCommitHash=e1c5a1e',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DEBUG=TRUE',
-    'DCI_Composer_ForceCoderInstall=',
   ];
 
   public function testCoderSniffWithNoPhpcs() {
@@ -35,11 +34,14 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniff.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniffNoPhpcs.yml',
     ], $options);
+
     $this->assertRegExp('/Checking for phpcs tool in codebase./', $app_tester->getDisplay());
-    $this->assertRegExp('/phpcs file does not exist/', $app_tester->getDisplay());
-    $this->assertNotRegExp('/Executing phpcs./', $app_tester->getDisplay());
+    $this->assertRegExp('`Attempting to install drupal/coder`', $app_tester->getDisplay());
+    $this->assertRegExp('/No modified files. Sniffing all files./', $app_tester->getDisplay());
+    $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
+
     $this->assertEquals(0, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
@@ -47,4 +49,5 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
+
 }

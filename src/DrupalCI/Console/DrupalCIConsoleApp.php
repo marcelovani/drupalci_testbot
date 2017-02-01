@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Console application for Drupal CI.
- */
-
 namespace DrupalCI\Console;
 
 use DrupalCI\Injectable;

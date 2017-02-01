@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalCI\Tests\DrupalCITestCase.
- */
-
 namespace DrupalCI\Tests;
 
 use DrupalCI\Providers\ConsoleIOServiceProvider;

@@ -1,9 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\DerivativeDiscoveryDecorator.
- */
+
 
 namespace Drupal\Component\Plugin\Discovery;
 
@@ -96,6 +93,10 @@ class DerivativeDiscoveryDecorator implements DiscoveryInterface {
    *
    * This should be called by the class extending this in
    * DiscoveryInterface::getDefinitions().
+   *
+   * @param array $base_plugin_definitions
+   *
+   * @return array
    */
   protected function getDerivatives(array $base_plugin_definitions) {
     $plugin_definitions = array();
@@ -241,8 +242,14 @@ class DerivativeDiscoveryDecorator implements DiscoveryInterface {
 
   /**
    * Passes through all unknown calls onto the decorated object.
+   *
+   * @param $method
+   * @param $args
+   *
+   * @return mixed
    */
   public function __call($method, $args) {
     return call_user_func_array(array($this->decorated, $method), $args);
   }
+
 }

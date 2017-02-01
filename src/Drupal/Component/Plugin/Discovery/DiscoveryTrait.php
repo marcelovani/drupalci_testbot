@@ -1,9 +1,6 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\DiscoveryTrait.
- */
+
 
 namespace Drupal\Component\Plugin\Discovery;
 

@@ -19,7 +19,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD7ManyTestingDepsTest extends DrupalCIFunctionalTestBase {
 
-
   public function testContribD7ManyTestingDepsTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
@@ -36,4 +35,5 @@ class ContribD7ManyTestingDepsTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
+
 }
