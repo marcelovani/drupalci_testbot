@@ -8,9 +8,7 @@ use Docker\API\Model\ExecCommand;
 use Docker\Docker;
 use Docker\Manager\ExecManager;
 use Docker\Stream\DockerRawStream;
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Tests\DrupalCITestCase;
 
 /**

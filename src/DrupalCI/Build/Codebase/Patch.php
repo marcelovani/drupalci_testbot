@@ -1,16 +1,8 @@
 <?php
 
-/**
- * @file
- * Contains \DrupalCI\Build\Codebase\Patch
- */
-
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Injectable;
-use GuzzleHttp\Client;
-use GuzzleHttp\ClientInterface;
 use Pimple\Container;
 
 /**
@@ -90,36 +82,32 @@ class Patch implements PatchInterface, Injectable {
     $this->io = $container['console.io'];
     $this->httpClient = $container['http.client'];
   }
+
   /**
    * @return string
    */
-  public function getFilename()
-  {
+  public function getFilename() {
     return $this->filename;
   }
 
   /**
    * @param string $source
    */
-  protected function setPatchFileName($source)
-  {
+  protected function setPatchFileName($source) {
     $this->filename = $source;
   }
-
 
   /**
    * @return string
    */
-  public function getTargetApplyDir()
-  {
+  public function getTargetApplyDir() {
     return $this->targetApplyDir;
   }
 
   /**
    * @param string $targetApplyDir
    */
-  protected function setTargetApplyDir($targetApplyDir)
-  {
+  protected function setTargetApplyDir($targetApplyDir) {
     $this->targetApplyDir = $targetApplyDir;
   }
 
@@ -137,14 +125,11 @@ class Patch implements PatchInterface, Injectable {
     $this->patch_apply_results = $patch_apply_results;
   }
 
-
-
   /**
    * @param string[] $patch_details
    * @param string $ancillary_workspace The real working directory.
    */
-  public function __construct($patch_details, $ancillary_workspace)
-  {
+  public function __construct($patch_details, $ancillary_workspace) {
     // Copy working directory from the initial codebase
 
     $this->working_dir = $ancillary_workspace;
@@ -161,13 +146,15 @@ class Patch implements PatchInterface, Injectable {
       // an appropriate exception.
       $this->url = $patch_details['from'];
       $absolute_path = $this->download();
-    } else {
+    }
+    else {
       // If its not a url, its a filepath. If the filepath is absolute already,
       // Then its likely a local developer pointing at a locally crafted patch.
-      if (strpos($patch_details['from'],'/') === 0) {
+      if (strpos($patch_details['from'], '/') === 0) {
         $absolute_path = $patch_details['from'];
         $this->filename = basename($patch_details['from']);
-      } else {
+      }
+      else {
         $absolute_path = $ancillary_workspace . '/' . basename($patch_details['from']);
       }
       $this->filename = basename($patch_details['from']);
@@ -176,7 +163,7 @@ class Patch implements PatchInterface, Injectable {
     $this->absolutePath = $absolute_path;
 
     // Set initial 'applied' state
-    $this->applied = false;
+    $this->applied = FALSE;
 
   }
 
@@ -185,8 +172,7 @@ class Patch implements PatchInterface, Injectable {
    *
    * @return string
    */
-  protected function download()
-  {
+  protected function download() {
     $url = $this->url;
     $file_info = pathinfo($url);
     $directory = $this->working_dir;
@@ -201,8 +187,7 @@ class Patch implements PatchInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function validate()
-  {
+  public function validate() {
     if ($this->validate_file() && $this->validate_target()) {
       return TRUE;
     }
@@ -214,8 +199,7 @@ class Patch implements PatchInterface, Injectable {
    *
    * @return bool
    */
-  public function validate_file()
-  {
+  public function validate_file() {
     $source = $this->absolutePath;
     $real_file = realpath($source);
     if ($real_file === FALSE) {
@@ -231,8 +215,7 @@ class Patch implements PatchInterface, Injectable {
    *
    * @return bool
    */
-  public function validate_target()
-  {
+  public function validate_target() {
     $apply_dir = $this->targetApplyDir;
     $real_directory = realpath($apply_dir);
     if ($real_directory === FALSE) {
@@ -248,8 +231,7 @@ class Patch implements PatchInterface, Injectable {
    *
    * @return bool
    */
-  public function apply()
-  {
+  public function apply() {
 
     $absolutePath = $this->absolutePath;
     $target = $this->targetApplyDir;
@@ -277,8 +259,7 @@ class Patch implements PatchInterface, Injectable {
    *
    * @return array|bool
    */
-  public function getModifiedFiles()
-  {
+  public function getModifiedFiles() {
     // Only calculate the modified files if the patch has been applied.
     if (!$this->applied) {
       return [];
@@ -299,9 +280,10 @@ class Patch implements PatchInterface, Injectable {
 
       $this->modified_files = array();
       foreach ($files as $file) {
-        $this->modified_files[] = $this->getTargetApplyDir(). '/' . $file;
+        $this->modified_files[] = $this->getTargetApplyDir() . '/' . $file;
       }
     }
     return $this->modified_files;
   }
+
 }

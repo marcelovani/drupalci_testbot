@@ -50,7 +50,7 @@ class CorePatchFailTest extends DrupalCIFunctionalTestBase {
     $this->assertNotRegExp('/Tests to be run:/', $app_tester->getDisplay());
     // The testbot should return 2 if there was an error.
     $this->assertEquals(2, $app_tester->getStatusCode());
-    */
+     */
     $this->assertEquals(0, $app_tester->getStatusCode());
     $output_file = $build->getXmlDirectory() . "/patchfailure.xml";
     $this->assertFileExists($output_file);

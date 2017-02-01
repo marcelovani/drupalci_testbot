@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Exception\PluginNotFoundException.
- */
-
 namespace Drupal\Component\Plugin\Exception;
 
 /**
@@ -17,6 +12,10 @@ class PluginNotFoundException extends PluginException {
    *
    * @param string $plugin_id
    *   The plugin ID that was not found.
+   *
+   * @param string $message
+   * @param int $code
+   * @param \Exception $previous
    *
    * @see \Exception for remaining parameters.
    */

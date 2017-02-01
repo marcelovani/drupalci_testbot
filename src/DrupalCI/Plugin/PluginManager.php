@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\PluginManager.
- */
 
 namespace DrupalCI\Plugin;
 
@@ -11,7 +7,6 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use DrupalCI\Injectable;
 use DrupalCI\InjectableTrait;
 use Pimple\Container;
-use DrupalCI\Plugin\PluginManagerInterface;
 
 class PluginManager implements PluginManagerInterface, Injectable {
 
@@ -63,16 +58,17 @@ class PluginManager implements PluginManagerInterface, Injectable {
    * {@inheritdoc}
    */
   public function getPlugin($type, $plugin_id, $configuration = []) {
-      if (!$this->hasPlugin($type, $plugin_id)) {
-        throw new PluginNotFoundException("Plugin type $type plugin id $plugin_id not found.");
-      }
-      $plugin_definition = isset($this->pluginDefinitions[$type][$plugin_id]) ?
+    if (!$this->hasPlugin($type, $plugin_id)) {
+      throw new PluginNotFoundException("Plugin type $type plugin id $plugin_id not found.");
+    }
+    $plugin_definition = isset($this->pluginDefinitions[$type][$plugin_id]) ?
         $this->pluginDefinitions[$type][$plugin_id] :
         $this->pluginDefinitions['generic'][$plugin_id];
-      $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
-      if ($plugin instanceof Injectable) {
-        $plugin->inject($this->container);
-      }
+    $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
+    if ($plugin instanceof Injectable) {
+      $plugin->inject($this->container);
+    }
     return $plugin;
   }
+
 }

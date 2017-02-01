@@ -13,7 +13,7 @@ use Pimple\Container;
 /**
  * @PluginID("patch")
  */
-class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
 
@@ -38,9 +38,9 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function configure() {
     // @TODO make into a test
-    // $_ENV['DCI_Patch']='https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.';
-    if (isset($_ENV['DCI_Patch'])) {
-      $this->configuration['patches'] = $this->process($_ENV['DCI_Patch']);
+    // putenv('DCI_Patch=https://www.drupal.org/files/issues/2796581-region-136.patch,.;https://www.drupal.org/files/issues/another.patch,.');
+    if (FALSE !== getenv('DCI_Patch')) {
+      $this->configuration['patches'] = $this->process(getenv('DCI_Patch'));
     }
   }
 
@@ -62,7 +62,8 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
         // This patch should be applied to wherever composer checks out to.
         $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionDirectory('modules');
-      } else {
+      }
+      else {
         $details['to'] = $this->codebase->getSourceDirectory();
       }
       // Create a new patch object based on the adjusted 'to'.
@@ -119,7 +120,6 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     return 0;
   }
-
 
   /**
    * @inheritDoc

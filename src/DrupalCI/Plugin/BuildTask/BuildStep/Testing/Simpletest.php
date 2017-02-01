@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
-
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
@@ -14,7 +13,7 @@ use Pimple\Container;
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable  {
+class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
@@ -47,32 +46,32 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (isset($_ENV['DCI_Concurrency'])) {
-      $this->configuration['concurrency'] = $_ENV['DCI_Concurrency'];
+    if (FALSE !== getenv('DCI_Concurrency')) {
+      $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
-    if (isset($_ENV['DCI_RTTypes'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTTypes'];
+    if (FALSE !== getenv('DCI_RTTypes')) {
+      $this->configuration['types'] = getenv('DCI_RTTypes');
     }
-    if (isset($_ENV['DCI_RTUrl'])) {
-      $this->configuration['types'] = $_ENV['DCI_RTUrl'];
+    if (FALSE !== getenv('DCI_RTUrl')) {
+      $this->configuration['types'] = getenv('DCI_RTUrl');
     }
-    if (isset($_ENV['DCI_RTColor'])) {
-      $this->configuration['color'] = $_ENV['DCI_RTColor'];
+    if (FALSE !== getenv('DCI_RTColor')) {
+      $this->configuration['color'] = getenv('DCI_RTColor');
     }
-    if (isset($_ENV['DCI_TestItem'])) {
-      $this->configuration['testgroups'] = $this->parseTestItems($_ENV['DCI_TestItem']);
+    if (FALSE !== getenv('DCI_TestItem')) {
+      $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
     }
-    if (isset($_ENV['DCI_RTDieOnFail'])) {
-      $this->configuration['die-on-fail'] = $_ENV['DCI_RTDieOnFail'];
+    if (FALSE !== getenv('DCI_RTDieOnFail')) {
+      $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
     }
-    if (isset($_ENV['DCI_RTKeepResults'])) {
-      $this->configuration['keep-results'] = $_ENV['DCI_RTKeepResults'];
+    if (FALSE !== getenv('DCI_RTKeepResults')) {
+      $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
     }
-    if (isset($_ENV['DCI_RTKeepResultsTable'])) {
-      $this->configuration['keep-results-table'] = $_ENV['DCI_RTKeepResultsTable'];
+    if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
+      $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
     }
-    if (isset($_ENV['DCI_RTVerbose'])) {
-      $this->configuration['verbose'] = $_ENV['DCI_RTVerbose'];
+    if (FALSE !== getenv('DCI_RTVerbose')) {
+      $this->configuration['verbose'] = getenv('DCI_RTVerbose');
     }
   }
 
@@ -91,10 +90,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
-
     if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionDirectory('modules');
-    } else {
+    }
+    else {
       $command[] = $this->configuration['testgroups'];
     }
     $command_line = implode(' ', $command);
@@ -102,7 +101,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $result = $this->environment->executeCommands($command_line);
 
     // Look at the output for no valid tests, and set that to an acceptable signal.
-    if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE){
+    if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE) {
       $result->setSignal(0);
     }
     // Last thing. JunitFormat the output.
@@ -172,11 +171,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
   protected function setupSimpletestDB(BuildInterface $build) {
 
-
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel .".sqlite";
-    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel .".sqlite";
+    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel . ".sqlite";
+    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel . ".sqlite";
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
     $this->build->addContainerArtifact($this->configuration['sqlite']);
@@ -190,6 +188,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->build->addContainerArtifact($testgroups_file);
     return $result->getSignal();
   }
+
   /**
    * @param $test_list
    *
@@ -214,7 +213,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     return $test_groups;
   }
 
-
   /**
    * Turn run-test.sh flag values into their command-line equivalents.
    *
@@ -233,7 +231,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results-table',
       'verbose',
     ];
-    foreach($config as $key => $value) {
+    foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
           $command[] = "--$key";
@@ -272,6 +270,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     }
     return implode(' ', $command);
   }
+
   /**
    * {@inheritdoc}
    */
@@ -319,11 +318,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
         //$classes[$test_group][$test_class][$test_method]['classname'] = $classname;
         $length = strlen($this->environment->getExecContainerSourceDir());
-        $result['file'] = substr($result['file'],$length+1); // Trim off source dir
+        $result['file'] = substr($result['file'], $length + 1); // Trim off source dir
         $classes[$test_group][$test_class][$test_method][] = array(
           'status' => $result['status'],
           'type' => $result['message_group'],
-          'message' => strip_tags(htmlspecialchars_decode($result['message'],ENT_QUOTES)),
+          'message' => strip_tags(htmlspecialchars_decode($result['message'], ENT_QUOTES)),
           'line' => $result['line'],
           'file' => $result['file'],
         );
@@ -397,7 +396,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
               $total_exceptions++;
               $test_case_status = 'failed';
               $exception_output .= $assertion_result;
-            } else if ($assertion['status'] == 'fail'){
+            }
+            else if ($assertion['status'] == 'fail') {
               $test_case_failures++;
               $group_failures++;
               $total_failures++;
@@ -448,7 +448,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       /* TODO: Someday simpletest will disable or skip tests based on environment
       $test_group->setAttribute('disabled', $test_group_id);
       $test_group->setAttribute('skipped', $test_group_id);
-      */
+       */
       $test_suites->appendChild($test_suite);
       $test_group_id++;
     }
@@ -458,7 +458,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $test_suites->setAttribute('errors', $total_exceptions);
     $doc->appendChild($test_suites);
     $label = '';
-    if (isset($this->pluginLabel)){
+    if (isset($this->pluginLabel)) {
       $label = $this->pluginLabel . ".";
     }
 
@@ -467,6 +467,5 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</></info>');
     $this->build->addArtifact($xml_output_file);
   }
-
 
 }

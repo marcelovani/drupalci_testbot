@@ -1,23 +1,16 @@
 <?php
 
-/**
- * @file
- * Command class for Run.
- */
-
 namespace DrupalCI\Console\Command\Run;
 
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;
-use DrupalCI\Injectable;
 use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Build\BuildInterface;
-use DrupalCI\Plugin\PluginManager;
 use Pimple\Container;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 
-class RunCommand extends DrupalCICommandBase  {
+class RunCommand extends DrupalCICommandBase {
 
   /**
    * The Build this command is executing.
@@ -91,4 +84,5 @@ class RunCommand extends DrupalCICommandBase  {
     return $statuscode;
 
   }
+
 }

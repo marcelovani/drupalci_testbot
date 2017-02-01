@@ -2,10 +2,8 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStage;
 
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\BuildTask\BuildStage\BuildStageInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
@@ -13,7 +11,7 @@ use Pimple\Container;
  * @PluginID("environment")
  */
 
-class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterface, BuildTaskInterface, Injectable   {
+class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface, BuildTaskInterface, Injectable {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface
@@ -24,30 +22,32 @@ class EnvironmentBuildStage extends BuildTaskBase  implements BuildStageInterfac
     parent::inject($container);
     $this->database = $container['db.system'];
   }
+
   /**
    * @inheritDoc
    */
   public function configure() {
     // TODO: Overriding configuration should not be a manual process.
-    if (isset($_ENV['DCI_DBType'])) {
-      $this->configuration['db_type'] = $_ENV['DCI_DBType'];
+    if (FALSE !== getenv('DCI_DBType')) {
+      $this->configuration['db_type'] = getenv('DCI_DBType');
     }
 
-    if (isset($_ENV['DCI_DBVersion'])) {
+    if (FALSE !== getenv('DCI_DBVersion')) {
       // DCI_DBVersion can sometimes be in the format of DBType-DBVersion.
-      if (strpos($_ENV['DCI_DBVersion'],'-')) {
-        $this->configuration['db_type'] = explode('-', $_ENV['DCI_DBVersion'], 2)[0];
-        $this->configuration['db_version'] = explode('-', $_ENV['DCI_DBVersion'], 2)[1];
-      } else {
-        $this->configuration['db_version'] = $_ENV['DCI_DBVersion'];
+      if (strpos(getenv('DCI_DBVersion'), '-')) {
+        $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
+        $this->configuration['db_version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
+      }
+      else {
+        $this->configuration['db_version'] = getenv('DCI_DBVersion');
       }
     }
 
-    if (isset($_ENV['DCI_DBUser'])) {
-      $this->configuration['dbuser'] = $_ENV['DCI_DBUser'];
+    if (FALSE !== getenv('DCI_DBUser')) {
+      $this->configuration['dbuser'] = getenv('DCI_DBUser');
     }
-    if (isset($_ENV['DCI_DBPassword'])) {
-      $this->configuration['dbpassword'] = $_ENV['DCI_DBPassword'];
+    if (FALSE !== getenv('DCI_DBPassword')) {
+      $this->configuration['dbpassword'] = getenv('DCI_DBPassword');
     }
 
   }

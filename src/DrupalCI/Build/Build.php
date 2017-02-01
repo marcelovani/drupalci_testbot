@@ -1,34 +1,14 @@
 <?php
-/**
- * @file
- * Base Build class for DrupalCI.
- */
 
 namespace DrupalCI\Build;
 
-use DrupalCI\Build\BuildResultsInterface;
-use Docker\API\Model\ContainerConfig;
-use Docker\API\Model\HostConfig;
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Console\Output;
 use DrupalCI\Injectable;
-use DrupalCI\InjectableTrait;
-use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Tests\Output\ConsoleOutputTest;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Process;
-use Docker\Docker;
-use Docker\DockerClient as Client;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Pimple\Container;
-use PDO;
-use Symfony\Component\Console\Event\ConsoleExceptionEvent;
-use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Yaml\Yaml;
 
 class Build implements BuildInterface, Injectable {
@@ -152,7 +132,7 @@ class Build implements BuildInterface, Injectable {
       $buildArtifact = new BuildArtifact($path);
       $buildArtifact->inject($this->container);
       $this->buildArtifacts[] = $buildArtifact;
-  }
+    }
 
   }
 
@@ -174,7 +154,6 @@ class Build implements BuildInterface, Injectable {
   public function getBuildArtifacts() {
     return $this->buildArtifacts;
   }
-
 
   public function getBuildId() {
     return $this->buildId;
@@ -225,9 +204,8 @@ class Build implements BuildInterface, Injectable {
    */
   public function generateBuild($arg) {
 
-
-    if (isset($_ENV['DCI_JobType'])) {
-      $arg = $_ENV['DCI_JobType'];
+    if (FALSE !== getenv('DCI_JobType')) {
+      $arg = getenv('DCI_JobType');
     }
     if ($arg) {
       if (strtolower(substr(trim($arg), -4)) == ".yml") {
@@ -243,7 +221,8 @@ class Build implements BuildInterface, Injectable {
           $this->io->writeln("<info>Build downloaded to <options=bold>$destination_file</></info>");
           $this->buildFile = $destination_file;
           $this->buildType = 'remote';
-        } else {
+        }
+        else {
           // If its not a url, its a filepath.
           $this->buildFile = $arg;
           $this->buildType = 'local';
@@ -273,7 +252,6 @@ class Build implements BuildInterface, Injectable {
 
   }
 
-
   /**
    * Recursive function that iterates over a build configuration and extracts
    * The build workflow, and overridden configuration for each build task.
@@ -291,13 +269,18 @@ class Build implements BuildInterface, Injectable {
    * be iterated over, using spl_object_hash to make keys for the objects
    * RecursiveIteratorIterator would be handy too. But this proves it can work.
    *
+   * @param $config
+   * @param array $transformed_config
+   * @param int $depth
+   *
+   * @return array
    */
   protected function processBuildConfig(&$config, &$transformed_config = [], $depth = 0) {
     // $depth determines which type of plugin we're after.
     // There is no BuildStepConfig, but if we're at depth 3, thats what we
     // fake ourselves into believing, because everything at that level is
     // configuration for the level above.
-    $task_type = ['BuildStage','BuildPhase','BuildStep','BuildStepConfig'];
+    $task_type = ['BuildStage', 'BuildPhase', 'BuildStep', 'BuildStepConfig'];
     foreach ($config as $config_key => $task_configurations) {
       $plugin_key = preg_replace('/\..*/', '', $config_key);
       $keyparts = explode('.', $config_key);
@@ -338,18 +321,20 @@ class Build implements BuildInterface, Injectable {
           // $plugin->setChildTasks($children);
           $transformed_config[$config_key]['#plugin'] = $plugin;
 
-        } else {
-          $transformed_config[$config_key]['#plugin'] = $this->buildTaskPluginManager->getPlugin($task_type[$depth],$plugin_key);
+        }
+        else {
+          $transformed_config[$config_key]['#plugin'] = $this->buildTaskPluginManager->getPlugin($task_type[$depth], $plugin_key);
 
         }
         if (!empty($config[$config_key])) {
           $config[$config_key] = array_merge($config[$config_key], $transformed_config[$config_key]['#plugin']->getComputedConfiguration());
-        } else {
+        }
+        else {
           $config[$config_key] = $transformed_config[$config_key]['#plugin']->getComputedConfiguration();
         }
 
-
-      } else {
+      }
+      else {
         // The key is not a plugin, therefore it is a configuration directive for the plugin above it.
         $transformed_config['#configuration'][$config_key] = $config[$config_key];
       }
@@ -364,7 +349,7 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = $this->processTask($this->computedBuildPlugins);
-      $buildResults = new BuildResults('Build Successful','');
+      $buildResults = new BuildResults('Build Successful', '');
       $this->saveBuildState($buildResults);
       return $statuscode;
     }
@@ -378,13 +363,13 @@ class Build implements BuildInterface, Injectable {
       // objects (better)
       // Preserve all the Build artifacts.
       /* @var $buildArtifact \DrupalCI\Build\Artifact\BuildArtifactInterface */
-      foreach ($this->buildArtifacts as $buildArtifact){
+      foreach ($this->buildArtifacts as $buildArtifact) {
         $buildArtifact->preserve();
       }
       try {
         // If we set DCI_Debug, we keep the databases n stuff.
-        if (FALSE === (getenv('DCI_Debug'))){
-            $this->cleanupBuild();
+        if (FALSE === (getenv('DCI_Debug'))) {
+          $this->cleanupBuild();
         }
       }
       catch (\Exception $e) {
@@ -396,38 +381,38 @@ class Build implements BuildInterface, Injectable {
 
   protected function processTask($taskConfig) {
     /*
-         * Foreach BuildTask, Do
-         * $build->processTask (recursive build processor)
-         *
-         * processTask:
-         * start() the buildtask, which starts the timer and then run() it
-         * Most of the work of a buildtask is going to happen here. For BuildStages
-         * and BuildPhases, there probably wont be too much to do besides set up
-         * some Build objects.
-         * $buildtask->start() [this implies run() ]
-         * Once we've run this tasks start()/run(), Then we'll recurse into the children
-         * foreach ($buildtask->getChildTasks()) {
-         *     $continue = $this->processTask($remainder_of_definition);
-         *     if ($continue = FALSE) {
-         *       stop processing tasks and return FALSE.
-         *     }
-         * }
-         * then we $buildtask->finish to post process child tasks as well as the
-         * current task.
-         *
-         * start->run->complete->finish.
-         * A Task can fail the build. by returning False value from
-         * processTask indicates proceed, or abort.
-         *
-         * When we get artifacts from the task, that takes whatever build artifacts
-         * are defined by the task and relocates them to the build's main artifact
-         * directory.  The build is responsible for re-naming the artifacts - that
-         * way if there are two junit.xml outputs from subsequent runtests, the
-         * build can place them in the right place.
-         *
-         *
-         * $buildtask->
-         */
+     * Foreach BuildTask, Do
+     * $build->processTask (recursive build processor)
+     *
+     * processTask:
+     * start() the buildtask, which starts the timer and then run() it
+     * Most of the work of a buildtask is going to happen here. For BuildStages
+     * and BuildPhases, there probably wont be too much to do besides set up
+     * some Build objects.
+     * $buildtask->start() [this implies run() ]
+     * Once we've run this tasks start()/run(), Then we'll recurse into the children
+     * foreach ($buildtask->getChildTasks()) {
+     *     $continue = $this->processTask($remainder_of_definition);
+     *     if ($continue = FALSE) {
+     *       stop processing tasks and return FALSE.
+     *     }
+     * }
+     * then we $buildtask->finish to post process child tasks as well as the
+     * current task.
+     *
+     * start->run->complete->finish.
+     * A Task can fail the build. by returning False value from
+     * processTask indicates proceed, or abort.
+     *
+     * When we get artifacts from the task, that takes whatever build artifacts
+     * are defined by the task and relocates them to the build's main artifact
+     * directory.  The build is responsible for re-naming the artifacts - that
+     * way if there are two junit.xml outputs from subsequent runtests, the
+     * build can place them in the right place.
+     *
+     *
+     * $buildtask->
+     */
     $total_status = 0;
     foreach ($taskConfig as $task) {
       // Each task is an array, so that we can support running the same task
@@ -521,7 +506,7 @@ class Build implements BuildInterface, Injectable {
   /**
    * @inheritDoc
    */
-  public function getHostComposerCacheDirectory(){
+  public function getHostComposerCacheDirectory() {
     // Host path expectation
     return '/opt/drupalci/composer-cache';
   }
@@ -561,7 +546,7 @@ class Build implements BuildInterface, Injectable {
    */
   protected function setupWorkSpace() {
     // Check if the target working directory has been specified in the env.
-    if (false !== (getenv('DCI_WorkingDir'))) {
+    if (FALSE !== (getenv('DCI_WorkingDir'))) {
       $build_directory = getenv('DCI_WorkingDir');
     }
     // Both the AMI and Vagrant box defines this as /var/lib/drupalci/web
@@ -586,7 +571,6 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
-
 
     // Validate that the working directory is empty.  If the directory contains
     // an existing git repository, for example, our checkout attempts will fail
@@ -615,15 +599,15 @@ class Build implements BuildInterface, Injectable {
     // If we arrive here, we have a valid empty working directory.
     $this->buildDirectory = $build_directory;
 
-    $result =  $this->setupDirectory($this->getArtifactDirectory());
+    $result = $this->setupDirectory($this->getArtifactDirectory());
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->setupDirectory($this->getDBDirectory());
+    $result = $this->setupDirectory($this->getDBDirectory());
     if (!$result) {
       return FALSE;
     }
-    $result =  $this->setupDirectory($this->getXMLDirectory());
+    $result = $this->setupDirectory($this->getXMLDirectory());
     if (!$result) {
       return FALSE;
     }
@@ -652,7 +636,6 @@ class Build implements BuildInterface, Injectable {
     return TRUE;
   }
 
-
   /**
    * This function removes any databases, cleans up any source files, and stops
    * any running containers.
@@ -677,14 +660,14 @@ class Build implements BuildInterface, Injectable {
     $uid = posix_getuid();
     $environment = $this->container['environment'];
     $commands = [
-                 'chown -R '. $uid . ' ' . $environment->getExecContainerSourceDir(),
+                 'chown -R ' . $uid . ' ' . $environment->getExecContainerSourceDir(),
                  'chmod -R 777 ' . $environment->getExecContainerSourceDir(),
                 ];
     $environment->executeCommands($commands);
     $db_container = $environment->getDatabaseContainer();
     $db_dir = $this->container['db.system']->getDataDir();
     $commands = [
-      'chown -R '. $uid . ' ' . $db_dir,
+      'chown -R ' . $uid . ' ' . $db_dir,
       'chmod -R 777 ' . $db_dir,
     ];
     $environment->executeCommands($commands, $db_container['id']);

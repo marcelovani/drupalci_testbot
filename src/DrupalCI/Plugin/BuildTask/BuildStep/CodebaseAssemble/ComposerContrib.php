@@ -2,11 +2,7 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-
-use DrupalCI\Build\BuildInterface;
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
@@ -44,9 +40,9 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     // Currently DCI_AdditionalRepositories, in conjunction with DCI_TestItem,
     // are the mechanisms we use to sort out which contrib module to check out.
     //
-    if (isset($_ENV['DCI_AdditionalRepositories'])) {
+    if (FALSE !== getenv(('DCI_AdditionalRepositories'))) {
       // Parse the provided repository string into it's components
-      $entries = explode(';', $_ENV['DCI_AdditionalRepositories']);
+      $entries = explode(';', getenv(('DCI_AdditionalRepositories')));
       foreach ($entries as $entry) {
         if (empty($entry)) {
           continue;
@@ -54,7 +50,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $components = explode(',', $entry);
         // Ensure we have at least 3 components
         if (count($components) < 4) {
-          $this->terminateBuild("Unable to parse repository info",  "Unable to parse repository info for value $entry");
+          $this->terminateBuild("Unable to parse repository info", "Unable to parse repository info for value $entry");
         }
         // Create the build definition entry
         $output = [
@@ -77,7 +73,6 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
       if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
         $branch = $checkout_repo['branch'];
         $composer_branch = $this->getSemverBranch($branch);
-
 
         $source_dir = $this->codebase->getSourceDirectory();
         $cmd = "./bin/composer config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
@@ -116,7 +111,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     }
   }
 
-/**
+  /**
  * Converts a drupal branch string that is stored in git into a composer
  * based branch string. For d8 contrib
  *
@@ -128,6 +123,5 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     $converted_version = 'dev-' . preg_replace('/^\d+\.x-/', '', $branch);
     return $converted_version;
   }
-
 
 }

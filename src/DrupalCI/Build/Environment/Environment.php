@@ -1,28 +1,15 @@
 <?php
-/**
- * @file
- * Contains \DrupalCI\Plugin\BuildSteps\generic\Command
- *
- * Processes "[build_step]: command:" instructions from within a build definition.
- */
 
 namespace DrupalCI\Build\Environment;
 
-use Build\Environment\CommandResult;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
 use Docker\API\Model\HostConfig;
 use Docker\Manager\ExecManager;
-use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use DrupalCI\Plugin\BuildTaskBase;
-use Http\Client\Common\Exception\ClientErrorException;
 use Pimple\Container;
-use Symfony\Component\Console\Helper\ProgressBar;
-
 
 class Environment implements Injectable, EnvironmentInterface {
 
@@ -104,13 +91,15 @@ class Environment implements Injectable, EnvironmentInterface {
     // Normalize data to the array format, if necessary
     $commands = is_array($commands) ? $commands : [$commands];
     if (!empty($commands)) {
-      if (!empty($container_id)){
+      if (!empty($container_id)) {
         $id = $container_id;
-      } else {
+      }
+      else {
         $container = $this->getExecContainer();
         if (!empty($container)) {
           $id = $container['id'];
-        } else {
+        }
+        else {
           // No existing container to run commands on.
           return 1;
         }
@@ -227,7 +216,7 @@ class Environment implements Injectable, EnvironmentInterface {
       $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
     }
     if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
-      $manager->remove($this->databaseContainer['id'],['force' => TRUE]);
+      $manager->remove($this->databaseContainer['id'], ['force' => TRUE]);
     }
   }
 
@@ -269,24 +258,25 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected function pull($name) {
     $manager = $this->docker->getImageManager();
-    $progressInformation = null;
-    $image_name = explode(':',$name);
-    if (empty($image_name[1])){
+    $progressInformation = NULL;
+    $image_name = explode(':', $name);
+    if (empty($image_name[1])) {
       $image_name[1] = 'latest';
     }
-    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]],  $manager::FETCH_STREAM);
+    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], $manager::FETCH_STREAM);
 
     //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
       $createImageInfoList[] = $createImageInfo;
       if ($createImageInfo->getStatus() === "Downloading") {
         $progress = $createImageInfo->getProgress();
-        preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/",$progress,$status);
+        preg_match("/\]\s+(?P<current>(?:[0-9\.]+)?)\s[kM]*B\/(?P<total>(?:[0-9\.]+)?)\s/", $progress, $status);
         // OPUT
-//        $progressbar = new ProgressBar($this->io, $status['total']);
-//        $progressbar->start();
-//        $progressbar->advance($status['current']);
-      } else {
+        //        $progressbar = new ProgressBar($this->io, $status['total']);
+        //        $progressbar->start();
+        //        $progressbar->advance($status['current']);
+      }
+      else {
         $this->io->writeln("<comment>" . $createImageInfo->getStatus() . "</comment>");
       }
     });
@@ -294,4 +284,5 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $this->io->writeln("");
   }
+
 }

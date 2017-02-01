@@ -104,23 +104,23 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function configure() {
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
-    if (isset($_ENV['DCI_CS_SniffAllFiles'])) {
-      $this->configuration['sniff_all_files'] = $_ENV['DCI_CS_SniffAllFiles'];
+    if (FALSE !== getenv('DCI_CS_SniffAllFiles')) {
+      $this->configuration['sniff_all_files'] = getenv('DCI_CS_SniffAllFiles');
     }
-    if (isset($_ENV['DCI_CS_SniffStartDirectory'])) {
-      $this->configuration['start_directory'] = $_ENV['DCI_CS_SniffStartDirectory'];
+    if (FALSE !== getenv('DCI_CS_SniffStartDirectory')) {
+      $this->configuration['start_directory'] = getenv('DCI_CS_SniffStartDirectory');
     }
-    if (isset($_ENV['DCI_CS_ConfigInstalledPaths'])) {
-      $this->configuration['installed_paths'] = $_ENV['DCI_CS_ConfigInstalledPaths'];
+    if (FALSE !== getenv('DCI_CS_ConfigInstalledPaths')) {
+      $this->configuration['installed_paths'] = getenv('DCI_CS_ConfigInstalledPaths');
     }
-    if (isset($_ENV['DCI_CS_SniffFailsTest'])) {
-      $this->configuration['sniff_fails_test'] = $_ENV['DCI_CS_SniffFailsTest'];
+    if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
+      $this->configuration['sniff_fails_test'] = getenv('DCI_CS_SniffFailsTest');
     }
-    if (isset($_ENV['DCI_CS_WarningFailsSniff'])) {
-      $this->configuration['warning_fails_sniff'] = $_ENV['DCI_CS_WarningFailsSniff'];
+    if (FALSE !== getenv('DCI_CS_WarningFailsSniff')) {
+      $this->configuration['warning_fails_sniff'] = getenv('DCI_CS_WarningFailsSniff');
     }
-    if (isset($_ENV['DCI_CS_CoderVersion'])) {
-      $this->configuration['coder_version'] = $_ENV['DCI_CS_CoderVersion'];
+    if (FALSE !== getenv('DCI_CS_CoderVersion')) {
+      $this->configuration['coder_version'] = getenv('DCI_CS_CoderVersion');
     }
   }
 
@@ -192,9 +192,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // If there's no start_directory, use .
         $cmd[] = $this->environment->getExecContainerSourceDir();
       }
-    } elseif ($files_to_sniff == 'none') {
+    }
+    elseif ($files_to_sniff == 'none') {
       return 0;
-    } else {
+    }
+    else {
       $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
     }
 
@@ -214,6 +216,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function complete($status) {
     $this->adjustCheckstylePaths();
   }
+
   /**
    * A ton of logic about which use-case we're supporting.
    *
@@ -368,7 +371,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // @todo remove this when container and host uids have parity.
       exec('sudo chmod 666 ' . $checkstyle_report_filename);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
-      $checkstyle_xml = preg_replace("!<file name=\"". $this->environment->getExecContainerSourceDir() . "!","<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
+      $checkstyle_xml = preg_replace("!<file name=\"" . $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
     }
   }
@@ -383,13 +386,13 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Install drupal/coder.
     $coder_version = $this->configuration['coder_version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-      $cmd = "composer require --dev drupal/coder " . $coder_version;
-      $result = $this->environment->executeCommands($cmd);
-      if ($result->getSignal() !== 0) {
-        // If it didn't work, then we bail, but we don't halt build execution.
-        $this->io->writeln('Unable to install generic drupal/coder.');
-        return 2;
-      }
+    $cmd = "composer require --dev drupal/coder " . $coder_version;
+    $result = $this->environment->executeCommands($cmd);
+    if ($result->getSignal() !== 0) {
+      // If it didn't work, then we bail, but we don't halt build execution.
+      $this->io->writeln('Unable to install generic drupal/coder.');
+      return 2;
+    }
 
     // No exception should ever bubble up from here.
     try {
@@ -448,6 +451,5 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
     }
   }
-
 
 }

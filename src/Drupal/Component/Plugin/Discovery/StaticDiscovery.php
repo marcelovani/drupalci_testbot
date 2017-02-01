@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Component\Plugin\Discovery\StaticDiscovery.
- */
 
 namespace Drupal\Component\Plugin\Discovery;
 
@@ -27,6 +23,9 @@ class StaticDiscovery implements DiscoveryInterface {
 
   /**
    * Sets a plugin definition.
+   *
+   * @param $plugin
+   * @param $definition
    */
   public function setDefinition($plugin, $definition) {
     $this->definitions[$plugin] = $definition;
@@ -34,8 +33,11 @@ class StaticDiscovery implements DiscoveryInterface {
 
   /**
    * Deletes a plugin definition.
+   *
+   * @param $plugin
    */
   public function deleteDefinition($plugin) {
     unset($this->definitions[$plugin]);
   }
+
 }

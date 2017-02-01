@@ -47,4 +47,5 @@ class ContainerComposerFailTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Composer error. Unable to continue.');
     $this->assertBuildOutputJsonContains($build, 'buildDetails', 'This package requires php >=5.5.9 but your PHP version (5.3.29) does not satisfy that requirement.');
   }
+
 }

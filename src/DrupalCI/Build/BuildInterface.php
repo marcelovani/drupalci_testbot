@@ -1,12 +1,6 @@
 <?php
-/**
- * @file
- * Contains
- */
-namespace DrupalCI\Build;
 
-use DrupalCI\Build\Codebase\Codebase;
-use Symfony\Component\Console\Output\OutputInterface;
+namespace DrupalCI\Build;
 
 interface BuildInterface {
 

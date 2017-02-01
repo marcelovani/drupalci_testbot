@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Base command class for Drupal CI.
- */
-
 namespace DrupalCI\Console\Command\Drupal;
 
 use Symfony\Component\Console\Command\Command;
@@ -43,25 +38,22 @@ class DrupalCICommandBase extends Command {
     $this->io = $this->container['console.io'];
   }
 
-
   protected function showArguments(InputInterface $input, OutputInterface $output) {
     $output->writeln('<info>Arguments:</info>');
     $items = $input->getArguments();
-    foreach($items as $name=>$value) {
+    foreach ($items as $name => $value) {
       $output->writeln(' ' . $name . ': ' . print_r($value, TRUE));
     }
     $output->writeln('<info>Options:</info>');
     $items = $input->getOptions();
-    foreach($items as $name=>$value) {
+    foreach ($items as $name => $value) {
       $output->writeln(' ' . $name . ': ' . print_r($value, TRUE));
     }
   }
 
-
   public function getDocker() {
     return $this->container['docker'];
   }
-
 
   public function getManager() {
     return $this->container['docker.image.manager'];

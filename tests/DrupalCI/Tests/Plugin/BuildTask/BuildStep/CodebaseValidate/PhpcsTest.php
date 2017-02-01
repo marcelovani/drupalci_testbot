@@ -75,13 +75,17 @@ class PhpcsTest extends DrupalCITestCase {
    *
    * @dataProvider provideUseCase
    * @covers ::adjustForUseCase
+   *
+   * @param $e_should_install_generic
+   * @param $phpcs_already_installed
+   * @param $config_present
+   * @param $config_modified
    */
-  public function testAdjustForUseCase (
+  public function testAdjustForUseCase(
     $e_should_install_generic,
     $phpcs_already_installed,
     $config_present,
-    $config_modified )
-  {
+    $config_modified ) {
     $artifact_directory = '/test/';
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
@@ -141,7 +145,6 @@ class PhpcsTest extends DrupalCITestCase {
 
   }
 
-
   /**
    *
    * @return bool[]
@@ -155,29 +158,30 @@ class PhpcsTest extends DrupalCITestCase {
   public function provideSniffScenarios() {
     return [
       'sniff_all_files' =>
-        ['all', TRUE, [],[]],
+        ['all', TRUE, [], []],
       'sniff_all_files_modified' =>
         ['all', TRUE, ['index.php'], ['index.php']],
       'no_modified_files' =>
-        ['all', FALSE, [],[]],
+        ['all', FALSE, [], []],
       'phpcs_config_modified' =>
-        ['all', FALSE, ['core/phpcs.xml'],[]],
+        ['all', FALSE, ['core/phpcs.xml'], []],
       'phpcs_config_modified2' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'],[]],
+        ['all', FALSE, ['core/phpcs.xml.dist'], []],
       'phpcs_config_modified3' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'],['index.php']],
+        ['all', FALSE, ['core/phpcs.xml.dist'], ['index.php']],
       'no_modified_php_files' =>
         ['none', FALSE, ['README.md'], []],
       'modified_php_files' =>
         [['index.php'], FALSE, ['index.php'], ['index.php']],
       'multiple_php_files' =>
-        [['index.php','run-tests.php'], FALSE, ['index.php','run-tests.php'], ['index.php', 'run-tests.php']],
+        [['index.php', 'run-tests.php'], FALSE, ['index.php', 'run-tests.php'], ['index.php', 'run-tests.php']],
       'modified_php_etc_files' =>
         [['index.php'], FALSE, ['index.php', 'README.md'], ['index.php']],
       'php_and_config' =>
-        ['all', FALSE, ['index.php', 'README.md','core/phpcs.xml.dist'], ['index.php']],
+        ['all', FALSE, ['index.php', 'README.md', 'core/phpcs.xml.dist'], ['index.php']],
     ];
   }
+
   /**
    * Test filesniff possibilities of the phpcs plugin.
    *
@@ -185,8 +189,13 @@ class PhpcsTest extends DrupalCITestCase {
    *
    * @dataProvider provideSniffScenarios
    * @covers ::getSniffableFiles
+   *
+   * @param $e_sniffable_outcome
+   * @param $sniff_all_files
+   * @param $modified_files
+   * @param $modified_php_files
    */
-  public function testGetSniffableFiles (
+  public function testGetSniffableFiles(
     $e_sniffable_outcome,
     $sniff_all_files,
     $modified_files,
