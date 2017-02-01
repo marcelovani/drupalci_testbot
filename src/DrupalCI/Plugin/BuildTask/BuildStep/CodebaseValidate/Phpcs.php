@@ -245,7 +245,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->shouldUseDrupalStandard = TRUE;
     }
     else {
-      $this->io->writeln('Using exiting PHPCS config file.');
+      $this->io->writeln('Using existing PHPCS config file.');
       $this->shouldUseDrupalStandard = FALSE;
     }
 
