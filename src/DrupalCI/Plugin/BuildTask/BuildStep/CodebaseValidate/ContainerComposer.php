@@ -57,7 +57,6 @@ class ContainerComposer extends Composer {
     ];
     $commands[] = implode(' ', $command);
     $result = $this->environment->executeCommands($commands);
-    //$result = $this->environment->executeCommands(implode(' ', $command));
 
     if ($result->getSignal() != 0) {
       if ($this->configuration['fail_should_terminate']) {
