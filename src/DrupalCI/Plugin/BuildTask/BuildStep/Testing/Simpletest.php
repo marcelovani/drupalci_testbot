@@ -184,6 +184,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
     $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list > " . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
+    if ($result->getSignal() !== 0) {
+      $this->terminateBuild('Unable to generate test groups',$result->getError());
+    }
     $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
     $this->build->addContainerArtifact($testgroups_file);
     return $result->getSignal();
