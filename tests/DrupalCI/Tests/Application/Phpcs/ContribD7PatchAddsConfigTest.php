@@ -33,7 +33,7 @@ class ContribD7PatchAddsConfigTest extends DrupalCIFunctionalTestBase {
     ], $options);
     // Assert output text and status code.No modified files. Sniffing all files.
     $this->assertRegExp('/Checking for phpcs\.xml\(\.dist\) file/', $app_tester->getDisplay());
-    $this->assertRegExp('/Using exiting PHPCS config file/', $app_tester->getDisplay());
+    $this->assertRegExp('/Using existing PHPCS config file/', $app_tester->getDisplay());
     $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $app_tester->getDisplay());
     $this->assertRegExp('`Attempting to install drupal/coder`', $app_tester->getDisplay());
     $this->assertRegExp('/Config value "installed_paths" added successfully/', $app_tester->getDisplay());

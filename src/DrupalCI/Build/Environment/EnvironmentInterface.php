@@ -42,4 +42,10 @@ interface EnvironmentInterface {
    */
   public function getContainerArtifactDir();
 
+  /**
+   * @return string
+   *   The composer cache directory inside the containers.
+   */
+  public function getContainerComposerCacheDir();
+
 }

@@ -661,6 +661,7 @@ class Build implements BuildInterface, Injectable {
     $environment = $this->container['environment'];
     $commands = [
                  'chown -R ' . $uid . ' ' . $environment->getExecContainerSourceDir(),
+                 'chown -R ' . $uid . ' ' . $environment->getContainerComposerCacheDir(),
                  'chmod -R 777 ' . $environment->getExecContainerSourceDir(),
                 ];
     $environment->executeCommands($commands);

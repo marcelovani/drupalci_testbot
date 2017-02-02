@@ -19,6 +19,7 @@ class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   protected $database;
 
   public function inject(Container $container) {
+    parent::inject($container);
     $this->database = $container['db.system'];
   }
 
