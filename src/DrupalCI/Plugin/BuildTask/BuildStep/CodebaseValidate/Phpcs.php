@@ -94,7 +94,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
-      'coder_version' => '^8.2@stable'
+      'coder_version' => '^8.2@stable',
+      'skip_codesniff' => FALSE,
     ];
   }
 
@@ -122,6 +123,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (FALSE !== getenv('DCI_CS_CoderVersion')) {
       $this->configuration['coder_version'] = getenv('DCI_CS_CoderVersion');
     }
+    if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
+      $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
+    }
   }
 
   /**
@@ -130,6 +134,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function run() {
     $this->io->writeln('<info>PHPCS sniffing the project.</info>');
 
+    // Allow for skipping codesniffer outright, in some tests for example.
+    if ($this->configuration['skip_codesniff']) {
+      return 0;
+    }
     // Set up state as much as possible in a mockable method.
     $this->adjustForUseCase();
 
