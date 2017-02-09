@@ -30,7 +30,8 @@ class CheckoutTest extends DrupalCITestCase {
     $checkout->setValidate($dir);
     $checkout->setExecResult(0);
     $checkout->run();
-    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\'', 'cd \'test/dir\' && git log --oneline -n 1 --decorate'], $checkout->getCommands());
+    $commands = $checkout->getCommands();
+    $this->assertSame(['git clone -b 8.0.x --depth 1 https://git.drupal.org/project/drupal.git \'test/dir\' 2>&1', 'cd \'test/dir\' && git log --oneline -n 1 --decorate'], $checkout->getCommands());
   }
 
   public function testEnvironmentalVariables() {

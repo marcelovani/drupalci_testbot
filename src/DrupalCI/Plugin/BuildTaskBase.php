@@ -185,7 +185,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected function saveContainerArtifact($filepath, $savename) {
     $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 
-    // TODO 2851000 convert all getContainerArtifactDir usages to use this.
     $this->build->addContainerArtifact($filepath, $this->pluginDir . '/' . $savename);
   }
 

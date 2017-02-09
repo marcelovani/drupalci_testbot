@@ -25,6 +25,7 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreModifiedComposerLockPatchTest.yml',
     ], $options);
+    /* @var \DrupalCI\Build\BuildInterface $build */
     $build = $this->getCommand('run')->getBuild();
 
     $codebase = $this->getContainer()['codebase'];
@@ -32,11 +33,7 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
       $codebase->getModifiedFiles()
     );
 
-    // TODO: [0] is very brittle. We need to make build artifacts have labels.
-    // See: https://www.drupal.org/node/2842547
-
-    $build_artifacts = $build->getBuildArtifacts();
-    $installed_json = json_decode(file_get_contents($build_artifacts[0]->getArtifactPath()), TRUE);
+    $installed_json = json_decode(file_get_contents($build->getArtifactDirectory() . '/codebase/composer-installed.json'), TRUE);
     foreach ($installed_json as $package) {
       if ($package['name'] == "symfony/class-loader") {
         $this->assertEquals('v2.8.15', $package['version']);

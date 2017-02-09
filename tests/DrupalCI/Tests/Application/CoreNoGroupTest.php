@@ -51,7 +51,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Unable to generate test groups');
     $this->assertBuildOutputJson($build, 'buildDetails', '
 
-EXECUTING: sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/artifacts/testgroups.txt
+EXECUTING: sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/workdir/simpletest.standard/testgroups.txt
 
 exception \'Drupal\simpletest\Exception\MissingGroupException\' with message \'Missing @group annotation in Drupal\Tests\serialization\Kernel\FieldItemSerializationTest\' in /var/www/html/core/modules/simpletest/src/TestDiscovery.php:351
 Stack trace:

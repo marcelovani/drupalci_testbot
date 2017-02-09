@@ -198,11 +198,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       return 0;
     }
     else {
-      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      $cmd[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
     }
 
     $this->io->writeln('Executing PHPCS.');
     $result = $this->environment->executeCommands(implode(' ', $cmd));
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
 
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
@@ -210,7 +211,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($this->configuration['sniff_fails_test']) {
       return $result->getSignal();
     }
-    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
     return 0;
   }
 
@@ -368,7 +368,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile;
+    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->reportFile;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
@@ -449,7 +449,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
 
         // Make a list of of modified files to this file.
-        $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+        $sniffable_file = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir . '/sniffable_files.txt';
         $this->writeSniffableFiles($modified_php_files, $sniffable_file);
         return ($modified_php_files);
       }
