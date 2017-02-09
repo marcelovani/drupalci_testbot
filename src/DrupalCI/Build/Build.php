@@ -633,6 +633,7 @@ class Build implements BuildInterface, Injectable {
    */
   public function setupDirectory($directory) {
     if (!is_dir($directory)) {
+      umask(0);
       $result = mkdir($directory, 0777, TRUE);
       if (!$result) {
         // Error creating checkout directory
@@ -679,7 +680,7 @@ class Build implements BuildInterface, Injectable {
     $db_container = $environment->getDatabaseContainer();
     $db_dir = $this->container['db.system']->getDataDir();
     $commands = [
-      'chown -R ' . $uid . ' ' . $db_dir,
+      'sudo chown -R ' . $uid . ' ' . $db_dir,
       'chmod -R 777 ' . $db_dir,
     ];
     $environment->executeCommands($commands, $db_container['id']);

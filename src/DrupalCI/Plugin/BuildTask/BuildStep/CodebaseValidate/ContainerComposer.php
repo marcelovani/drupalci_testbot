@@ -50,7 +50,7 @@ class ContainerComposer extends Composer {
     $this->io->writeln('<info>Running Composer within the environment.</info>');
 
     // Build a containerized Composer command.
-    $command = [
+    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
       $this->configuration['executable_path'],
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
