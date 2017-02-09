@@ -498,6 +498,13 @@ class Build implements BuildInterface, Injectable {
   /**
    * @inheritDoc
    */
+  public function getAncillaryWorkDirectory() {
+    return $this->buildDirectory . '/ancillary';
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getHostCoredumpDirectory() {
     // Host path expectation
     return '/var/lib/drupalci/coredumps';
@@ -611,6 +618,10 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result = $this->setupDirectory($this->getAncillaryWorkDirectory());
+    if (!$result) {
+      return FALSE;
+    }
 
     return TRUE;
   }
@@ -683,7 +694,7 @@ class Build implements BuildInterface, Injectable {
     /* @var $codebase \DrupalCI\Build\Codebase\CodebaseInterface*/
     $codebase = $this->container['codebase'];
     $fs->remove($codebase->getSourceDirectory());
-    $fs->remove($codebase->getAncillarySourceDirectory());
+    $fs->remove($this->getAncillaryWorkDirectory());
 
     $fs->remove($this->getDBDirectory());
   }

@@ -25,17 +25,6 @@ interface CodebaseInterface {
    */
   public function getSourceDirectory();
 
-  /**
-   * Temporary workspace directory where we can checkout repositories and
-   * manipulate them prior to adding them to the main source directory.
-   * Primarily used to check out a project, apply patches to composer.json,
-   * and require that project as a local composer repo in order to see the
-   * changed dependencies.
-   *
-   * @return string
-   */
-  public function getAncillarySourceDirectory();
-
   public function setupDirectories();
 
   /**

@@ -44,6 +44,13 @@ interface EnvironmentInterface {
 
   /**
    * @return string
+   *   The ancillary work directory on all containers
+   */
+  public function getContainerWorkDir();
+
+
+  /**
+   * @return string
    *   The composer cache directory inside the containers.
    */
   public function getContainerComposerCacheDir();
