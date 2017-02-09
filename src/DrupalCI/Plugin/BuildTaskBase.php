@@ -156,6 +156,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       // Git threw an error.
       $this->terminateBuild($failure_message, $output);
     }
+    return $output;
 
   }
 
