@@ -148,7 +148,7 @@ class Build implements BuildInterface, Injectable {
   public function addStringArtifact($filename, $string) {
     $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
     file_put_contents($artifactFile, $string);
-    $this->addArtifact($artifactFile);
+    $this->addArtifact($artifactFile, $filename);
   }
 
   public function getBuildArtifacts() {

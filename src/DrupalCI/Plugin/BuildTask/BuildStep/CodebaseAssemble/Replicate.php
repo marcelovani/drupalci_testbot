@@ -69,10 +69,8 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       foreach ($this->configuration['exclude'] as $exclude_dir) {
         $excludes .= '--exclude=' . $exclude_dir . ' ';
       }
-      $this->exec("rsync -a $excludes  $local_dir/. $directory", $cmdoutput, $result);
-      if ($result !== 0) {
-        $this->terminateBuild("The rsync returned an error.", "Error encountered while attempting to copy code to the local checkout directory.");
-      }
+      $cmd = "rsync -a $excludes  $local_dir/. $directory";
+      $this->execRequiredCommand($cmd, 'Rsync failed');
 
       $this->io->writeln("<comment>Copying files complete</comment>");
 
@@ -81,26 +79,19 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         if (!empty($this->configuration['git_branch'])) {
           $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
           $this->io->writeln("Git Command: $cmd");
-          $this->exec($cmd, $cmdoutput, $result);
-          if ($result !== 0) {
-            // Git threw an error.
-            $this->terminateBuild("git checkout returned an error.", "git checkout returned an error. Error Code: $result");
-          }
+          $this->execRequiredCommand($cmd, 'git checkout failure');
+
         }
         if (!empty($this->configuration['git_commit_hash'])) {
           $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
           $this->io->writeln("Git Command: $cmd");
-          $this->exec($cmd, $cmdoutput, $result);
-          if ($result !== 0) {
-            // Git threw an error.
-            $this->terminateBuild("git reset returned an error.", "git reset returned an error. Error Code: $result");
-          }
+          $this->execRequiredCommand($cmd, 'git reset failure');
         }
 
         $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
         $this->exec($cmd, $cmdoutput, $result);
         $this->io->writeln("<comment>Git commit info:</comment>");
-        $this->io->writeln("<comment>\t" . implode($cmdoutput));
+        $this->io->writeln("<comment>\t" . implode("\n",$cmdoutput));
       }
 
       $this->io->writeln("<comment>Checkout complete.</comment>");

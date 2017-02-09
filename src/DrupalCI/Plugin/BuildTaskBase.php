@@ -131,6 +131,14 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   }
 
+  private function teardown() {
+    if (!empty($this->hostCommandOutput)){
+      $output = implode("\n", $this->hostCommandOutput);
+      $this->saveStringArtifact('command_output',$output);
+
+    }
+  }
+
   protected function exec($command, &$output, &$return_var) {
     exec($command, $output, $return_var);
   }
@@ -139,16 +147,16 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $command .= ' 2>&1';
 
     $this->exec($command, $output, $return_var);
-
+    $output = implode("\n",$output);
+    $this->hostCommandOutput[] = $command;
+    $this->hostCommandOutput[] = 'Return code: ' . $return_var;
+    $this->hostCommandOutput[] = $output;
     if ($return_var !== 0) {
-      $output = $command . '\nError Code:' . $return_var . '\n' . $output;
+      $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
       // Git threw an error.
       $this->terminateBuild($failure_message, $output);
-    } else {
-      $this->hostCommandOutput[] = $command;
-      $this->hostCommandOutput[] = 'Return code: ' . $return_var;
-      $this->hostCommandOutput[] = $output;
     }
+    return $output;
 
   }
 
