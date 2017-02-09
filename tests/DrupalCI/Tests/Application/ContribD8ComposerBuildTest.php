@@ -31,6 +31,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_DEBUG=TRUE',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testBasicTest() {

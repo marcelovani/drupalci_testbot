@@ -32,6 +32,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2827218-2-field_denormalize.patch,.',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testCoreNoGroup() {

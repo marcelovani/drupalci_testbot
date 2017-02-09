@@ -30,6 +30,7 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletestlegacy7',
     'DCI_PHPVersion=php-5.3.29-apache:production',
     'DCI_TestItem=directory:sites/all/modules/forena',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testD7Contrib() {
