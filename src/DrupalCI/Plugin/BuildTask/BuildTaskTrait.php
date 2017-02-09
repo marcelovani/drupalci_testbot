@@ -25,6 +25,7 @@ trait BuildTaskTrait {
    */
   public function start() {
     $this->startTime = microtime(TRUE);
+    $this->setup();
     $statuscode = $this->run();
     if (!isset($statuscode)) {
       return 0;

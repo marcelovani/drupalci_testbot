@@ -127,17 +127,17 @@ class Build implements BuildInterface, Injectable {
     return $this->buildFile;
   }
 
-  public function addArtifact($path) {
+  public function addArtifact($path, $artifactpath = '') {
     if (file_exists($path)) {
-      $buildArtifact = new BuildArtifact($path);
+      $buildArtifact = new BuildArtifact($path, $artifactpath);
       $buildArtifact->inject($this->container);
       $this->buildArtifacts[] = $buildArtifact;
     }
 
   }
 
-  public function addContainerArtifact($path) {
-    $containerBuildArtifact = new ContainerBuildArtifact($path);
+  public function addContainerArtifact($path, $artifactpath = '') {
+    $containerBuildArtifact = new ContainerBuildArtifact($path, $artifactpath);
     $containerBuildArtifact->inject($this->container);
     $this->buildArtifacts[] = $containerBuildArtifact;
   }
@@ -145,7 +145,7 @@ class Build implements BuildInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function saveStringArtifact($filename, $string) {
+  public function addStringArtifact($filename, $string) {
     $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
     file_put_contents($artifactFile, $string);
     $this->addArtifact($artifactFile);

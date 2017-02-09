@@ -70,7 +70,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    *
    * @var string
    */
-  protected $reportFilePath = 'phpcs/checkstyle.xml';
+  protected $reportFile = 'checkstyle.xml';
 
   /**
    * {@inheritdoc}
@@ -146,13 +146,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
     }
 
-    // Set up the report file artifact.
-    // @TODO when plugins add artifacts, the build should make a namespaced
-    // directory for them to end up in.
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->reportFilePath));
-    $report_file = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
-    $this->build->addArtifact($report_file);
-
     // Get the sniff start directory.
     $start_dir = $this->getStartDirectory();
 
@@ -171,7 +164,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->reportFilePath,
+      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile,
     ];
 
     // For generic sniffs, use the Drupal standard.
@@ -207,6 +200,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($this->configuration['sniff_fails_test']) {
       return $result->getSignal();
     }
+    $this->saveHostArtifact($this->reportFile, $this->reportFile);
     return 0;
   }
 
@@ -274,7 +268,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $sniffable_file_list[] = $container_source . "/" . $file;
     }
     file_put_contents($file_path, implode("\n", $sniffable_file_list));
-    $this->build->addArtifact($file_path);
+    $this->saveHostArtifact($file_path, 'sniffable_files.txt');
   }
 
   /**
@@ -364,7 +358,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
+    $checkstyle_report_filename = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.

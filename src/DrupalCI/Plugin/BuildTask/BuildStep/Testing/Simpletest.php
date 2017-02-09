@@ -108,19 +108,15 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->generateJunitXml();
 
     //Save some artifacts for the build
-    $this->build->addContainerArtifact("/var/log/apache2/error.log");
-    $this->build->addContainerArtifact("/var/log/apache2/test.apache.error.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.err.log");
-    $this->build->addContainerArtifact("/var/log/supervisor/phantomjs.out.log");
-    $this->build->addContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest');
 
-    $label = '';
-    if (isset($this->pluginLabel)) {
-      $label = $this->pluginLabel . ".";
-    }
+    $this->saveContainerArtifact('/var/log/apache2/error.log','apache-error.log');
+    $this->saveContainerArtifact('/var/log/apache2/test.apache.error.log','test.apache.error.log');
+    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
+    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
+    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
 
-    $this->build->saveStringArtifact($label . 'simpletestoutput.txt', $result->getOutput());
-    $this->build->saveStringArtifact($label . 'simpletesterror.txt', $result->getError());
+    $this->saveStringArtifact('simpletestoutput.txt', $result->getOutput());
+    $this->saveStringArtifact('simpletesterror.txt', $result->getError());
 
     // TODO: Jenkins fails the build if it sees a 1 in a shell script execution.
     // So we return a 0 here instead.
@@ -468,7 +464,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $xml_output_file = $this->build->getXmlDirectory() . "/" . $label . "testresults.xml";
     file_put_contents($xml_output_file, $doc->saveXML());
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</></info>');
-    $this->build->addArtifact($xml_output_file);
+    $this->build->addArtifact($xml_output_file,$xml_output_file);
   }
 
 }

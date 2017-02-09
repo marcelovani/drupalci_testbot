@@ -98,9 +98,9 @@ interface BuildInterface {
 
   public function generateBuildId();
 
-  public function addArtifact($path);
+  public function addArtifact($path, $artifactpath);
 
-  public function addContainerArtifact($path);
+  public function addContainerArtifact($containerpath, $artifactpath);
 
   /**
    * @param $filename
@@ -108,7 +108,7 @@ interface BuildInterface {
    *
    * Takes in a string, and saves it as an artifact in the artifact directory.
    */
-  public function saveStringArtifact($filename, $string);
+  public function addStringArtifact($filename, $string);
 
   public function getBuildArtifacts();
 

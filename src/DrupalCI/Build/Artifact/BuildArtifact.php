@@ -32,9 +32,12 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
    * @param $path
    *   Takes in the path of the artifact. Could be a host path or inside the
    * container, depending on whether its a ContainerTaskArtifact or not.
+   * @param string $artifactpath
+   *   Path within the artifact directory where this artifact should be stored.
    */
-  public function __construct($path) {
+  public function __construct($path, $artifactpath = '') {
     $this->sourcePath = $path;
+    $this->artifactPath = $artifactpath;
   }
 
   /**
@@ -51,7 +54,10 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
     $uid = posix_getuid();
     $gid = posix_getgid();
     $fs = new Filesystem();
-    $this->artifactPath = $this->build->getArtifactDirectory() . "/" . basename($this->sourcePath);
+    if (empty($this->artifactPath)) {
+      $this->artifactPath = basename($this->sourcePath);
+    }
+    $this->artifactPath = $this->build->getArtifactDirectory() . "/" . $this->artifactPath;
     // Only copy files that are not already under the artifacts directory.
     if (strpos($this->sourcePath, $this->build->getArtifactDirectory()) === FALSE) {
       if (is_dir($this->sourcePath)) {
