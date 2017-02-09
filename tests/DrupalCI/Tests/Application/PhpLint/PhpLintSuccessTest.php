@@ -25,7 +25,6 @@ class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2839170-coder-phpcs-sniff-error.patch,.',
     'DCI_Patch=2839170-coder-phpcs-sniff-error.patch,.',
   ];
