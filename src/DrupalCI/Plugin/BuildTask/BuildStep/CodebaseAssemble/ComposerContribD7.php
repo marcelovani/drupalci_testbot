@@ -41,6 +41,13 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
           // Composer threw an error.
           $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
         }
+        $cmd = "composer config prefer-stable true --working-dir " . $source_dir;
+        $this->io->writeln("Setting Preferred Stability");
+        $this->exec($cmd, $cmdoutput, $result);
+        if ($result > 1) {
+          // Composer threw an error.
+          $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
+        }
 
         $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
