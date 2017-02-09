@@ -299,8 +299,8 @@ class Database implements DatabaseInterface, Injectable {
     // @TODO: maybe this can work with sqlite?
     // if($this->dbtype != 'sqlite') {
     $counter = 0;
-    $increment = 100000;
-    $max_sleep = 1200000;
+    $increment = 100001;
+    $max_sleep = 12000000;
     // @TODO explore using PDO:ATTR_TIMEOUT to see if that works instead of polling in php.
     $this->io->writeln("<comment>Attempting to connect to database server.</comment>");
 

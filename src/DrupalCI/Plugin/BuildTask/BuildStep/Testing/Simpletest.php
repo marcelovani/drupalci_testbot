@@ -146,7 +146,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   protected function parseTestItems($testitem) {
     // Special case for 'all'
     if (strtolower($testitem) === 'all') {
-      return "--all";
+      return '--all';
     }
 
     // Split the string components
@@ -156,7 +156,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       return $testitem;
     }
 
-    $testgroups = "--" . $components[0] . " " . $components[1];
+    $testgroups = '--' . $components[0] . ' ' . $components[1];
     // Perhaps this crude hack could go somewhere else.
     // If this is a directory testItem, flag it as an extension test.
     if ($components[0] == 'directory') {
@@ -169,22 +169,23 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
-    $this->configuration['sqlite'] = $this->environment->getContainerArtifactDir() . "/simpletest" . $this->pluginLabel . ".sqlite";
-    $dbfile = $this->build->getArtifactDirectory() . "/simpletest" . $this->pluginLabel . ".sqlite";
+    $sqlite_db_filename = 'simpletest.sqlite';
+    $this->configuration['sqlite'] = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir .  '/' . $sqlite_db_filename;
+    $dbfile = $this->pluginWorkDir . '/' . $sqlite_db_filename;
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
-    $this->build->addContainerArtifact($this->configuration['sqlite']);
+    $this->saveContainerArtifact($this->configuration['sqlite'], $sqlite_db_filename);
   }
 
   protected function generateTestGroups() {
-    $testgroups_file = $this->environment->getContainerArtifactDir() . "/testgroups.txt";
-    $cmd = "sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript . " --list > " . $testgroups_file;
+    $testgroups_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir. '/testgroups.txt';
+    $cmd = 'sudo -u www-data php ' . $this->environment->getExecContainerSourceDir() . $this->runscript . ' --list > ' . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     if ($result->getSignal() !== 0) {
       $this->terminateBuild('Unable to generate test groups',$result->getError());
     }
-    $host_testgroups = $this->build->getArtifactDirectory() . '/testgroups.txt';
-    $this->build->addContainerArtifact($testgroups_file);
+    $host_testgroups = $this->pluginWorkDir . '/testgroups.txt';
+    $this->saveContainerArtifact($testgroups_file,'testgroups.txt');
     return $result->getSignal();
   }
 
@@ -277,7 +278,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     // Load the list of tests from the testgroups.txt build artifact
     // This gets generated in the containers, into the container artifact dir
-    $test_listfile = $this->build->getArtifactDirectory() . '/testgroups.txt';
+    $test_listfile = $this->pluginWorkDir . '/testgroups.txt';
     $test_list = file($test_listfile, FILE_IGNORE_NEW_LINES);
     $test_list = array_slice($test_list, 4);
 
