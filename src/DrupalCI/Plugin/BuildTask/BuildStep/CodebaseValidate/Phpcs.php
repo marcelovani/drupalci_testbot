@@ -197,6 +197,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $result = $this->environment->executeCommands(implode(' ', $cmd));
 
     // Allow for failing the test run if CS was bad.
+    // TODO: if this is supposed to fail the build, we should put in a
+    // $this->terminatebuild.
     if ($this->configuration['sniff_fails_test']) {
       return $result->getSignal();
     }
