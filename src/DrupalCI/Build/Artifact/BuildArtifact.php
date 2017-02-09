@@ -67,8 +67,8 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
         $fs->copy($this->sourcePath, $this->artifactPath);
       }
     }
-    $fs->chown($this->sourcePath, $uid, TRUE);
-    $fs->chgrp($this->sourcePath, $gid, TRUE);
+    $fs->chown($this->artifactPath, $uid, TRUE);
+    $fs->chgrp($this->artifactPath, $gid, TRUE);
   }
 
   /**
