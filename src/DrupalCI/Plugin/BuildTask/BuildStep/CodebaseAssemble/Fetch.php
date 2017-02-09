@@ -67,7 +67,7 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
       $url = $details['from'];
 
-      $directory = $this->codebase->getAncillarySourceDirectory();
+      $directory = $this->build->getAncillaryWorkDirectory();
       $info = pathinfo($url);
       try {
         $destination_file = $directory . "/" . $info['basename'];

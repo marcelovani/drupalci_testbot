@@ -25,7 +25,6 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2809565_actually_fails_linting.patch,.',
     'DCI_Patch=2809565_actually_fails_linting.patch,.',
   ];

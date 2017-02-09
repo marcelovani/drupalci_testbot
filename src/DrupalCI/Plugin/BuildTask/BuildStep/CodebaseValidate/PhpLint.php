@@ -52,17 +52,18 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       $file_list[] = $this->environment->getExecContainerSourceDir() . "/" . $file;
     }
 
-    $lintable_files = $this->build->getArtifactDirectory() . '/lintable_files.txt';
+    $lintable_files = $this->pluginWorkDir . '/lintable_files.txt';
     $this->io->writeln("<info>" . $lintable_files . "</info>");
     file_put_contents($lintable_files, implode("\n", $file_list));
 
+
     // Make sure
     if (0 < filesize($lintable_files)) {
-      $this->build->addArtifact($lintable_files);
+      $this->saveHostArtifact($lintable_files,'lintable_files.txt');
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
       $concurrency = $this->configuration['concurrency'];
-      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerArtifactDir() . "/lintable_files.txt -I {} php -l '{}'";
+      $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . "/lintable_files.txt -I {} php -l '{}'";
       // TODO Throw a BuildException if there are syntax errors.
       $result = $this->environment->executeCommands($cmd);
       if ($result->getSignal() !== 0) {

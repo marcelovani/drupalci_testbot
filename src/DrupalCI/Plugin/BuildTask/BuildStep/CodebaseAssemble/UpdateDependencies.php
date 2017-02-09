@@ -44,7 +44,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     $modified_files = $this->codebase->getModifiedFiles();
     $source_dir = $this->codebase->getSourceDirectory();
     $project_name = $this->codebase->getProjectName();
-    $ancillary_dir = $this->codebase->getAncillarySourceDirectory() . '/' . $project_name;
+    $ancillary_dir = $this->build->getAncillaryWorkDirectory() . '/' . $project_name;
     $contrib_dir = $this->codebase->getTrueExtensionDirectory('modules');
 
     if (in_array($contrib_dir . '/composer.json', $modified_files)) {

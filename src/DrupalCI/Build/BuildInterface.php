@@ -55,6 +55,17 @@ interface BuildInterface {
   public function getArtifactDirectory();
 
   /**
+   * Temporary workspace directory where we can checkout repositories and
+   * manipulate them prior to adding them to the main source directory.
+   * Primarily used to check out a project, apply patches to composer.json,
+   * and require that project as a local composer repo in order to see the
+   * changed dependencies.
+   *
+   * @return string
+   */
+  public function getAncillaryWorkDirectory();
+
+  /**
    * This is the directory where core dumps should end up on the host os
    *
    * @return mixed
@@ -87,9 +98,9 @@ interface BuildInterface {
 
   public function generateBuildId();
 
-  public function addArtifact($path);
+  public function addArtifact($path, $artifactpath);
 
-  public function addContainerArtifact($path);
+  public function addContainerArtifact($containerpath, $artifactpath);
 
   /**
    * @param $filename
@@ -97,7 +108,7 @@ interface BuildInterface {
    *
    * Takes in a string, and saves it as an artifact in the artifact directory.
    */
-  public function saveStringArtifact($filename, $string);
+  public function addStringArtifact($filename, $string);
 
   public function getBuildArtifacts();
 

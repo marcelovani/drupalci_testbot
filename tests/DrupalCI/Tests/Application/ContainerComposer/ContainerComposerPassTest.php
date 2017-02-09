@@ -27,7 +27,6 @@ class ContainerComposerPassTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=sqlite',
-    'DCI_DEBUG=TRUE',
     ];
 
   public function testPlatform() {

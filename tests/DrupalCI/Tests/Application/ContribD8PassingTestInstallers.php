@@ -30,6 +30,7 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_TestItem=directory:modules/block_field',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testD8Contrib() {
