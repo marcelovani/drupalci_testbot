@@ -44,6 +44,7 @@ trait BuildTaskTrait {
    */
   public function finish($childStatus) {
     $this->complete($childStatus);
+    $this->teardown();
     $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
     $datetime = new \DateTime();

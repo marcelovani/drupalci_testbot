@@ -98,7 +98,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         // Those dependencies in as well.
         $packages = $this->codebase->getComposerDevRequirements();
         if (!empty($packages)) {
-          $cmd = "./bin/composer require " . implode($packages, " ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $cmd = "./bin/composer require " . implode(' ',$packages) . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
           $this->io->writeln("Composer Command: $cmd");
           $this->exec($cmd, $cmdoutput, $result);
 

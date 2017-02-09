@@ -129,7 +129,7 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       $packages = $this->codebase->getComposerDevRequirements();
       if (!empty($packages)) {
 
-        $cmd = "./bin/composer require " . implode($packages, " ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+        $cmd = "./bin/composer require " . implode(" ", $packages) . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
         $this->exec($cmd, $cmdoutput, $result);
 
