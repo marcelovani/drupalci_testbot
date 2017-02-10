@@ -66,7 +66,14 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected static $phpcsExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
 
   /**
-   * The path where we expect phpcs to reside.
+   * The path where we expect phpcbf to reside.
+   *
+   * @var string
+   */
+  protected static $phpcbfExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcbf';
+
+  /**
+   * The name of the canonical report file.
    *
    * @var string
    */
@@ -96,6 +103,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'sniff_fails_test' => FALSE,
       'coder_version' => '^8.2@stable',
       'skip_codesniff' => FALSE,
+      // If phpcs fails or would have failed the test, then run phpcbf and make
+      // a patch as an artifact.
+      'generate_phpcbf_patch' => TRUE,
     ];
   }
 
@@ -125,6 +135,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
       $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
+    }
+    if (FALSE !== getenv('DCI_CS_GeneratePhpcbfPatch')) {
+      $this->configuration['generate_phpcbf_patch'] = getenv('DCI_CS_SkipCodesniff');
     }
   }
 
@@ -166,11 +179,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
     // and all other constraints.
-    $phpcs_bin = $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable;
-    $cmd = [
-      'cd ' . $start_dir . ' &&',
-      $phpcs_bin,
-      '-ps',
+    // Gather phpcs arguments separately so we can re-use them for phpcbf.
+    $phpcs_args = [
+//      '-ps',
       '--warning-severity=' . $minimum_error,
       '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile,
     ];
@@ -178,7 +189,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // For generic sniffs, use the Drupal standard.
     if ($this->shouldUseDrupalStandard) {
       // @see https://www.drupal.org/node/1587138
-      $cmd[] = '--standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md';
+      $phpcs_args[] = '--standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md';
     }
 
     // Should we only sniff modified files? --file-list lets us specify.
@@ -187,23 +198,60 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($files_to_sniff == 'all') {
       // We can use start_directory since we're supposed to sniff the codebase.
       if (!empty($this->configuration['start_directory'])) {
-        $cmd[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
+        $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
       }
       else {
         // If there's no start_directory, use .
-        $cmd[] = $this->environment->getExecContainerSourceDir();
+        $phpcs_args[] = $this->environment->getExecContainerSourceDir();
       }
     }
     elseif ($files_to_sniff == 'none') {
       return 0;
     }
     else {
-      $cmd[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
+      $phpcs_args[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
     }
 
     $this->io->writeln('Executing PHPCS.');
-    $result = $this->environment->executeCommands(implode(' ', $cmd));
+
+    $result = $this->environment->executeCommands([
+      'cd ' . $start_dir,
+      $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
+    ]);
+
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
+
+    // Does config say to generate a patch?
+    if ($this->configuration['generate_phpcbf_patch']) {
+      // Did we fail phpcs sniff?
+      if ($result->getSignal() == 1) {
+        $this->io->writeln('Running phpcbf on codebase.');
+        // Thankfully phpcbf can use the same arguments as phpcs, so we re-use
+        // them here. The outlier is --report-checkstyle which phpcbf seems to
+        // ignore.
+        $beautify_result = $this->environment->executeCommands([
+          'cd ' . $start_dir,
+          $this->environment->getExecContainerSourceDir() . static::$phpcbfExecutable . ' ' . implode(' ', $phpcs_args),
+        ]);
+        
+        // Did we succeed? phpcbf seems to return 1 if it made changes.
+        if ($beautify_result->getSignal() == 1) {
+          // Generate a patch.
+          $this->io->writeln('Generating patch for files changed by phpcbf.');
+          $patch_cmd = [
+            // Drupalci changes the composer.json and .lock files so we exclude
+            // them.
+            'git diff -- . ":(exclude)composer.*" >',
+            $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . 'phpcbf.patch',
+          ];
+          $patch_result = $this->environment->executeCommands([implode(' ', $patch_cmd)]);
+          if ($patch_result->getSignal() == 0) {
+            // Make the patch an artifact
+            $this->saveHostArtifact($this->pluginWorkDir . '/phpcbf.patch', 'phpcbf.patch');
+          }
+        }
+      }
+    }
 
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
