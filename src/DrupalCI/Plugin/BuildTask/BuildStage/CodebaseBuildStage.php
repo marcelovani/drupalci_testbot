@@ -54,7 +54,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    * @inheritDoc
    */
   public function complete($childStatus) {
-    $this->build->addArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json');
+    $this->saveHostArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json', 'composer-installed.json');
   }
 
   /**

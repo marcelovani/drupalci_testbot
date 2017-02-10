@@ -103,19 +103,8 @@ class Codebase implements CodebaseInterface, Injectable {
     return $this->build->getBuildDirectory() . '/source';
   }
 
-  /**
-   * @inheritDoc
-   */
-  public function getAncillarySourceDirectory() {
-    return $this->build->getBuildDirectory() . '/ancillary';
-  }
-
   public function setupDirectories() {
     $result = $this->build->setupDirectory($this->getSourceDirectory());
-    if (!$result) {
-      return FALSE;
-    }
-    $result = $this->build->setupDirectory($this->getAncillarySourceDirectory());
     if (!$result) {
       return FALSE;
     }

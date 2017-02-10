@@ -21,7 +21,6 @@ class ContribD8PatchRemovesConfigTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2839170_remove_phpcs_from_examples.patch,.',
     'DCI_Patch=2839170_remove_phpcs_from_examples.patch,modules/examples',
   ];

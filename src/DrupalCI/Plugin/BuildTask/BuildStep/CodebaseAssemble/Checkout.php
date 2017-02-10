@@ -62,27 +62,18 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
       $cmd = "git clone $git_branch $git_depth $repo '$directory'";
       $this->io->writeln("Git Command: $cmd");
-      $this->exec($cmd, $cmdoutput, $result);
-
-      if ($result !== 0) {
-        // Git threw an error.
-        $this->terminateBuild("Checkout Error", "The git checkout returned an error.  Error Code: $result");
-      }
+      $this->execRequiredCommand($cmd, 'Checkout Error');
 
       if (!empty($repository['commit_hash'])) {
         $cmd = "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
         $this->io->writeln("Git Command: $cmd");
-        $this->exec($cmd, $cmdoutput, $result);
-        if ($result !== 0) {
-          // Git threw an error.
-          $this->terminateBuild("git reset returned an error.", "Error Code: $result");
-        }
+        $this->execRequiredCommand($cmd, 'git reset returned an error.');
       }
 
       $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
       $this->exec($cmd, $cmdoutput, $result);
       $this->io->writeln("<comment>Git commit info:</comment>");
-      $this->io->writeln("<comment>\t" . implode($cmdoutput));
+      $this->io->writeln("<comment>\t" . implode("\n", $cmdoutput));
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }

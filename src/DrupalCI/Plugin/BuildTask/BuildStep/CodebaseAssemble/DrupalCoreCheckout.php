@@ -69,9 +69,9 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
           if ($path == 'core') {
             continue;
           }
-          $pathcomponents = explode("/", $path);
+          $pathcomponents = explode('/', $path);
           array_pop($pathcomponents);
-          $extension_paths[$pathcomponents[0]] = implode($pathcomponents, '/');
+          $extension_paths[$pathcomponents[0]] = implode('/',$pathcomponents);
         }
       }
       else {

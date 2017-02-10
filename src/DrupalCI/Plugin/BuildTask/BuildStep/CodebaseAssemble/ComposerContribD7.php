@@ -28,27 +28,19 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
         $source_dir = $this->codebase->getSourceDirectory();
         $cmd = "composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
         $this->io->writeln("Initializing composer repository");
-        $this->exec($cmd, $cmdoutput, $result);
-        if ($result > 1) {
-          // Composer threw an error.
-          $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
-        }
+        $this->execRequiredCommand($cmd, 'Composer init failure');
 
         $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
         $this->io->writeln("Setting Minimum Stability");
-        $this->exec($cmd, $cmdoutput, $result);
-        if ($result > 1) {
-          // Composer threw an error.
-          $this->terminateBuild("Composer init failure.", "Composer init failure.  Error Code: $result");
-        }
+        $this->execRequiredCommand($cmd, 'Composer config failure');
+
+        $cmd = "composer config prefer-stable true --working-dir " . $source_dir;
+        $this->io->writeln("Setting Preferred Stability");
+        $this->execRequiredCommand($cmd, 'Composer config failure');
 
         $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
-        $this->exec($cmd, $cmdoutput, $result);
-        if ($result > 1) {
-          // Composer threw an error.
-          $this->terminateBuild("Composer require failure.", "Composer require failure. Error Code: $result");
-        }
+        $this->execRequiredCommand($cmd, 'Composer require failure');
 
         $composer_json = $source_dir . '/composer.json';
         if (file_exists($composer_json)) {

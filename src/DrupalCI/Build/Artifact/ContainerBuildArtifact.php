@@ -19,18 +19,37 @@ class ContainerBuildArtifact extends BuildArtifact {
    * @inheritDoc
    */
   public function preserve() {
-    $fs = new Filesystem();
     $uid = posix_getuid();
     $gid = posix_getgid();
+
+    $artifactPath = $this->environment->getContainerArtifactDir() . '/' . $this->artifactPath;
+
+
     if (strpos($this->sourcePath, $this->environment->getContainerArtifactDir()) === FALSE) {
+
+      // Check if the sourcepath is a directory
       $commands = [
-        'cp -R ' . $this->sourcePath . ' ' . $this->environment->getContainerArtifactDir(),
-      ];
+        '[ -d "'. $this->sourcePath .'" ]'
+        ];
+      $result = $this->environment->executeCommands($commands);
+      if ($result->getSignal() == 0) {
+        // Source path is a directory.
+        $commands = [
+          'mkdir -p ' . $artifactPath,
+          'cp -R ' . $this->sourcePath . '/* ' . $artifactPath,
+        ];
+      } else {
+        $info = pathinfo($artifactPath);
+        $commands = [
+          'mkdir -p ' . $info['dirname'],
+          'cp -R ' . $this->sourcePath . ' ' . $artifactPath,
+        ];
+      }
       $result = $this->environment->executeCommands($commands);
 
     }
     $commands = [
-      'chown -R ' . $uid . ':' . $gid . ' ' . $this->environment->getContainerArtifactDir() . "/" . basename($this->sourcePath),
+      'chown -R ' . $uid . ':' . $gid . ' ' . $artifactPath,
     ];
     $result = $this->environment->executeCommands($commands);
   }

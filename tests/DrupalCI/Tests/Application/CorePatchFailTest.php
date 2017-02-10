@@ -29,6 +29,7 @@ class CorePatchFailTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_Patch=does_not_apply.patch',
     'DCI_TestItem=ban',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testBadPatch() {

@@ -37,6 +37,9 @@ class ContainerComposer extends Composer {
     return array_merge(
       parent::getDefaultConfiguration(),
       [
+        // The 'options' configuration should be exactly the same as parent
+        // config, but without --ignore-platform-reqs.
+        'options' => 'install --prefer-dist --no-suggest --no-progress',
         'executable_path' => '/usr/local/bin/composer',
         'fail_should_terminate' => TRUE,
       ]
@@ -50,7 +53,7 @@ class ContainerComposer extends Composer {
     $this->io->writeln('<info>Running Composer within the environment.</info>');
 
     // Build a containerized Composer command.
-    $command = [
+    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
       $this->configuration['executable_path'],
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),

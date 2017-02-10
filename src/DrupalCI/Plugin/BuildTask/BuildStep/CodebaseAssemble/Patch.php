@@ -69,7 +69,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // Create a new patch object based on the adjusted 'to'.
       $patch = $this->patchFactory->getPatch(
         $details,
-        $this->codebase->getAncillarySourceDirectory()
+        $this->build->getAncillaryWorkDirectory()
       );
       $this->codebase->addPatch($patch);
 

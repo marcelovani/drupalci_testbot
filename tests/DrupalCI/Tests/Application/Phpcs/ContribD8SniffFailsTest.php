@@ -22,7 +22,6 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     'DCI_CS_SniffFailsTest=TRUE',
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2842832_2-fail-phpcs.patch,.',
     'DCI_Patch=2842832_2-fail-phpcs.patch,modules/examples',
   ];

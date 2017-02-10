@@ -25,6 +25,9 @@ trait BuildTaskTrait {
    */
   public function start() {
     $this->startTime = microtime(TRUE);
+    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->pluginId . "</>   ----------------</info>");
+
+    $this->setup();
     $statuscode = $this->run();
     if (!isset($statuscode)) {
       return 0;
@@ -41,8 +44,12 @@ trait BuildTaskTrait {
    */
   public function finish($childStatus) {
     $this->complete($childStatus);
+    $this->teardown();
     $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
+    $datetime = new \DateTime();
+    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . $elapsed_time . " ---------------- </info>");
+
   }
 
   /**

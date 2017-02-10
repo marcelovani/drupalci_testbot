@@ -127,17 +127,17 @@ class Build implements BuildInterface, Injectable {
     return $this->buildFile;
   }
 
-  public function addArtifact($path) {
+  public function addArtifact($path, $artifactpath = '') {
     if (file_exists($path)) {
-      $buildArtifact = new BuildArtifact($path);
+      $buildArtifact = new BuildArtifact($path, $artifactpath);
       $buildArtifact->inject($this->container);
       $this->buildArtifacts[] = $buildArtifact;
     }
 
   }
 
-  public function addContainerArtifact($path) {
-    $containerBuildArtifact = new ContainerBuildArtifact($path);
+  public function addContainerArtifact($path, $artifactpath = '') {
+    $containerBuildArtifact = new ContainerBuildArtifact($path, $artifactpath);
     $containerBuildArtifact->inject($this->container);
     $this->buildArtifacts[] = $containerBuildArtifact;
   }
@@ -145,10 +145,10 @@ class Build implements BuildInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function saveStringArtifact($filename, $string) {
+  public function addStringArtifact($filename, $string) {
     $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
     file_put_contents($artifactFile, $string);
-    $this->addArtifact($artifactFile);
+    $this->addArtifact($artifactFile, $filename);
   }
 
   public function getBuildArtifacts() {
@@ -498,6 +498,13 @@ class Build implements BuildInterface, Injectable {
   /**
    * @inheritDoc
    */
+  public function getAncillaryWorkDirectory() {
+    return $this->buildDirectory . '/ancillary';
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getHostCoredumpDirectory() {
     // Host path expectation
     return '/var/lib/drupalci/coredumps';
@@ -611,6 +618,10 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result = $this->setupDirectory($this->getAncillaryWorkDirectory());
+    if (!$result) {
+      return FALSE;
+    }
 
     return TRUE;
   }
@@ -622,6 +633,7 @@ class Build implements BuildInterface, Injectable {
    */
   public function setupDirectory($directory) {
     if (!is_dir($directory)) {
+      umask(0);
       $result = mkdir($directory, 0777, TRUE);
       if (!$result) {
         // Error creating checkout directory
@@ -668,7 +680,7 @@ class Build implements BuildInterface, Injectable {
     $db_container = $environment->getDatabaseContainer();
     $db_dir = $this->container['db.system']->getDataDir();
     $commands = [
-      'chown -R ' . $uid . ' ' . $db_dir,
+      'sudo chown -R ' . $uid . ' ' . $db_dir,
       'chmod -R 777 ' . $db_dir,
     ];
     $environment->executeCommands($commands, $db_container['id']);
@@ -683,7 +695,7 @@ class Build implements BuildInterface, Injectable {
     /* @var $codebase \DrupalCI\Build\Codebase\CodebaseInterface*/
     $codebase = $this->container['codebase'];
     $fs->remove($codebase->getSourceDirectory());
-    $fs->remove($codebase->getAncillarySourceDirectory());
+    $fs->remove($this->getAncillaryWorkDirectory());
 
     $fs->remove($this->getDBDirectory());
   }

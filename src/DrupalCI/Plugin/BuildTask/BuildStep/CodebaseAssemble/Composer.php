@@ -29,7 +29,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $source_dir = $this->codebase->getSourceDirectory();
 
     $cmd = "./bin/composer " . $this->configuration['options'] . " --working-dir " . $source_dir;
-    $this->exec($cmd, $cmdoutput, $result);
+    $this->execRequiredCommand($cmd, 'Composer Command Failed');
 
   }
 
@@ -38,7 +38,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    */
   public function getDefaultConfiguration() {
     return [
-      'options' => 'install --prefer-dist --no-suggest --no-progress',
+      'options' => 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress',
     ];
   }
 

@@ -32,6 +32,7 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2684095-2.patch,.',
     'DCI_TestItem=--class "Drupal\comment\Tests\CommentItemTest"',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testSimpletestPhpFatal() {

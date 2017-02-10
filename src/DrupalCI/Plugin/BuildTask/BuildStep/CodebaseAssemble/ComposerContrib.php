@@ -77,35 +77,23 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $source_dir = $this->codebase->getSourceDirectory();
         $cmd = "./bin/composer config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
         $this->io->writeln("Adding packages.drupal.org as composer repository");
-        $this->exec($cmd, $cmdoutput, $result);
+        $this->execRequiredCommand($cmd, 'Composer config failure');
 
-        if ($result > 1) {
-          // Git threw an error.
-          $this->terminateBuild("Composer config failure.", "Composer config failure.  Error Code: $result");
-        }
 
         $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --prefer-source --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
-        $this->exec($cmd, $cmdoutput, $result);
+        $this->execRequiredCommand($cmd, 'Composer require failure');
 
-        if ($result > 1) {
-          // Git threw an error.
-          $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
-        }
         // Composer does not respect require-dev anywhere but the root package
         // Lets probe for require-dev in our newly installed module, and add
         // Those dependencies in as well.
         $packages = $this->codebase->getComposerDevRequirements();
         if (!empty($packages)) {
-          $cmd = "./bin/composer require " . implode($packages, " ") . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $cmd = "./bin/composer require " . implode(' ',$packages) . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
           $this->io->writeln("Composer Command: $cmd");
-          $this->exec($cmd, $cmdoutput, $result);
+          $this->execRequiredCommand($cmd, 'Composer require failure');
 
-          if ($result > 1) {
-            // Git threw an error.
-            $this->terminateBuild("Composer require failure.", "Composer require failure.  Error Code: $result");
-          }
         }
       }
     }

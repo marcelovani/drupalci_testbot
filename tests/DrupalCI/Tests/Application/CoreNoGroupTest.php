@@ -32,6 +32,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletest',
     'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2827218-2-field_denormalize.patch,.',
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testCoreNoGroup() {
@@ -50,7 +51,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'Unable to generate test groups');
     $this->assertBuildOutputJson($build, 'buildDetails', '
 
-EXECUTING: sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/artifacts/testgroups.txt
+EXECUTING: sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/workdir/simpletest.standard/testgroups.txt
 
 exception \'Drupal\simpletest\Exception\MissingGroupException\' with message \'Missing @group annotation in Drupal\Tests\serialization\Kernel\FieldItemSerializationTest\' in /var/www/html/core/modules/simpletest/src/TestDiscovery.php:351
 Stack trace:

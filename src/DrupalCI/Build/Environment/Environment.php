@@ -57,6 +57,12 @@ class Environment implements Injectable, EnvironmentInterface {
 
   /**
    * @var string
+   * Work directory exposed within the container.
+   */
+  protected $containerWorkDir = '/var/lib/drupalci/workdir';
+
+  /**
+   * @var string
    * This *must* match the /proc/sys/kernel/core_pattern of the docker host
    */
   protected $containerCoreDumpDir = '/var/lib/drupalci/coredumps';
@@ -174,9 +180,17 @@ class Environment implements Injectable, EnvironmentInterface {
 
   /**
    * @return string
+   * TODO 2851000 - convert all of these to WorkDir
    */
   public function getContainerArtifactDir() {
     return $this->containerArtifactDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getContainerWorkDir() {
+    return $this->containerWorkDir;
   }
 
   /**
@@ -194,6 +208,7 @@ class Environment implements Injectable, EnvironmentInterface {
     // Map working directory
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
+    $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostComposerCacheDirectory() . ':' . $this->containerComposerCacheDir;
     $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];

@@ -25,7 +25,6 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/2809565_actually_fails_linting.patch,.',
     'DCI_Patch=2809565_actually_fails_linting.patch,.',
   ];
@@ -48,7 +47,7 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     $this->assertBuildOutputJson($build, 'buildLabel', 'PHPLint Failed');
     $this->assertBuildOutputJson($build, 'buildDetails', '
 
-EXECUTING: cd /var/www/html && xargs -P 4 -a /var/lib/drupalci/artifacts/lintable_files.txt -I {} php -l \'{}\'
+EXECUTING: cd /var/www/html && xargs -P 4 -a /var/lib/drupalci/workdir/phplint/lintable_files.txt -I {} php -l \'{}\'
 
 PHP Parse error:  syntax error, unexpected end of file in /var/www/html/core/IWillFailLinting.php on line 3
 xargs: php: exited with status 255; aborting

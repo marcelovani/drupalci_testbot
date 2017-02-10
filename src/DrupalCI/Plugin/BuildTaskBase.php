@@ -75,6 +75,26 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $container;
 
   /**
+   * The working directory under the ancillary directory where temporary
+   * artifacts are created.
+   */
+  protected $pluginWorkDir;
+
+  /**
+   * Convenience variable to get the PluginID.PluginLabel combo that will be
+   * found in the container.
+   */
+  protected $pluginDir;
+
+  /**
+   * Any host commands and their output that are run by the build tasks should
+   * get accumulated here and turned into an artifact.
+   *
+   * @var array
+   */
+  protected $hostCommandOutput;
+
+  /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
    *
    * @param array $configuration_overrides
@@ -99,9 +119,75 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->override_config();
   }
 
+  private function setup(){
+    // Sets up the artifact and ancillary directories for the plugins.
+
+    $this->pluginDir = $this->pluginId;
+    if (!empty($this->pluginLabel)) {
+      $this->pluginDir = $this->pluginDir . '.' . $this->pluginLabel;
+    }
+    $this->pluginWorkDir = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir;
+    $this->build->setupDirectory($this->pluginWorkDir);
+
+  }
+
+  private function teardown() {
+    if (!empty($this->hostCommandOutput)){
+      $output = implode("\n", $this->hostCommandOutput);
+      $this->saveStringArtifact('command_output',$output);
+
+    }
+  }
+
   protected function exec($command, &$output, &$return_var) {
     exec($command, $output, $return_var);
   }
+
+  protected function execRequiredCommand($command, $failure_message) {
+    $command .= ' 2>&1';
+
+    $this->exec($command, $output, $return_var);
+    $output = implode("\n",$output);
+    $this->hostCommandOutput[] = $command;
+    $this->hostCommandOutput[] = 'Return code: ' . $return_var;
+    $this->hostCommandOutput[] = $output;
+    if ($return_var !== 0) {
+      $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
+      // Git threw an error.
+      $this->terminateBuild($failure_message, $output);
+    }
+    return $output;
+
+  }
+
+  // TODO 2851000 Ensure saving host artifacts works
+  protected function saveHostArtifact($filepath, $savename) {
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
+
+    $savename = $this->pluginDir . '/' . $savename;
+    $this->build->addArtifact($filepath, $savename);
+  }
+
+  protected function saveStringArtifact($filename, $contents) {
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
+
+    $filename = $this->pluginDir . '/' . $filename;
+    $this->build->addStringArtifact($filename, $contents);
+  }
+
+  /**
+   * @param $filepath
+   *   The full filepath of the artifact within the container environment.
+   * @param $savename
+   *   The name of the file or directory that we wish the preserved artifact to
+   *  have.
+   */
+  protected function saveContainerArtifact($filepath, $savename) {
+    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
+
+    $this->build->addContainerArtifact($filepath, $this->pluginDir . '/' . $savename);
+  }
+
 
   public function inject(Container $container) {
     $this->build = $container['build'];

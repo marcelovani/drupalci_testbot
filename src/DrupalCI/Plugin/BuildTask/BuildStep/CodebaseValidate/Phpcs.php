@@ -70,7 +70,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    *
    * @var string
    */
-  protected $reportFilePath = 'phpcs/checkstyle.xml';
+  protected $reportFile = 'checkstyle.xml';
 
   /**
    * {@inheritdoc}
@@ -94,7 +94,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
       'sniff_fails_test' => FALSE,
-      'coder_version' => '^8.2@stable'
+      'coder_version' => '^8.2@stable',
+      'skip_codesniff' => FALSE,
     ];
   }
 
@@ -122,6 +123,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (FALSE !== getenv('DCI_CS_CoderVersion')) {
       $this->configuration['coder_version'] = getenv('DCI_CS_CoderVersion');
     }
+    if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
+      $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
+    }
   }
 
   /**
@@ -130,6 +134,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function run() {
     $this->io->writeln('<info>PHPCS sniffing the project.</info>');
 
+    // Allow for skipping codesniffer outright, in some tests for example.
+    if ($this->configuration['skip_codesniff']) {
+      return 0;
+    }
     // Set up state as much as possible in a mockable method.
     $this->adjustForUseCase();
 
@@ -145,13 +153,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         return 0;
       }
     }
-
-    // Set up the report file artifact.
-    // @TODO when plugins add artifacts, the build should make a namespaced
-    // directory for them to end up in.
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . dirname($this->reportFilePath));
-    $report_file = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
-    $this->build->addArtifact($report_file);
 
     // Get the sniff start directory.
     $start_dir = $this->getStartDirectory();
@@ -171,7 +172,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin,
       '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerArtifactDir() . '/' . $this->reportFilePath,
+      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile,
     ];
 
     // For generic sniffs, use the Drupal standard.
@@ -197,13 +198,16 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       return 0;
     }
     else {
-      $cmd[] = '--file-list=' . $this->environment->getContainerArtifactDir() . '/sniffable_files.txt';
+      $cmd[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
     }
 
     $this->io->writeln('Executing PHPCS.');
     $result = $this->environment->executeCommands(implode(' ', $cmd));
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
 
     // Allow for failing the test run if CS was bad.
+    // TODO: if this is supposed to fail the build, we should put in a
+    // $this->terminatebuild.
     if ($this->configuration['sniff_fails_test']) {
       return $result->getSignal();
     }
@@ -274,7 +278,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $sniffable_file_list[] = $container_source . "/" . $file;
     }
     file_put_contents($file_path, implode("\n", $sniffable_file_list));
-    $this->build->addArtifact($file_path);
+    $this->saveHostArtifact($file_path, 'sniffable_files.txt');
   }
 
   /**
@@ -364,7 +368,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->build->getArtifactDirectory() . '/' . $this->reportFilePath;
+    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->reportFile;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
@@ -386,7 +390,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Install drupal/coder.
     $coder_version = $this->configuration['coder_version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-    $cmd = "composer require --dev drupal/coder " . $coder_version;
+    $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE composer require --dev drupal/coder " . $coder_version;
     $result = $this->environment->executeCommands($cmd);
     if ($result->getSignal() !== 0) {
       // If it didn't work, then we bail, but we don't halt build execution.
@@ -445,7 +449,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         $this->io->writeln('<info>Running PHP Code Sniffer review on modified php files.</info>');
 
         // Make a list of of modified files to this file.
-        $sniffable_file = $this->build->getArtifactDirectory() . '/sniffable_files.txt';
+        $sniffable_file = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir . '/sniffable_files.txt';
         $this->writeSniffableFiles($modified_php_files, $sniffable_file);
         return ($modified_php_files);
       }

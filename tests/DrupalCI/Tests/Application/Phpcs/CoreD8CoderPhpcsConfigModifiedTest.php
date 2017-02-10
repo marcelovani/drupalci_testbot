@@ -26,7 +26,6 @@ class CoreD8CoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=4b65a2b',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DEBUG=TRUE',
     'DCI_Fetch=https://www.drupal.org/files/issues/patch_phpcs_xml_dist.patch,.',
     'DCI_Patch=patch_phpcs_xml_dist.patch,.',
     'DCI_CS_SniffOnlyChanged=TRUE',

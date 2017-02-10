@@ -299,20 +299,22 @@ class Database implements DatabaseInterface, Injectable {
     // @TODO: maybe this can work with sqlite?
     // if($this->dbtype != 'sqlite') {
     $counter = 0;
-    $increment = 10;
-    $max_sleep = 120;
+    $increment = 100001;
+    $max_sleep = 12000000;
     // @TODO explore using PDO:ATTR_TIMEOUT to see if that works instead of polling in php.
+    $this->io->writeln("<comment>Attempting to connect to database server.</comment>");
+
     while ($counter < $max_sleep ) {
       if ($this->establishDBConnection($database)) {
         $this->io->writeln("<comment>Database is active.</comment>");
         break;
       }
       if ($counter >= $max_sleep) {
+        $this->io->writeln("<comment>Could not connect to database server.</comment>");
         $this->io->writeln("<error>Max retries reached, exiting promgram.</error>");
         exit(1);
       }
-      $this->io->writeln("<comment>Sleeping " . $increment . " seconds to allow service to start.</comment>");
-      sleep($increment);
+      usleep($increment);
       $counter += $increment;
     }
     return $this->connection;
@@ -349,12 +351,10 @@ class Database implements DatabaseInterface, Injectable {
   protected function establishDBConnection($database = NULL) {
     try {
       $conn_string = $this->getPDODsn($database);
-      $this->io->writeln("<comment>Attempting to connect to database server.</comment>");
       // @TODO: This shouldnt happen here, but lets just do it like this for now.
       $conn = new \PDO($conn_string, $this->username, $this->password);
     }
     catch (\PDOException $e) {
-      $this->io->writeln("<comment>Could not connect to database server.</comment>");
       return FALSE;
     }
     $this->setConnection($conn);
