@@ -108,6 +108,7 @@ class Codebase implements CodebaseInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    chmod($this->getSourceDirectory(), 0755);
     return TRUE;
   }
 
