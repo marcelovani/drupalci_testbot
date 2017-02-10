@@ -91,7 +91,7 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       $this->execRequiredCommand($cmd, 'Ancillary repo config failure');
 
       // 8. composer require drupal/project "<TBRANCH> AS <CBRANCH>"
-      $cmd = "./bin/composer require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --working-dir " . $source_dir;
+      $cmd = "./bin/composer require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --ignore-platform-reqs --working-dir " . $source_dir;
 
       $this->io->writeln("Git Command: $cmd");
       $this->execRequiredCommand($cmd, 'Ancillary require failure');
@@ -100,7 +100,7 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       $packages = $this->codebase->getComposerDevRequirements();
       if (!empty($packages)) {
 
-        $cmd = "./bin/composer require " . implode(" ", $packages) . " --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+        $cmd = "./bin/composer require " . implode(" ", $packages) . " --ignore-platform-reqs --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
         $this->execRequiredCommand($cmd, 'Composer require failure');
 
