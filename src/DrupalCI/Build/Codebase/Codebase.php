@@ -108,6 +108,8 @@ class Codebase implements CodebaseInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    // The source directory needs to not be writable group/other by www-data so
+    // that certain tests pass.
     chmod($this->getSourceDirectory(), 0755);
     return TRUE;
   }
