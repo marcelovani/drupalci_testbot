@@ -30,10 +30,9 @@ build:
     startcontainers:
       runcontainers:
         phpversion: 'php-7.0-apache:production'
+      start_phantomjs:
     create_db:
       dbcreate: {  }
-    filesystem:
-      prepare_filesystem: {  }
     db_type: mysql
     db_version: '5.5'
     dbuser: drupaltestbot
