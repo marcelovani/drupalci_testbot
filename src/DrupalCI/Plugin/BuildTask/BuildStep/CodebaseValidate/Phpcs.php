@@ -73,11 +73,25 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected static $phpcbfExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcbf';
 
   /**
-   * The name of the canonical report file.
+   * The name of the checkstyle report file.
    *
    * @var string
    */
-  protected $reportFile = 'checkstyle.xml';
+  protected $checkstyleReportFile = 'checkstyle.xml';
+
+  /**
+   * The name of the full report file.
+   *
+   * @var string
+   */
+  protected $fullReportFile = 'codesniffer_results.txt';
+
+  /**
+   * The name of the codesniffer patch file.
+   *
+   * @var string
+   */
+  protected $patchFile = 'codesniffer_fixes.patch';
 
   /**
    * {@inheritdoc}
@@ -103,9 +117,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'sniff_fails_test' => FALSE,
       'coder_version' => '^8.2@stable',
       'skip_codesniff' => FALSE,
-      // If phpcs fails or would have failed the test, then run phpcbf and make
-      // a patch as an artifact.
-      'generate_phpcbf_patch' => TRUE,
     ];
   }
 
@@ -135,9 +146,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
       $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
-    }
-    if (FALSE !== getenv('DCI_CS_GeneratePhpcbfPatch')) {
-      $this->configuration['generate_phpcbf_patch'] = getenv('DCI_CS_SkipCodesniff');
     }
   }
 
@@ -181,9 +189,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // and all other constraints.
     // Gather phpcs arguments separately so we can re-use them for phpcbf.
     $phpcs_args = [
-//      '-ps',
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile,
+      '--report-full=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->fullReportFile,
+      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->checkstyleReportFile,
+      '--report-diff=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->patchFile,
     ];
 
     // For generic sniffs, use the Drupal standard.
@@ -219,39 +228,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
 
-    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
-
-    // Does config say to generate a patch?
-    if ($this->configuration['generate_phpcbf_patch']) {
-      // Did we fail phpcs sniff?
-      if ($result->getSignal() == 1) {
-        $this->io->writeln('Running phpcbf on codebase.');
-        // Thankfully phpcbf can use the same arguments as phpcs, so we re-use
-        // them here. The outlier is --report-checkstyle which phpcbf seems to
-        // ignore.
-        $beautify_result = $this->environment->executeCommands([
-          'cd ' . $start_dir,
-          $this->environment->getExecContainerSourceDir() . static::$phpcbfExecutable . ' ' . implode(' ', $phpcs_args),
-        ]);
-        
-        // Did we succeed? phpcbf seems to return 1 if it made changes.
-        if ($beautify_result->getSignal() == 1) {
-          // Generate a patch.
-          $this->io->writeln('Generating patch for files changed by phpcbf.');
-          $patch_cmd = [
-            // Drupalci changes the composer.json and .lock files so we exclude
-            // them.
-            'git diff -- . ":(exclude)composer.*" >',
-            $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . 'phpcbf.patch',
-          ];
-          $patch_result = $this->environment->executeCommands([implode(' ', $patch_cmd)]);
-          if ($patch_result->getSignal() == 0) {
-            // Make the patch an artifact
-            $this->saveHostArtifact($this->pluginWorkDir . '/phpcbf.patch', 'phpcbf.patch');
-          }
-        }
-      }
-    }
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->fullReportFile, $this->fullReportFile);
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->patchFile, $this->patchFile);
 
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
@@ -416,7 +395,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->reportFile;
+    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->checkstyleReportFile;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
