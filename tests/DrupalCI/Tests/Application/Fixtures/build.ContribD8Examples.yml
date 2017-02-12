@@ -33,8 +33,6 @@ build:
         phpversion: 'php-7.0-apache:production'
     create_db:
       dbcreate: {  }
-    filesystem:
-      prepare_filesystem: {  }
     db_type: sqlite
   assessment:
     validate_codebase:
