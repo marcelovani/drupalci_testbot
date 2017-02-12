@@ -224,8 +224,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('Executing PHPCS.');
 
     $result = $this->environment->executeCommands([
-      'cd ' . $start_dir,
-      $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
+      'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
 
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
@@ -437,7 +436,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
           $phpcs_bin,
           '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed_paths'],
         ];
-        $this->environment->executeCommands(implode(' ', $cmd));
+        $result = $this->environment->executeCommands(implode(' ', $cmd));
         // Let the user figure out if it worked.
         $this->environment->executeCommands("$phpcs_bin -i");
       }
