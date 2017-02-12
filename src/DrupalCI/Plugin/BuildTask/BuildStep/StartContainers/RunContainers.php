@@ -16,7 +16,11 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
   /* @var DatabaseInterface */
   protected $database;
 
-  /* @var \DrupalCI\Build\Environment\EnvironmentInterface */
+  /**
+   * The environment.
+   *
+   * @var \DrupalCI\Build\Environment\EnvironmentInterface
+   */
   public $environment;
 
   public function inject(Container $container) {
@@ -53,6 +57,22 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
     $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$db_version</></comment>");
     $this->environment->startServiceContainerDaemons($images['db']);
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function complete($childStatus) {
+    // Print the PHP version.
+    $commands = ['php -v',];
+
+    // Save phpinfo as an artifact.
+    $info_path = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpinfo.txt';
+    $commands[] = "php -i > $info_path";
+
+    $this->environment->executeCommands($commands);
+
+    $this->saveContainerArtifact($info_path, 'phpinfo.txt');
   }
 
   /**
