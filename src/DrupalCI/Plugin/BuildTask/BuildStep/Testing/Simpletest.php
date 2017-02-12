@@ -79,6 +79,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    * @inheritDoc
    */
   public function run() {
+    $this->prepareFilesystem();
 
     $this->setupSimpletestDB($this->build);
     $status = $this->generateTestGroups();
@@ -163,6 +164,29 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       $this->configuration['extension_test'] = TRUE;
     }
     return $testgroups;
+  }
+
+  /**
+   * Prepare the filesystem for a run-tests.sh run.
+   *
+   * Formerly in the prepare_filesystem plugin.
+   */
+  protected function prepareFilesystem() {
+    $sourcedir = $this->environment->getExecContainerSourceDir();
+    $setup_commands = [
+      'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
+      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
+      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
+      'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
+      'chmod 0777 /tmp',
+    ];
+    $result = $this->environment->executeCommands($setup_commands);
+    $return = $result->getSignal();
+    if ($return !== 0) {
+      // Directory setup failed threw an error.
+      $this->terminateBuild("Prepare Simpletest filesystem failed", "Setting up the filesystem failed:  Error Code: $return");
+    }
+    return $return;
   }
 
   protected function setupSimpletestDB(BuildInterface $build) {
