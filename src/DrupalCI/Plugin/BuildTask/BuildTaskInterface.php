@@ -47,7 +47,7 @@ interface BuildTaskInterface {
   public function finish($childStatus);
 
   /**
-   * Called when a Task and all of its children have finished processing.
+   * Allows the plugin to have a chance to do something after run().
    *
    * @param $childStatus
    *   aggregate status code of all child tasks
