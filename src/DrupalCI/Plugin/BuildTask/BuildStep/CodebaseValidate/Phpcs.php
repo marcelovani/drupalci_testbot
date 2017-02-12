@@ -66,11 +66,32 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected static $phpcsExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcs';
 
   /**
-   * The path where we expect phpcs to reside.
+   * The path where we expect phpcbf to reside.
    *
    * @var string
    */
-  protected $reportFile = 'checkstyle.xml';
+  protected static $phpcbfExecutable = '/vendor/squizlabs/php_codesniffer/scripts/phpcbf';
+
+  /**
+   * The name of the checkstyle report file.
+   *
+   * @var string
+   */
+  protected $checkstyleReportFile = 'checkstyle.xml';
+
+  /**
+   * The name of the full report file.
+   *
+   * @var string
+   */
+  protected $fullReportFile = 'codesniffer_results.txt';
+
+  /**
+   * The name of the codesniffer patch file.
+   *
+   * @var string
+   */
+  protected $patchFile = 'codesniffer_fixes.patch';
 
   /**
    * {@inheritdoc}
@@ -166,19 +187,18 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
     // and all other constraints.
-    $phpcs_bin = $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable;
-    $cmd = [
-      'cd ' . $start_dir . ' &&',
-      $phpcs_bin,
-      '-ps',
+    // Gather phpcs arguments separately so we can re-use them for phpcbf.
+    $phpcs_args = [
       '--warning-severity=' . $minimum_error,
-      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->reportFile,
+      '--report-full=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->fullReportFile,
+      '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->checkstyleReportFile,
+      '--report-diff=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->patchFile,
     ];
 
     // For generic sniffs, use the Drupal standard.
     if ($this->shouldUseDrupalStandard) {
       // @see https://www.drupal.org/node/1587138
-      $cmd[] = '--standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md';
+      $phpcs_args[] = '--standard=Drupal --extensions=php,module,inc,install,test,profile,theme,css,info,txt,md';
     }
 
     // Should we only sniff modified files? --file-list lets us specify.
@@ -187,23 +207,30 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($files_to_sniff == 'all') {
       // We can use start_directory since we're supposed to sniff the codebase.
       if (!empty($this->configuration['start_directory'])) {
-        $cmd[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
+        $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
       }
       else {
         // If there's no start_directory, use .
-        $cmd[] = $this->environment->getExecContainerSourceDir();
+        $phpcs_args[] = $this->environment->getExecContainerSourceDir();
       }
     }
     elseif ($files_to_sniff == 'none') {
       return 0;
     }
     else {
-      $cmd[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
+      $phpcs_args[] = '--file-list=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/sniffable_files.txt';
     }
 
     $this->io->writeln('Executing PHPCS.');
-    $result = $this->environment->executeCommands(implode(' ', $cmd));
-    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->reportFile, $this->reportFile);
+
+    $result = $this->environment->executeCommands([
+      'cd ' . $start_dir,
+      $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
+    ]);
+
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->fullReportFile, $this->fullReportFile);
+    $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->patchFile, $this->patchFile);
 
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
@@ -368,7 +395,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * swap out paths.
    */
   protected function adjustCheckstylePaths() {
-    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->reportFile;
+    $checkstyle_report_filename = $this->pluginWorkDir . '/' . $this->checkstyleReportFile;
     $this->io->writeln('Adjusting paths in report file: ' . $checkstyle_report_filename);
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.

@@ -53,6 +53,13 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
 
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
+
+    // Ensure that the PHP version was displayed.
+    $this->assertRegExp('/PHP 7.0./', $app_tester->getDisplay());
+    // Ensure that PHP info was generated.
+    $this->assertRegExp('/php -i >/', $app_tester->getDisplay());
+    $phpinfo_path = $build->getArtifactDirectory() . '/runcontainers/phpinfo.txt';
+    $this->assertFileExists($phpinfo_path);
   }
 
 }
