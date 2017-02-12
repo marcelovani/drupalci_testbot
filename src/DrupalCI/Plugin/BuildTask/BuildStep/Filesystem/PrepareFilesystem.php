@@ -11,8 +11,6 @@ use Pimple\Container;
 /**
  * Start up phantomjs and show the PHP version.
  *
- * This plugin only runs for D8 simpletest.
- *
  * @todo: Rename this plugin, refactor to other places.
  *
  * @PluginID("prepare_filesystem")
