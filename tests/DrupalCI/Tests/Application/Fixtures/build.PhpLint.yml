@@ -17,8 +17,6 @@ build:
   environment:
     startcontainers:
       runcontainers:
-    filesystem:
-      prepare_filesystem:
   assessment:
     validate_codebase:
       phplint:

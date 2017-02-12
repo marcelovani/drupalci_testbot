@@ -12,8 +12,6 @@ build:
       runcontainers:
     create_db:
       dbcreate:
-    filesystem:
-      prepare_filesystem:
   assessment:
     validate_codebase:
       container_composer:

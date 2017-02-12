@@ -11,10 +11,9 @@ build:
   environment:
     startcontainers:
       runcontainers:
+      start_phantomjs:
     create_db:
       dbcreate:
-    filesystem:
-      prepare_filesystem:
   assessment:
     validate_codebase:
       phplint:
