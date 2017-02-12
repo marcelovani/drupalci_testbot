@@ -2,36 +2,29 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Filesystem;
 
-use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
- * This does all the typical setup for a build. We'll probably want to move
- * some of this to other places, but it can go here during this sweep of
- * reorganization.
+ * Start up phantomjs and show the PHP version.
+ *
+ * This plugin only runs for D8 simpletest.
+ *
+ * @todo: Rename this plugin, refactor to other places.
  *
  * @PluginID("prepare_filesystem")
  */
 class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
-
-  use FileHandlerTrait;
-
-  /* @var \DrupalCI\Build\Environment\DatabaseInterface */
-  protected $system_database;
 
   /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
   protected $environment;
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->system_database = $container['db.system'];
     $this->environment = $container['environment'];
-
   }
 
   /**
@@ -40,14 +33,8 @@ class PrepareFilesystem extends BuildTaskBase implements BuildStepInterface, Bui
   public function run() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
-      'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
-      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
-      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
-      'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
-      'chmod 0777 /tmp',
       'supervisorctl start phantomjs',
       'php -v',
-
     ];
     $result = $this->environment->executeCommands($setup_commands);
     //phantomjs still fails on
