@@ -70,9 +70,14 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
     $info_path = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpinfo.txt';
     $commands[] = "php -i > $info_path";
 
-    $this->environment->executeCommands($commands);
+    $result = $this->environment->executeCommands($commands);
+    $return = $result->getSignal();
+    if ($return !== 0) {
+      $this->terminateBuild('Container PHP Error', 'Unable to run PHP commands.');
+    }
 
     $this->saveContainerArtifact($info_path, 'phpinfo.txt');
+    return $return;
   }
 
   /**
