@@ -169,7 +169,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /**
    * Prepare the filesystem for a run-tests.sh run.
    *
-   * Formerly in the prepare_filesystem plugin.
    */
   protected function prepareFilesystem() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
