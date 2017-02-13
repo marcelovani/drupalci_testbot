@@ -153,7 +153,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->hostCommandOutput[] = $output;
     if ($return_var !== 0) {
       $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
-      // Git threw an error.
       $this->terminateBuild($failure_message, $output);
     }
     return $output;
