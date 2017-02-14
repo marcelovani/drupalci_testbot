@@ -112,14 +112,14 @@ class Patch implements PatchInterface, Injectable {
   }
 
   /**
-   * @return string
+   * @return string[]
    */
   public function getPatchApplyResults() {
     return $this->patch_apply_results;
   }
 
   /**
-   * @param string $patch_apply_results
+   * @param string[] $patch_apply_results
    */
   public function setPatchApplyResults($patch_apply_results) {
     $this->patch_apply_results = $patch_apply_results;
