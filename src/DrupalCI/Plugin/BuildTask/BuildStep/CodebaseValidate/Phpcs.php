@@ -100,7 +100,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     parent::inject($container);
     $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
-    $this->buildTaskPluginManager = $container['plugin.manager.factory']->create('BuildTask');
   }
 
   /**
