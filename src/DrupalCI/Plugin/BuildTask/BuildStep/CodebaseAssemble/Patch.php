@@ -2,34 +2,35 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-use DrupalCI\Build\Codebase\PatchFactoryInterface;
+use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use Pimple\Container;
 
 /**
  * @PluginID("patch")
  */
-class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
 
   /**
-   * @var $patchFactory \DrupalCI\Build\Codebase\PatchFactoryInterface
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   */
+  protected $codebase;
+
+  /**
+   * @var \DrupalCI\Build\Codebase\PatchFactoryInterface
    */
   protected $patchFactory;
 
-  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $plugin = new static($container['patch_factory'], $configuration_overrides, $plugin_id, $plugin_definition);
-    $plugin->inject($container);
-    return $plugin;
-  }
-
-  public function __construct(PatchFactoryInterface $patch_factory, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $this->patchFactory = $patch_factory;
-    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+  public function inject(Container $container) {
+    parent::inject($container);
+    $this->codebase = $container['codebase'];
+    $this->patchFactory = $container['patch_factory'];
   }
 
   /**

@@ -2,16 +2,27 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
+use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use Pimple\Container;
 
 /**
  * @PluginID("update_dependencies")
  */
-class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   protected $drupalPackageRepository = 'https://packages.drupal.org/8';
+
+  public function inject(Container $container) {
+    parent::inject($container);
+    $this->codebase = $container['codebase'];
+
+  }
+
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
 
   /**
    * @inheritDoc

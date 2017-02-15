@@ -2,17 +2,27 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
+use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use Pimple\Container;
 
 /**
  * @PluginID("checkout")
  */
-class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
+  public function inject(Container $container) {
+    parent::inject($container);
+    $this->codebase = $container['codebase'];
+
+  }
 
   /**
    * @inheritDoc

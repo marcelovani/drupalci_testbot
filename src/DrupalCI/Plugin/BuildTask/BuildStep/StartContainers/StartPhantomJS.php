@@ -2,9 +2,11 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\StartContainers;
 
+use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskEnvironmentBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use Pimple\Container;
 
 /**
  * Start up phantomjs and show the PHP version.
@@ -13,7 +15,15 @@ use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
  *
  * @PluginID("start_phantomjs")
  */
-class StartPhantomJS extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
+class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+
+  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
+  protected $environment;
+
+  public function inject(Container $container) {
+    parent::inject($container);
+    $this->environment = $container['environment'];
+  }
 
   /**
    * @inheritDoc

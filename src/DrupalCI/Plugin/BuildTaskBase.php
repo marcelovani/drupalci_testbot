@@ -14,7 +14,6 @@ use Pimple\Container;
 abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   use BuildTaskTrait;
-
   /**
    * The plugin_id.
    *
@@ -67,21 +66,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $build;
 
   /**
-   * The codebase service.
-   *
-   * @var \DrupalCI\Build\Codebase\CodebaseInterface
-   */
-  protected $codebase;
-
-  /**
    * The container.
    *
    * We need this to inject into other objects.
    *
    * @var \Pimple\Container
-   *
-   * @todo: Remove this because no object should have the container as a
-   * dependency.
    */
   protected $container;
 
@@ -106,24 +95,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $hostCommandOutput;
 
   /**
-   * {@inheritdoc}
-   *     $this->build = $container['build'];
-    $this->codebase = $container['codebase'];
-    $this->io = $container['console.io'];
-    $this->container = $container;
-
-   */
-  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $build_task = new static(
-      $configuration_overrides,
-      $plugin_id,
-      $plugin_definition
-    );
-    $build_task->inject($container);
-    return $build_task;
-  }
-
-  /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
    *
    * @param array $configuration_overrides
@@ -133,11 +104,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    */
-  public function __construct(
-    array $configuration_overrides = [],
-    $plugin_id = '',
-    $plugin_definition = []
-  ) {
+  public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = []) {
     $this->configuration = $this->getDefaultConfiguration();
     // Set the plugin label as a special case.
     if (isset($configuration_overrides['plugin_label'])) {
@@ -223,7 +190,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   public function inject(Container $container) {
     $this->build = $container['build'];
-    $this->codebase = $container['codebase'];
     $this->io = $container['console.io'];
     $this->container = $container;
   }

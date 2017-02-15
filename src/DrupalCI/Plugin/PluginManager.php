@@ -6,7 +6,6 @@ use Drupal\Component\Annotation\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use DrupalCI\Injectable;
 use DrupalCI\InjectableTrait;
-use DrupalCI\Plugin\InjectablePluginInterface;
 use Pimple\Container;
 
 class PluginManager implements PluginManagerInterface, Injectable {
@@ -65,11 +64,7 @@ class PluginManager implements PluginManagerInterface, Injectable {
     $plugin_definition = isset($this->pluginDefinitions[$type][$plugin_id]) ?
         $this->pluginDefinitions[$type][$plugin_id] :
         $this->pluginDefinitions['generic'][$plugin_id];
-    $plugin_class = $plugin_definition['class'];
-    if (in_array(InjectablePluginInterface::class, class_implements($plugin_class))) {
-      return $plugin_class::create($this->container, $configuration, $plugin_id, $plugin_definition);
-    }
-    $plugin = new $plugin_class($configuration, $plugin_id, $plugin_definition);
+    $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
     if ($plugin instanceof Injectable) {
       $plugin->inject($this->container);
     }

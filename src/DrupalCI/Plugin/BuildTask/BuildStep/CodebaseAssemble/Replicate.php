@@ -2,17 +2,29 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
+use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use Pimple\Container;
 
 /**
  * @PluginID("replicate")
  */
-class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
   use FileHandlerTrait;
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
+  public function inject(Container $container) {
+    parent::inject($container);
+    // TODO: not using the codebase in here, but we might want to in order to
+    // add whatever repositories we checkout to the codebase object
+    $this->codebase = $container['codebase'];
+
+  }
 
   /**
    * @inheritDoc
