@@ -3,17 +3,16 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
-use DrupalCI\Build\Environment\Environment;
-use DrupalCI\Injectable;
+use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskBase;
+use DrupalCI\Plugin\BuildTaskEnvironmentBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class Simpletest extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
@@ -21,24 +20,18 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $results_database;
 
-  /**
-   * The current container environment
-   *
-   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
   protected $runscript = '/core/scripts/run-tests.sh';
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->system_database = $container['db.system'];
-    $this->results_database = $container['db.results'];
-    $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
+  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    $plugin = new static($container['db.system'], $container['db.results'], $configuration_overrides, $plugin_id, $plugin_definition);
+    $plugin->inject($container);
+    return $plugin;
+  }
+
+  public function __construct(DatabaseInterface $db_system, DatabaseInterface $db_results, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+    $this->system_database = $db_system;
+    $this->results_database = $db_results;
   }
 
   /**

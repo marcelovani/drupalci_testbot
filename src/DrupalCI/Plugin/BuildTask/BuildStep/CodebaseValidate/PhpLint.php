@@ -3,26 +3,13 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskBase;
+use DrupalCI\Plugin\BuildTaskEnvironmentBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * @PluginID("phplint")
  */
-class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
-
-  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
-  protected $environment;
-
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
-  }
+class PhpLint extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * @inheritDoc

@@ -5,22 +5,13 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * @PluginID("composer_contrib")
  */
 class ComposerContrib extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
   protected $drupalPackageRepository = 'https://packages.drupal.org/8';
-
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->codebase = $container['codebase'];
-  }
 
   /**
    * @inheritDoc

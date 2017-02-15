@@ -3,9 +3,8 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskBase;
+use DrupalCI\Plugin\BuildTaskEnvironmentBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
 
 /**
  * A plugin to run phpcs and manage coder stuff.
@@ -26,21 +25,7 @@ use Pimple\Container;
  *   have a phpcs.xml file, then we use either core's version, or if none is
  *   specified in core, we use @stable.
  */
-class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
-
-  /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
-   * The codebase.
-   *
-   * @var \DrupalCI\Build\Codebase\CodebaseInterface
-   */
-  protected $codebase;
+class Phpcs extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * Whether we should use --standard=Drupal.
@@ -92,16 +77,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    * @var string
    */
   protected $patchFile = 'codesniffer_fixes.patch';
-
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
-    $this->buildTaskPluginManager = $container['plugin.manager.factory']->create('BuildTask');
-  }
 
   /**
    * @inheritDoc

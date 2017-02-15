@@ -11,9 +11,6 @@ use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
  */
 class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, BuildTaskInterface {
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
   protected $drupalPackageRepository = 'https://packages.drupal.org/7';
 
   /**

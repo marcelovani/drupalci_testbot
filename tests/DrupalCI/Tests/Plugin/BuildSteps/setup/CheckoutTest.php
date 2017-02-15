@@ -25,8 +25,7 @@ class CheckoutTest extends DrupalCITestCase {
         ]
       ],
     ];
-    $checkout = new TestCheckout($data);
-    $checkout->inject($this->getContainer());
+    $checkout = TestCheckout::create($this->getContainer(), $data);
     $checkout->setValidate($dir);
     $checkout->setExecResult(0);
     $checkout->run();
@@ -47,7 +46,7 @@ class CheckoutTest extends DrupalCITestCase {
 
     // Make a checkout plugin object. The constructor calls configure(), which
     // pulls in the env variables.
-    $checkout = new Checkout();
+    $checkout = Checkout::create($this->getContainer());
     // Get access to the configuration.
     $ref_configuration = new \ReflectionProperty($checkout, 'configuration');
     $ref_configuration->setAccessible(TRUE);
