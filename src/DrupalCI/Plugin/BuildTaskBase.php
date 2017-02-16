@@ -13,7 +13,6 @@ use Pimple\Container;
  */
 abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
-  use BuildTaskTrait;
   /**
    * The plugin_id.
    *
@@ -95,6 +94,17 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $hostCommandOutput;
 
   /**
+   * @var float
+   */
+  protected $startTime;
+
+  /**
+   * @var float
+   *   Total time taken for this build task, including child tasks
+   */
+  protected $elapsedTime;
+
+  /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
    *
    * @param array $configuration_overrides
@@ -119,6 +129,38 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->override_config();
   }
 
+  /**
+   * Decorator for run functions to allow all of them to be timed.
+   *
+   */
+  public function start() {
+    $this->startTime = microtime(TRUE);
+    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->pluginId . "</>   ----------------</info>");
+
+    $this->setup();
+    $statuscode = $this->run();
+    if (!isset($statuscode)) {
+      return 0;
+    }
+    else {
+      return $statuscode;
+    }
+  }
+
+  /**
+   * Decorator for complete functions to stop their timer.
+   *
+   * @param $childStatus
+   */
+  public function finish($childStatus) {
+    $this->complete($childStatus);
+    $this->teardown();
+    $elapsed_time = microtime(TRUE) - $this->startTime;
+    $this->elapsedTime = $elapsed_time;
+    $datetime = new \DateTime();
+    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . $elapsed_time . " ---------------- </info>");
+  }
+
   private function setup(){
     // Sets up the artifact and ancillary directories for the plugins.
 
@@ -137,6 +179,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       $this->saveStringArtifact('command_output',$output);
 
     }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getElapsedTime($inclusive = TRUE) {
+    return $this->elapsedTime;
   }
 
   protected function exec($command, &$output, &$return_var) {
@@ -258,5 +307,4 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->io->drupalCIError($errorLabel, $errorDetails);
     throw new BuildTaskException($errorLabel, $errorDetails);
   }
-
 }
