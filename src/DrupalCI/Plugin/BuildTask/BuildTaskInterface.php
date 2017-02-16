@@ -2,12 +2,14 @@
 
 namespace DrupalCI\Plugin\BuildTask;
 
+use DrupalCI\Plugin\InjectablePluginInterface;
+
 /**
  * Interface BuildTaskInterface
  *
  * @package Plugin
  */
-interface BuildTaskInterface {
+interface BuildTaskInterface extends InjectablePluginInterface {
 
   /**
    * Prepares this task to run.

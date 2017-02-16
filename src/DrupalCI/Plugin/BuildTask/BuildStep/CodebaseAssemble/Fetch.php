@@ -2,17 +2,17 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use GuzzleHttp\ClientInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("fetch")
  */
-class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   use FileHandlerTrait;
 
@@ -23,17 +23,15 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected $httpClient;
 
-  /**
-   * The codebase service.
-   *
-   * @var \DrupalCI\Build\Codebase\CodebaseInterface
-   */
-  protected $codebase;
+  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    $plugin = new static($container['http.client'], $configuration_overrides, $plugin_id, $plugin_definition);
+    $plugin->inject($container);
+    return $plugin;
+  }
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->codebase = $container['codebase'];
-    $this->httpClient = $container['http.client'];
+  public function __construct(ClientInterface $http_client, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    $this->httpClient = $http_client;
+    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
   }
 
   /**

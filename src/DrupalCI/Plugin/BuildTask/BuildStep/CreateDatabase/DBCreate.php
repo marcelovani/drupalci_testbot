@@ -2,7 +2,7 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CreateDatabase;
 
-use DrupalCI\Injectable;
+use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -11,16 +11,22 @@ use Pimple\Container;
 /**
  * @PluginID("dbcreate")
  */
-class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface
    */
   protected $database;
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->database = $container['db.system'];
+  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    $plugin = new static($container['db.system'], $configuration_overrides, $plugin_id, $plugin_definition);
+    $plugin->inject($container);
+    return $plugin;
+  }
+
+  public function __construct(DatabaseInterface $db_system, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+    $this->database = $db_system;
   }
 
   /**
