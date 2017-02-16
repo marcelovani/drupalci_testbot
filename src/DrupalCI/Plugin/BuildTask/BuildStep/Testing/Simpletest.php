@@ -3,16 +3,19 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
 use DrupalCI\Build\Environment\DatabaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyle;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskEnvironmentBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
  * @PluginID("simpletest")
  */
-class Simpletest extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
+class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
@@ -23,15 +26,34 @@ class Simpletest extends BuildTaskEnvironmentBase implements BuildStepInterface,
   protected $runscript = '/core/scripts/run-tests.sh';
 
   public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $plugin = new static($container['db.system'], $container['db.results'], $configuration_overrides, $plugin_id, $plugin_definition);
-    $plugin->inject($container);
-    return $plugin;
+    return new static(
+      $container['db.system'],
+      $container['db.results'],
+      $container['build'],
+      $container['codebase'],
+      $container['environment'],
+      $container['console.io'],
+      $container,
+      $configuration_overrides,
+      $plugin_id,
+      $plugin_definition
+    );
   }
 
-  public function __construct(DatabaseInterface $db_system, DatabaseInterface $db_results, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+  public function __construct(
+    DatabaseInterface $db_system,
+    DatabaseInterface $db_results,
+    BuildInterface $build,
+    CodebaseInterface $codebase,
+    EnvironmentInterface $environment,
+    DrupalCIStyle $io,
+    Container $container,
+    array $configuration_overrides = array(),
+    $plugin_id = '', $plugin_definition = array()
+  ) {
     $this->system_database = $db_system;
     $this->results_database = $db_results;
+    parent::__construct($build, $codebase, $environment, $io, $container, $configuration_overrides, $plugin_id, $plugin_definition);
   }
 
   /**

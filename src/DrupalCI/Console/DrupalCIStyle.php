@@ -2,6 +2,7 @@
 
 namespace DrupalCI\Console;
 
+use DrupalCI\Console\DrupalCIStyleInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
@@ -9,7 +10,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * Added here for future expansion.
  */
-class DrupalCIStyle extends SymfonyStyle {
+class DrupalCIStyle extends SymfonyStyle implements DrupalCIStyleInterface {
 
   public function drupalCIError($type, $message) {
     if (!empty($type)) {

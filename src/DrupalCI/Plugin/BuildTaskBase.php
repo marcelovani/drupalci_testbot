@@ -2,7 +2,10 @@
 
 namespace DrupalCI\Plugin;
 
-use DrupalCI\Injectable;
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
@@ -11,7 +14,7 @@ use Pimple\Container;
 /**
  * Base class for plugins.
  */
-abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
+abstract class BuildTaskBase implements BuildTaskInterface {
 
   use BuildTaskTrait;
 
@@ -74,6 +77,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $codebase;
 
   /**
+   * The testing environment.
+   *
+   * @var \DrupalCI\Build\Environment\EnvironmentInterface
+   */
+  protected $environment;
+
+  /**
    * The container.
    *
    * We need this to inject into other objects.
@@ -115,6 +125,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
     $build_task = new static(
+      $container['build'],
+      $container['codebase'],
+      $container['environment'],
+      $container['console.io'],
+      $container,
       $configuration_overrides,
       $plugin_id,
       $plugin_definition
@@ -134,10 +149,21 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *   The plugin implementation definition.
    */
   public function __construct(
+    BuildInterface $build,
+    CodebaseInterface $codebase,
+    EnvironmentInterface $environment,
+    DrupalCIStyleInterface $io,
+    Container $container,
     array $configuration_overrides = [],
     $plugin_id = '',
     $plugin_definition = []
   ) {
+    $this->build = $build;
+    $this->codebase = $codebase;
+    $this->environment = $environment;
+    $this->io = $io;
+    // @todo: Remove this.
+    $this->container = $container;
     $this->configuration = $this->getDefaultConfiguration();
     // Set the plugin label as a special case.
     if (isset($configuration_overrides['plugin_label'])) {
@@ -224,6 +250,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   public function inject(Container $container) {
     $this->build = $container['build'];
     $this->codebase = $container['codebase'];
+    $this->environment = $container['environment'];
     $this->io = $container['console.io'];
     $this->container = $container;
   }

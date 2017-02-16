@@ -2,6 +2,10 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyle;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
 use DrupalCI\Plugin\BuildTaskBase;
@@ -24,14 +28,31 @@ class Fetch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected $httpClient;
 
   public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $plugin = new static($container['http.client'], $configuration_overrides, $plugin_id, $plugin_definition);
-    $plugin->inject($container);
-    return $plugin;
+    return new static(
+      $container['http.client'],
+      $container['build'],
+      $container['codebase'],
+      $container['environment'],
+      $container['console.io'],
+      $container,
+      $configuration_overrides,
+      $plugin_id,
+      $plugin_definition
+    );
   }
 
-  public function __construct(ClientInterface $http_client, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+  public function __construct(
+    ClientInterface $http_client,
+    BuildInterface $build,
+    CodebaseInterface $codebase,
+    EnvironmentInterface $environment,
+    DrupalCIStyle $io,
+    Container $container,
+    array $configuration_overrides = array(),
+    $plugin_id = '', $plugin_definition = array()
+  ) {
     $this->httpClient = $http_client;
-    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+    parent::__construct($build, $codebase, $environment, $io, $container, $configuration_overrides, $plugin_id, $plugin_definition);
   }
 
   /**

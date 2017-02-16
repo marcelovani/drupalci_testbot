@@ -4,27 +4,17 @@ namespace DrupalCI\Tests\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate\Phpcs;
+use Pimple\Container;
 
 /**
  * @group phpcs
  * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate\Phpcs
  */
 class PhpcsTest extends DrupalCITestCase {
-
-  /**
-   * Get a phpcs plugin from the factory.
-   *
-   * @param array $configuration
-   *   Configuration to pass to the phpcs object.
-   *
-   * @return \DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate\Phpcs
-   */
-  protected function getPhpcsPlugin($configuration = []) {
-    $plugin_factory = $this->getContainer()['plugin.manager.factory']->create('BuildTask');
-    return $plugin_factory->getPlugin('BuildStep', 'phpcs', $configuration);
-  }
 
   /**
    *
@@ -116,6 +106,13 @@ class PhpcsTest extends DrupalCITestCase {
         // We just mock writeSniffableFiles() so it does nothing.
         'writeSniffableFiles',
       ])
+      ->setConstructorArgs([
+        $build,
+        $codebase,
+        $this->getMockForAbstractClass(EnvironmentInterface::class),
+        $this->getMockForAbstractClass(DrupalCIStyleInterface::class),
+        $container,
+      ])
       ->getMock();
     $phpcs->expects($this->once())
       ->method('projectHasPhpcsConfig')
@@ -200,7 +197,6 @@ class PhpcsTest extends DrupalCITestCase {
     $sniff_all_files,
     $modified_files,
     $modified_php_files
-
   ) {
     $artifact_directory = '/test/';
 
@@ -233,7 +229,14 @@ class PhpcsTest extends DrupalCITestCase {
         // We just mock writeSniffableFiles() so it does nothing.
         'writeSniffableFiles',
       ])
-      ->setConstructorArgs([['sniff_all_files' => $sniff_all_files]])
+      ->setConstructorArgs([
+        $this->getMockForAbstractClass(BuildInterface::class),
+        $this->getMockForAbstractClass(CodebaseInterface::class),
+        $this->getMockForAbstractClass(EnvironmentInterface::class),
+        $this->getMockForAbstractClass(DrupalCIStyleInterface::class),
+        $container,
+        ['sniff_all_files' => $sniff_all_files],
+      ])
       ->getMock();
 
     // Use our mocked codebase and build.

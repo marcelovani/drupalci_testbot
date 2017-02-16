@@ -2,6 +2,10 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyle;
 use DrupalCI\Build\Codebase\PatchFactoryInterface;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
@@ -22,14 +26,31 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected $patchFactory;
 
   public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
-    $plugin = new static($container['patch_factory'], $configuration_overrides, $plugin_id, $plugin_definition);
-    $plugin->inject($container);
-    return $plugin;
+    return new static(
+      $container['patch_factory'],
+      $container['build'],
+      $container['codebase'],
+      $container['environment'],
+      $container['console.io'],
+      $container,
+      $configuration_overrides,
+      $plugin_id,
+      $plugin_definition
+    );
   }
 
-  public function __construct(PatchFactoryInterface $patch_factory, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+  public function __construct(
+    PatchFactoryInterface $patch_factory,
+    BuildInterface $build,
+    CodebaseInterface $codebase,
+    EnvironmentInterface $environment,
+    DrupalCIStyle $io,
+    Container $container,
+    array $configuration_overrides = array(),
+    $plugin_id = '', $plugin_definition = array()
+  ) {
     $this->patchFactory = $patch_factory;
-    parent::__construct($configuration_overrides, $plugin_id, $plugin_definition);
+    parent::__construct($build, $codebase, $environment, $io, $container, $configuration_overrides, $plugin_id, $plugin_definition);
   }
 
   /**

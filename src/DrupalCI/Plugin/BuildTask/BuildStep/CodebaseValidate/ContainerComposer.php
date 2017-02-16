@@ -3,7 +3,6 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Composer;
-use Pimple\Container;
 
 /**
  * Runs Composer inside the container.
@@ -13,22 +12,6 @@ use Pimple\Container;
  * @PluginID("container_composer")
  */
 class ContainerComposer extends Composer {
-
-  /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
-  }
 
   /**
    * {@inheritdoc}

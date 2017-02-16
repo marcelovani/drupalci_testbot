@@ -12,7 +12,7 @@ use Pimple\Container;
 interface InjectablePluginInterface {
 
   /**
-   * Factory method for creating plugin objects.
+   * Factory method for creating plugin objects with create/construct pattern.
    *
    * @param Container $container
    * @param array $configuration_overrides

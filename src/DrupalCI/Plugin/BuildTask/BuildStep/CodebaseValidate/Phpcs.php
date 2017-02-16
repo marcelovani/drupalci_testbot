@@ -3,7 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskEnvironmentBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 
 /**
@@ -25,7 +25,7 @@ use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
  *   have a phpcs.xml file, then we use either core's version, or if none is
  *   specified in core, we use @stable.
  */
-class Phpcs extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
+class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * Whether we should use --standard=Drupal.

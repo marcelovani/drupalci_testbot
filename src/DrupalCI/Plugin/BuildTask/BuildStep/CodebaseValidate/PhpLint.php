@@ -3,13 +3,13 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskEnvironmentBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 
 /**
  * @PluginID("phplint")
  */
-class PhpLint extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
+class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * @inheritDoc

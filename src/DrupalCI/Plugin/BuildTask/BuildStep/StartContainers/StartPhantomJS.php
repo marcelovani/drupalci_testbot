@@ -3,7 +3,7 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\StartContainers;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskEnvironmentBase;
+use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 
 /**
@@ -13,7 +13,7 @@ use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
  *
  * @PluginID("start_phantomjs")
  */
-class StartPhantomJS extends BuildTaskEnvironmentBase implements BuildStepInterface, BuildTaskInterface {
+class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * @inheritDoc
