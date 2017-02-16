@@ -19,7 +19,6 @@ class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildT
    * @inheritDoc
    */
   public function run() {
-    $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
       'supervisorctl start phantomjs',
     ];
