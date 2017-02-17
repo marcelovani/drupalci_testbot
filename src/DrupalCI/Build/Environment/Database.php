@@ -2,10 +2,10 @@
 
 namespace DrupalCI\Build\Environment;
 
-use DrupalCI\Injectable;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use Pimple\Container;
 
-class Database implements DatabaseInterface, Injectable {
+class Database implements DatabaseInterface {
 
   /**
    * @var \PDO
@@ -42,20 +42,17 @@ class Database implements DatabaseInterface, Injectable {
   /**
    * Style object.
    *
-   * @var \DrupalCI\Console\DrupalCIStyle
+   * @var \DrupalCI\Console\DrupalCIStyleInterface
    */
   protected $io;
-
-  public function inject(Container $container) {
-    $this->io = $container['console.io'];
-  }
 
   /**
    * Database constructor.
    *
    * @param $dbrole
    */
-  public function __construct($dbrole) {
+  public function __construct(DrupalCIStyleInterface $io, $dbrole) {
+    $this->io = $io;
     $this->dbrole = $dbrole;
   }
 

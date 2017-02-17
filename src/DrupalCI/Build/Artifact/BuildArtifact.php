@@ -2,11 +2,11 @@
 
 namespace DrupalCI\Build\Artifact;
 
-use DrupalCI\Injectable;
+use DrupalCI\Build\BuildInterface;
 use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
 
-class BuildArtifact implements BuildArtifactInterface, Injectable {
+class BuildArtifact implements BuildArtifactInterface {
 
   /**
    * @var string
@@ -35,16 +35,10 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
    * @param string $artifactpath
    *   Path within the artifact directory where this artifact should be stored.
    */
-  public function __construct($path, $artifactpath = '') {
+  public function __construct(BuildInterface $build, $path, $artifactpath = '') {
+    $this->build = $build;
     $this->sourcePath = $path;
     $this->artifactPath = $artifactpath;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function inject(Container $container) {
-    $this->build = $container['build'];
   }
 
   /**

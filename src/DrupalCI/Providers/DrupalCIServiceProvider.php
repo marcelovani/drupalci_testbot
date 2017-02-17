@@ -28,8 +28,7 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
     $container->register(new EnvironmentServiceProvider());
     $container->register(new CommandResultServiceProvider());
     $container['console'] = function ($container) {
-      $console = new DrupalCIConsoleApp('DrupalCI - CommandLine', '0.2');
-      $console->inject($container);
+      $console = new DrupalCIConsoleApp($container, 'DrupalCI - CommandLine', '0.2');
       return $console;
     };
     $container['plugin.manager.factory'] = function ($container) {

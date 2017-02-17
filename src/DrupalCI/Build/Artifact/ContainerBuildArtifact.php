@@ -2,7 +2,8 @@
 
 namespace DrupalCI\Build\Artifact;
 
-use Pimple\Container;
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ContainerBuildArtifact extends BuildArtifact {
@@ -10,9 +11,9 @@ class ContainerBuildArtifact extends BuildArtifact {
   /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
   protected $environment;
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
+  public function __construct(EnvironmentInterface $environment, BuildInterface $build, $path, $artifactpath = '') {
+    $this->environment = $environment;
+    parent::__construct($build, $path, $artifactpath);
   }
 
   /**

@@ -65,15 +65,23 @@ class EnvironmentTest extends DrupalCITestCase {
       ->method('find')
       ->will($this->returnValue($exec_command));
 
+    $container = $this->getContainer(['docker' => $docker]);
     $environment = $this->getMockBuilder(Environment::class)
       ->setMethods(['getExecContainer'])
-      ->getMockForAbstractClass();
+      ->setConstructorArgs([
+        $container['console.io'],
+        $container['docker'],
+        $container['codebase'],
+        $container['db.system'],
+        $container['build'],
+        $container
+      ])
+      ->getMock();
 
     $environment->expects($this->once())
       ->method('getExecContainer')
       ->will($this->returnValue(['id' => 'drupalci/php-5.4']));
 
-    $environment->inject($this->getContainer(['docker' => $docker]));
     $environment->executeCommands([$cmd]);
   }
 

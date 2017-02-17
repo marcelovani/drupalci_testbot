@@ -2,14 +2,14 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Injectable;
-use Pimple\Container;
+use DrupalCI\Console\DrupalCIStyleInterface;
+use GuzzleHttp\Client;
 
 /**
  * Class Patch
  * @package DrupalCI\Build\Codebase
  */
-class Patch implements PatchInterface, Injectable {
+class Patch implements PatchInterface {
 
   /**
    * Style object.
@@ -78,11 +78,6 @@ class Patch implements PatchInterface, Injectable {
    */
   protected $httpClient;
 
-  public function inject(Container $container) {
-    $this->io = $container['console.io'];
-    $this->httpClient = $container['http.client'];
-  }
-
   /**
    * @return string
    */
@@ -129,7 +124,10 @@ class Patch implements PatchInterface, Injectable {
    * @param string[] $patch_details
    * @param string $ancillary_workspace The real working directory.
    */
-  public function __construct($patch_details, $ancillary_workspace) {
+  public function __construct(DrupalCIStyleInterface $io, Client $http_client, $patch_details, $ancillary_workspace) {
+    $this->io = $io;
+    $this->httpClient = $http_client;
+
     // Copy working directory from the initial codebase
 
     $this->working_dir = $ancillary_workspace;

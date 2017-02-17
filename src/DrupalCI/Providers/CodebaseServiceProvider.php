@@ -13,9 +13,7 @@ class CodebaseServiceProvider implements ServiceProviderInterface {
    */
   public function register(Container $container) {
     $container['codebase'] = function ($container) {
-      $codebase = new Codebase();
-      $codebase->inject($container);
-      return $codebase;
+      return Codebase::create($container);
     };
   }
 

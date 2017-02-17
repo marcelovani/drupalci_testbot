@@ -1,9 +1,9 @@
 <?php
 
-
-
 namespace DrupalCI\Build\Codebase;
 
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
@@ -12,7 +12,7 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * Style object.
    *
-   * @var \DrupalCI\Console\DrupalCIStyle
+   * @var \DrupalCI\Console\DrupalCIStyleInterface
    */
   protected $io;
 
@@ -44,9 +44,19 @@ class Codebase implements CodebaseInterface, Injectable {
    */
   protected $patches;
 
-  public function inject(Container $container) {
-    $this->io = $container['console.io'];
-    $this->build = $container['build'];
+  public static function create(Container $container) {
+    return new static(
+      $container['console.io'],
+      $container['build']
+    );
+  }
+
+  public function __construct(
+    DrupalCIStyleInterface $io,
+    BuildInterface $build
+  ) {
+    $this->io = $io;
+    $this->build = $build;
   }
 
   public function addPatch(PatchInterface $patch) {

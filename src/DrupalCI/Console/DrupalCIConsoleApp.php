@@ -2,12 +2,11 @@
 
 namespace DrupalCI\Console;
 
-use DrupalCI\Injectable;
 use DrupalCI\Providers\ConsoleCommandProvider;
 use Symfony\Component\Console\Application;
 use Pimple\Container;
 
-class DrupalCIConsoleApp extends Application implements Injectable {
+class DrupalCIConsoleApp extends Application {
 
   /**
    * The service container.
@@ -16,7 +15,8 @@ class DrupalCIConsoleApp extends Application implements Injectable {
    */
   protected $container;
 
-  public function inject(Container $container) {
+  public function __construct(Container $container, $name = 'UNKNOWN', $version = 'UNKNOWN') {
+    parent::__construct($name, $version);
     $this->container = $container;
     $container->register(new ConsoleCommandProvider());
     $this->addCommands($container['commands']);

@@ -2,7 +2,7 @@
 
 namespace DrupalCI\Build\Codebase;
 
-use DrupalCI\Injectable;
+use DrupalCI\Build\Codebase\Patch;
 use Pimple\Container;
 
 /**
@@ -10,9 +10,23 @@ use Pimple\Container;
  */
 class PatchFactory implements PatchFactoryInterface {
 
-  protected $container;
+  /**
+   * DrupalCI style object.
+   *
+   * @var DrupalCI\Console\DrupalCIStyleInterface
+   */
+  protected $io;
+
+  /**
+   * Guzzle client.
+   *
+   * @var GuzzleHttp\Client
+   */
+  protected $httpClient;
 
   public function __construct(Container $container) {
+    $this->io = $container['console.io'];
+    $this->httpClient = $container['http.client'];
     $this->container = $container;
   }
 
@@ -20,11 +34,7 @@ class PatchFactory implements PatchFactoryInterface {
    * {@inheritdoc}
    */
   public function getPatch($patch_details, $ancillary_workspace) {
-    $patch = new Patch($patch_details, $ancillary_workspace);
-    if ($patch instanceof Injectable) {
-      $patch->inject($this->container);
-    }
-    return $patch;
+    return new Patch($this->io, $this->httpClient, $patch_details, $ancillary_workspace);
   }
 
 }

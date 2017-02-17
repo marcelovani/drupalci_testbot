@@ -8,15 +8,12 @@ use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use Pimple\Container;
 
 /**
  * Base class for plugins.
  */
 abstract class BuildTaskBase implements BuildTaskInterface {
-
-  use BuildTaskTrait;
 
   /**
    * The plugin_id.
@@ -116,6 +113,17 @@ abstract class BuildTaskBase implements BuildTaskInterface {
   protected $hostCommandOutput;
 
   /**
+   * @var float
+   */
+  protected $startTime;
+
+  /**
+   * @var float
+   *   Total time taken for this build task, including child tasks
+   */
+  protected $elapsedTime;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
@@ -132,17 +140,6 @@ abstract class BuildTaskBase implements BuildTaskInterface {
     $build_task->inject($container);
     return $build_task;
   }
-
-  /**
-   * @var float
-   */
-  protected $startTime;
-
-  /**
-   * @var float
-   *   Total time taken for this build task, including child tasks
-   */
-  protected $elapsedTime;
 
   /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.

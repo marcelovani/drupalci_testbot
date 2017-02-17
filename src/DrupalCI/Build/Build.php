@@ -2,19 +2,24 @@
 
 namespace DrupalCI\Build;
 
-use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
+use DrupalCI\Build\Artifact\ContainerBuildArtifact;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
+use DrupalCI\Plugin\PluginManagerInterface;
+use GuzzleHttp\ClientInterface;
+use Pimple\Container;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Exception\ParseException;
-use Pimple\Container;
 use Symfony\Component\Yaml\Yaml;
 
 class Build implements BuildInterface, Injectable {
 
   /**
    * @var \Pimple\Container
+   *
+   * @todo: Remove this.
    */
   protected $container;
 
@@ -71,7 +76,7 @@ class Build implements BuildInterface, Injectable {
   /**
    * Style object.
    *
-   * @var \DrupalCI\Console\DrupalCIStyle
+   * @var \DrupalCI\Console\DrupalCIStyleInterface
    */
   protected $io;
 
@@ -105,15 +110,28 @@ class Build implements BuildInterface, Injectable {
    */
   protected $httpClient;
 
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
+  public static function create(Container $container) {
+    return new static(
+      $container,
+      $container['console.io'],
+      $container['yaml.parser'],
+      $container['http.client'],
+      $container['plugin.manager.factory']->create('BuildTask')
+    );
+  }
+
+  public function __construct(
+    Container $container,
+    DrupalCIStyleInterface $io,
+    Yaml $yaml,
+    ClientInterface $http_client,
+    PluginManagerInterface $plugin_manager
+  ) {
     $this->container = $container;
-    $this->io = $container['console.io'];
-    $this->yaml = $container['yaml.parser'];
-    $this->httpClient = $container['http.client'];
-    $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
+    $this->io = $io;
+    $this->yaml = $yaml;
+    $this->httpClient = $http_client;
+    $this->buildTaskPluginManager = $plugin_manager;
   }
 
   public function getBuildType() {
@@ -129,16 +147,14 @@ class Build implements BuildInterface, Injectable {
 
   public function addArtifact($path, $artifactpath = '') {
     if (file_exists($path)) {
-      $buildArtifact = new BuildArtifact($path, $artifactpath);
-      $buildArtifact->inject($this->container);
+      $buildArtifact = new BuildArtifact($this, $path, $artifactpath);
       $this->buildArtifacts[] = $buildArtifact;
     }
 
   }
 
   public function addContainerArtifact($path, $artifactpath = '') {
-    $containerBuildArtifact = new ContainerBuildArtifact($path, $artifactpath);
-    $containerBuildArtifact->inject($this->container);
+    $containerBuildArtifact = new ContainerBuildArtifact($this->container['environment'], $this, $path, $artifactpath);
     $this->buildArtifacts[] = $containerBuildArtifact;
   }
 

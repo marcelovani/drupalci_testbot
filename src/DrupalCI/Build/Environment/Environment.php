@@ -2,6 +2,11 @@
 
 namespace DrupalCI\Build\Environment;
 
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\DatabaseInterface;
+use DrupalCI\Console\DrupalCIStyleInterface;
+use Docker\Docker;
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
@@ -11,7 +16,7 @@ use Docker\Manager\ExecManager;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
-class Environment implements Injectable, EnvironmentInterface {
+class Environment implements EnvironmentInterface, Injectable {
 
   /**
    * @var \DrupalCI\Console\DrupalCIStyle
@@ -74,15 +79,31 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   protected $containerComposerCacheDir = '/root/.composer/cache';
 
-  public function inject(Container $container) {
+  public static function create(Container $container) {
+    return new static(
+      $container['console.io'],
+      $container['docker'],
+      $container['codebase'],
+      $container['db.system'],
+      $container['build'],
+      $container
+    );
+  }
 
-    $this->io = $container['console.io'];
-    $this->docker = $container['docker'];
-    $this->codebase = $container['codebase'];
-    $this->database = $container['db.system'];
-    $this->build = $container['build'];
+  public function __construct(
+    DrupalCIStyleInterface $io,
+    Docker $docker,
+    CodebaseInterface $codebase,
+    DatabaseInterface $db_system,
+    BuildInterface $build,
+    Container $container
+  ) {
+    $this->io = $io;
+    $this->docker = $docker;
+    $this->codebase = $codebase;
+    $this->database = $db_system;
+    $this->build = $build;
     $this->container = $container;
-
   }
 
   /**

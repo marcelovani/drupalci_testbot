@@ -5,8 +5,6 @@ use Pimple\Container;
 
 interface EnvironmentInterface {
 
-  public function inject(Container $container);
-
   /**
    * @param $commands
    *

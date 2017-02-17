@@ -13,9 +13,7 @@ class BuildServiceProvider implements ServiceProviderInterface {
    */
   public function register(Container $container) {
     $container['build'] = function ($container) {
-      $build = new Build();
-      $build->inject($container);
-      return $build;
+      return Build::create($container);
     };
   }
 

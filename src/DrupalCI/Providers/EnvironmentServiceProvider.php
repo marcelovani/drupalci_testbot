@@ -17,9 +17,7 @@ class EnvironmentServiceProvider implements ServiceProviderInterface {
 
     // Parent Docker object
     $container['environment'] = function ($container) {
-      $environment = new Environment();
-      $environment->inject($container);
-      return $environment;
+      return Environment::create($container);
     };
   }
 

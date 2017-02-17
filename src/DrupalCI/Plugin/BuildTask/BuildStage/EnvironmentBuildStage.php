@@ -2,7 +2,11 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStage;
 
-use DrupalCI\Injectable;
+use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\DatabaseInterface;
+use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Console\DrupalCIStyleInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
@@ -11,16 +15,39 @@ use Pimple\Container;
  * @PluginID("environment")
  */
 
-class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface, BuildTaskInterface, Injectable {
+class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface, BuildTaskInterface {
 
   /**
    * @var \DrupalCI\Build\Environment\DatabaseInterface
    */
   protected $database;
 
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->database = $container['db.system'];
+  public static function create(Container $container, array $configuration_overrides = array(), $plugin_id = '', $plugin_definition = array()) {
+    return new static(
+      $container['db.system'],
+      $container['build'],
+      $container['codebase'],
+      $container['environment'],
+      $container['console.io'],
+      $container,
+      $configuration_overrides,
+      $plugin_id,
+      $plugin_definition
+    );
+  }
+
+  public function __construct(
+    DatabaseInterface $db_system,
+    BuildInterface $build,
+    CodebaseInterface $codebase,
+    EnvironmentInterface $environment,
+    DrupalCIStyleInterface $io,
+    Container $container,
+    array $configuration_overrides = array(),
+    $plugin_id = '', $plugin_definition = array()
+  ) {
+    $this->database = $db_system;
+    parent::__construct($build, $codebase, $environment, $io, $container, $configuration_overrides, $plugin_id, $plugin_definition);
   }
 
   /**

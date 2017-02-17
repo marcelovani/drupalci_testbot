@@ -79,15 +79,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected $patchFile = 'codesniffer_fixes.patch';
 
   /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-    $this->codebase = $container['codebase'];
-  }
-
-  /**
    * @inheritDoc
    */
   public function getDefaultConfiguration() {

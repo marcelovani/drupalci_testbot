@@ -11,11 +11,6 @@ use Pimple\Container;
  */
 interface Injectable {
 
-  /**
-   * The container object.
-   *
-   * @param \Pimple\Container $container
-   */
-  public function inject(Container $container);
+  public static function create(Container $container);
 
 }
