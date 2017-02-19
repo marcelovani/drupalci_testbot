@@ -138,7 +138,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     foreach ($phpcoredumps as $core_file) {
       $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
       $response = $this->environment->executeCommands($command);
-      $this->saveStringArtifact("$core_file.debug", $response->getOutput());
+      $this->saveStringArtifact(basename($core_file) . ".debug", $response->getOutput());
       if (FALSE === (getenv('DCI_Debug'))) {
         unlink($core_file);
       }
