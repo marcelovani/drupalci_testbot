@@ -57,7 +57,7 @@ interface CodebaseInterface {
 
   public function setExtensionPaths($extensionPaths);
 
-  public function getTrueExtensionDirectory($type);
+  public function getTrueExtensionSubDirectory($type);
 
   public function getComposerDevRequirements();
 

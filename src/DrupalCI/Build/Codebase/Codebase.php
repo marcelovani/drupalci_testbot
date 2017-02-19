@@ -159,7 +159,7 @@ class Codebase implements CodebaseInterface, Injectable {
   // This is the path, relative to the source where composer installers p
   // laces our extensions.
 
-  public function getTrueExtensionDirectory($type) {
+  public function getTrueExtensionSubDirectory($type) {
     return $this->extensionPaths[$type] . '/' . $this->projectName;
   }
 

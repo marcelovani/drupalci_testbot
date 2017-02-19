@@ -29,9 +29,9 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     // to be built in the codebase tmp directory and pointed to by composer.
     if (FALSE !== getenv(('DCI_TestItem'))) {
       $this->configuration['project_subdir'] = $this->getProjectSubDir(getenv(('DCI_TestItem')));
-      $this->configuration['project_name'] = $this->getContribProjectName(getenv(('DCI_TestItem')));
+      // @TODO: change this to DCI_Projectname once https://www.drupal.org/node/2853889 is solved.
+      $this->configuration['project_name'] = $this->getProjectName(getenv(('DCI_TestItem')));
     }
-    // @TODO: add an API for this vs. scraping it from DCI_TestItem
 
   }
 
@@ -76,15 +76,16 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     return FALSE;
   }
 
-  protected function getContribProjectName($testitem) {
+  protected function getProjectName($testitem) {
     if (strpos($testitem, 'directory') === 0) {
       $components = explode(':', $testitem);
       $pathcomponents = explode("/", $components[1]);
     }
     if (!empty($pathcomponents)) {
       return array_pop($pathcomponents);
+    } else {
+      return 'drupal';
     }
-    return FALSE;
   }
 
 }
