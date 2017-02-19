@@ -128,6 +128,25 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /**
    * @inheritDoc
    */
+  public function complete($childStatus) {
+
+    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q', ];
+    $gdb_command_file = $this->pluginWorkDirDir . '/debugscript.gdb';
+    file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
+    $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
+    foreach ($phpcoredumps as $core_file) {
+      $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$gdb_command_file";
+      $response = $this->environment->executeCommands($command);
+      $this->saveStringArtifact("$core_file.debug", $response->getOutput());
+      if (FALSE === (getenv('DCI_Debug'))) {
+        unlink($core_file);
+      }
+    }
+
+  }
+  /**
+   * @inheritDoc
+   */
   public function getDefaultConfiguration() {
     return [
       'testgroups' => '--all',
