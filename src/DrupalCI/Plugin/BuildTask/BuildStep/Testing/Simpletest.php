@@ -136,7 +136,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
     $container_command_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/debugscript.gdb';
     foreach ($phpcoredumps as $core_file) {
-      $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file";
+      $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
       $response = $this->environment->executeCommands($command);
       $this->saveStringArtifact("$core_file.debug", $response->getOutput());
       if (FALSE === (getenv('DCI_Debug'))) {
