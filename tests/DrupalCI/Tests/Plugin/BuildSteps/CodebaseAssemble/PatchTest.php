@@ -2,12 +2,11 @@
 
 namespace DrupalCI\Tests\Plugin\CodebaseAssemble;
 
+use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Codebase\PatchFactoryInterface;
 use DrupalCI\Build\Codebase\PatchInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Tests\DrupalCITestCase;
-
-use DrupalCI\Build\BuildInterface;
 use org\bovigo\vfs\vfsStream;
 
 /**
@@ -16,17 +15,17 @@ use org\bovigo\vfs\vfsStream;
 class PatchTest extends DrupalCITestCase {
 
   /**
-   * Mock a build object that has a vfs xml directory.
+   * Mock a build object that has a vfs ancillary directory.
    */
   protected function mockBuild() {
-    vfsStream::setup('xml_directory');
+    vfsStream::setup('ancillary_directory');
     // Make a build service that will output files to the place we like.
     $build = $this->getMockBuilder(BuildInterface::class)
-      ->setMethods(['getXmlDirectory'])
+      ->setMethods(['getAncillaryWorkDirectory'])
       ->getMockForAbstractClass();
     $build->expects($this->once())
-      ->method('getXmlDirectory')
-      ->willReturn(vfsStream::url('xml_directory'));
+      ->method('getAncillaryWorkDirectory')
+      ->willReturn(vfsStream::url('ancillary_directory'));
     return $build;
   }
 
@@ -52,10 +51,9 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testNoFromConfig() {
-    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
-      'No valid patch file provided for the patch command.'
+      'Invalid Patch'
     );
 
     $container = $this->getContainer();
@@ -80,10 +78,9 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchValidate() {
-    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
-      'Failed to validate the patch source and/or target directory.'
+      'Patch Validation Error'
     );
 
     // Make a patch file object that refuses to validate.
@@ -117,15 +114,14 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchApply() {
-    $this->markTestSkipped('Skipped until https://www.drupal.org/node/2846398');
     $this->setExpectedException(
       BuildTaskException::class,
-      'Unable to apply the patch.'
+      'Patch Failed to Apply'
     );
 
     // Make a patch file object that validates.
     $patch_worker = $this->getMockBuilder(PatchInterface::class)
-      ->setMethods(['validate', 'apply'])
+      ->setMethods(['validate', 'apply', 'getPatchApplyResults'])
       ->getMockForAbstractClass();
     $patch_worker->expects($this->once())
       ->method('validate')
@@ -134,6 +130,9 @@ class PatchTest extends DrupalCITestCase {
     $patch_worker->expects($this->once())
       ->method('apply')
       ->willReturn(1);
+    $patch_worker->expects($this->once())
+      ->method('getPatchApplyResults')
+      ->willReturn(['Arbitrary command output.']);
 
     $container = $this->getContainer([
       'patch_factory' => $this->mockPatchFactory($patch_worker),

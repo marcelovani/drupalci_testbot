@@ -128,6 +128,26 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /**
    * @inheritDoc
    */
+  public function complete($childStatus) {
+
+    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q', ];
+    $gdb_command_file = $this->pluginWorkDir . '/debugscript.gdb';
+    file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
+    $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
+    $container_command_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/debugscript.gdb';
+    foreach ($phpcoredumps as $core_file) {
+      $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
+      $response = $this->environment->executeCommands($command);
+      $this->saveStringArtifact(basename($core_file) . ".debug", $response->getOutput());
+      if (FALSE === (getenv('DCI_Debug'))) {
+        unlink($core_file);
+      }
+    }
+
+  }
+  /**
+   * @inheritDoc
+   */
   public function getDefaultConfiguration() {
     return [
       'testgroups' => '--all',
@@ -487,7 +507,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $xml_output_file = $this->build->getXmlDirectory() . "/" . $label . "testresults.xml";
     file_put_contents($xml_output_file, $doc->saveXML());
-    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . '</></info>');
+    $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . "</></info>");
     $this->build->addArtifact($xml_output_file, 'xml/' . $label . "testresults.xml");
   }
 
