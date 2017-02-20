@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use Pimple\Container;
 
 /**
  * A plugin to run eslint
@@ -105,6 +106,15 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
       $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function inject(Container $container) {
+    parent::inject($container);
+    $this->environment = $container['environment'];
+    $this->codebase = $container['codebase'];
   }
 
   /**
