@@ -27,7 +27,8 @@ class ContainerComposerFailTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-5.3.29-apache:production',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=sqlite',
-    ];
+    'DCI_CS_SkipCodesniff=TRUE',
+  ];
 
   public function testPlatformMismatch() {
     $app = $this->getConsoleApp();
