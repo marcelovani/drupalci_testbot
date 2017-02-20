@@ -46,9 +46,6 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $this->assertRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
-    $this->assertRegExp('`Attempting to install drupal/coder`', $app_tester->getDisplay());
-    $this->assertRegExp('/Config value "installed_paths" added successfully/', $app_tester->getDisplay());
-    $this->assertRegExp('/Adjusting paths in report file:/', $app_tester->getDisplay());
     $this->assertRegExp('/.*Syslog functionality 17 passes, 0 fails, and 0 exceptions*/', $app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/testresults.xml";
