@@ -32,6 +32,12 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       // @TODO: change this to DCI_Projectname once https://www.drupal.org/node/2853889 is solved.
       $this->configuration['project_name'] = $this->getProjectName(getenv(('DCI_TestItem')));
     }
+    if (FALSE !== getenv(('DCI_ProjectType'))) {
+      $this->configuration['project_type'] = getenv('DCI_ProjectType');
+    }
+    if (FALSE !== getenv(('DCI_ProjectName'))) {
+      $this->configuration['project_name'] = getenv('DCI_ProjectName');
+    }
 
   }
 
@@ -43,8 +49,16 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     if (!empty($this->configuration['project_subdir'])) {
       $this->codebase->setExtensionProjectSubdir($this->configuration['project_subdir']);
     }
-    if (!empty($this->configuration['project_name'])) {
+    if (!empty($this->configuration['project_name']) && $this->configuration['project_name'] !== 'drupal') {
       $this->codebase->setProjectName($this->configuration['project_name']);
+      // @TODO: this assumes that the project type is module
+      // once https://www.drupal.org/node/2853889 is in, we can rely on that for
+      // the project type.
+
+      $this->codebase->setProjectType('module');
+    }
+    if (!empty($this->configuration['project_type'])) {
+      $this->codebase->setProjectType($this->configuration['project_type']);
     }
     $this->codebase->setupDirectories();
 
@@ -64,6 +78,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     return [
       'project_subdir' => '',
       'project_name' => '',
+      'project_type' => '',
     ];
 
   }

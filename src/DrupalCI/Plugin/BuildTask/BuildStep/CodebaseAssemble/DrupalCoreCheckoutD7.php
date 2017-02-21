@@ -15,10 +15,10 @@ class DrupalCoreCheckoutD7 extends DrupalCoreCheckout implements BuildStepInterf
     $exension_paths = '';
 
     $extension_paths = [
-    'modules' => 'sites/all/modules',
-                        'themes' => 'sites/all/themes',
-                        'profiles' => 'sites/all/profiles',
-                      ];
+      'module' => 'sites/all/modules',
+      'theme' => 'sites/all/themes',
+      'profile' => 'sites/all/profiles',
+      ];
     return $extension_paths;
   }
 
