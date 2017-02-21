@@ -18,6 +18,7 @@ build:
     validate_codebase:
       phplint:
       container_composer:
+      eslint:
       phpcs:
         # Default start_directory is core/. This will be modified to the
         # extension's directory for contrib.

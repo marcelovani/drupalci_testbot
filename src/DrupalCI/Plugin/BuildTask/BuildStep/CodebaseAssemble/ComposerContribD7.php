@@ -20,7 +20,8 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
    * @inheritDoc
    */
   public function run() {
-
+    // TODO when https://www.drupal.org/node/2853889 lands, stop using the
+    // ExtnetionProjectSubdir to determine the correct branch/project under test.
     foreach ($this->configuration['repositories'] as $checkout_repo) {
       $checkout_directory = $checkout_repo['checkout_dir'];
       if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {

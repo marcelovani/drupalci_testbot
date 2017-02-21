@@ -47,6 +47,16 @@ interface CodebaseInterface {
   public function setProjectName($projectName);
 
   /**
+   * The type of the project under test - core, module, theme, distribution,
+   * library etc.
+   *
+   * @return string
+   */
+  public function getProjectType();
+
+  public function setProjectType($projectName);
+
+  /**
    * For contributed modules, this is where the modules will get checked out
    * Needed so we can know where to run the tests.
    * It is a key value array of extension type to path location
@@ -57,7 +67,7 @@ interface CodebaseInterface {
 
   public function setExtensionPaths($extensionPaths);
 
-  public function getTrueExtensionDirectory($type);
+  public function getTrueExtensionSubDirectory();
 
   public function getComposerDevRequirements();
 

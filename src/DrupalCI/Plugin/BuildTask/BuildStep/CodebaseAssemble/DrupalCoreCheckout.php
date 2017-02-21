@@ -71,16 +71,17 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
           }
           $pathcomponents = explode('/', $path);
           array_pop($pathcomponents);
-          $extension_paths[$pathcomponents[0]] = implode('/',$pathcomponents);
+          $extensiontype = rtrim($pathcomponents[0], 's');
+          $extension_paths[$extensiontype] = implode('/',$pathcomponents);
         }
       }
       else {
         // Older version of core (pre dec 6, 2016) that used the installer paths
         // from the composer/installers plugin.
         $extension_paths = [
-        'modules' => 'modules',
-                            'themes' => 'themes',
-                            'profiles' => 'profiles',
+        'module' => 'modules',
+                            'theme' => 'themes',
+                            'profile' => 'profiles',
                             ];
       }
     }

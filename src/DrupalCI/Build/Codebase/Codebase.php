@@ -28,7 +28,15 @@ class Codebase implements CodebaseInterface, Injectable {
    *
    * @var string
    */
-  protected $projectName = '';
+  protected $projectName = 'drupal';
+
+  /**
+   * The type of the project under test - core, module, theme, distribution,
+   * library etc.
+   *
+   * @var string
+   */
+  protected $projectType = 'core';
 
   protected $extensionPaths = '';
 
@@ -131,6 +139,20 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * @inheritDoc
    */
+  public function getProjectType() {
+    return $this->projectType;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function setProjectType($projectType) {
+    $this->projectType = $projectType;
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getExtensionProjectSubdir() {
     return $this->extensionProjectSubDirectory;
   }
@@ -159,8 +181,11 @@ class Codebase implements CodebaseInterface, Injectable {
   // This is the path, relative to the source where composer installers p
   // laces our extensions.
 
-  public function getTrueExtensionDirectory($type) {
-    return $this->extensionPaths[$type] . '/' . $this->projectName;
+  public function getTrueExtensionSubDirectory() {
+    if ($this->projectType === 'core') {
+      return '';
+    }
+    return $this->extensionPaths[$this->projectType] . '/' . $this->projectName;
   }
 
   /**
