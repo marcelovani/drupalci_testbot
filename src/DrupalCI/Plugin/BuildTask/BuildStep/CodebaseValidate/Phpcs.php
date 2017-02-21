@@ -265,8 +265,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $project = $this->codebase->getProjectName();
     // @todo: For now, core has no project name, but contrib does. This could
     // easily change, so we'll need to change the behavior here.
-    if (!empty($project)) {
-      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionDirectory('modules');
+    if ($project !== 'drupal') {
+      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionSubDirectory();
     }
 
     // Does the code have a phpcs.xml.dist file after patching?

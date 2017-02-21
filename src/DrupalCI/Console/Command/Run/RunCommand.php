@@ -40,16 +40,6 @@ class RunCommand extends DrupalCICommandBase {
   }
 
   /**
-   * Sets the build on the RunCommand.
-   *
-   * @param \DrupalCI\Build\BuildInterface $build
-   *   The build and all its definition.
-   */
-  public function setBuild(BuildInterface $build) {
-    $this->build = $build;
-  }
-
-  /**
    * {@inheritdoc}
    */
   protected function configure() {

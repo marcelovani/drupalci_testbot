@@ -58,10 +58,14 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if (empty($details['from'])) {
         $this->terminateBuild("Invalid Patch", "No valid patch file provided for the patch command.");
       }
+      // TODO when https://www.drupal.org/node/2853889 lands, stop using the
+      // ExtnetionProjectSubdir to determine where the patch goes. it should
+      // Just go to the 'TrueExtensionDirectory'
       // Adjust 'to' so the patch applies to the correct place.
+
       if ($details['to'] == $this->codebase->getExtensionProjectSubdir()) {
         // This patch should be applied to wherever composer checks out to.
-        $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionDirectory('modules');
+        $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory();
       }
       else {
         $details['to'] = $this->codebase->getSourceDirectory();
