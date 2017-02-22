@@ -26,7 +26,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    *
    * @var string
    */
-  protected $checkstyleReportFile = 'eslint-checkstyle.xml';
+  protected $checkstyleReportFile = 'checkstyle.xml';
 
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
@@ -73,7 +73,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     if (empty($configs['config']) || $this->configuration['skip_linting']) {
       return 0;
     }
-    $this->io->writeln('<info>eslinting sniffing the project.</info>');
+    $this->io->writeln('<info>eslinting the project.</info>');
 
     $args = [
       '--format checkstyle',
@@ -211,7 +211,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
         // Make a list of of modified files to this file.
         $sniffable_file = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir . '/lintable_files.txt';
         $this->writeLintableFiles($modified_js, $sniffable_file);
-        return ($modified_files);
+        return ($modified_js);
       }
     }
   }
