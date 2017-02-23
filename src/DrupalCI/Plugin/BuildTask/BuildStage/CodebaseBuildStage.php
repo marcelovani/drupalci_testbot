@@ -69,6 +69,13 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    */
   public function complete($childStatus) {
     $this->saveHostArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json', 'composer-installed.json');
+
+    $extensionDir = '';
+    if (!empty($this->codebase->getTrueExtensionSubDirectory())){
+      $extensionDir = '/' . $this->codebase->getTrueExtensionSubDirectory();
+    }
+    $project_build_dir = ['projectDirectory' => $this->codebase->getSourceDirectory() . $extensionDir];
+    $this->saveStringArtifact(json_encode($project_build_dir), 'project_directory.json');
   }
 
   /**
