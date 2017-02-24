@@ -75,7 +75,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       $extensionDir = '/' . $this->codebase->getTrueExtensionSubDirectory();
     }
     $project_build_dir = ['projectDirectory' => $this->codebase->getSourceDirectory() . $extensionDir];
-    $this->saveStringArtifact(json_encode($project_build_dir), 'project_directory.json');
+    $this->saveStringArtifact('project_directory.json',json_encode($project_build_dir));
   }
 
   /**
