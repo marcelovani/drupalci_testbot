@@ -68,9 +68,8 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    * Perform the step run.
    */
   public function run() {
-    $configs = $this->getEsLintConfig();
     // If there is no config file or we want to skip eslint outright
-    if (empty($configs['config']) || $this->configuration['skip_linting']) {
+    if ($this->configuration['skip_linting']) {
       return 0;
     }
     $this->io->writeln('<info>eslinting the project.</info>');
@@ -80,15 +79,15 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
       '--output-file  ' . $this->pluginWorkDir . '/' . $this->checkstyleReportFile,
     ];
 
-    $args[] = '--config ' . $configs['config'];
-    $args[] = '--ignore-path ' . $configs['ignore'];
-
-
     // Should we only sniff modified files? --file-list lets us specify.
     $files_to_lint = $this->getLintableFiles();
 
     if ($files_to_lint == 'all') {
-      $lintfiles = '.';
+      if ($this->codebase->getProjectType() == 'core') {
+        $lintfiles = '/core';
+      } else {
+        $lintfiles = '.';
+      }
     }
     elseif ($files_to_lint == 'none') {
       return 0;
@@ -100,7 +99,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     $this->io->writeln('Executing eslint.');
 
     $command = 'cd ' . $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory() . ' && ' . 'eslint ' . implode(' ', $args) . ' ' . $lintfiles;
-    $result = $this->exec($command, $output, $return);
+    $this->exec($command, $output, $return);
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
 
 
@@ -116,7 +115,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
     if ($this->configuration['lint_fails_test']) {
-      return $result->getSignal();
+      return $return;
     }
     return 0;
   }
@@ -158,12 +157,6 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
       $config['config'] = $this->codebase->getSourceDirectory() . '/.eslintrc';
     }
 
-    if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintignore')) {
-      $config['ignore'] = $this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintignore';
-    } elseif (file_exists($this->codebase->getSourceDirectory() . '/.eslintignore')) {
-      $config['ignore'] = $this->codebase->getSourceDirectory() . '/.eslintignore';
-    }
-
     return $config;
   }
 
@@ -190,7 +183,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
 
     // No modified files? Sniff the whole repo.
     if (empty($this->codebase->getModifiedFiles())) {
-      $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
+      $this->io->writeln('<info>No modified files. Linting all files.</info>');
       return 'all';
     }
     elseif ($this->configFileIsModified()) {
