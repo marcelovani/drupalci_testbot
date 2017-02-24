@@ -1,0 +1,16 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+      checkout_core_d7:
+      composer_contrib_d7:
+      fetch:
+      patch:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
+  assessment:
+    validate_codebase:
+      eslint:
