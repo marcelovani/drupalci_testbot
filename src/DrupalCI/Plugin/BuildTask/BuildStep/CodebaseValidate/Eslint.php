@@ -81,8 +81,6 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     ];
 
     $args[] = '--config ' . $configs['config'];
-    $args[] = '--ignore-path ' . $configs['ignore'];
-
 
     // Should we only sniff modified files? --file-list lets us specify.
     $files_to_lint = $this->getLintableFiles();
@@ -156,12 +154,6 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
       $config['config'] = $this->codebase->getSourceDirectory() . '/.eslintrc.json';
     } elseif ($exists = (file_exists($this->codebase->getSourceDirectory() . '/.eslintrc'))){
       $config['config'] = $this->codebase->getSourceDirectory() . '/.eslintrc';
-    }
-
-    if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintignore')) {
-      $config['ignore'] = $this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintignore';
-    } elseif (file_exists($this->codebase->getSourceDirectory() . '/.eslintignore')) {
-      $config['ignore'] = $this->codebase->getSourceDirectory() . '/.eslintignore';
     }
 
     return $config;
