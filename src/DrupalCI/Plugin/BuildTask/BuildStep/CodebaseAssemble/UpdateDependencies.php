@@ -57,11 +57,26 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
 
       $composer_branchname = $cmdoutput[0];
-      // 2. move directory to ancillary
+      // Copy directory to ancillary
       $project_dir = $source_dir . '/' . $contrib_dir;
-      $cmd = "mv $project_dir $ancillary_dir";
-      $this->execRequiredCommand($cmd, 'Ancillary mv Failure');
+      $cmd = "cp -r $project_dir $ancillary_dir";
+      $this->execRequiredCommand($cmd, 'Ancillary Copy Failure');
 
+      // Remove the project via composer
+      $cmd = "./bin/composer remove drupal/" . $project_name . " --ignore-platform-reqs --working-dir " . $source_dir;
+      $this->io->writeln("Removing project: $cmd");
+      $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
+      // Remove any of its dev dependnecies
+     // $this->io->writeln("Removing dev dependencies: $cmd");
+      // $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
+      $dev_dependencies = $this->codebase->getComposerDevRequirements();
+      foreach($dev_dependencies as $package){
+        $dev_dep = str_replace("'", "", strstr($package, ':', TRUE));
+        $cmd = "./bin/composer remove " . $dev_dep . " --ignore-platform-reqs --working-dir " . $source_dir;
+        $this->io->writeln("Removing dev dependencies: $cmd");
+        $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
+
+      }
       // 3. make a fake branch in ancillary <TBRANCH>
       $cmd = "cd " . $ancillary_dir . " && git checkout -b ancillary-branch";
       $this->io->writeln("Creating ancillary branch: $cmd");
@@ -96,8 +111,12 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       $this->io->writeln("Git Command: $cmd");
       $this->execRequiredCommand($cmd, 'Ancillary require failure');
 
-      // 9. Look for changes to require-dev too:
+      // Look for changes to require dev as well. These require-dev packages will
+      // Only exist if there exists dev-depenencies in composer.json
+      // Otherwise we will not see anything in the root dir
       $packages = $this->codebase->getComposerDevRequirements();
+
+      $packages = array_unique(array_merge($packages, $dev_dependencies));
       if (!empty($packages)) {
 
         $cmd = "./bin/composer require " . implode(" ", $packages) . " --ignore-platform-reqs --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
