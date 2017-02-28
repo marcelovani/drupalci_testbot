@@ -341,6 +341,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $xml_builder->inject($this->container);
     $doc = $xml_builder->generate($test_groups);
 
+    $label = '';
+    if (isset($this->pluginLabel)) {
+      $label = $this->pluginLabel . ".";
+    }
     $xml_output_file = $this->build->getXmlDirectory() . "/" . $label . "testresults.xml";
     file_put_contents($xml_output_file, $doc->saveXML());
     $this->io->writeln("<info>Reformatted test results written to <options=bold>" . $xml_output_file . "</></info>");
