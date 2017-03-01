@@ -34,11 +34,19 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
+  /**
+   * The path to run-tests.sh.
+   *
+   * @var string
+   */
   protected $runscript = '/core/scripts/run-tests.sh';
 
-  // @todo: Make JunitXmlBuilder a service so we don't have to keep a container
-  //         around.
-  protected $container;
+  /**
+   * Junit XML builder service.
+   *
+   * @var \DrupalCI\Build\Artifact\Junit\JunitXmlBuilder
+   */
+  protected $junitXmlBuilder;
 
   public function inject(Container $container) {
     parent::inject($container);
@@ -46,7 +54,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->results_database = $container['db.results'];
     $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
-    $this->container = $container;
+    $this->junitXmlBuilder = $container['junit_xml_builder'];
   }
 
   /**
@@ -339,13 +347,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $test_groups = $this->parseGroups($test_list);
 
-
-    // @TODO fix this api. This seems a little obtuse.
+    // @todo Allow the database service to be injected into the xml builder at
+    //       the service level.
     $db = $this->results_database->connect($this->results_database->getDbname());
 
-    $xml_builder = new JunitXmlBuilder();
-    $xml_builder->inject($this->container);
-    $doc = $xml_builder->generate($db, $test_groups);
+    $doc = $this->junitXmlBuilder->generate($db, $test_groups);
 
     $label = '';
     if (isset($this->pluginLabel)) {
