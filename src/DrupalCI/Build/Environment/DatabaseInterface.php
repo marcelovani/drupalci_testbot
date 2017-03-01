@@ -209,10 +209,11 @@ interface DatabaseInterface {
   /**
    * Creates a PDO connection to the database
    *
-   * @param null $database database name if you want to connect to a specific
-   * db name. Otherwise blank to connect to the server as a whole.
+   * @param string|null $database
+   *   (optional) Database name if you want to connect to a specific db name.
+   *   NULL connects to the server as a whole.
    *
-   * @return
+   * @return \PDO
    */
   public function connect($database = NULL);
 

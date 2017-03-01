@@ -19,7 +19,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
 
-  /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
+  /**
+   * @var \DrupalCI\Build\Environment\DatabaseInterface
+   */
   protected $results_database;
 
   /**
@@ -337,9 +339,13 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $test_groups = $this->parseGroups($test_list);
 
+
+    // @TODO fix this api. This seems a little obtuse.
+    $db = $this->results_database->connect($this->results_database->getDbname());
+
     $xml_builder = new JunitXmlBuilder();
     $xml_builder->inject($this->container);
-    $doc = $xml_builder->generate($test_groups);
+    $doc = $xml_builder->generate($db, $test_groups);
 
     $label = '';
     if (isset($this->pluginLabel)) {

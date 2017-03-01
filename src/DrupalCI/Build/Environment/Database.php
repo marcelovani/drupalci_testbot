@@ -53,10 +53,11 @@ class Database implements DatabaseInterface, Injectable {
   /**
    * Database constructor.
    *
-   * @param $dbrole
+   * @param string $role
+   *   The role the database plays. Currently 'system' or 'results'.
    */
-  public function __construct($dbrole) {
-    $this->dbrole = $dbrole;
+  public function __construct($role) {
+    $this->dbrole = $role;
   }
 
   /**

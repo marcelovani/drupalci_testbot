@@ -8,16 +8,12 @@ use Pimple\Container;
 class JunitXmlBuilder implements Injectable {
 
   /**
-   * The results database to query.
-   *
-   * @var  \DrupalCI\Build\Environment\DatabaseInterface
-   */
-  protected $resultsDatabase;
-
-  /**
    * The container environment
    *
    * @var  \DrupalCI\Build\Environment\EnvironmentInterface
+   *
+   * @todo Figure out a good way to inject just the path we need from the
+   *       environment.
    */
   protected $environment;
 
@@ -25,7 +21,6 @@ class JunitXmlBuilder implements Injectable {
    * {@inheritdoc}
    */
   public function inject(Container $container) {
-    $this->resultsDatabase = $container['db.results'];
     $this->environment = $container['environment'];
   }
 
@@ -34,13 +29,20 @@ class JunitXmlBuilder implements Injectable {
    *
    * @param string[] $test_groups
    *   Array of test groups, keyed by class name.
+   *
+   * @return \DOMDocument
+   *   JUnit XML dom document.
+   *
+   * @todo Inject the results database service. Currently the caller maintains
+   *       state for the results DB somehow, and so we can't get it from the
+   *       container.
    */
-  public function generate(array $test_groups) {
-    $db = $this->resultsDatabase->connect($this->resultsDatabase->getDbname());
+  public function generate(\PDO $db, array $test_groups) {
+    $mapped_results = [];
+
+//    $db = $this->resultsDatabase->connect($this->resultsDatabase->getDbname());
 
     $q_result = $db->query('SELECT * FROM simpletest ORDER BY test_id, test_class, message_id;');
-
-    $mapped_results = [];
 
     while ($result = $q_result->fetch(\PDO::FETCH_ASSOC)) {
       $mapped_results = array_merge_recursive(
