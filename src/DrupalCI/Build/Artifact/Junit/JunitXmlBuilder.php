@@ -8,16 +8,6 @@ use Pimple\Container;
 class JunitXmlBuilder implements Injectable {
 
   /**
-   * The container environment
-   *
-   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
-   *
-   * @todo Figure out a good way to inject just the path we need from the
-   *       environment.
-   */
-  protected $environment;
-
-  /**
    * The results database to query.
    *
    * @var  \DrupalCI\Build\Environment\DatabaseInterface
@@ -25,11 +15,20 @@ class JunitXmlBuilder implements Injectable {
   protected $resultsDatabase;
 
   /**
+   * The environment's container source directory.
+   *
+   * Used to adjust path names during conversion to XML.
+   *
+   * @var string
+   */
+  protected $containerSourceDir;
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
-    $this->environment = $container['environment'];
     $this->resultsDatabase = $container['db.results'];
+    $this->containerSourceDir = $container['environment']->getExecContainerSourceDir();
   }
 
   /**
@@ -92,7 +91,7 @@ class JunitXmlBuilder implements Injectable {
       $test_method = preg_replace('/\(\)/', '', $test_method);
 
       // Trim source directory path off of $result['file'].
-      $length = strlen($this->environment->getExecContainerSourceDir());
+      $length = strlen($this->containerSourceDir);
       $result['file'] = substr($result['file'], $length + 1);
 
       // Set up our return array.
