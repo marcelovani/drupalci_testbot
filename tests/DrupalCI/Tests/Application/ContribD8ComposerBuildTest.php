@@ -12,7 +12,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @group Application
  * @group docker
- * @Xml
+ * @group Xml
  *
  * @see TESTING.md
  */
