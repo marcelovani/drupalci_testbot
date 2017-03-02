@@ -40,7 +40,7 @@ class EsLintFailTest extends DrupalCIFunctionalTestBase {
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLint.yml',
     ], $options);
     $this->assertRegExp('/Running eslint on modified js files./', $app_tester->getDisplay());
-    $this->assertEquals(1, $app_tester->getStatusCode());
+    $this->assertEquals(2, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];
