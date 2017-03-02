@@ -347,11 +347,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $test_groups = $this->parseGroups($test_list);
 
-    // @todo Allow the database service to be injected into the xml builder at
-    //       the service level.
-    $db = $this->results_database->connect($this->results_database->getDbname());
-
-    $doc = $this->junitXmlBuilder->generate($db, $test_groups);
+    $doc = $this->junitXmlBuilder->generate($test_groups);
 
     $label = '';
     if (isset($this->pluginLabel)) {

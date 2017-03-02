@@ -4,6 +4,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Build\Environment\Environment;
+use Pimple\Container;
 
 /**
  * @PluginID("simpletest_d7")
@@ -12,9 +13,17 @@ class SimpletestD7 extends Simpletest {
 
   protected $runscript = '/scripts/run-tests.sh';
 
-  protected function setupSimpletestDB(BuildInterface $build) {
+  /**
+   * {@inheritdoc}
+   */
+  public function inject(Container $container) {
+    // D7 uses the same database for both system and results, so we'll adjust
+    // the container here.
+    $container['db.results'] = $container['db.system'];
+    parent::inject($container);
+  }
 
-    $this->results_database = $this->system_database;
+  protected function setupSimpletestDB(BuildInterface $build) {
     $dburl = $this->system_database->getUrl();
     // Fixes sqlite for d7
     if ($this->system_database->getDbType() === 'sqlite' ) {

@@ -18,10 +18,18 @@ class JunitXmlBuilder implements Injectable {
   protected $environment;
 
   /**
+   * The results database to query.
+   *
+   * @var  \DrupalCI\Build\Environment\DatabaseInterface
+   */
+  protected $resultsDatabase;
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
     $this->environment = $container['environment'];
+    $this->resultsDatabase = $container['db.results'];
   }
 
   /**
@@ -37,10 +45,10 @@ class JunitXmlBuilder implements Injectable {
    *       state for the results DB somehow, and so we can't get it from the
    *       container.
    */
-  public function generate(\PDO $db, array $test_groups) {
+  public function generate(array $test_groups) {
     $mapped_results = [];
 
-//    $db = $this->resultsDatabase->connect($this->resultsDatabase->getDbname());
+    $db = $this->resultsDatabase->connect($this->resultsDatabase->getDbname());
 
     $q_result = $db->query('SELECT * FROM simpletest ORDER BY test_id, test_class, message_id;');
 
