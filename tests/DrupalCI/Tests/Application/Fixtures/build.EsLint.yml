@@ -1,8 +1,15 @@
+#Fixture that exercises phplint without any other tests.
 build:
   codebase:
     assemble_codebase:
       replicate:
       checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit_hash: ''
+            checkout_dir: ''
       composer.core_install:
       composer_contrib:
       fetch:
@@ -11,19 +18,6 @@ build:
   environment:
     startcontainers:
       runcontainers:
-      start_phantomjs:
-    create_db:
-      dbcreate:
   assessment:
     validate_codebase:
-      phplint:
-      container_composer:
-      csslint:
       eslint:
-      phpcs:
-    testing:
-      simpletest.standard:
-        concurrency: 31
-      simpletest.js:
-        concurrency: 1
-        types: 'PHPUnit-FunctionalJavascript'
