@@ -18,6 +18,7 @@ build:
     validate_codebase:
       phplint:
       container_composer:
+      csslint:
       eslint:
       phpcs:
     testing:

@@ -6,7 +6,7 @@ use DrupalCI\Tests\DrupalCIFunctionalTestBase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
- * Test what happens when you find a php linting error.
+ * Prove that css linting works by default
  *
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *
@@ -15,36 +15,34 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class EsLintFailTest extends DrupalCIFunctionalTestBase {
+class CssLintSuccessTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected $dciConfig = [
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.4.x',
+    'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.1-apache:production',
-    'DCI_Fetch=https://www.drupal.org/files/issues/testbot-eslint-test.patch,.',
-    'DCI_Patch=testbot-eslint-test.patch,.',
-    'DCI_ES_LintFailsTest=TRUE',
-
+    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
-  public function testEslintTest() {
+  public function testCoderSniffOnlyChangedFailTest() {
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLint.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CssLint.yml',
     ], $options);
-    $this->assertRegExp('/Running eslint on modified js files./', $app_tester->getDisplay());
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $this->assertRegExp('/No modified files. Sniffing all files/', $app_tester->getDisplay());
+    $this->assertRegExp('/Executing csslint./', $app_tester->getDisplay());
+    $this->assertEquals(0, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];
-    $this->assertBuildOutputJson($build, 'buildLabel', 'Javascript coding standards error');
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 

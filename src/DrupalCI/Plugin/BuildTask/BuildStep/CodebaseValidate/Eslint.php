@@ -114,8 +114,8 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint_fails_test']) {
-      return $return;
+    if ($this->configuration['lint_fails_test'] && !empty($return)) {
+      $this->terminatebuild('Javascript coding standards error', '');
     }
     return 0;
   }
