@@ -44,7 +44,7 @@ class EsLintFailTest extends DrupalCIFunctionalTestBase {
 
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];
-    $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
+    $this->assertBuildOutputJson($build, 'buildLabel', 'Javascript coding standards error');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
 
