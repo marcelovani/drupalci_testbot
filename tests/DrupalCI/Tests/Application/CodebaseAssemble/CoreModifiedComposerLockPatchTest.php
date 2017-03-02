@@ -36,7 +36,8 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
     $installed_json = json_decode(file_get_contents($build->getArtifactDirectory() . '/codebase/composer-installed.json'), TRUE);
     foreach ($installed_json as $package) {
       if ($package['name'] == "symfony/class-loader") {
-        $this->assertEquals('v2.8.15', $package['version']);
+        // Allow for different patchlevels by manipulating the version string.
+        $this->assertEquals('v2.8.', substr($package['version'], 0, 5));
       }
     }
 

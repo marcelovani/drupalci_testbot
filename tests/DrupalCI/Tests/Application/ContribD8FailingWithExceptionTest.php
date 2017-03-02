@@ -12,6 +12,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *
  * @group Application
+ * @group Xml
  *
  * @see TESTING.md
  */
