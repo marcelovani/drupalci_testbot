@@ -57,6 +57,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
 
 
       $composer_branchname = $cmdoutput;
+      $composer_branchname = $this->flipDevBranch($composer_branchname);
       // Copy directory to ancillary
       $project_dir = $source_dir . '/' . $contrib_dir;
       $cmd = "cp -r $project_dir $ancillary_dir";
@@ -125,4 +126,13 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
     }
   }
 
+  /**
+   * @param $branch
+   *
+   * @return string
+   */
+  protected function flipDevBranch($branch) {
+    $converted_version = 'dev-' . preg_replace('/-dev$/', '', $branch);
+    return $converted_version;
+  }
 }
