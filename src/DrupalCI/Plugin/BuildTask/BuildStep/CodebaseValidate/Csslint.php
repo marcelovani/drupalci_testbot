@@ -38,6 +38,8 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       // If lint_fails_test is TRUE, then abort the build.
       'lint_fails_test' => FALSE,
       'skip_linting' => FALSE,
+      // Config file is not always in start directory.
+      'start_directory' => 'core',
     ];
   }
 
@@ -51,6 +53,9 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     }
     if (FALSE !== getenv('DCI_CSS_SkipLinting')) {
       $this->configuration['skip_linting'] = getenv('DCI_CSS_SkipLinting');
+    }
+    if (FALSE !== getenv('DCI_CSS_StartDirectory')) {
+      $this->configuration['start_directory'] = getenv('DCI_CSS_StartDirectory');
     }
   }
 
@@ -80,7 +85,14 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     $files_to_lint = $this->getLintableFiles();
     $lintfiles = implode(' ',$files_to_lint);
     if (empty($lintfiles)) {
-      $lintfiles = '.';
+      // Lint all files.
+      if (!empty($this->configuration['start_directory'])) {
+        $lintfiles = $this->configuration['start_directory'];
+      }
+      else {
+        // If there's no start_directory, use .
+        $lintfiles = '.';
+      }
     }
     elseif ($lintfiles == 'none') {
       return 0;
@@ -90,7 +102,9 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     $command = 'cd ' . $this->codebase->getSourceDirectory() . ' && ' . 'csslint --format=checkstyle-xml --config=' . $config . ' ' . $lintfiles . ' > ' . $outputfile;
     //--exclude-list=core/vendor,core/assets/vendor/,core/tests
+    $this->saveStringArtifact('csslint_command.txt', $command);
     $this->exec($command, $output, $return);
+
     // csslint doesnt produce valid xml
     $command = 'cd ' . $this->codebase->getSourceDirectory() . " && perl -CSDA -i -pe 's/[^\x9\xA\xD\x20-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]+//g;' " . $outputfile;
     $this->exec($command, $output, $return);

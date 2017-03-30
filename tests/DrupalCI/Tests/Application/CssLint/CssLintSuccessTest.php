@@ -11,7 +11,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *
  * @group Application
- * @group phpcs
+ * @group csslint
  *
  * @see TESTING.md
  */
@@ -44,6 +44,8 @@ class CssLintSuccessTest extends DrupalCIFunctionalTestBase {
     $build = $app->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
+
+    $this->assertFileExists($build->getArtifactDirectory() . '/csslint/csslint_command.txt');
   }
 
 }

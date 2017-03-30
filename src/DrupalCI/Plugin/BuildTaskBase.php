@@ -216,6 +216,15 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->build->addArtifact($filepath, $savename);
   }
 
+  /**
+   * Save a string to a file in the plugin artifacts.
+   *
+   * @param string $filename
+   *   The file name to save as. This will be inside the plugin artifact
+   *   directory.
+   * @param string $contents
+   *   The string to save.
+   */
   protected function saveStringArtifact($filename, $contents) {
     $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 
