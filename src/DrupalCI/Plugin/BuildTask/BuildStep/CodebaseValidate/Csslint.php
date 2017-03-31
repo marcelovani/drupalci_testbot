@@ -27,8 +27,18 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   protected $checkstyleReportFile = 'checkstyle.xml';
 
+  /* @var \DrupalCI\Build\Environment\EnvironmentInterface */
+  protected $environment;
+
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
+
+  /**
+   * Relative path to the csslint config file.
+   *
+   * @var string
+   */
+  protected $configFile = '';
 
   /**
    * @inheritDoc
@@ -69,12 +79,39 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   }
 
   /**
+   * Adjust state for contrib versus core, and find the config file.
+   *
+   * For core, we can have a config file in root, and core/ for start_directory.
+   * For all other cases, we only want to lint if there is a config file within
+   * the adjusted start_directory.
+   *
+   * @todo The way of figuring out if the build is core or contrib might change.
+   *       Adjust this method when it does.
+   */
+  protected function discoverStartDirectoryAndConfig() {
+    $project_name = $this->codebase->getProjectName();
+    // Should we set up for contrib?
+    if ($project_name !== 'drupal') {
+      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionSubDirectory();
+      $config_file = $this->configuration['start_directory'] . '/.csslintrc';
+      if (file_exists($this->codebase->getSourceDirectory() . '/' . $config_file)) {
+        $this->configFile = $config_file;
+      }
+      return;
+    }
+    // Set up for core.
+    if (file_exists($this->codebase->getSourceDirectory() . '/.csslintrc')) {
+      $this->configFile = '.csslintrc';
+    }
+  }
+
+  /**
    * Perform the step run.
    */
   public function run() {
-    $config = $this->getCssLintConfig();
+    $this->discoverStartDirectoryAndConfig();
     // If there is no config file or we want to skip csslint outright
-    if (empty($config) || $this->configuration['skip_linting']) {
+    if (empty($this->configFile) || $this->configuration['skip_linting']) {
       return 0;
     }
     $this->io->writeln('<info>csslinting the project.</info>');
@@ -100,8 +137,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     $this->io->writeln('Executing csslint.');
 
-    $command = 'cd ' . $this->codebase->getSourceDirectory() . ' && ' . 'csslint --format=checkstyle-xml --config=' . $config . ' ' . $lintfiles . ' > ' . $outputfile;
-    //--exclude-list=core/vendor,core/assets/vendor/,core/tests
+    $command = 'cd ' . $this->codebase->getSourceDirectory() . ' && ' . 'csslint --format=checkstyle-xml --config=' . $this->configFile . ' ' . $lintfiles . ' > ' . $outputfile;
     $this->saveStringArtifact('csslint_command.txt', $command);
     $this->exec($command, $output, $return);
 
@@ -147,43 +183,18 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   }
 
   /**
-   * Returns the full path of the directory to run csslint in.
-   *
-   * If a project has a .csslintrc, we want to run csslint from the
-   * project directory, otherwise we run from the root directory to use
-   * the default drupal rules, unless there arent any.
-   */
-  protected function getCssLintConfig() {
-    $config_file = '';
-
-    $root_dir = $this->codebase->getTrueExtensionSubDirectory();
-    // Check for config files in the project directory first
-   if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.csslintrc'))   {
-      $config_file = $root_dir . '/.csslintrc';
-   }
-   elseif (file_exists($this->codebase->getSourceDirectory() . '/.csslintrc'))   {
-     $config_file = '.csslintrc';
-   }
-
-    return $config_file;
-  }
-
-  /**
    * Check if the .csslintignore file has been modified by git.
    *
    * @returns bool
    *   TRUE if config file if either file is modified, FALSE otherwise.
    */
   protected function configFileIsModified() {
-    // Get the list of modified files.
-    $modified_files = $this->codebase->getModifiedFiles();
-    $config = $this->getCssLintConfig();
-
     return (
-      in_array($config, $modified_files)
+      in_array(
+        $this->configFile, $this->codebase->getModifiedFiles()
+      )
     );
   }
-
 
   protected function getLintableFiles() {
 
