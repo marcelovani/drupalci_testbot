@@ -41,7 +41,7 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     // Testresults do not get cut off, however, the xml contains a ton of
     // run-specific data that I dont really know how to control for
     // (date time stamps, random strings etc)
-    $this->markTestSkipped();
+    $this->markTestSkipped('Needs improvement of XML result checking.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
