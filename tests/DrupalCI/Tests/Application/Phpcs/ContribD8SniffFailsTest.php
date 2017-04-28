@@ -36,6 +36,7 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     ], $options);
     // Assert output text and status code.
     $this->assertRegExp('/Checking for PHPCS config file/', $app_tester->getDisplay());
+    $this->assertRegExp('/The installed coding standards are .* Drupal/', $app_tester->getDisplay());
     $this->assertRegExp('/Executing PHPCS./', $app_tester->getDisplay());
     $this->assertEquals(1, $app_tester->getStatusCode());
 
