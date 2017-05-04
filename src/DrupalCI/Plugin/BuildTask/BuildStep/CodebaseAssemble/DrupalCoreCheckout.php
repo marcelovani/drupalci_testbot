@@ -70,6 +70,11 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
             continue;
           }
           $pathcomponents = explode('/', $path);
+          // @todo need to make more robust
+          // for now we'll just skip custom modules
+          if ($pathcomponents[1] == 'custom'){
+            continue;
+          }
           array_pop($pathcomponents);
           $extensiontype = rtrim($pathcomponents[0], 's');
           $extension_paths[$extensiontype] = implode('/',$pathcomponents);

@@ -128,8 +128,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $this->saveContainerArtifact('/var/log/apache2/error.log','apache-error.log');
     $this->saveContainerArtifact('/var/log/apache2/test.apache.error.log','test.apache.error.log');
-    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
-    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
+//    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
+//    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
     $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
 
     $this->saveStringArtifact('simpletestoutput.txt', $result->getOutput());
@@ -234,7 +234,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $dbfile = $this->pluginWorkDir . '/' . $sqlite_db_filename;
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
-    $this->saveContainerArtifact($this->configuration['sqlite'], $sqlite_db_filename);
+    // $this->saveContainerArtifact($this->configuration['sqlite'], $sqlite_db_filename);
   }
 
   protected function generateTestGroups() {
