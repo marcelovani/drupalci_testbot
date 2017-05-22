@@ -1,0 +1,19 @@
+build:
+  codebase:
+    assemble_codebase:
+      yarn_install:
+      replicate:
+      checkout_core:
+      composer.core_install:
+      composer_contrib:
+      fetch:
+      patch:
+      update_dependencies:
+      yarn_build:
+  environment:
+    startcontainers:
+      runcontainers:
+      start_phantomjs:
+  assessment:
+    validate_codebase:
+      stylelint:

@@ -67,7 +67,17 @@ interface CodebaseInterface {
 
   public function setExtensionPaths($extensionPaths);
 
-  public function getTrueExtensionSubDirectory();
+  /**
+   * Returns the subpath to the project under test.
+   *
+   * @param bool $use_core_directory_for_core
+   *   Set to true to return the core directory for the core project.
+   *
+   * @return string
+   *   Subpath to the project under test. This is relative to the codebase
+   *   source directory.
+   */
+  public function getTrueExtensionSubDirectory($use_core_directory_for_core = FALSE);
 
   public function getComposerDevRequirements();
 
