@@ -24,17 +24,19 @@ class YarnInstall extends BuildTaskBase implements BuildStepInterface, BuildTask
     $result = 0;
     // Figure out if yarn is already installed.
     $this->exec('which yarn', $output, $result);
+    $this->saveStringArtifact('which_yarn.txt', implode("\n", $output));
     if ($result === 0) {
-      $this->io->writeln('yarn is already installed.');
+      $this->io->writeln('Yarn is already installed.');
       return 0;
     }
     // We're using npm to install yarn, which is not entirely recommended.
     // However, it's much less of a hassle than using apt-get, and this plugin
     // is intended to be a temporary solution until yarn is an environment-
     // level dependency.
-    $this->io->writeln('installing yarn.');
+    $this->io->writeln('Installing yarn.');
     $output = [];
-    $this->exec('sudo npm install --global yarn', $output, $result);
+    $this->exec('sudo npm install --global yarn 2>&1', $output, $result);
+    $this->saveStringArtifact('install_yarn.txt', implode("\n", $output));
     if ($result !== 0) {
       $this->terminateBuild('Unable to install yarn.', $result->getError());
     }

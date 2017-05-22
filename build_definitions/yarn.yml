@@ -10,10 +10,3 @@ build:
       patch:
       update_dependencies:
       yarn_build:
-  environment:
-    startcontainers:
-      runcontainers:
-      start_phantomjs:
-  assessment:
-    validate_codebase:
-      stylelint:

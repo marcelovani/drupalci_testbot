@@ -1,6 +1,7 @@
 build:
   codebase:
     assemble_codebase:
+      yarn_install:
       replicate:
       checkout_core:
       composer.core_install:
@@ -8,6 +9,7 @@ build:
       fetch:
       patch:
       update_dependencies:
+      yarn_build:
   environment:
     startcontainers:
       runcontainers:

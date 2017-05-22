@@ -2,32 +2,21 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-use DrupalCI\Injectable;
-use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
-use DrupalCI\Plugin\BuildTaskBase;
-use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use Pimple\Container;
-use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Plugin\BuildTaskForConfigBase;
 
 /**
  * Build yarn package.json within the project.
  *
  * @PluginID("yarn_build")
  */
-class YarnBuild extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
+class YarnBuild extends BuildTaskForConfigBase {
 
   /**
-   * @var \DrupalCI\Build\Codebase\CodebaseInterface
+   * The name of the config file for 'yarn install'.
+   *
+   * @var string
    */
-  protected $codebase;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->codebase = $container['codebase'];
-  }
+  protected $configFile = 'package.json';
 
   /**
    * {@inheritDoc}
@@ -36,9 +25,20 @@ class YarnBuild extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
     $output = [];
     $result = 0;
     $this->io->writeln('Building with yarn.');
-    // @todo Right now this only works with core.
-    $core_dir = $this->codebase->getSourceDirectory() . '/core';
-    $this->exec("cd $core_dir && yarn install", $output, $result);
+
+    $config_file = $this->getToolConfigFile($this->configFile);
+
+    if (empty($config_file)) {
+      $this->io->writeln("No $this->configFile file to build.");
+      return 0;
+    }
+
+    $old_cwd = getcwd();
+    $base_dir = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory(TRUE);
+    chdir($base_dir);
+    $this->exec('yarn install 2>&1', $output, $result);
+    chdir($old_cwd);
+    $this->saveStringArtifact('yarn_install_build.txt', implode("\n", $output));
     if ($result !== 0) {
       $this->terminateBuild('Unable to build yarn.', $output);
     }
