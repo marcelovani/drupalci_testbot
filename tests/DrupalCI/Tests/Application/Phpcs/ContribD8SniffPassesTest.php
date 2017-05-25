@@ -6,7 +6,7 @@ use DrupalCI\Tests\DrupalCIFunctionalTestBase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
- * Test what happens for contrib when a patch fails coding standards.
+ * Test what happens for contrib when a patch passes coding standards.
  *
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *
@@ -15,15 +15,15 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
+class ContribD8SniffPassesTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected $dciConfig = [
     'DCI_CS_SniffFailsTest=TRUE',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2842832_2-fail-phpcs.patch,.',
-    'DCI_Patch=2842832_2-fail-phpcs.patch,modules/examples',
+    'DCI_Fetch=https://www.drupal.org/files/issues/2842832_3-pass-phpcs.patch,.',
+    'DCI_Patch=2842832_3-pass-phpcs.patch,modules/examples',
   ];
 
   public function testD8Contrib() {
@@ -37,7 +37,7 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     // Assert output text and status code.
     $this->assertRegExp('/Checking for PHPCS config file/', $app_tester->getDisplay());
     $this->assertRegExp('/Executing PHPCS./', $app_tester->getDisplay());
-    $this->assertEquals(1, $app_tester->getStatusCode());
+    $this->assertEquals(0, $app_tester->getStatusCode());
 
     // Assert report.
     /* @var $build \DrupalCI\Build\BuildInterface */
@@ -45,9 +45,9 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     $artifact_file = $build->getArtifactDirectory() . '/phpcs/checkstyle.xml';
     $this->assertTrue(file_exists($artifact_file));
 
-    // Tests failed: autofix patch must be created.
+    // Tests passed: no autofix patch must be created.
     $codesniffer_autofix_patch = $build->getArtifactDirectory() . '/phpcs/codesniffer_autofix.patch';
-    $this->assertTrue(file_exists($codesniffer_autofix_patch));
+    $this->assertFalse(file_exists($codesniffer_autofix_patch));
   }
 
 }
