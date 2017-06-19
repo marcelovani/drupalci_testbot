@@ -45,6 +45,11 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    */
   public function run() {
 
+//    $this->io->writeln("<info>Starting headless chrome container ...</info>");
+//    $images['chrome'] = ["Image" => "drupalci/headless-chrome"];
+//    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/headless-chrome</></comment>");
+//    $this->environment->startChromeContainer($images['chrome']);
+
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
     $php_version = $this->configuration['phpversion'];
     $images['web'] = ["Image" => "drupalci/$php_version"];

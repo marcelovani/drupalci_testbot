@@ -31,6 +31,9 @@ class Environment implements Injectable, EnvironmentInterface {
   // Holds the name and Docker IDs of our service container.
   protected $databaseContainer;
 
+  // Holds the name and Docker IDs of our chrome container.
+  protected $chromeContainer;
+
   /* @var DatabaseInterface */
   protected $database;
 
@@ -212,11 +215,15 @@ class Environment implements Injectable, EnvironmentInterface {
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostComposerCacheDirectory() . ':' . $this->containerComposerCacheDir;
     $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
+//    #Link this to the chrome container
+//    $execname = substr($this->chromeContainer['name'], 1);
+//    $container['HostConfig']['Links'][0] = $execname;
     $this->executableContainer = $this->startContainer($container);
 
   }
 
   public function startServiceContainerDaemons($db_container) {
+
     if (strpos($this->database->getDbType(), 'sqlite') === 0) {
       return;
     }
@@ -229,6 +236,16 @@ class Environment implements Injectable, EnvironmentInterface {
 
   }
 
+  public function startChromeContainer($chrome_container) {
+
+//    $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
+//    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $chrome_container['HostConfig']['Binds'] = [];
+    $chrome_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
+
+    $this->chromeContainer = $this->startContainer($chrome_container);
+
+  }
   public function terminateContainers() {
 
     $manager = $this->docker->getContainerManager();
@@ -251,6 +268,9 @@ class Environment implements Injectable, EnvironmentInterface {
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
     $host_config->setUlimits($config['HostConfig']['Ulimits']);
+//    if (!empty($config['HostConfig']['Links'])){
+//      $host_config->setLinks($config['HostConfig']['Links']);
+//    }
     $container_config->setHostConfig($host_config);
     $parameters = [];
     $create_result = $manager->create($container_config, $parameters);

@@ -24,6 +24,8 @@ interface EnvironmentInterface {
 
   public function startServiceContainerDaemons($container);
 
+  public function startChromeContainer($container);
+
   public function terminateContainers();
 
   public function getDatabaseContainer();
