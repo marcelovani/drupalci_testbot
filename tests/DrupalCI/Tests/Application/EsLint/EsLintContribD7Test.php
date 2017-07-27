@@ -26,7 +26,7 @@ class EsLintD7ContribSuccessTest extends DrupalCIFunctionalTestBase {
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-5.6-apache:production',
     'DCI_TestItem=directory:modules/metatag',
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/metatag.git,7.x-1.x,modules/metatag,1;',
+    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/metatag.git,7.x-1.x#a94f3b25b7740d67ff7d69a4bf18f529c07d6db3,modules/metatag,1;',
     'DCI_TestItem=directory:modules/metatag',
   ];
 
@@ -36,7 +36,7 @@ class EsLintD7ContribSuccessTest extends DrupalCIFunctionalTestBase {
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintD7.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintContribD7Test.yml',
     ], $options);
     $this->assertRegExp('/No modified files. Linting all files./', $app_tester->getDisplay());
 
