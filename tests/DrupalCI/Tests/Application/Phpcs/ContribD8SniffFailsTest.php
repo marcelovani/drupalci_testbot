@@ -32,7 +32,7 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8Examples.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8SniffFailsTest.yml',
     ], $options);
     // Assert output text and status code.
     $this->assertRegExp('/Checking for PHPCS config file/', $app_tester->getDisplay());

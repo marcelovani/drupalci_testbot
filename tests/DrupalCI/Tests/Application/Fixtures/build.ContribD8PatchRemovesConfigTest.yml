@@ -8,6 +8,7 @@ build:
         exclude: {  }
         local_dir: /var/lib/drupalci/drupal-checkout
         git_branch: 8.2.x
+        git_commit_hash: 704c66e83ed919e812d35688a10dbcaa6d0ad49a
       checkout_core:
         repositories:
           -
@@ -20,7 +21,7 @@ build:
         repositories:
           -
             repo: 'git://git.drupal.org/project/examples.git'
-            branch: 8.x-1.x
+            branch: 8.x-1.x#e1aeba0938b9887ef8916fd1e8fec9ae2ca61d35
             checkout_dir: modules/examples
       fetch:
       patch:
