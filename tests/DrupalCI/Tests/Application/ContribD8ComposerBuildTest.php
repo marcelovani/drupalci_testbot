@@ -25,6 +25,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
     'DCI_CoreBranch=8.3.x',
+    'DCI_GitCommitHash=1c762d13221ede7a500f1691392a94a76fcacce0',
     'DCI_JobType=simpletest',
     'DCI_TestItem=directory:modules/monolog',
     'DCI_AdditionalRepositories=git,git://git.drupal.org/project/monolog.git,8.x-1.x,modules/monolog,1;',
@@ -35,6 +36,7 @@ class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testBasicTest() {
+    //$this->markTestSkipped('Unable to check out core codebase, fails at composer phase.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);

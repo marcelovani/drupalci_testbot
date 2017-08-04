@@ -22,8 +22,8 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/flag.git,8.x-4.x,modules/flag,1;',
-    'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
+    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/flag.git,8.x-4.x#9daaa90d82fe580d2b5c64633a50d60593068d91,modules/flag,1;',
+    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
     'DCI_CoreBranch=8.3.x',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
@@ -41,7 +41,7 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     // Testresults do not get cut off, however, the xml contains a ton of
     // run-specific data that I dont really know how to control for
     // (date time stamps, random strings etc)
-    $this->markTestSkipped();
+    $this->markTestSkipped('Needs improvement of XML result checking.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
