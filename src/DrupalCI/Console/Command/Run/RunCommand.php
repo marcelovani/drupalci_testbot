@@ -62,9 +62,35 @@ class RunCommand extends DrupalCICommandBase {
    * {@inheritdoc}
    */
   public function execute(InputInterface $input, OutputInterface $output) {
+    // Which build def to use?
+    // 1) Command line.
+    // 2) Environmental variable.
+    // 3) Project drupalci.yml.
+    // We always have to perform the bootstrap build.
+    $this->io->writeln("<info>Executing common build steps</info>");
+    $this->build->generateBuild('bootstrap');
+    if ($statuscode = $this->build->executeBuild()) {
+      return $statuscode;
+    }
 
-    $arg = $input->getArgument('definition');
-    $this->build->generateBuild($arg);
+//    DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout DCI_LocalBranch=8.3.x DCI_LocalCommitHash=c187f1d DCI_TestItem=Url DCI_PHPVersion=php-7.0-apache:production DCI_DBType=mysql DCI_DBVersion=5.5 DCI_CS_SkipCodesniff=TRUE ./drupalci run
+
+    // Gather definition files.
+    $project_build_definition = $this->build->getProjectBuildFile();
+    $env_build_definition = getenv('DCI_BuildDefinitionFile');
+    $cli_build_definition = $input->getArgument('definition');
+
+    // Override definition files based on priority.
+    $build_definition_file = $project_build_definition;
+    if (!empty($env_build_definition)) {
+      $build_definition_file = $env_build_definition;
+    }
+    if (!empty($cli_build_definition)) {
+      $build_definition_file = $cli_build_definition;
+    }
+
+    // Generate a new build for the user-space build definition.
+    $this->build->generateBuild($build_definition_file);
 
     $this->io->writeln("<info>Using build definition template: <options=bold>" . $this->build->getBuildFile() . "</options></></info>");
 

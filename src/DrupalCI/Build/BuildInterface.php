@@ -27,9 +27,26 @@ interface BuildInterface {
   public function getBuildFile();
 
   /**
-   * @param string
+   * Full path to build defintion file if present in the project under test.
+   *
+   * If our codebase project (core, contrib) has a drupalci.yml file, return a
+   * string to it from here,. Generally this will be used to launch the
+   * user-space build process.
+   *
+   * @return string|null
+   *   The full path to the project's drupalci.yml file if it has one.
    */
-  public function generateBuild($arg);
+  public function getProjectBuildFile();
+
+  /**
+   * @param string
+   * Takes in either the full path to a build.yml file, or the name of one of
+   * the predefined build_definitions like simpletest or simpletest7, or if
+   * null, defaults to simpletest.  Once it loads the yaml definition, it
+   * recursively iterates over the definition creating and configuring the
+   * build plugins for this build.
+   */
+  public function generateBuild($build_file);
 
   /**
    * Executes a configured build.

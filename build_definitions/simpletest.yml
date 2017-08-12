@@ -1,13 +1,4 @@
 build:
-  codebase:
-    assemble_codebase:
-      replicate:
-      checkout_core:
-      composer.core_install:
-      composer_contrib:
-      fetch:
-      patch:
-      update_dependencies:
   environment:
     startcontainers:
       runcontainers:

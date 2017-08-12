@@ -194,43 +194,37 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * @param $arg
-   *
-   * Takes in either the full path to a build.yml file, or the name of one of
-   * the predefined build_definitions like simpletest or simpletest7, or if
-   * null, defaults to simpletest.  Once it loads the yaml definition, it
-   * recursively iterates over the definition creating and configuring the
-   * build plugins for this build.
+   * {@inheritdoc}
    */
-  public function generateBuild($arg) {
+  public function generateBuild($build_file) {
 
     if (FALSE !== getenv('DCI_JobType')) {
-      $arg = getenv('DCI_JobType');
+      $build_file = getenv('DCI_JobType');
     }
-    if ($arg) {
-      if (strtolower(substr(trim($arg), -4)) == ".yml") {
+    if ($build_file) {
+      if (strtolower(substr(trim($build_file), -4)) == ".yml") {
 
-        $type = filter_var($arg, FILTER_VALIDATE_URL) ? "remote" : "local";
+        $type = filter_var($build_file, FILTER_VALIDATE_URL) ? "remote" : "local";
 
         // If a remote file, download a local copy
         if ($type == "remote") {
-          $file_info = pathinfo($arg);
+          $file_info = pathinfo($build_file);
           $destination_file = sys_get_temp_dir() . '/' . $file_info['basename'];
           $this->httpClient
-            ->get($arg, ['save_to' => "$destination_file"]);
+            ->get($build_file, ['save_to' => "$destination_file"]);
           $this->io->writeln("<info>Build downloaded to <options=bold>$destination_file</></info>");
           $this->buildFile = $destination_file;
           $this->buildType = 'remote';
         }
         else {
           // If its not a url, its a filepath.
-          $this->buildFile = $arg;
+          $this->buildFile = $build_file;
           $this->buildType = 'local';
         }
       }
       else {
-        $this->buildFile = $this->container['app.root'] . '/build_definitions/' . $arg . '.yml';
-        $this->buildType = $arg;
+        $this->buildFile = $this->container['app.root'] . '/build_definitions/' . $build_file . '.yml';
+        $this->buildType = $build_file;
       }
     }
     else {
@@ -698,6 +692,13 @@ class Build implements BuildInterface, Injectable {
     $fs->remove($this->getAncillaryWorkDirectory());
 
     $fs->remove($this->getDBDirectory());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getProjectBuildFile() {
+    return NULL;
   }
 
 }
