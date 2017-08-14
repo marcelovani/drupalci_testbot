@@ -48,12 +48,25 @@ interface BuildInterface {
    */
   public function generateBuild($build_file);
 
+  public function generateBootstrapBuild();
+
+  public function generateEnvironmentBuild($project_build_file);
+
   /**
    * Executes a configured build.
    *
    * @return mixed
    */
   public function executeBuild();
+
+  /**
+   * Preserve build artifacts for the build object.
+   *
+   * We can execute multiple builds per build object. This preserves artifacts
+   * from all of them.
+   */
+  public function preserveBuildArtifacts();
+
 
   /**
    * This is the directory where we place everything specific to this build

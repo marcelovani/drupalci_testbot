@@ -87,7 +87,7 @@ class Build implements BuildInterface, Injectable {
   protected $buildType;
 
   /**
-   * Stores a build ID for this build
+   * Stores a build ID for this build.
    *
    * @var string
    */
@@ -106,6 +106,16 @@ class Build implements BuildInterface, Injectable {
   protected $httpClient;
 
   /**
+   * Build phase prefix.
+   *
+   * If we're in bootstrap or environment phase, this string will be either
+   * 'bootstrap' or 'environment.'
+   *
+   * @var string
+   */
+  protected $buildPhase = '';
+
+  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
@@ -117,7 +127,7 @@ class Build implements BuildInterface, Injectable {
   }
 
   public function getBuildType() {
-    return $this->buildType;
+    return 'dci_build';
   }
 
   /**
@@ -196,6 +206,31 @@ class Build implements BuildInterface, Injectable {
   /**
    * {@inheritdoc}
    */
+  public function generateBootstrapBuild() {
+    $this->buildPhase = 'bootstrap';
+    $this->generateBuild($this->buildPhase);
+    $this->buildPhase = '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateEnvironmentBuild($project_build_file) {
+    $this->buildPhase = 'environment';
+    $environment = [];
+    if (!empty($project_build_file)) {
+      // We parse the project build file to get its environment section.
+      $environment = $this->loadYaml($project_build_file)['environment'];
+    }
+    // @todo parse environment and turn it into environmental variables.
+    // @todo use something better than environmental variables.
+    $this->generateBuild($this->buildPhase);
+    $this->buildPhase = '';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function generateBuild($build_file) {
 
     if (FALSE !== getenv('DCI_JobType')) {
@@ -241,6 +276,9 @@ class Build implements BuildInterface, Injectable {
     $build_definition['build'] = $this->computedBuildDefinition;
 
     $this->generateBuildId();
+    $build_id = $this->getBuildId();
+    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
+
     $this->setupWorkSpace();
     $this->saveYaml($build_definition);
 
@@ -278,6 +316,14 @@ class Build implements BuildInterface, Injectable {
     foreach ($config as $config_key => $task_configurations) {
       $plugin_key = preg_replace('/\..*/', '', $config_key);
       $keyparts = explode('.', $config_key);
+      if (!empty($this->buildPhase)) {
+        if (isset($keyparts[1])) {
+          $keyparts[1] = $keyparts[1] . '_' . $this->buildPhase;
+        }
+        else {
+          $keyparts[1] = $this->buildPhase;
+        }
+      }
       if ($this->buildTaskPluginManager->hasPlugin($task_type[$depth], $plugin_key)) {
         // This $config_key is a BuildTask plugin, therefore it may have some
         // configuration defined or may have child BuildTask plugins.
@@ -350,27 +396,28 @@ class Build implements BuildInterface, Injectable {
     catch (BuildTaskException $e) {
       $this->saveBuildState($e->getBuildResults());
       return 2;
-    } finally {
-      // TODO: we need to have a step that goes through the build objects
-      // and preserves their files/output. Either that or we need to ensure
-      // that *all* artifacts are part of the plugins, and never on the build
-      // objects (better)
-      // Preserve all the Build artifacts.
-      /* @var $buildArtifact \DrupalCI\Build\Artifact\BuildArtifactInterface */
-      foreach ($this->buildArtifacts as $buildArtifact) {
-        $buildArtifact->preserve();
-      }
-      try {
-        // If we set DCI_Debug, we keep the databases n stuff.
-        if (FALSE === (getenv('DCI_Debug'))) {
-          $this->cleanupBuild();
-        }
-      }
-      catch (\Exception $e) {
-        $this->io->drupalCIError('Failure in build cleanup', $e->getMessage());
+    }
+  }
+
+  public function preserveBuildArtifacts() {
+    // TODO: we need to have a step that goes through the build objects
+    // and preserves their files/output. Either that or we need to ensure
+    // that *all* artifacts are part of the plugins, and never on the build
+    // objects (better)
+    // Preserve all the Build artifacts.
+    /* @var $buildArtifact \DrupalCI\Build\Artifact\BuildArtifactInterface */
+    foreach ($this->buildArtifacts as $buildArtifact) {
+      $buildArtifact->preserve();
+    }
+    try {
+      // If we set DCI_Debug, we keep the databases n stuff.
+      if (FALSE === (getenv('DCI_Debug'))) {
+        $this->cleanupBuild();
       }
     }
-
+    catch (\Exception $e) {
+      $this->io->drupalCIError('Failure in build cleanup', $e->getMessage());
+    }
   }
 
   protected function processTask($taskConfig) {
@@ -527,19 +574,25 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * Generate a Build ID for this build
+   * Generate a Build ID for this build.
+   *
+   * Once a build ID is generated, subsequent calls will do nothing.
    */
   public function generateBuildId() {
+    // If we've already figured out a build ID for this build, then we can stop.
+    if (!empty($this->getBuildId())) {
+      return;
+    }
     // Use the BUILD_TAG environment variable if present, otherwise generate a
     // unique build tag based on timestamp.
     $build_id = getenv('BUILD_TAG');
-    if (empty($build_id)) {
-      // Hash microtime() so we don't end up with the same ID for builds shorter
-      // than a second.
-      $build_id = $this->buildType . '_' . md5(microtime());
+    if (!empty($build_id)) {
+      $this->setBuildId($build_id);
+      return;
     }
-    $this->setBuildId($build_id);
-    $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
+    // Hash microtime() so we don't end up with the same ID for builds shorter
+    // than a second.
+    $this->setBuildId($this->getBuildType() . '_' . md5(microtime()));
   }
 
   /**
@@ -572,16 +625,6 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
-
-    // Validate that the working directory is empty.  If the directory contains
-    // an existing git repository, for example, our checkout attempts will fail
-    // TODO: Prompt the user to ask if they'd like to overwrite
-    $iterator = new \FilesystemIterator($build_directory);
-    if ($iterator->valid()) {
-      // Existing files found in directory.
-      $this->io->drupalCIError('Directory not empty', 'Unable to use a non-empty working directory.');
-      return FALSE;
-    };
 
     // Convert to the full path and ensure our directory is still valid
     $build_directory = realpath($build_directory);

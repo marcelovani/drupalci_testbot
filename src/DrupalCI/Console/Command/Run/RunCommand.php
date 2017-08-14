@@ -67,9 +67,11 @@ class RunCommand extends DrupalCICommandBase {
     // 2) Environmental variable.
     // 3) Project drupalci.yml.
     // We always have to perform the bootstrap build.
-    $this->io->writeln("<info>Executing common build steps</info>");
-    $this->build->generateBuild('bootstrap');
+    $this->io->section('Executing bootstrap build steps.');
+    $this->build->generateBootstrapBuild();
+    // If the bootstrap phase failed, preserve artifacts and quit.
     if ($statuscode = $this->build->executeBuild()) {
+      $this->build->preserveBuildArtifacts();
       return $statuscode;
     }
 
@@ -89,13 +91,25 @@ class RunCommand extends DrupalCICommandBase {
       $build_definition_file = $cli_build_definition;
     }
 
+    // Now that we have a project build file, we can read its environmental
+    // specifications.
+    $this->io->section('Executing environment build steps.');
+    $this->build->generateEnvironmentBuild($build_definition_file);
+    // If the environment phase failed, preserve artifacts and quit.
+    if ($statuscode = $this->build->executeBuild()) {
+      $this->build->preserveBuildArtifacts();
+      return $statuscode;
+    }
+
     // Generate a new build for the user-space build definition.
+    $this->io->section('Executing user-space build.');
     $this->build->generateBuild($build_definition_file);
 
     $this->io->writeln("<info>Using build definition template: <options=bold>" . $this->build->getBuildFile() . "</options></></info>");
 
     // Execute the build.
     $statuscode = $this->build->executeBuild();
+    $this->build->preserveBuildArtifacts();
 
     return $statuscode;
 
