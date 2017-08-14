@@ -3,6 +3,10 @@ build:
   codebase:
     assemble_codebase:
       replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.4.x'
+        git_commit_hash: '59b450939fe923baf5416a4d6bab742fdb5e68c0'
       checkout_core:
         repositories:
           -
