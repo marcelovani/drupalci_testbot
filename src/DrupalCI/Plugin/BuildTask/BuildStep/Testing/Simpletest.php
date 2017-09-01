@@ -69,7 +69,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       $this->configuration['types'] = getenv('DCI_RTTypes');
     }
     if (FALSE !== getenv('DCI_RTUrl')) {
-      $this->configuration['types'] = getenv('DCI_RTUrl');
+      $this->configuration['url'] = getenv('DCI_RTUrl');
     }
     if (FALSE !== getenv('DCI_RTColor')) {
       $this->configuration['color'] = getenv('DCI_RTColor');
