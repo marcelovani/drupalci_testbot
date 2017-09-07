@@ -170,7 +170,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'testgroups' => '--all',
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
-      'url' => 'http://localhost/checkout',
+      'url' => 'http://localhost/subdirectory',
       'color' => TRUE,
       'die-on-fail' => FALSE,
       'keep-results' => TRUE,
@@ -211,7 +211,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
       'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
-      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/checkout',
+      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/subdirectory',
       'chown -fR www-data:www-data ' . $sourcedir . '/sites',
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
@@ -326,6 +326,12 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'php',
     ];
     foreach ($config as $key => $value) {
+      // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
+      // This will allow us to use older build.yml files. Remove after Feb 2018 or so.
+      if ($key == 'url') {
+        $value = preg_replace('/checkout/','subdirectory',$value);
+      }
+      //
       if (in_array($key, $args)) {
         if ($value) {
           $command[] = "--$key \"$value\"";
