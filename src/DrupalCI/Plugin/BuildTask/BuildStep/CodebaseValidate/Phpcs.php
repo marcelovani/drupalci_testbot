@@ -174,6 +174,28 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
     }
 
+    // Core no longer configures phpcs to use Coder for us, so we do that here:
+    try {
+      $phpcs_bin = $this->getPhpcsExecutable();
+
+      // We have to configure phpcs to use drupal/coder. We need to be able to use
+      // the Drupal standard. The 'installed_paths' configuration is set to the
+      // path for the Drupal standard by default in getDefaultConfiguration(),
+      if (!empty($this->configuration['installed_paths'])) {
+        $cmd = [
+          $phpcs_bin,
+          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed_paths'],
+        ];
+        $result = $this->environment->executeCommands(implode(' ', $cmd));
+        // Let the user figure out if it worked.
+        $this->environment->executeCommands("$phpcs_bin -i");
+      }
+    }
+    catch (\Exception $e) {
+      // No exception should ever bubble up from here.
+      return 2;
+    }
+
     // Get the sniff start directory.
     $start_dir = $this->getStartDirectory();
 
@@ -441,27 +463,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if ($result->getSignal() !== 0) {
       // If it didn't work, then we bail, but we don't halt build execution.
       $this->io->writeln('Unable to install generic drupal/coder.');
-      return 2;
-    }
-
-    // No exception should ever bubble up from here.
-    try {
-
-      $phpcs_bin = $this->getPhpcsExecutable();
-
-      // We have to configure phpcs to use drupal/coder. We need to be able to use
-      // the Drupal standard.
-      if (!empty($this->configuration['installed_paths'])) {
-        $cmd = [
-          $phpcs_bin,
-          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed_paths'],
-        ];
-        $result = $this->environment->executeCommands(implode(' ', $cmd));
-        // Let the user figure out if it worked.
-        $this->environment->executeCommands("$phpcs_bin -i");
-      }
-    }
-    catch (\Exception $e) {
       return 2;
     }
     return 0;

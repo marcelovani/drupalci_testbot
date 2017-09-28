@@ -33,7 +33,7 @@ class EsLintSuccessTest extends DrupalCIFunctionalTestBase {
     $app_tester = new ApplicationTester($app);
     $app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLint.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintSuccessTest.yml',
     ], $options);
     $this->assertRegExp('/No modified files. Linting all files./', $app_tester->getDisplay());
     $this->assertEquals(0, $app_tester->getStatusCode());

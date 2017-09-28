@@ -22,7 +22,6 @@ class NewComposerJsonModifiedFilesTest extends DrupalCIFunctionalTestBase {
    */
 
   public function testD8Contrib() {
-    $this->markTestSkipped('Consistently failing.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
