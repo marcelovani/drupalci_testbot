@@ -45,10 +45,6 @@ class ContribD8SniffFailsTest extends DrupalCIFunctionalTestBase {
     $build = $app->getContainer()['build'];
     $artifact_file = $build->getArtifactDirectory() . '/phpcs/checkstyle.xml';
     $this->assertTrue(file_exists($artifact_file));
-
-    // Tests failed: autofix patch must be created.
-    $codesniffer_autofix_patch = $build->getArtifactDirectory() . '/phpcs/codesniffer_autofix.patch';
-    $this->assertTrue(file_exists($codesniffer_autofix_patch));
   }
 
 }

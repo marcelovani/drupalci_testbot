@@ -42,7 +42,7 @@ class CoreCoderNoPhpcsTest extends DrupalCIFunctionalTestBase {
     $this->assertRegExp('/No modified files. Sniffing all files./', $app_tester->getDisplay());
     $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
 
-    $this->assertEquals(1, $app_tester->getStatusCode());
+    $this->assertEquals(0, $app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $app->getContainer()['build'];

@@ -257,26 +257,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->fullReportFile, $this->fullReportFile);
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->patchFile, $this->patchFile);
 
-    // If phpcs failed (found coding standard violations), we apply the patch
-    // file it generated, and
-    if ($result->getSignal() != 0) {
-      $this->environment->executeCommands('cd ' . $start_dir . ' && patch -p0 -ui ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->patchFile . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/codesniffer_autofix_results.txt');
-      $this->saveHostArtifact($this->pluginWorkDir . '/codesniffer_autofix_results.txt', 'codesniffer_autofix_results.txt');
-
-      // Now generate a new patch file: currently applied patch (done by
-      // \DrupalCI\Build\Codebase\Patch) + codesniffer fixes.
-      $this->environment->executeCommands('cd ' . $start_dir . ' && git diff HEAD > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/codesniffer_autofix.patch');
-      $this->saveHostArtifact($this->pluginWorkDir . '/codesniffer_autofix.patch', 'codesniffer_autofix.patch');
-    }
-
     // Allow for failing the test run if CS was bad.
+    // TODO: if this is supposed to fail the build, we should put in a
+    // $this->terminatebuild.
     if ($this->configuration['sniff_fails_test']) {
-      $msg = 'Coding standards failures.';
-      if ($result->getSignal() != 0) {
-        $this->terminateBuild('Coder error', $msg);
-        $this->io->writeln($msg);
-      }
-
       return $result->getSignal();
     }
     return 0;
