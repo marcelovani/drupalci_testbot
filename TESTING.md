@@ -16,7 +16,7 @@ least 4gb of spare ram, and at most 25GB of local disk.
 Installing drupalci in a local linux host may be possible, but there are many
 dependencies required by the host OS. Please refer to the packer build scripts
 here for more information regarding what that might entail:
-http://cgit.drupalcode.org/infrastructure/tree/drupalci/debian-testbot
+http://cgit.drupalcode.org/drupalci_environments/tree/host_environment
 
 - You need to have virtualbox installed. Preferably 5.0 or higher.
 - You need to have vagrant installed.
@@ -24,14 +24,16 @@ http://cgit.drupalcode.org/infrastructure/tree/drupalci/debian-testbot
   that if your virtualbox app is upgraded, then the underlying guest OS's stay
   in sync.
 
-      $ vagrant plugin install vagrant-vbguest
+        $ vagrant plugin install vagrant-vbguest
 
 - Use a native environment, either on a testbot machine or using the virtual
   machine provided by vagrant or similar.
 
 Before you create your vagrant box, you may wish to adjust some Vagrantfile
 settings, depending upon your local development resources. Primarily you would
-want to adjust the 'v.memory = 8192', and 'v.cpus = 7' in the Vagrantfile.
+want to adjust the `v.memory = 8192`, and `v.cpus = 7` in the Vagrantfile.
+
+Now you can start the vagrant box:
 
         $ vagrant up
         // Wait a while...
@@ -41,13 +43,17 @@ want to adjust the 'v.memory = 8192', and 'v.cpus = 7' in the Vagrantfile.
         $ composer install
         // @TODO: composer install should be run by vagrant.
 
+        // You might also need to update the local copy of the
+        // Drupal core repo:
+        $ cd /var/lib/drupalci/drupal-checkout
+        $ git fetch
+
 The testbot makes use of quite a few docker containers. These are not available
 locally at this point. The testbot will pull them as needed. Or, if you know you
 are going to be working on a specific environment, you can pull the containers
 beforehand.
 
-The drupalci_environments project is where all these containers are built. You
-can explore the repo to find the names of the containers:
+The `drupalci_environments` project is where all these containers are built. You can explore the repo to find the names of the containers:
 http://cgit.drupalcode.org/drupalci_environments/tree/ For instance, available
 PHP containers are listed here:
 http://cgit.drupalcode.org/drupalci_environments/tree/php
