@@ -20,6 +20,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 
   public function testCoreD7SqlLiteRemoteBuildTest() {
+    $this->markTestIncomplete('Remote build definition file is now 404.');
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
