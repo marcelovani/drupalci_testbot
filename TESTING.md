@@ -39,14 +39,21 @@ Now you can start the vagrant box:
         // Wait a while...
         $ vagrant ssh
         // You're now logged in to the vagrant guest box.
+        // Ensure the local Drupal repo is up-to-date.
+        $ cd /var/lib/drupalci/drupal-checkout/
+        $ git fetch
+        // Git grabs the latest info.
+        // Navigate to the test runner home directory.
         $ cd /home/testbot/testrunner
         $ composer install
         // @TODO: composer install should be run by vagrant.
 
-        // You might also need to update the local copy of the
-        // Drupal core repo:
-        $ cd /var/lib/drupalci/drupal-checkout
-        $ git fetch
+On occasion you may need to update the vagrant box to a newer version:
+
+        // Update to newer version of the host.
+        $ vagrant box update
+        // Prune older versions of the host to free up space.
+        $ vagrant box prune
 
 The testbot makes use of quite a few docker containers. These are not available
 locally at this point. The testbot will pull them as needed. Or, if you know you
@@ -58,13 +65,6 @@ http://cgit.drupalcode.org/drupalci_environments/tree/ For instance, available
 PHP containers are listed here:
 http://cgit.drupalcode.org/drupalci_environments/tree/php
 
-On occasion you may see that the vagrant box has been updated to a newer version.
-
-        // upgrade to newer version of the host
-        $ vagrant box update
-        // prune older versions of the host to free up space.
-        $ vagrant box prune
-
 Running the test runner tests
 -----------------------------
 
@@ -72,16 +72,18 @@ When developing, the full test suite can take a long time to fully complete, so
 it is suggested to focus on the test of the functionality you are working on
 first, then run the full suite as a final regression test.
 
+Tests which have a lot of dependencies and can take a long time to complete are the functional tests. These belong to `@group Application`.
+
 - Run the tests using `./bin/phpunit`.
 - Depending on your needs, you can exclude some tests with hard dependencies
-  with `--exclude-group`. Notably `@group docker`.
+  with `--exclude-group`. Notably `@group Application`.
 
         // Run the tests.
         $ ./bin/phpunit
         // Tests run.
-        $ ./bin/phpunit --exclude-group docker
+        $ ./bin/phpunit --exclude-group Application
         // Tests run without docker dependencies.
 
 Commits and merges to the dev branch of drupalci_testbot are automatically run
 and the results can be found here:
-https://dispatcher.drupalci.org/job/DrupalCI_CI_Ci_ci/.
+[`https://dispatcher.drupalci.org/job/DrupalCI_CI_Ci_ci/`](https://dispatcher.drupalci.org/job/DrupalCI_CI_Ci_ci/)
