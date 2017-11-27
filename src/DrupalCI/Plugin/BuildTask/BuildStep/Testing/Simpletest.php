@@ -91,6 +91,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_RTVerbose')) {
       $this->configuration['verbose'] = getenv('DCI_RTVerbose');
     }
+    if (FALSE !== getenv('DCI_RTSuppressDeprecations')) {
+      $this->configuration['suppress-deprecations'] = getenv('DCI_RTSuppressDeprecations');
+    }
   }
 
   /**
@@ -133,26 +136,33 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   }
 
   protected function getRunTestsCommand() {
+    // Figure out if this is a contrib test.
+    $is_extension_test = isset($this->configuration['extension_test']) && ($this->configuration['extension_test']);
+
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
+
+    if ($is_extension_test) {
+      // Always add --suppress-deprecations for contrib. getRunTestsFlagValues()
+      // will determine whether to add it based on core version.
+      // @todo Turn this off when some other solution is decided in
+      //   https://www.drupal.org/project/drupal/issues/2607260
+      $this->configuration['suppress-deprecations'] = TRUE;
+    }
+
+    // Parse the flags and optional values.
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
     // Extension test is assumed to be a contrib project, so we specify
     // --directory.
-    if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
+    if ($is_extension_test) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
-      // For core 8.5.x and above, add --suppress-deprecations for contrib.
-      if (isset($this->configuration['core_branch'])) {
-        // 8.5.x becomes 8.5.0.
-        $core_version = str_replace('x', '0', $this->configuration['core_branch']);
-        if (Semver::satisfies($core_version, '^8.5')) {
-          $command[] = '--suppress-deprecations';
-        }
-      }
     }
     else {
+      // Add the test groups last, if this is not an extension test.
       $command[] = $this->configuration['testgroups'];
     }
+
     return implode(' ', $command);
   }
 
@@ -194,6 +204,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       // testing modules or themes?
       'extension_test' => FALSE,
       'core_branch' => '8.4.x',
+      'suppress-deprecations' => FALSE,
     ];
   }
 
@@ -310,6 +321,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results-table',
       'verbose',
     ];
+    // Add suppress-deprecations if we're running core ^8.5.
+    if ($this->canAddSuppressDeprecations()) {
+      $flags[] = 'suppress-deprecations';
+    }
     foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
@@ -318,6 +333,22 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       }
     }
     return implode(' ', $command);
+  }
+
+  /**
+   * Determines whether the core version can use --suppress-deprecations.
+   *
+   * @return bool
+   */
+  protected function canAddSuppressDeprecations() {
+    if (isset($this->configuration['core_branch'])) {
+      // 8.5.x becomes 8.5.0.
+      $core_version = str_replace('x', '0', $this->configuration['core_branch']);
+      if (Semver::satisfies($core_version, '^8.5')) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
   /**
