@@ -7,6 +7,9 @@ use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
 use Docker\API\Model\HostConfig;
+use Docker\API\Model\NetworkConfig;
+use Docker\API\Model\NetworkCreateConfig;
+use Docker\API\Model\NetworkingConfig;
 use Docker\Manager\ExecManager;
 use DrupalCI\Injectable;
 use Pimple\Container;
@@ -33,6 +36,9 @@ class Environment implements Injectable, EnvironmentInterface {
 
   // Holds the name and Docker IDs of our chrome container.
   protected $chromeContainer;
+
+  // This is the docker network that we want to add the containers to.
+  protected $docker_network;
 
   /* @var DatabaseInterface */
   protected $database;
@@ -259,6 +265,32 @@ class Environment implements Injectable, EnvironmentInterface {
     }
   }
 
+  public function createContainerNetwork() {
+    $network_manager = $this->docker->getNetworkManager();
+    // Loop through the existing docker networks so we do not re-create the
+    // existing network.
+    $networks = $network_manager->findAll();
+    foreach ($networks as $docker_network) {
+      if ($docker_network->getName() == 'drupalci_nw') {
+        $this->docker_network = $docker_network;
+        return;
+      }
+    }
+    $container_network = new NetworkCreateConfig();
+    $container_network->setName('drupalci_nw');
+    $this->docker_network = $network_manager->create($container_network);
+  }
+
+  public function destroyContainerNetwork() {
+    $network_manager = $this->docker->getNetworkManager();
+    $network_manager->remove('drupalci_nw');
+  }
+
+  /**
+   * @param $config
+   *
+   * @return mixed
+   */
   protected function startContainer($config) {
 
     $this->pull($config['Image']);
@@ -268,9 +300,8 @@ class Environment implements Injectable, EnvironmentInterface {
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
     $host_config->setUlimits($config['HostConfig']['Ulimits']);
-//    if (!empty($config['HostConfig']['Links'])){
-//      $host_config->setLinks($config['HostConfig']['Links']);
-//    }
+    $host_config->setNetworkMode('drupalci_nw');
+
     $container_config->setHostConfig($host_config);
     $parameters = [];
     $create_result = $manager->create($container_config, $parameters);
@@ -282,9 +313,14 @@ class Environment implements Injectable, EnvironmentInterface {
     $executable_container = $manager->find($container_id);
 
     $container['id'] = $executable_container->getID();
-    $container['name'] = $executable_container->getName();
-    $container['ip'] = $executable_container->getNetworkSettings()
-      ->getIPAddress();
+    $container['name'] = ltrim($executable_container->getName(), '/');
+    $networks = $executable_container->getNetworkSettings()->getNetworks();
+    foreach ( $networks as $network_name => $network ) {
+      if ($network_name == 'drupalci_nw') {
+        $container['ip'] = $network->getIPAddress();
+      }
+    }
+
     $container['image'] = $config['Image'];
 
     $short_id = substr($container['id'], 0, 8);

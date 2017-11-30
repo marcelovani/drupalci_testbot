@@ -28,6 +28,10 @@ interface EnvironmentInterface {
 
   public function terminateContainers();
 
+  public function createContainerNetwork();
+
+  public function destroyContainerNetwork();
+
   public function getDatabaseContainer();
 
   public function getExecContainer();
