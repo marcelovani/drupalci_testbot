@@ -248,8 +248,10 @@ class Environment implements Injectable, EnvironmentInterface {
 
 //    $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
 //    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
+    $chrome_container['Name'] = 'chromedriver';
     $chrome_container['HostConfig']['Binds'] = [];
     $chrome_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
+    $chrome_container['HostConfig']['CapAdd'][] = 'SYS_ADMIN';
 
     $this->chromeContainer = $this->startContainer($chrome_container);
 
@@ -262,9 +264,14 @@ class Environment implements Injectable, EnvironmentInterface {
       // Kill the containers we started.
       $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
     }
+    if (!empty($this->chromeContainer['id'])) {
+      // Kill the containers we started.
+      $manager->remove($this->chromeContainer['id'], ['force' => TRUE]);
+    }
     if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
       $manager->remove($this->databaseContainer['id'], ['force' => TRUE]);
     }
+
   }
 
   public function createContainerNetwork() {
@@ -302,6 +309,9 @@ class Environment implements Injectable, EnvironmentInterface {
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
     $host_config->setUlimits($config['HostConfig']['Ulimits']);
+    if (!empty($config['HostConfig']['CapAdd'])) {
+      $host_config->setCapAdd($config['HostConfig']['CapAdd']);
+    }
     $host_config->setNetworkMode('drupalci_nw');
 
     $container_config->setHostConfig($host_config);
@@ -365,6 +375,15 @@ class Environment implements Injectable, EnvironmentInterface {
     $response->wait();
 
     $this->io->writeln("");
+  }
+
+  /**
+   * We're hacking in the chrome container anyhow, so this is an expediency to
+   * get the hostname of it later on.
+   * @return mixed
+   */
+  public function getChromeContainerHostname() {
+    return $this->chromeContainer['name'];
   }
 
 }

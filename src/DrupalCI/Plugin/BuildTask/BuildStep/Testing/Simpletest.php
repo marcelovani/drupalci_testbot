@@ -182,7 +182,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'testgroups' => '--all',
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
-      'url' => 'http://localhost/subdirectory',
       'color' => TRUE,
       'die-on-fail' => FALSE,
       'keep-results' => TRUE,
