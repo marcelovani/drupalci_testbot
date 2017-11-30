@@ -215,6 +215,7 @@ class Environment implements Injectable, EnvironmentInterface {
   public function startExecContainer($container) {
 
     // Map working directory
+    $container['Name'] = 'php_apache';
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
@@ -233,6 +234,7 @@ class Environment implements Injectable, EnvironmentInterface {
     if (strpos($this->database->getDbType(), 'sqlite') === 0) {
       return;
     }
+    $db_container['Name'] = 'database';
     $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
     $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $db_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
@@ -303,7 +305,9 @@ class Environment implements Injectable, EnvironmentInterface {
     $host_config->setNetworkMode('drupalci_nw');
 
     $container_config->setHostConfig($host_config);
-    $parameters = [];
+
+    $container_name = $config['Name'] . '_' . $this->build->getBuildId();
+    $parameters = ['name' => $container_name];
     $create_result = $manager->create($container_config, $parameters);
     $container_id = $create_result->getId();
 

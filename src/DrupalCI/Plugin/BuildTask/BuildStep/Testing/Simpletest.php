@@ -102,8 +102,20 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if ($status > 0) {
       return $status;
     }
-    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
+    $environment_variables = 'MINK_DRIVER_CLASS_WEBDRIVER=\'\Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver\' MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
+
+    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables .  " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     $this->configuration['dburl'] = $this->system_database->getUrl();
+    // Unless somebody has provided a local url, the url should be blank, and
+    // Should then be set to the hostname of the executable container.
+    // We dont want this to be in the configuration itself as then it would get
+    // saved to the build.yml, and persisted, and the hostnames will change.
+    // In a perfect world we wouldnt be getting the hostname directly off of the
+    // container, but from a better abstraction. but we're gonna gut that part
+    // anyhow for a docker compose build methodology.
+    if (empty($this->configuration['url'])) {
+      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
+    }
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
