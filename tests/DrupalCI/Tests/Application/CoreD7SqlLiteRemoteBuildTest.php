@@ -16,14 +16,10 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  * @group Application
  *
  * @see TESTING.md
- *
- * @todo Fix this in
- *   https://www.drupal.org/project/drupalci_testbot/issues/2925400
  */
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 
   public function testCoreD7SqlLiteRemoteBuildTest() {
-    $this->markTestIncomplete('Fix this in https://www.drupal.org/project/drupalci_testbot/issues/2925400').
     $app = $this->getConsoleApp();
     $options = ['interactive' => FALSE];
     $app_tester = new ApplicationTester($app);
