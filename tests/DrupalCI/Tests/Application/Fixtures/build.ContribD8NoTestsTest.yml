@@ -46,6 +46,7 @@ build:
         concurrency: 31
         testgroups: '--directory modules/drupalci_d8_module_no_tests'
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/checkout'
         php: /opt/phpenv/shims/php
         color: true
         die-on-fail: false
@@ -57,6 +58,7 @@ build:
         concurrency: 1
         types: PHPUnit-FunctionalJavascript
         testgroups: '--directory modules/drupalci_d8_module_no_tests'
+        url: 'http://localhost/checkout'
         php: /opt/phpenv/shims/php
         color: true
         die-on-fail: false

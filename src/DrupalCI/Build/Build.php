@@ -685,9 +685,8 @@ class Build implements BuildInterface, Injectable {
     ];
     $environment->executeCommands($commands, $db_container['id']);
 
-    // Shut off the containers and network.
+    // Shut off the containers
     $environment->terminateContainers();
-    $environment->destroyContainerNetwork();
 
     // Delete the source code and database files
     $fs = new Filesystem();

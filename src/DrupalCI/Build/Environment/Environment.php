@@ -7,9 +7,6 @@ use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
 use Docker\API\Model\HostConfig;
-use Docker\API\Model\NetworkConfig;
-use Docker\API\Model\NetworkCreateConfig;
-use Docker\API\Model\NetworkingConfig;
 use Docker\Manager\ExecManager;
 use DrupalCI\Injectable;
 use Pimple\Container;
@@ -33,12 +30,6 @@ class Environment implements Injectable, EnvironmentInterface {
 
   // Holds the name and Docker IDs of our service container.
   protected $databaseContainer;
-
-  // Holds the name and Docker IDs of our chrome container.
-  protected $chromeContainer;
-
-  // This is the docker network that we want to add the containers to.
-  protected $docker_network;
 
   /* @var DatabaseInterface */
   protected $database;
@@ -215,26 +206,20 @@ class Environment implements Injectable, EnvironmentInterface {
   public function startExecContainer($container) {
 
     // Map working directory
-    $container['Name'] = 'php_apache';
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostComposerCacheDirectory() . ':' . $this->containerComposerCacheDir;
     $container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
-//    #Link this to the chrome container
-//    $execname = substr($this->chromeContainer['name'], 1);
-//    $container['HostConfig']['Links'][0] = $execname;
     $this->executableContainer = $this->startContainer($container);
 
   }
 
   public function startServiceContainerDaemons($db_container) {
-
     if (strpos($this->database->getDbType(), 'sqlite') === 0) {
       return;
     }
-    $db_container['Name'] = 'database';
     $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
     $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $db_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
@@ -244,18 +229,6 @@ class Environment implements Injectable, EnvironmentInterface {
 
   }
 
-  public function startChromeContainer($chrome_container) {
-
-//    $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
-//    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
-    $chrome_container['Name'] = 'chromedriver';
-    $chrome_container['HostConfig']['Binds'] = [];
-    $chrome_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
-    $chrome_container['HostConfig']['CapAdd'][] = 'SYS_ADMIN';
-
-    $this->chromeContainer = $this->startContainer($chrome_container);
-
-  }
   public function terminateContainers() {
 
     $manager = $this->docker->getContainerManager();
@@ -264,42 +237,11 @@ class Environment implements Injectable, EnvironmentInterface {
       // Kill the containers we started.
       $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
     }
-    if (!empty($this->chromeContainer['id'])) {
-      // Kill the containers we started.
-      $manager->remove($this->chromeContainer['id'], ['force' => TRUE]);
-    }
     if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
       $manager->remove($this->databaseContainer['id'], ['force' => TRUE]);
     }
-
   }
 
-  public function createContainerNetwork() {
-    $network_manager = $this->docker->getNetworkManager();
-    // Loop through the existing docker networks so we do not re-create the
-    // existing network.
-    $networks = $network_manager->findAll();
-    foreach ($networks as $docker_network) {
-      if ($docker_network->getName() == 'drupalci_nw') {
-        $this->docker_network = $docker_network;
-        return;
-      }
-    }
-    $container_network = new NetworkCreateConfig();
-    $container_network->setName('drupalci_nw');
-    $this->docker_network = $network_manager->create($container_network);
-  }
-
-  public function destroyContainerNetwork() {
-    $network_manager = $this->docker->getNetworkManager();
-    $network_manager->remove('drupalci_nw');
-  }
-
-  /**
-   * @param $config
-   *
-   * @return mixed
-   */
   protected function startContainer($config) {
 
     $this->pull($config['Image']);
@@ -309,15 +251,8 @@ class Environment implements Injectable, EnvironmentInterface {
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
     $host_config->setUlimits($config['HostConfig']['Ulimits']);
-    if (!empty($config['HostConfig']['CapAdd'])) {
-      $host_config->setCapAdd($config['HostConfig']['CapAdd']);
-    }
-    $host_config->setNetworkMode('drupalci_nw');
-
     $container_config->setHostConfig($host_config);
-
-    $container_name = $config['Name'] . '_' . $this->build->getBuildId();
-    $parameters = ['name' => $container_name];
+    $parameters = [];
     $create_result = $manager->create($container_config, $parameters);
     $container_id = $create_result->getId();
 
@@ -327,14 +262,9 @@ class Environment implements Injectable, EnvironmentInterface {
     $executable_container = $manager->find($container_id);
 
     $container['id'] = $executable_container->getID();
-    $container['name'] = ltrim($executable_container->getName(), '/');
-    $networks = $executable_container->getNetworkSettings()->getNetworks();
-    foreach ( $networks as $network_name => $network ) {
-      if ($network_name == 'drupalci_nw') {
-        $container['ip'] = $network->getIPAddress();
-      }
-    }
-
+    $container['name'] = $executable_container->getName();
+    $container['ip'] = $executable_container->getNetworkSettings()
+      ->getIPAddress();
     $container['image'] = $config['Image'];
 
     $short_id = substr($container['id'], 0, 8);
@@ -375,15 +305,6 @@ class Environment implements Injectable, EnvironmentInterface {
     $response->wait();
 
     $this->io->writeln("");
-  }
-
-  /**
-   * We're hacking in the chrome container anyhow, so this is an expediency to
-   * get the hostname of it later on.
-   * @return mixed
-   */
-  public function getChromeContainerHostname() {
-    return $this->chromeContainer['name'];
   }
 
 }
