@@ -215,7 +215,7 @@ class Environment implements Injectable, EnvironmentInterface {
   public function startExecContainer($container) {
 
     // Map working directory
-    $container['Name'] = 'php_apache';
+    $container['Name'] = 'php-apache';
     $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
@@ -316,7 +316,7 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $container_config->setHostConfig($host_config);
 
-    $container_name = $config['Name'] . '_' . $this->build->getBuildId();
+    $container_name = $config['Name'] . '-' . $this->build->getBuildId();
     $parameters = ['name' => $container_name];
     $create_result = $manager->create($container_config, $parameters);
     $container_id = $create_result->getId();

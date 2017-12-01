@@ -542,7 +542,7 @@ class Build implements BuildInterface, Injectable {
     if (empty($build_id)) {
       // Hash microtime() so we don't end up with the same ID for builds shorter
       // than a second.
-      $build_id = $this->buildType . '_' . md5(microtime());
+      $build_id = $this->buildType . '-' . md5(microtime());
     }
     $this->setBuildId($build_id);
     $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
