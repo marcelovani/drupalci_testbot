@@ -102,7 +102,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if ($status > 0) {
       return $status;
     }
-    $environment_variables = 'MINK_DRIVER_CLASS_WEBDRIVER=\'\Drupal\FunctionalJavascriptTests\DrupalSelenium2Driver\' MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
+    $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
 
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables .  " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     $this->configuration['dburl'] = $this->system_database->getUrl();
