@@ -316,7 +316,7 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $container_config->setHostConfig($host_config);
 
-    $container_name = $config['Name'] . '-' . $this->build->getBuildId();
+    $container_name = $config['Name'] . '-' .     $build_id = preg_replace('/_/', "-", $this->build->getBuildId());
     $parameters = ['name' => $container_name];
     $create_result = $manager->create($container_config, $parameters);
     $container_id = $create_result->getId();
