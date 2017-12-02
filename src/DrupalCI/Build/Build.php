@@ -538,7 +538,7 @@ class Build implements BuildInterface, Injectable {
   public function generateBuildId() {
     // Use the BUILD_TAG environment variable if present, otherwise generate a
     // unique build tag based on timestamp.
-    $build_id = getenv('BUILD_TAG');
+    $build_id = preg_replace('/_/', "-", getenv('BUILD_TAG'));
     if (empty($build_id)) {
       // Hash microtime() so we don't end up with the same ID for builds shorter
       // than a second.
