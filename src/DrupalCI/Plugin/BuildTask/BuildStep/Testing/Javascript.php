@@ -57,7 +57,7 @@ class Javascript extends BuildTaskBase implements BuildStepInterface {
     $runscript = "NIGHTWATCH_HOSTNAME={$hostname} {$this->runscript}";
     $this->environment->executeCommands("cd {$this->environment->getExecContainerSourceDir()}/core && yarn install");
     $this->environment->executeCommands("cd {$this->environment->getExecContainerSourceDir()}/core && yarn add babel-preset-es2015 --dev");
-m    $result = $this->environment->executeCommands("cd {$this->environment->getExecContainerSourceDir()}/core && $runscript");
+    $result = $this->environment->executeCommands("cd {$this->environment->getExecContainerSourceDir()}/core && $runscript");
     $this->configuration['dburl'] = $this->system_database->getUrl();
     // Save some artifacts for the build
     $this->saveContainerArtifact('/var/log/apache2/error.log','apache-error.log');
