@@ -2,8 +2,9 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
-use Composer\Semver\Semver;
+use DrupalCI\Build\Artifact\Junit\JunitXmlBuilder;
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
@@ -61,9 +62,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (FALSE !== getenv('DCI_CoreBranch')) {
-      $this->configuration['core_branch'] = getenv('DCI_CoreBranch');
-    }
     if (FALSE !== getenv('DCI_Concurrency')) {
       $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
@@ -107,7 +105,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if ($status > 0) {
       return $status;
     }
-    $this->configuration['dburl'] = $this->system_database->getUrl();
+
+
 
     $result = $this->environment->executeCommands($this->getRunTestsCommand());
 
@@ -138,9 +137,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   protected function getRunTestsCommand() {
     // Figure out if this is a contrib test.
     $is_extension_test = isset($this->configuration['extension_test']) && ($this->configuration['extension_test']);
-
-    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-
+    $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
+    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     if ($is_extension_test) {
       // Always add --suppress-deprecations for contrib. getRunTestsFlagValues()
       // will determine whether to add it based on core version.
@@ -170,7 +168,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    * @inheritDoc
    */
   public function complete($childStatus) {
-    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q' ];
+
+    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q', ];
     $gdb_command_file = $this->pluginWorkDir . '/debugscript.gdb';
     file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
     $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
@@ -195,7 +194,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'testgroups' => '--all',
       'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
-      'url' => 'http://localhost/subdirectory',
       'color' => TRUE,
       'die-on-fail' => FALSE,
       'keep-results' => TRUE,
@@ -203,7 +201,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'verbose' => FALSE,
       // testing modules or themes?
       'extension_test' => FALSE,
-      'core_branch' => '8.4.x',
       'suppress-deprecations' => FALSE,
     ];
   }
@@ -319,12 +316,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'die-on-fail',
       'keep-results',
       'keep-results-table',
+      'suppress-deprecations',
       'verbose',
     ];
-    // Add suppress-deprecations if we're running core ^8.5.
-    if ($this->canAddSuppressDeprecations()) {
-      $flags[] = 'suppress-deprecations';
-    }
     foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
@@ -333,22 +327,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       }
     }
     return implode(' ', $command);
-  }
-
-  /**
-   * Determines whether the core version can use --suppress-deprecations.
-   *
-   * @return bool
-   */
-  protected function canAddSuppressDeprecations() {
-    if (isset($this->configuration['core_branch'])) {
-      // 8.5.x becomes 8.5.0.
-      $core_version = str_replace('x', '0', $this->configuration['core_branch']);
-      if (Semver::satisfies($core_version, '^8.5')) {
-        return TRUE;
-      }
-    }
-    return FALSE;
   }
 
   /**
@@ -371,6 +349,17 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'xml',
       'php',
     ];
+    $this->configuration['dburl'] = $this->system_database->getUrl();
+    // Unless somebody has provided a local url, the url should be blank, and
+    // Should then be set to the hostname of the executable container.
+    // We dont want this to be in the configuration itself as then it would get
+    // saved to the build.yml, and persisted, and the hostnames will change.
+    // In a perfect world we wouldnt be getting the hostname directly off of the
+    // container, but from a better abstraction. but we're gonna gut that part
+    // anyhow for a docker compose build methodology.
+    if (empty($this->configuration['url'])) {
+      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
+    }
     foreach ($config as $key => $value) {
       // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
       // This will allow us to use older build.yml files. Remove after Feb 2018 or so.
