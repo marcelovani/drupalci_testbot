@@ -341,12 +341,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'die-on-fail',
       'keep-results',
       'keep-results-table',
+      'suppress-deprecations',
       'verbose',
     ];
-    // Add suppress-deprecations if we're running core ^8.5.
-    if ($this->canAddSuppressDeprecations()) {
-      $flags[] = 'suppress-deprecations';
-    }
     foreach ($config as $key => $value) {
       if (in_array($key, $flags)) {
         if ($value) {
@@ -355,22 +352,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       }
     }
     return implode(' ', $command);
-  }
-
-  /**
-   * Determines whether the core version can use --suppress-deprecations.
-   *
-   * @return bool
-   */
-  protected function canAddSuppressDeprecations() {
-    if (isset($this->configuration['core_branch'])) {
-      // 8.5.x becomes 8.5.0.
-      $core_version = str_replace('x', '0', $this->configuration['core_branch']);
-      if (Semver::satisfies($core_version, '^8.5')) {
-        return TRUE;
-      }
-    }
-    return FALSE;
   }
 
   /**
