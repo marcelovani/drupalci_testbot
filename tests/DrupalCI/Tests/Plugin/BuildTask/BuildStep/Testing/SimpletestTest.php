@@ -20,11 +20,11 @@ class SimpletestTest extends DrupalCITestCase {
         [],
       ],
       'contrib-default' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --values=value --directory true-extension-subdirectory',
+        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
         ['extension_test' => TRUE],
       ],
       'contrib-8.4.x' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --values=value --directory true-extension-subdirectory',
+        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
         ['extension_test' => TRUE, 'core_branch' => '8.4.x'],
       ],
       'contrib-8.5.x' => [
@@ -89,37 +89,6 @@ class SimpletestTest extends DrupalCITestCase {
     $ref_get_run_tests_command->setAccessible(TRUE);
     $command = $ref_get_run_tests_command->invoke($simpletest);
     $this->assertEquals($expected, $command);
-  }
-
-  public function provideCanAdd() {
-    return [
-      [TRUE, '8.5.x'],
-      [TRUE, '8.5.0'],
-      [TRUE, '8.6.0'],
-      [FALSE, '8.4.x'],
-      [FALSE, '8.4.6'],
-    ];
-  }
-
-  /**
-   * @covers ::canAddSuppressDeprecations
-   * @dataProvider provideCanAdd
-   */
-  public function testCanAddSuppressDeprecations($expected, $core_version) {
-    $simpletest = new Simpletest();
-
-    $configuration = array_merge(
-      $simpletest->getDefaultConfiguration(),
-      ['core_branch' => $core_version]
-    );
-
-    $ref_configuration = new \ReflectionProperty($simpletest, 'configuration');
-    $ref_configuration->setAccessible(TRUE);
-    $ref_configuration->setValue($simpletest, $configuration);
-
-    $ref_can_add = new \ReflectionMethod($simpletest, 'canAddSuppressDeprecations');
-    $ref_can_add->setAccessible(TRUE);
-    $this->assertSame($expected, $ref_can_add->invoke($simpletest));
   }
 
 }
