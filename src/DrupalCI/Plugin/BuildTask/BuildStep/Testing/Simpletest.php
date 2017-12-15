@@ -138,11 +138,15 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     if ($is_extension_test) {
-      // Always add --suppress-deprecations for contrib. getRunTestsFlagValues()
-      // will determine whether to add it based on core version.
+      // Always add --suppress-deprecations for contrib, if its available
+      $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
+      $result = $this->environment->executeCommands($suppress_check_command);
       // @todo Turn this off when some other solution is decided in
       //   https://www.drupal.org/project/drupal/issues/2607260
-      $this->configuration['suppress-deprecations'] = TRUE;
+
+      if ($result->getSignal() == 0) {
+        $this->configuration['suppress-deprecations'] = TRUE;
+      }
     }
 
     // Parse the flags and optional values.
@@ -347,7 +351,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'xml',
       'php',
     ];
-    $this->configuration['dburl'] = $this->system_database->getUrl();
+    $config['dburl'] = $this->system_database->getUrl();
     // Unless somebody has provided a local url, the url should be blank, and
     // Should then be set to the hostname of the executable container.
     // We dont want this to be in the configuration itself as then it would get
@@ -355,8 +359,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     // In a perfect world we wouldnt be getting the hostname directly off of the
     // container, but from a better abstraction. but we're gonna gut that part
     // anyhow for a docker compose build methodology.
-    if (empty($this->configuration['url'])) {
-      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
+    if (empty($config['url'])) {
+      $config['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
     }
     foreach ($config as $key => $value) {
       // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
