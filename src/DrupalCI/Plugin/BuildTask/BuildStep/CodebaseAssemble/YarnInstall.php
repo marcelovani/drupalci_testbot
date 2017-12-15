@@ -22,6 +22,15 @@ class YarnInstall extends BuildTaskForConfigBase {
   protected $configFile = 'package.json';
 
   /**
+   * @inheritDoc
+   */
+  public function getDefaultConfiguration() {
+    return [
+      'die-on-fail' => FALSE,
+    ];
+  }
+
+  /**
    * {@inheritDoc}
    */
   public function run() {
@@ -36,18 +45,23 @@ class YarnInstall extends BuildTaskForConfigBase {
       return 0;
     }
 
-    $this->io->writeln('installing now..........');
-
     $old_cwd = getcwd();
     $base_dir = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory(TRUE);
-    $this->io->writeln("base dir: $base_dir");
+
     chdir($base_dir);
-    $this->exec('yarn install 2>&1', $output, $result);
-    $this->io->write($output);
+    $this->exec('yarn install --no-progress 2>&1', $output, $result);
     chdir($old_cwd);
+
     $this->saveStringArtifact('yarn_install.txt', implode("\n", $output));
     if ($result !== 0) {
-      $this->terminateBuild('Unable to build yarn.', $output);
+      $message = "Yarn install command returned code: $result";
+      if ($this->configuration['die-on-fail']) {
+
+        $this->terminateBuild($message, implode("\n", $output));
+      }
+      else {
+        $this->io->error([$message, 'Continuing...']);
+      }
     }
     return $result;
   }

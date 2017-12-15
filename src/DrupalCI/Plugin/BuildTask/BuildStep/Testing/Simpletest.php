@@ -351,11 +351,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'xml',
       'php',
     ];
-<<<<<<< HEAD
-    $this->configuration['dburl'] = $this->system_database->getUrl();
-=======
     $config['dburl'] = $this->system_database->getUrl();
->>>>>>> dev
     // Unless somebody has provided a local url, the url should be blank, and
     // Should then be set to the hostname of the executable container.
     // We dont want this to be in the configuration itself as then it would get
@@ -363,13 +359,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     // In a perfect world we wouldnt be getting the hostname directly off of the
     // container, but from a better abstraction. but we're gonna gut that part
     // anyhow for a docker compose build methodology.
-<<<<<<< HEAD
-    if (empty($this->configuration['url'])) {
-      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
-=======
     if (empty($config['url'])) {
       $config['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
->>>>>>> dev
     }
     foreach ($config as $key => $value) {
       // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
