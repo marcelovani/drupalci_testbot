@@ -81,7 +81,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $this->execRequiredCommand($cmd, 'Composer config failure');
 
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable --no-progress --no-suggest --no-interaction --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
         $this->execRequiredCommand($cmd, 'Composer require failure');
@@ -91,7 +91,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         // Those dependencies in as well.
         $packages = $this->codebase->getComposerDevRequirements();
         if (!empty($packages)) {
-          $cmd = "./bin/composer require --ignore-platform-reqs " . implode(' ',$packages) . " --ignore-platform-reqs --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $cmd = "./bin/composer require --no-interaction --ignore-platform-reqs " . implode(' ',$packages) . " --ignore-platform-reqs --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
           $this->io->writeln("Composer Command: $cmd");
           $this->execRequiredCommand($cmd, 'Composer require failure');
 
