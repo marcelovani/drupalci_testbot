@@ -16,20 +16,12 @@ class SimpletestTest extends DrupalCITestCase {
   public function providerGetRunTestsCommand() {
     return [
       'core' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --values=value --all',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --values=value --all',
         [],
       ],
       'contrib-default' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
         ['extension_test' => TRUE],
-      ],
-      'contrib-8.4.x' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
-        ['extension_test' => TRUE, 'core_branch' => '8.4.x'],
-      ],
-      'contrib-8.5.x' => [
-        'cd exec-container-source-dir && sudo -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
-        ['extension_test' => TRUE, 'core_branch' => '8.5.x'],
       ],
     ];
   }
@@ -41,12 +33,16 @@ class SimpletestTest extends DrupalCITestCase {
   public function testGetRunTestsCommand($expected, $configuration) {
     $environment = $this->getMockBuilder(EnvironmentInterface::class)
       ->setMethods([
-        'getExecContainerSourceDir'
+        'getExecContainerSourceDir',
+        'getChromeContainerHostname'
       ])
       ->getMockForAbstractClass();
     $environment->expects($this->any())
       ->method('getExecContainerSourceDir')
       ->willReturn('exec-container-source-dir');
+    $environment->expects($this->any())
+      ->method('getChromeContainerHostname')
+      ->willReturn('chromecontainer-host');
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
       ->setMethods(['getTrueExtensionSubDirectory'])
