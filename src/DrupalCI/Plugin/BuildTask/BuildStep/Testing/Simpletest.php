@@ -89,6 +89,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_RTVerbose')) {
       $this->configuration['verbose'] = getenv('DCI_RTVerbose');
     }
+    if (FALSE !== getenv('DCI_RTSuppressDeprecations')) {
+      $this->configuration['suppress-deprecations'] = getenv('DCI_RTSuppressDeprecations');
+    }
   }
 
   /**
@@ -102,32 +105,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if ($status > 0) {
       return $status;
     }
-    $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
 
-    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables .  " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-    $this->configuration['dburl'] = $this->system_database->getUrl();
-    // Unless somebody has provided a local url, the url should be blank, and
-    // Should then be set to the hostname of the executable container.
-    // We dont want this to be in the configuration itself as then it would get
-    // saved to the build.yml, and persisted, and the hostnames will change.
-    // In a perfect world we wouldnt be getting the hostname directly off of the
-    // container, but from a better abstraction. but we're gonna gut that part
-    // anyhow for a docker compose build methodology.
-    if (empty($this->configuration['url'])) {
-      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
-    }
-    $command[] = $this->getRunTestsFlagValues($this->configuration);
-    $command[] = $this->getRunTestsValues($this->configuration);
-
-    if (isset($this->configuration['extension_test']) && ($this->configuration['extension_test'])) {
-      $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
-    }
-    else {
-      $command[] = $this->configuration['testgroups'];
-    }
-    $command_line = implode(' ', $command);
-
-    $result = $this->environment->executeCommands($command_line);
+    $result = $this->environment->executeCommands($this->getRunTestsCommand());
 
     // Look at the output for no valid tests, and set that to an acceptable signal.
     if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE) {
@@ -140,8 +119,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $this->saveContainerArtifact('/var/log/apache2/error.log','apache-error.log');
     $this->saveContainerArtifact('/var/log/apache2/test.apache.error.log','test.apache.error.log');
-//    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
-//    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
+    //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
+    //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
     $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
 
     $this->saveStringArtifact('simpletestoutput.txt', $result->getOutput());
@@ -153,12 +132,42 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     return 0;
   }
 
+  protected function getRunTestsCommand() {
+    // Figure out if this is a contrib test.
+    $is_extension_test = isset($this->configuration['extension_test']) && ($this->configuration['extension_test']);
+    $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
+    $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
+    if ($is_extension_test) {
+      // Always add --suppress-deprecations for contrib. getRunTestsFlagValues()
+      // will determine whether to add it based on core version.
+      // @todo Turn this off when some other solution is decided in
+      //   https://www.drupal.org/project/drupal/issues/2607260
+      $this->configuration['suppress-deprecations'] = TRUE;
+    }
+
+    // Parse the flags and optional values.
+    $command[] = $this->getRunTestsFlagValues($this->configuration);
+    $command[] = $this->getRunTestsValues($this->configuration);
+
+    // Extension test is assumed to be a contrib project, so we specify
+    // --directory.
+    if ($is_extension_test) {
+      $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
+    }
+    else {
+      // Add the test groups last, if this is not an extension test.
+      $command[] = $this->configuration['testgroups'];
+    }
+
+    return implode(' ', $command);
+  }
+
   /**
    * @inheritDoc
    */
   public function complete($childStatus) {
 
-    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q', ];
+    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q' ];
     $gdb_command_file = $this->pluginWorkDir . '/debugscript.gdb';
     file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
     $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
@@ -174,6 +183,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     }
 
   }
+
   /**
    * @inheritDoc
    */
@@ -189,6 +199,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'verbose' => FALSE,
       // testing modules or themes?
       'extension_test' => FALSE,
+      'suppress-deprecations' => FALSE,
     ];
   }
 
@@ -237,11 +248,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   }
 
   protected function setupSimpletestDB(BuildInterface $build) {
-
     // This is a rare instance where we're meddling with config after the object
     // is underway. Perhaps theres a better way?
     $sqlite_db_filename = 'simpletest.sqlite';
-    $this->configuration['sqlite'] = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir .  '/' . $sqlite_db_filename;
+    $this->configuration['sqlite'] = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $sqlite_db_filename;
     $dbfile = $this->pluginWorkDir . '/' . $sqlite_db_filename;
     $this->results_database->setDBFile($dbfile);
     $this->results_database->setDbType('sqlite');
@@ -249,7 +259,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   }
 
   protected function generateTestGroups() {
-    $testgroups_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir. '/testgroups.txt';
+    $testgroups_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/testgroups.txt';
     $cmd = 'sudo -u www-data php ' . $this->environment->getExecContainerSourceDir() . $this->runscript . ' --list > ' . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     if ($result->getSignal() !== 0) {
@@ -304,6 +314,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'die-on-fail',
       'keep-results',
       'keep-results-table',
+      'suppress-deprecations',
       'verbose',
     ];
     foreach ($config as $key => $value) {
@@ -336,6 +347,17 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'xml',
       'php',
     ];
+    $this->configuration['dburl'] = $this->system_database->getUrl();
+    // Unless somebody has provided a local url, the url should be blank, and
+    // Should then be set to the hostname of the executable container.
+    // We dont want this to be in the configuration itself as then it would get
+    // saved to the build.yml, and persisted, and the hostnames will change.
+    // In a perfect world we wouldnt be getting the hostname directly off of the
+    // container, but from a better abstraction. but we're gonna gut that part
+    // anyhow for a docker compose build methodology.
+    if (empty($this->configuration['url'])) {
+      $this->configuration['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
+    }
     foreach ($config as $key => $value) {
       // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
       // This will allow us to use older build.yml files. Remove after Feb 2018 or so.
