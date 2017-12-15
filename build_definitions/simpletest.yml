@@ -1,6 +1,7 @@
 build:
   codebase:
     assemble_codebase:
+      yarn_install:
       replicate:
       checkout_core:
       composer.core_install:
