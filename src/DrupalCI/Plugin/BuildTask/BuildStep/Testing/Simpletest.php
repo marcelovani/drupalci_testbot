@@ -106,8 +106,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       return $status;
     }
 
-
-
     $result = $this->environment->executeCommands($this->getRunTestsCommand());
 
     // Look at the output for no valid tests, and set that to an acceptable signal.
@@ -169,7 +167,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function complete($childStatus) {
 
-    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q', ];
+    $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q' ];
     $gdb_command_file = $this->pluginWorkDir . '/debugscript.gdb';
     file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
     $phpcoredumps = glob('/var/lib/drupalci/coredumps/core.php*');
