@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "30f93543ba7b1ba06010815ade38bffa",
+    "content-hash": "05da2f041d1ee97123703e995afbabe3",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -765,6 +765,12 @@
                 "type": "git",
                 "url": "https://git.drupal.org/project/coder.git",
                 "reference": "c835ff5c1733676fe0d3f3b861e814d570baaa6f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/klausi/coder/zipball/c835ff5c1733676fe0d3f3b861e814d570baaa6f",
+                "reference": "c835ff5c1733676fe0d3f3b861e814d570baaa6f",
+                "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
@@ -1812,7 +1818,8 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "LGPL-2.1",
+                "GPL-3.0+"
             ],
             "authors": [
                 {

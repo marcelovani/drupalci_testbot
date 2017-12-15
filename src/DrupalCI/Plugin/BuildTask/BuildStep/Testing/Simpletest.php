@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
-use Composer\Semver\Semver;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -61,9 +60,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function configure() {
     // Override any Environment Variables
-    if (FALSE !== getenv('DCI_CoreBranch')) {
-      $this->configuration['core_branch'] = getenv('DCI_CoreBranch');
-    }
     if (FALSE !== getenv('DCI_Concurrency')) {
       $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
@@ -159,18 +155,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   }
 
   protected function getRunTestsCommand() {
-    // Figure out if this is a contrib test.
-    $is_extension_test = isset($this->configuration['extension_test']) && ($this->configuration['extension_test']);
-
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-
-    if ($is_extension_test) {
-      // Always add --suppress-deprecations for contrib. getRunTestsFlagValues()
-      // will determine whether to add it based on core version.
-      // @todo Turn this off when some other solution is decided in
-      //   https://www.drupal.org/project/drupal/issues/2607260
-      $this->configuration['suppress-deprecations'] = TRUE;
-    }
 
     // Parse the flags and optional values.
     $command[] = $this->getRunTestsFlagValues($this->configuration);
