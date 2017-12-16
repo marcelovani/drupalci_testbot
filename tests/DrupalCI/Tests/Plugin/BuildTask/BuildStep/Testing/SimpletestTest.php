@@ -3,6 +3,7 @@
 namespace DrupalCI\Tests\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Plugin\BuildTask\BuildStep\Testing\Simpletest;
@@ -31,9 +32,19 @@ class SimpletestTest extends DrupalCITestCase {
    * @covers ::getRunTestsCommand
    */
   public function testGetRunTestsCommand($expected, $configuration) {
+    $command_result = $this->getMockBuilder(CommandResultInterface::class)
+      ->setMethods([
+        'getSignal',
+      ])
+      ->getMockForAbstractClass();
+    $command_result->expects($this->any())
+      ->method('getSignal')
+      ->willReturn(0);
+
     $environment = $this->getMockBuilder(EnvironmentInterface::class)
       ->setMethods([
         'getExecContainerSourceDir',
+        'executeCommands',
         'getChromeContainerHostname'
       ])
       ->getMockForAbstractClass();
@@ -43,6 +54,9 @@ class SimpletestTest extends DrupalCITestCase {
     $environment->expects($this->any())
       ->method('getChromeContainerHostname')
       ->willReturn('chromecontainer-host');
+    $environment->expects($this->any())
+      ->method('executeCommands')
+      ->willReturn($command_result);
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
       ->setMethods(['getTrueExtensionSubDirectory'])
