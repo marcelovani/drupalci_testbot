@@ -683,8 +683,9 @@ class Build implements BuildInterface, Injectable {
       'sudo chown -R ' . $uid . ' ' . $db_dir,
       'chmod -R 777 ' . $db_dir,
     ];
-    $environment->executeCommands($commands, $db_container['id']);
-
+    if (!empty($db_container)) {
+      $environment->executeCommands($commands, $db_container['id']);
+    }
     // Shut off the containers and network.
     $environment->terminateContainers();
     $environment->destroyContainerNetwork();
