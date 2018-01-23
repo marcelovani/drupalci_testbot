@@ -53,8 +53,12 @@ class YarnInstall extends BuildTaskBase {
         $this->terminateBuild($message, implode("\n", $output));
       }
       else {
-        $this->io->error([$message, 'Continuing...']);
+        $this->io->writeln($message . "\nYarn install failed; Proceeding anyways...");
+        return 0;
+        // Skip the list and licenses below.
       }
+    } else {
+      $this->io->writeln('Yarn install success');
     }
     $output = [];
     $this->exec('yarn list --no-progress --non-interactive --cwd ' . $work_dir . ' 2>&1', $output, $result);
