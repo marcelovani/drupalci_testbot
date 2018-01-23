@@ -67,6 +67,13 @@ interface CodebaseInterface {
 
   public function setExtensionPaths($extensionPaths);
 
+  /**
+   * Returns the subpath to the project under test.
+   *
+   * @return string
+   *   Subpath to the project under test. This is relative to the codebase
+   *   source directory.
+   */
   public function getTrueExtensionSubDirectory();
 
   public function getComposerDevRequirements();

@@ -8,6 +8,7 @@ build:
       fetch:
       patch:
       update_dependencies:
+      yarn_install:
   environment:
     startcontainers:
       runcontainers:

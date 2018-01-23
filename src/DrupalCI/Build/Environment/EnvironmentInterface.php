@@ -8,7 +8,7 @@ interface EnvironmentInterface {
   public function inject(Container $container);
 
   /**
-   * @param $commands
+   * @param string[] $commands
    *
    * @param null $container_id
    *
