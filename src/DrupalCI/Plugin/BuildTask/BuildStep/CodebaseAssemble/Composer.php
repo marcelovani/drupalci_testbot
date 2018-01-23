@@ -27,6 +27,11 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   public function run() {
 
     $source_dir = $this->codebase->getSourceDirectory();
+    // We add in discard-changes because we're sometimes working with an existing
+    // drupal core that already has coder stripped of its tests, and thus it
+    // appears as though they are changed.
+    $cmd = "./bin/composer config -g discard-changes true";
+    $this->execRequiredCommand($cmd, 'Composer Config Command Failed');
 
     $cmd = "./bin/composer " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->execRequiredCommand($cmd, 'Composer Command Failed');
@@ -38,7 +43,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    */
   public function getDefaultConfiguration() {
     return [
-      'options' => 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress',
+      'options' => 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress --no-interaction',
     ];
   }
 
