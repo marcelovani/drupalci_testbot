@@ -72,11 +72,6 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       'chown -fR www-data:www-data ' . $sourcedir . '/sites',
     ];
     $result = $this->environment->executeCommands($setup_commands);
-    $return = $result->getSignal();
-    if ($return !== 0) {
-      // Directory setup failed threw an error.
-      $this->terminateBuild("Prepare filesystem failed", "Setting up the filesystem failed:  Error Code: $return");
-    }
   }
 
 }
