@@ -48,13 +48,15 @@ class Javascript extends BuildTaskBase implements BuildStepInterface {
     $base_url = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
 
     $cmd = "cp {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json";
-    $this->execRequiredCommand($cmd, 'Nightwatch settings config setup failure');
+    $this->exec($cmd, $output, $return);
 
     $runscript = "BASE_URL={$base_url} DB_URL={$database_url} WEBDRIVER_HOSTNAME={$hostname} NIGHTWATCH_OUTPUT={$this->codebase->getSourceDirectory()}/nightwatch_output {$this->runscript}";
     $result = $this->environment->executeCommands("$runscript");
 
     // Save some artifacts for the build
-    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
+    if ($result->getSignal() == 0) {
+      $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
+    }
     return 0;
   }
 
