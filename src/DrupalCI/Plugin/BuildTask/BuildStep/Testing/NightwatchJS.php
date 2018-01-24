@@ -51,7 +51,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
     $cmd = "cp {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json";
     $this->exec($cmd, $output, $return);
 
-    $runscript = "BASE_URL={$base_url} DB_URL={$database_url} WEBDRIVER_HOSTNAME={$hostname} NIGHTWATCH_OUTPUT={$this->environment->getExecContainerSourceDir()}/nightwatch_output NODE_ENV=testbot {$this->runscript}";
+    $runscript = "sudo BASE_URL={$base_url} DB_URL={$database_url} WEBDRIVER_HOSTNAME={$hostname} NIGHTWATCH_OUTPUT={$this->environment->getExecContainerSourceDir()}/nightwatch_output NODE_ENV=testbot -u www-data {$this->runscript}";
     $result = $this->environment->executeCommands("$runscript");
 
     // Save some artifacts for the build
@@ -68,8 +68,10 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   protected function prepareFilesystem() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
-      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/subdirectory',
-      'chown -fR www-data:www-data ' . $sourcedir . '/sites',
+      "ln -s ${sourcedir} ${sourcedir}/subdirectory",
+      "mkdir -p ${sourcedir}/nightwatch_output",
+      "chown -fR www-data:www-data ${sourcedir}/sites",
+      "chown -fR www-data:www-data ${sourcedir}/nightwatch_output",
     ];
     $result = $this->environment->executeCommands($setup_commands);
   }
