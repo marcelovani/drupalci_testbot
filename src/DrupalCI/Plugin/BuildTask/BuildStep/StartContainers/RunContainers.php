@@ -50,7 +50,7 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
 
     $this->io->writeln("<info>Starting chromedriver container ...</info>");
     $images['chrome'] = ["Image" => "drupalci/chromedriver:production"];
-    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/chromedriver:dev</></comment>");
+    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/chromedriver:production</></comment>");
     $this->environment->startChromeContainer($images['chrome']);
 
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
