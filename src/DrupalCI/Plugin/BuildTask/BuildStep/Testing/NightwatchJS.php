@@ -41,28 +41,29 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
    * @inheritDoc
    */
   public function run() {
+    if (file_exists("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default")) {
 
-    $this->prepareFilesystem();
+      $this->prepareFilesystem();
 
-    $hostname = $this->environment->getChromeContainerHostname();
-    $database_url = $this->system_database->getUrl();
-    $base_url = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
+      $hostname = $this->environment->getChromeContainerHostname();
+      $database_url = $this->system_database->getUrl();
+      $base_url = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
 
-    if (file_exists("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default")){
       $nightwatch_settings = json_decode(file_get_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default"), TRUE);
       $nightwatch_settings['BASE_URL'] = $base_url;
       $nightwatch_settings['DB_URL'] = $database_url;
       $nightwatch_settings['WEBDRIVER_HOSTNAME'] = $hostname;
       $nightwatch_settings['NIGHTWATCH_OUTPUT'] = "{$this->environment->getExecContainerSourceDir()}/nightwatch_output";
       file_put_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json", json_encode($nightwatch_settings));
-    }
 
-    $runscript = "sudo NODE_ENV=testbot -u www-data {$this->runscript}";
-    $result = $this->environment->executeCommands("$runscript");
 
-    // Save some artifacts for the build
-    if ($result->getSignal() == 0) {
-      $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
+      $runscript = "sudo NODE_ENV=testbot -u www-data {$this->runscript}";
+      $result = $this->environment->executeCommands("$runscript");
+
+      // Save some artifacts for the build
+      if ($result->getSignal() == 0) {
+        $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
+      }
     }
     return 0;
   }
