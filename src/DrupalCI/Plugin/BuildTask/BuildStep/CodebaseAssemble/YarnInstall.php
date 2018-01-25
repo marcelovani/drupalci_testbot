@@ -42,7 +42,7 @@ class YarnInstall extends BuildTaskBase {
     $this->io->writeln('Executing yarn install for core nodejs dev dependencies.');
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
-    $this->exec('yarn install --no-progress --non-interactive --cwd ' . $work_dir . ' 2>&1', $output, $result);
+    $this->exec("yarn install --no-progress --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
 
     $this->saveStringArtifact('yarn_install.txt', implode("\n", $output));
 
