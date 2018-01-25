@@ -48,10 +48,16 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
     $database_url = $this->system_database->getUrl();
     $base_url = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
 
-    $cmd = "cp {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default {$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json";
-    $this->exec($cmd, $output, $return);
+    if (file_exists("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default")){
+      $nightwatch_settings = json_decode(file_get_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default"), TRUE);
+      $nightwatch_settings['BASE_URL'] = $base_url;
+      $nightwatch_settings['DB_URL'] = $database_url;
+      $nightwatch_settings['WEBDRIVER_HOSTNAME'] = $hostname;
+      $nightwatch_settings['NIGHTWATCH_OUTPUT'] = "{$this->environment->getExecContainerSourceDir()}/nightwatch_output";
+      file_put_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json", json_encode($nightwatch_settings));
+    }
 
-    $runscript = "sudo BASE_URL={$base_url} DB_URL={$database_url} WEBDRIVER_HOSTNAME={$hostname} NIGHTWATCH_OUTPUT={$this->environment->getExecContainerSourceDir()}/nightwatch_output NODE_ENV=testbot -u www-data {$this->runscript}";
+    $runscript = "sudo NODE_ENV=testbot -u www-data {$this->runscript}";
     $result = $this->environment->executeCommands("$runscript");
 
     // Save some artifacts for the build
