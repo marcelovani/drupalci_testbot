@@ -37,12 +37,19 @@ class YarnInstall extends BuildTaskBase {
    * {@inheritDoc}
    */
   public function run() {
+    if (!empty(getenv('DCI_Debug'))) {
+      $verbose = ' --verbose';
+      $progress = '';
+    } else {
+      $verbose = '';
+      $progress = ' --no-progress';
+    }
     $output = [];
     $result = 0;
     $this->io->writeln('Executing yarn install for core nodejs dev dependencies.');
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
-    $this->exec("yarn install --no-progress --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
+    $this->exec("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
 
     $this->saveStringArtifact('yarn_install.txt', implode("\n", $output));
 
@@ -61,10 +68,10 @@ class YarnInstall extends BuildTaskBase {
       $this->io->writeln('Yarn install success');
     }
     $output = [];
-    $this->exec('yarn list --no-progress --non-interactive --cwd ' . $work_dir . ' 2>&1', $output, $result);
+    $this->exec("yarn${verbose} list$progress --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
     $this->saveStringArtifact('yarn_list.txt', implode("\n", $output));
     $output = [];
-    $this->exec('yarn --no-progress --non-interactive --cwd ' . $work_dir . ' licenses list 2>&1', $output, $result);
+    $this->exec("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list 2>&1", $output, $result);
     $this->saveStringArtifact('yarn_licenses.txt', implode("\n", $output));
     return $result;
   }

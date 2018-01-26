@@ -69,6 +69,13 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
   public function run() {
     // TODO when https://www.drupal.org/node/2853889 lands, stop using the
     // ExtnetionProjectSubdir to determine the correct branch/project under test.
+    if (!empty(getenv('DCI_Debug'))) {
+      $verbose = '-vvv ';
+      $progress = '';
+    } else {
+      $verbose = '';
+      $progress = ' --no-progress';
+    }
     foreach ($this->configuration['repositories'] as $checkout_repo) {
       $checkout_directory = $checkout_repo['checkout_dir'];
       if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
@@ -76,12 +83,12 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         $composer_branch = $this->getSemverBranch($branch);
 
         $source_dir = $this->codebase->getSourceDirectory();
-        $cmd = "./bin/composer config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
+        $cmd = "./bin/composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
         $this->io->writeln("Adding packages.drupal.org as composer repository");
         $this->execRequiredCommand($cmd, 'Composer config failure');
 
 
-        $cmd = "./bin/composer require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable --no-progress --no-suggest --no-interaction --working-dir " . $source_dir;
+        $cmd = "./bin/composer ${verbose} require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
 
         $this->io->writeln("Composer Command: $cmd");
         $this->execRequiredCommand($cmd, 'Composer require failure');
@@ -91,7 +98,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
         // Those dependencies in as well.
         $packages = $this->codebase->getComposerDevRequirements();
         if (!empty($packages)) {
-          $cmd = "./bin/composer require --no-interaction --ignore-platform-reqs " . implode(' ',$packages) . " --ignore-platform-reqs --prefer-stable --no-progress --no-suggest --working-dir " . $source_dir;
+          $cmd = "./bin/composer ${verbose} require --no-interaction --ignore-platform-reqs " . implode(' ',$packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
           $this->io->writeln("Composer Command: $cmd");
           $this->execRequiredCommand($cmd, 'Composer require failure');
 
