@@ -1,0 +1,71 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.5.x'
+        git_commit_hash: 91e668f
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories: {  }
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/2893804-7.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: 2893804-7.patch
+            to: .
+      update_dependencies: {  }
+    project_subdir: ''
+    project_name: ''
+    project_type: ''
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '31'
+      container_composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+        executable_path: /usr/local/bin/composer
+        fail_should_terminate: true
+      csslint:
+        lint_fails_test: false
+        skip_linting: false
+      eslint:
+        lint_fails_test: 'TRUE'
+        skip_linting: false
+      phpcs:
+        sniff_all_files: false
+        start_directory: core
+        installed_paths: vendor/drupal/coder/coder_sniffer/
+        warning_fails_sniff: false
+        sniff_fails_test: false
+        coder_version: 8.2.8
+        skip_codesniff: false
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: '--all'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/subdirectory'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: false
