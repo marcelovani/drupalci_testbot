@@ -25,7 +25,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function run() {
-    if (TRUE === (getenv('DCI_Debug'))) {
+    if (!empty(getenv('DCI_Debug'))) {
       $verbose = '-vvv';
     } else {
       $verbose = '';
@@ -47,13 +47,15 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function getDefaultConfiguration() {
-    if (TRUE === (getenv('DCI_Debug'))) {
-      $verbose = '-vvv';
+    if (!empty(getenv('DCI_Debug'))) {
+      $verbose = '-vvv ';
+      $progress = '';
     } else {
       $verbose = '';
+      $progress = ' --no-progress';
     }
     return [
-      'options' => "${verbose} install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress --no-interaction",
+      'options' => "${verbose}install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction${progress}",
     ];
   }
 
