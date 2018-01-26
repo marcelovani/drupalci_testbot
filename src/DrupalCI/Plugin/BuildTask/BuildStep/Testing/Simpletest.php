@@ -175,7 +175,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     // Extension test is assumed to be a contrib project, so we specify
     // --directory, unless we've got something other than "--all" for testgroups
-    if ($this->configuration['testgroups'] != '--all'){
+    if (($this->configuration['testgroups'] != '--all') && (substr($this->configuration['testgroups'], 0, 11 ) !== "--directory")){
       $command[] = $this->configuration['testgroups'];
     }
     else if ($is_extension_test) {
