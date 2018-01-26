@@ -1,0 +1,80 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: ''
+        git_branch: ''
+        git_commit_hash: ''
+      checkout_core:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/drupal.git'
+            branch: 8.4.2
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/examples.git'
+            branch: 8.x-1.x#a63b8a96dab95f2dd30e971a4d1c9c94818f4057
+            checkout_dir: modules/examples
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/lessSimpleTest-2924387-2.patch'
+            to: modules/examples
+      patch:
+        patches:
+          -
+            from: lessSimpleTest-2924387-2.patch
+            to: modules/examples
+      update_dependencies: {  }
+    project_subdir: modules/examples
+    project_name: examples
+    project_type: ''
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.5.38-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    validate_codebase:
+      phplint:
+        concurrency: '31'
+      container_composer:
+        options: 'install --prefer-dist --no-suggest --no-progress'
+        executable_path: /usr/local/bin/composer
+        fail_should_terminate: true
+      csslint:
+        lint_fails_test: false
+        skip_linting: false
+      eslint:
+        lint_fails_test: false
+        skip_linting: false
+      phpcs:
+        sniff_all_files: false
+        start_directory: core
+        installed_paths: vendor/drupal/coder/coder_sniffer/
+        warning_fails_sniff: false
+        sniff_fails_test: false
+        coder_version: ^8.2@stable
+        skip_codesniff: false
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: '--directory modules/examples'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        url: 'http://localhost/subdirectory'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: true

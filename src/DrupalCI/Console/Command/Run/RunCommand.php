@@ -5,12 +5,28 @@ namespace DrupalCI\Console\Command\Run;
 use DrupalCI\Console\Command\Drupal\DrupalCICommandBase;
 use DrupalCI\Build\Codebase\Codebase;
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Providers\ConsoleIOServiceProvider;
 use Pimple\Container;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Command\Command;
 
-class RunCommand extends DrupalCICommandBase {
+class RunCommand extends Command {
+
+  /**
+   * The container object.
+   *
+   * @var \Pimple\Container
+   */
+  protected $container;
+
+  /**
+   * Style object.
+   *
+   * @var \DrupalCI\Console\DrupalCIStyle
+   */
+  protected $io;
 
   /**
    * The Build this command is executing.
@@ -51,7 +67,9 @@ class RunCommand extends DrupalCICommandBase {
   }
 
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    parent::initialize($input, $output);
+    $this->container = $this->getApplication()->getContainer();
+    $this->container->register(new ConsoleIOServiceProvider($input, $output));
+    $this->io = $this->container['console.io'];
     $this->buildTaskPluginManager = $this->container['plugin.manager.factory']->create('BuildTask');
     $this->build = $this->container['build'];
     $this->codebase = $this->container['codebase'];
