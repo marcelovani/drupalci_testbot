@@ -123,6 +123,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
     //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
     $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
+    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/simpletest/browser_output','simpletest_html');
 
     $this->saveStringArtifact('simpletestoutput.txt', $result->getOutput());
     $this->saveStringArtifact('simpletesterror.txt', $result->getError());
@@ -173,8 +174,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $command[] = $this->getRunTestsValues($this->configuration);
 
     // Extension test is assumed to be a contrib project, so we specify
-    // --directory.
-    if ($is_extension_test) {
+    // --directory, unless we've got something other than "--all" for testgroups
+    if ($this->configuration['testgroups'] != '--all'){
+      $command[] = $this->configuration['testgroups'];
+    }
+    else if ($is_extension_test) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
     }
     else {
