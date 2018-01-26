@@ -3,14 +3,9 @@ build:
     assemble_codebase:
       replicate:
         exclude: {  }
-        local_dir: ''
+        local_dir: '/var/lib/drupalci/drupal-checkout'
         git_branch: '8.5.x'
-        git_commit_hash: 'a64943deaa90c953936f9ab590f0ad9f548be4fb'
-      checkout_core:
-        repositories:
-          -
-            repo: 'git://git.drupal.org/project/drupal.git'
-            branch: 8.5.x
+        git_commit_hash: 91e668f
       composer.core_install:
         options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
       composer_contrib:
