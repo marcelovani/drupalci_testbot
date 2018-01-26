@@ -44,6 +44,14 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
    * {@inheritdoc}
    */
   public function run() {
+    // Create a network for the containers
+    $this->environment->createContainerNetwork();
+
+
+    $this->io->writeln("<info>Starting chromedriver container ...</info>");
+    $images['chrome'] = ["Image" => "drupalci/chromedriver:production"];
+    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/chromedriver:production</></comment>");
+    $this->environment->startChromeContainer($images['chrome']);
 
     $this->io->writeln("<info>Parsing required Web container image names ...</info>");
     $php_version = $this->configuration['phpversion'];

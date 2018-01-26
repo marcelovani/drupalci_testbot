@@ -8,7 +8,7 @@ interface EnvironmentInterface {
   public function inject(Container $container);
 
   /**
-   * @param $commands
+   * @param string[] $commands
    *
    * @param null $container_id
    *
@@ -24,7 +24,13 @@ interface EnvironmentInterface {
 
   public function startServiceContainerDaemons($container);
 
+  public function startChromeContainer($container);
+
   public function terminateContainers();
+
+  public function createContainerNetwork();
+
+  public function destroyContainerNetwork();
 
   public function getDatabaseContainer();
 

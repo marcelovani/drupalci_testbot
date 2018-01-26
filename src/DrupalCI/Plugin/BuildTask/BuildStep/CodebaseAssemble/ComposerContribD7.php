@@ -31,6 +31,10 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
         $this->io->writeln("Initializing composer repository");
         $this->execRequiredCommand($cmd, 'Composer init failure');
 
+        $cmd = "composer config discard-changes true --working-dir " . $source_dir;;
+        $this->io->writeln("Ignoring Composer Changes");
+        $this->execRequiredCommand($cmd, 'Composer config failure');
+
         $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
         $this->io->writeln("Setting Minimum Stability");
         $this->execRequiredCommand($cmd, 'Composer config failure');

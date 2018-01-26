@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "275805f4fd8dbc70f7f9d200c0f31ac6",
+    "content-hash": "05da2f041d1ee97123703e995afbabe3",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -115,16 +115,16 @@
         },
         {
             "name": "composer/composer",
-            "version": "1.3.0-RC",
+            "version": "1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "a72a8caa9ae569581449cec4a263cf77ead7ecd6"
+                "reference": "989d68725bc8ebf97e795d4feb386f52adb096e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/a72a8caa9ae569581449cec4a263cf77ead7ecd6",
-                "reference": "a72a8caa9ae569581449cec4a263cf77ead7ecd6",
+                "url": "https://api.github.com/repos/composer/composer/zipball/989d68725bc8ebf97e795d4feb386f52adb096e3",
+                "reference": "989d68725bc8ebf97e795d4feb386f52adb096e3",
                 "shasum": ""
             },
             "require": {
@@ -188,7 +188,7 @@
                 "dependency",
                 "package"
             ],
-            "time": "2016-12-11T16:04:50+00:00"
+            "time": "2017-03-08T10:06:43+00:00"
         },
         {
             "name": "composer/semver",
@@ -763,7 +763,7 @@
             "version": "8.2.10",
             "source": {
                 "type": "git",
-                "url": "https://github.com/klausi/coder.git",
+                "url": "https://git.drupal.org/project/coder.git",
                 "reference": "c835ff5c1733676fe0d3f3b861e814d570baaa6f"
             },
             "dist": {
@@ -3932,9 +3932,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "composer/composer": 5
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],

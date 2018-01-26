@@ -39,7 +39,7 @@ class ContainerComposer extends Composer {
       [
         // The 'options' configuration should be exactly the same as parent
         // config, but without --ignore-platform-reqs.
-        'options' => 'install --prefer-dist --no-suggest --no-progress',
+        'options' => 'install --prefer-dist --no-suggest --no-progress --no-interaction',
         'executable_path' => '/usr/local/bin/composer',
         'fail_should_terminate' => TRUE,
       ]
@@ -51,6 +51,14 @@ class ContainerComposer extends Composer {
    */
   public function run() {
     $this->io->writeln('<info>Running Composer within the environment.</info>');
+
+    // Build a containerized Composer command to ignore/discard changes
+    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
+      $this->configuration['executable_path'],
+      'config -g discard-changes true',
+    ];
+    $commands[] = implode(' ', $command);
+    $result = $this->environment->executeCommands($commands);
 
     // Build a containerized Composer command.
     $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',

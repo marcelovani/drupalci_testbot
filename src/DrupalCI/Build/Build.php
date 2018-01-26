@@ -542,7 +542,7 @@ class Build implements BuildInterface, Injectable {
     if (empty($build_id)) {
       // Hash microtime() so we don't end up with the same ID for builds shorter
       // than a second.
-      $build_id = $this->buildType . '_' . md5(microtime());
+      $build_id = $this->buildType . '-' . md5(microtime());
     }
     $this->setBuildId($build_id);
     $this->io->writeLn("<info>Executing build with build ID: <options=bold>$build_id</></info>");
@@ -683,10 +683,12 @@ class Build implements BuildInterface, Injectable {
       'sudo chown -R ' . $uid . ' ' . $db_dir,
       'chmod -R 777 ' . $db_dir,
     ];
-    $environment->executeCommands($commands, $db_container['id']);
-
-    // Shut off the containers
+    if (!empty($db_container)) {
+      $environment->executeCommands($commands, $db_container['id']);
+    }
+    // Shut off the containers and network.
     $environment->terminateContainers();
+    $environment->destroyContainerNetwork();
 
     // Delete the source code and database files
     $fs = new Filesystem();

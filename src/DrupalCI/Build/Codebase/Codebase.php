@@ -178,8 +178,10 @@ class Codebase implements CodebaseInterface, Injectable {
     $this->extensionPaths = $extensionPaths;
   }
 
-  // This is the path, relative to the source where composer installers p
-  // laces our extensions.
+  // This is the path, relative to the source, where composer installers
+  // places our extensions. It really should be the 'working directory'
+  // as it mostly gets used to determine *where* certain tools should be
+  // executed.
 
   public function getTrueExtensionSubDirectory() {
     if ($this->projectType === 'core') {
