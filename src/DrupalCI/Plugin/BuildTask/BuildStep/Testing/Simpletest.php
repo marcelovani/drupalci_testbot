@@ -99,24 +99,25 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   public function run() {
     $this->prepareFilesystem();
-
     $this->setupSimpletestDB($this->build);
-    $status = $this->generateTestGroups();
-    if ($status > 0) {
-      return $status;
-    }
+    // generateTestGroups will terminate the build if there's an error.
+    $this->generateTestGroups();
+
 
     $result = $this->environment->executeCommands($this->getRunTestsCommand());
 
-    // Look at the output for no valid tests, and set that to an acceptable signal.
+    // Allow a pass if no tests are found. This allows DrupalCI to be used for
+    // lint/coding standards only.
+    // @todo Change this when projects can have their own build file in
+    //   https://www.drupal.org/project/drupalci_testbot/issues/2901677
     if (strpos($result->getOutput(), 'ERROR: No valid tests were specified.') !== FALSE) {
       $result->setSignal(0);
     }
+
     // Last thing. JunitFormat the output.
     $this->generateJunitXml();
 
-    //Save some artifacts for the build
-
+    // Save some artifacts for the build
     $this->saveContainerArtifact('/var/log/apache2/error.log','apache-error.log');
     $this->saveContainerArtifact('/var/log/apache2/test.apache.error.log','test.apache.error.log');
     //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
@@ -126,10 +127,28 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->saveStringArtifact('simpletestoutput.txt', $result->getOutput());
     $this->saveStringArtifact('simpletesterror.txt', $result->getError());
 
-    // TODO: Jenkins fails the build if it sees a 1 in a shell script execution.
-    // So we return a 0 here instead.
-    //return $result->getSignal();
-    return 0;
+    // Run-tests.sh can return 0, 1, or 2. If the container exec() does not
+    // return any of those values, it's a PHP fatal.
+    // Jenkins will fail the build if it receives a 1, but we don't want it to
+    // do that. D.O has the responsibility for displaying the fail.
+    // Therefore: Return 0 for both 0 and 1. All other states result in
+    // terminateBuild().
+    $signal = $result->getSignal();
+    switch ($signal) {
+      case 0:
+      case 1:
+        $signal = 0;
+        break;
+
+      case 2:
+        $this->terminateBuild('Simpletest exception', $result->getOutput() . "\n\n" . $result->getError());
+        break;
+
+      default:
+        $this->terminateBuild('Simpletest fatal error', $result->getError());
+        break;
+    }
+    return $signal;
   }
 
   protected function getRunTestsCommand() {
@@ -262,12 +281,21 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     // $this->saveContainerArtifact($this->configuration['sqlite'], $sqlite_db_filename);
   }
 
+  /**
+   * Generate a list of tests and groups.
+   *
+   * @return int
+   *   The shell result code.
+   *
+   * @throws BuildTaskException
+   *   Thrown if there was an error generating the list.
+   */
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/testgroups.txt';
     $cmd = 'sudo -u www-data php ' . $this->environment->getExecContainerSourceDir() . $this->runscript . ' --list > ' . $testgroups_file;
     $result = $this->environment->executeCommands($cmd);
     if ($result->getSignal() !== 0) {
-      $this->terminateBuild('Unable to generate test groups',$result->getError());
+      $this->terminateBuild('Unable to generate test groups', $result->getError());
     }
     $host_testgroups = $this->pluginWorkDir . '/testgroups.txt';
     $this->saveContainerArtifact($testgroups_file,'testgroups.txt');
