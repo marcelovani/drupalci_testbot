@@ -34,12 +34,17 @@ class ContainerComposer extends Composer {
    * {@inheritdoc}
    */
   public function getDefaultConfiguration() {
+    if (TRUE === (getenv('DCI_Debug'))) {
+      $verbose = '-vvv';
+    } else {
+      $verbose = '';
+    }
     return array_merge(
       parent::getDefaultConfiguration(),
       [
         // The 'options' configuration should be exactly the same as parent
         // config, but without --ignore-platform-reqs.
-        'options' => 'install --prefer-dist --no-suggest --no-progress --no-interaction',
+        'options' => " ${verbose} install --prefer-dist --no-suggest --no-progress --no-interaction",
         'executable_path' => '/usr/local/bin/composer',
         'fail_should_terminate' => TRUE,
       ]
