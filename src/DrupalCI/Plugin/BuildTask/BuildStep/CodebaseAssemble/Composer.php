@@ -25,7 +25,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function run() {
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = '-vvv';
     } else {
       $verbose = '';
@@ -47,7 +47,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function getDefaultConfiguration() {
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = '-vvv ';
       $progress = '';
     } else {

@@ -40,7 +40,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     // json, move it to ancillary source directory, make a branch, commit it,
     // add it to the core composer.json as an additional repo, and composer
     // require the new version again.
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = ' -vvv';
       $progress = '';
     } else {

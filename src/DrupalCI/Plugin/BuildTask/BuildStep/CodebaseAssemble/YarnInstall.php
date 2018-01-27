@@ -37,7 +37,7 @@ class YarnInstall extends BuildTaskBase {
    * {@inheritDoc}
    */
   public function run() {
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = ' --verbose';
       $progress = '';
     } else {
