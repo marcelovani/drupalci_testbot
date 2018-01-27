@@ -3,6 +3,7 @@
 namespace DrupalCI\Plugin;
 
 use Drupal\Component\Annotation\Plugin\Discovery\AnnotatedClassDiscovery;
+use Drupal\Component\FileCache\FileCacheFactory;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use DrupalCI\Injectable;
 use DrupalCI\InjectableTrait;
@@ -25,6 +26,7 @@ class PluginManager implements PluginManagerInterface, Injectable {
   public function __construct($super_plugin_type, Container $container) {
     $this->superPluginType = $super_plugin_type;
     $this->container = $container;
+    FileCacheFactory::setPrefix('drupalci');
   }
 
   /**
