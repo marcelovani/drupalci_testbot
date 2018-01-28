@@ -20,7 +20,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
   /**
-   * The path to run-tests.sh.
+   * The yarn script to run
    *
    * @var string
    */
