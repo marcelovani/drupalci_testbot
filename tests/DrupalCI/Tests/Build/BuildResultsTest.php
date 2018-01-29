@@ -3,8 +3,9 @@
 namespace DrupalCI\Tests\Build;
 
 use DrupalCI\Build\BuildResults;
+use PHPUnit\Framework\TestCase;
 
-class BuildResultsTest extends \PHPUnit_Framework_TestCase {
+class BuildResultsTest extends TestCase {
 
   /**
    * Ensure that JSON contains the keys we think it should.

@@ -40,10 +40,8 @@ class FetchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testRunNoFrom() {
-    $this->setExpectedException(
-      BuildTaskException::class,
-      'Fetch error'
-    );
+    $this->expectException(BuildTaskException::class);
+    $this->expectExceptionMessage('Fetch error');
 
     $configuration = [
       'files' => [
@@ -99,10 +97,8 @@ class FetchTest extends DrupalCITestCase {
     $from = 'http://example.com/site/dir/' . $file;
     $to = 'test/dir';
 
-    $this->setExpectedException(
-      BuildTaskException::class,
-      "Fetch save error"
-    );
+    $this->expectException(BuildTaskException::class);
+    $this->expectExceptionMessage('Fetch save error');
 
     $configuration = [
       'files' => [

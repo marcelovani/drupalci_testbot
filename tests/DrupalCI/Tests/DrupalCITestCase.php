@@ -2,13 +2,16 @@
 
 namespace DrupalCI\Tests;
 
+use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\ConsoleIOServiceProvider;
 use DrupalCI\Providers\DrupalCIServiceProvider;
+use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalCITestCase extends \PHPUnit_Framework_TestCase {
+class DrupalCITestCase extends TestCase {
 
   /**
    * @var \Symfony\Component\Console\Output\OutputInterface|\PHPUnit_Framework_MockObject_MockObject
@@ -21,8 +24,8 @@ class DrupalCITestCase extends \PHPUnit_Framework_TestCase {
   protected $build;
 
   public function setUp() {
-    $this->output = $this->getMock('Symfony\Component\Console\Output\OutputInterface');
-    $this->build = $this->getMock('DrupalCI\Build\BuildInterface');
+    $this->output = $this->createMock(OutputInterface::class);
+    $this->build = $this->createMock(BuildInterface::class);
   }
 
   protected function getContainer($services = []) {

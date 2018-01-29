@@ -4,6 +4,7 @@ namespace DrupalCI\Tests;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
+use PHPUnit\Framework\TestCase;
 use Pimple\Container;
 
 /**
@@ -11,7 +12,7 @@ use Pimple\Container;
  *
  * You can specify DCI_* config values by overriding self::$dciConfig.
  */
-abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
+abstract class DrupalCIFunctionalTestBase extends TestCase {
 
   /**
    * DCI_* configuration for this test run.

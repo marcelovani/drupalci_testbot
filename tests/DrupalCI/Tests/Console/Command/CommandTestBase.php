@@ -2,10 +2,11 @@
 
 namespace DrupalCI\Tests\Console\Command;
 
-use Pimple\Container;
 use DrupalCI\Providers\DrupalCIServiceProvider;
+use PHPUnit\Framework\TestCase;
+use Pimple\Container;
 
-abstract class CommandTestBase extends \PHPUnit_Framework_TestCase {
+abstract class CommandTestBase extends TestCase {
 
   /**
    * The service container.
