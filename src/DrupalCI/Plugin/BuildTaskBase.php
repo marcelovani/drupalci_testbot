@@ -158,7 +158,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
     $datetime = new \DateTime();
-    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . $elapsed_time . " ---------------- </info>");
+    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . number_format($elapsed_time, 3) . " seconds ---------------- </info>");
   }
 
   private function setup(){
