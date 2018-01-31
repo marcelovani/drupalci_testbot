@@ -17,7 +17,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8FatalTest extends DrupalCIFunctionalTestBase {
 
-  public function testFatalWhileMakingList() {
+  public function testFatalWhileExecutingRunTests() {
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
