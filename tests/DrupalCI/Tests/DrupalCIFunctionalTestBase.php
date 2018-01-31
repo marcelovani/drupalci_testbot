@@ -144,7 +144,9 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
    */
   protected function tearDown() {
     if (!empty($this->app_tester->getOutput())) {
-      echo $this->app_tester->getDisplay();
+      $test_output = $this->app_tester->getDisplay();
+      $test_output = preg_replace('/[^\x{0009}\x{000A}\x{000D}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '�', $test_output);
+      echo $test_output;
       // Make sure we get a new one next time
     }
     unset($this->app_tester);
