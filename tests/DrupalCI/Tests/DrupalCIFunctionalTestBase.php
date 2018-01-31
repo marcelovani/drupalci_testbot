@@ -143,7 +143,12 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
    * {@inheritdoc}
    */
   protected function tearDown() {
-    echo $this->app_tester->getDisplay();
+    if (!empty($this->app_tester->getOutput())) {
+      echo $this->app_tester->getDisplay();
+      // Make sure we get a new one next time
+    }
+    unset($this->app_tester);
+    unset($this->container);
 
     parent::tearDown();
     // Complain if there is no config.
