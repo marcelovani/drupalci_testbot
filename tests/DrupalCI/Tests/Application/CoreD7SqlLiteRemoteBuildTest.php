@@ -23,17 +23,15 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 
   public function testCoreD7SqlLiteRemoteBuildTest() {
-    $this->markTestIncomplete('Fix this in https://www.drupal.org/project/drupalci_testbot/issues/2925400').
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
-      'definition' => 'https://dispatcher.drupalci.org/job/default/306055/artifact/jenkins-default-306055/artifacts/build.jenkins-default-306055.yml',
+      'definition' => 'https://dispatcher.drupalci.org/job/drupal_contrib/150041/artifact/jenkins-drupal_contrib-150041/artifacts/build.jenkins-drupal_contrib-150041.yml',
     ], $options);
     $display = $this->app_tester->getDisplay();
-    $this->assertRegExp('!Build downloaded to /var/lib/drupalci/workspace/build.jenkins-default-306055.yml!', $this->app_tester->getDisplay());
-    $this->assertRegExp('!cd /var/www/html && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r /var/www/html si -y --db-url=sqlite://sites/default/files/db.sqlite --clean-url=0 --account-name=admin --account-pass=drupal --account-mail=admin@example.com!', $this->app_tester->getDisplay());
-    $this->assertRegExp('!Enable/disable hidden submodules and dependencies 120 passes, 4 fails, and 0 exceptions!', $this->app_tester->getDisplay());
+    $this->assertRegExp('!Build downloaded to /var/lib/drupalci/workspace/build.jenkins-drupal_contrib-150041.yml!', $this->app_tester->getDisplay());
+    $this->assertRegExp('!Drupal\\\\block_field\\\\Tests\\\\BlockFieldTest!', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
