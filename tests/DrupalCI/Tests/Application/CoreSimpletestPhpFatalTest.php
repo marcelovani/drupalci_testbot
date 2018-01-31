@@ -36,19 +36,18 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testSimpletestPhpFatal() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/Fatal error/', $app_tester->getDisplay());
+    $this->assertRegExp('/Fatal error/', $this->app_tester->getDisplay());
     // This scenario causes a PHP fatal during testing, which should result in a
     // status code of 2.
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $this->assertEquals(2, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Simpletest fatal error');
     $this->assertBuildOutputJsonContains($build, 'buildDetails', 'PHP Fatal error:  Class \'Drupal\\KernelTests\\field\\FieldUnitTestBase\' not found');
   }

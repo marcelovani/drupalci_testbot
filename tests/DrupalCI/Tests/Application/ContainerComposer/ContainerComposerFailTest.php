@@ -31,19 +31,18 @@ class ContainerComposerFailTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testPlatformMismatch() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ComposerContainer.yml',
     ], $options);
-    $this->assertRegExp('/Your requirements could not be resolved to an installable set of packages./', $app_tester->getDisplay());
-    $this->assertRegExp('/Composer error. Unable to continue./', $app_tester->getDisplay());
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $this->assertRegExp('/Your requirements could not be resolved to an installable set of packages./', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Composer error. Unable to continue./', $this->app_tester->getDisplay());
+    $this->assertEquals(2, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Composer error. Unable to continue.');
     $this->assertBuildOutputJsonContains($build, 'buildDetails', 'This package requires php >=5.5.9 but your PHP version (5.3.29) does not satisfy that requirement.');
   }

@@ -33,18 +33,17 @@ class CoreD8CoderPhpcsConfigModifiedTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testPhpcsConfigModified() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniff.yml',
     ], $options);
-    $this->assertRegExp('/The installed coding standards are .* Drupal/', $app_tester->getDisplay());
-    $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $app_tester->getDisplay());
-    $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $app_tester->getDisplay());
+    $this->assertRegExp('/The installed coding standards are .* Drupal/', $this->app_tester->getDisplay());
+    $this->assertNotRegExp('/Running PHP Code Sniffer review on modified files./', $this->app_tester->getDisplay());
+    $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $this->app_tester->getDisplay());
     // Commit hash 4b65a2b always fails CS review.
-    $this->assertEquals(1, $app_tester->getStatusCode());
+    $this->assertEquals(1, $this->app_tester->getStatusCode());
   }
 
 }

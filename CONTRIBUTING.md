@@ -672,7 +672,7 @@ to the test. We can achieve that a few ways.
 
          To use this method, include the following directive in your
          tests:
-         `$app_tester->run([ 'command' => 'run',
+         `$this->app_tester->run([ 'command' => 'run',
                             'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
          ], $options);`
 

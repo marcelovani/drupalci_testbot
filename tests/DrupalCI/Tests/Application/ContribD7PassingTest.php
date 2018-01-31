@@ -34,18 +34,17 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testD7Contrib() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
-    $this->assertRegExp('/Forena Reports 15 passes, 0 fails, and 0 exceptions/', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Forena Reports 15 passes, 0 fails, and 0 exceptions/', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

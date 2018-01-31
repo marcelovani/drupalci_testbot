@@ -24,26 +24,25 @@ class ContribD7PatchAddsConfigTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testExamplesD7PatchPhpcsXml() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7Examples.yml',
     ], $options);
     // Assert output text and status code.No modified files. Sniffing all files.
-    $this->assertRegExp('/Checking for phpcs\.xml\(\.dist\) file/', $app_tester->getDisplay());
-    $this->assertRegExp('/Using existing PHPCS config file/', $app_tester->getDisplay());
-    $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $app_tester->getDisplay());
-    $this->assertRegExp('`Attempting to install drupal/coder`', $app_tester->getDisplay());
-    $this->assertRegExp('/Config value "installed_paths" added successfully/', $app_tester->getDisplay());
-    $this->assertRegExp('/The installed coding standards are .* Drupal/', $app_tester->getDisplay());
-    $this->assertRegExp('/Executing PHPCS/', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/Checking for phpcs\.xml\(\.dist\) file/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Using existing PHPCS config file/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/PHPCS config file modified, sniffing entire project./', $this->app_tester->getDisplay());
+    $this->assertRegExp('`Attempting to install drupal/coder`', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Config value "installed_paths" added successfully/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/The installed coding standards are .* Drupal/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Executing PHPCS/', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     // Assert report.
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $artifact_file = $build->getArtifactDirectory() . '/phpcs/checkstyle.xml';
     $this->assertTrue(file_exists($artifact_file));
   }

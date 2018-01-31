@@ -6,6 +6,7 @@ use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
  * Framework for test-controlled runs of drupalci.
@@ -38,6 +39,12 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
    * @var \Pimple\Container
    */
   protected $container;
+  /**
+   * The application tester.
+   *
+   * @var \Symfony\Component\Console\Tester\ApplicationTester
+   */
+  protected $app_tester;
 
   /**
    * @return \Pimple\Container
@@ -94,6 +101,7 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
     $build_id = putenv('BUILD_TAG');
 
     $app = $this->getConsoleApp();
+    $this->app_tester = new ApplicationTester($app);
     $app->setAutoExit(FALSE);
   }
 
@@ -135,6 +143,8 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
    * {@inheritdoc}
    */
   protected function tearDown() {
+    echo $this->app_tester->getDisplay();
+
     parent::tearDown();
     // Complain if there is no config.
     if (!empty($this->dciConfig)) {

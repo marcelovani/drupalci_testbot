@@ -20,18 +20,17 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class ContribD8NoTestsTest extends DrupalCIFunctionalTestBase {
 
   public function testD8ContribNoTests() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8NoTestsTest.yml',
     ], $options);
-    $this->assertRegExp('/ERROR: No valid tests were specified./', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/ERROR: No valid tests were specified./', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

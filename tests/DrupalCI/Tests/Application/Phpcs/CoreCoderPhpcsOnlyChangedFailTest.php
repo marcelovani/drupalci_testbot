@@ -32,19 +32,18 @@ class CoreCoderPhpcsOnlyChangedFailTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testCoderSniffOnlyChangedFailTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSniff.yml',
     ], $options);
-    $this->assertRegExp('/The installed coding standards are .* Drupal/', $app_tester->getDisplay());
-    $this->assertRegExp('/Running PHP Code Sniffer review on modified php files./', $app_tester->getDisplay());
-    $this->assertEquals(1, $app_tester->getStatusCode());
+    $this->assertRegExp('/The installed coding standards are .* Drupal/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/Running PHP Code Sniffer review on modified php files./', $this->app_tester->getDisplay());
+    $this->assertEquals(1, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

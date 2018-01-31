@@ -35,31 +35,30 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testBasicTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
-    $display = $app_tester->getDisplay();
-    $this->assertNotRegExp('/.*simpletestlegacy7*/', $app_tester->getDisplay());
-    $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $app_tester->getDisplay());
+    $display = $this->app_tester->getDisplay();
+    $this->assertNotRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
 
     // Ensure that the PHP version was displayed.
-    $this->assertRegExp('/PHP 7.0./', $app_tester->getDisplay());
+    $this->assertRegExp('/PHP 7.0./', $this->app_tester->getDisplay());
     // Ensure that PHP info was generated.
-    $this->assertRegExp('/php -i >/', $app_tester->getDisplay());
+    $this->assertRegExp('/php -i >/', $this->app_tester->getDisplay());
     $phpinfo_path = $build->getArtifactDirectory() . '/runcontainers/phpinfo.txt';
     $this->assertFileExists($phpinfo_path);
   }

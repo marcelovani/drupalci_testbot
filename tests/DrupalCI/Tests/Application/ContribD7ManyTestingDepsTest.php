@@ -20,18 +20,17 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class ContribD7ManyTestingDepsTest extends DrupalCIFunctionalTestBase {
 
   public function testContribD7ManyTestingDepsTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
     ], $options);
-    $this->assertRegExp('/Adding testing \(require-dev\) dependencies./', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/Adding testing \(require-dev\) dependencies./', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
