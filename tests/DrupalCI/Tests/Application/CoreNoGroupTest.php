@@ -36,18 +36,17 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testCoreNoGroup() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
     ], $options);
-    $foo = $app_tester->getDisplay();
-    $this->assertRegExp('/.*MissingGroupException.*/', $app_tester->getDisplay());
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $foo = $this->app_tester->getDisplay();
+    $this->assertRegExp('/.*MissingGroupException.*/', $this->app_tester->getDisplay());
+    $this->assertEquals(2, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Unable to generate test groups');
     $this->assertBuildOutputJson($build, 'buildDetails', '
 

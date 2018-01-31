@@ -36,27 +36,6 @@ build:
     dbuser: drupaltestbot
     dbpassword: drupaltestbotpw
   assessment:
-    validate_codebase:
-      phplint:
-        concurrency: '31'
-      container_composer:
-        options: 'install --prefer-dist --no-suggest --no-progress'
-        executable_path: /usr/local/bin/composer
-        fail_should_terminate: true
-      csslint:
-        lint_fails_test: false
-        skip_linting: false
-      eslint:
-        lint_fails_test: 'TRUE'
-        skip_linting: false
-      phpcs:
-        sniff_all_files: false
-        start_directory: core
-        installed_paths: vendor/drupal/coder/coder_sniffer/
-        warning_fails_sniff: false
-        sniff_fails_test: false
-        coder_version: 8.2.8
-        skip_codesniff: false
     testing:
       simpletest.standard:
         concurrency: 31

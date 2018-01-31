@@ -30,18 +30,17 @@ class YarnInstallFailTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testYarnInstallFailsTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.YarnInstall.yml',
     ], $options);
-    $this->assertRegExp('/Yarn install failed; Proceeding anyways.../', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/Yarn install failed; Proceeding anyways.../', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

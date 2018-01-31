@@ -31,20 +31,19 @@ class EsLintD7ContribSuccessTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testEslintContribTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintContribD7Test.yml',
     ], $options);
-    $this->assertRegExp('/No modified files. Linting all files./', $app_tester->getDisplay());
+    $this->assertRegExp('/No modified files. Linting all files./', $this->app_tester->getDisplay());
 
     // This shouldnt fail because we're not strict about eslint in d7 contrib
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

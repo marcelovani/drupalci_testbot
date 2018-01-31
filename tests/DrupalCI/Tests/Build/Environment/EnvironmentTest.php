@@ -36,7 +36,7 @@ class EnvironmentTest extends DrupalCITestCase {
       ->method('getExecManager')
       ->will($this->returnValue($exec_manager));
 
-    $exec_result = $this->getMock(ExecCreateResult::class);
+    $exec_result = $this->createMock(ExecCreateResult::class);
 
     $exec_manager->expects($this->once())
       ->method('create')
@@ -45,7 +45,7 @@ class EnvironmentTest extends DrupalCITestCase {
       ->method('getId')
       ->willReturn($manager_id);
 
-    $exec_start_config = $this->getMock(ExecStartConfig::class);
+    $exec_start_config = $this->createMock(ExecStartConfig::class);
 
     $stream = $this->getMockBuilder(DockerRawStream::class)
       ->disableOriginalConstructor()

@@ -22,10 +22,9 @@ class NewComposerJsonModifiedFilesTest extends DrupalCIFunctionalTestBase {
    */
 
   public function testD8Contrib() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.NewComposerJsonModifiedFiles.yml',
     ], $options);
@@ -38,9 +37,9 @@ class NewComposerJsonModifiedFilesTest extends DrupalCIFunctionalTestBase {
       $codebase->getModifiedFiles()
     );
     // Verify the output.
-    $display = $app_tester->getDisplay();
-    $this->assertRegExp('/.*composer.json changed by patch: recalculating depenendices.*/', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $display = $this->app_tester->getDisplay();
+    $this->assertRegExp('/.*composer.json changed by patch: recalculating depenendices.*/', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
   }
 
 }

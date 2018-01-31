@@ -32,18 +32,17 @@ class EsLintFailTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testEslintTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintFailTest.yml',
     ], $options);
-    $this->assertRegExp('/Running eslint on modified js files./', $app_tester->getDisplay());
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $this->assertRegExp('/Running eslint on modified js files./', $this->app_tester->getDisplay());
+    $this->assertEquals(2, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Javascript coding standards error');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }

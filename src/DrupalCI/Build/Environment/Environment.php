@@ -38,7 +38,7 @@ class Environment implements Injectable, EnvironmentInterface {
   protected $chromeContainer;
 
   // This is the docker network that we want to add the containers to.
-  protected $docker_network;
+  protected $dockerNetwork;
 
   /* @var DatabaseInterface */
   protected $database;
@@ -180,6 +180,10 @@ class Environment implements Injectable, EnvironmentInterface {
     return $this->executableContainer;
   }
 
+  public function getContainerNetwork() {
+    return $this->dockerNetwork;
+  }
+
   /**
    * @return string
    */
@@ -281,13 +285,13 @@ class Environment implements Injectable, EnvironmentInterface {
     $networks = $network_manager->findAll();
     foreach ($networks as $docker_network) {
       if ($docker_network->getName() == 'drupalci_nw') {
-        $this->docker_network = $docker_network;
+        $this->dockerNetwork = $docker_network;
         return;
       }
     }
     $container_network = new NetworkCreateConfig();
     $container_network->setName('drupalci_nw');
-    $this->docker_network = $network_manager->create($container_network);
+    $this->dockerNetwork = $network_manager->create($container_network);
   }
 
   public function destroyContainerNetwork() {

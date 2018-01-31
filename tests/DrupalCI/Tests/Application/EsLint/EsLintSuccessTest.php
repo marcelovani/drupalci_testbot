@@ -28,18 +28,17 @@ class EsLintSuccessTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testEslintTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.EsLintSuccessTest.yml',
     ], $options);
-    $this->assertRegExp('/No modified files. Linting all files./', $app_tester->getDisplay());
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertRegExp('/No modified files. Linting all files./', $this->app_tester->getDisplay());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
     $this->assertBuildOutputJson($build, 'buildDetails', '');
   }
