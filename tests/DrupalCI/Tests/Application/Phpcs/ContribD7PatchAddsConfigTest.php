@@ -1,6 +1,6 @@
 <?php
 
-namespace DrupalCI\Tests\Application;
+namespace DrupalCI\Tests\Application\Phpcs;
 
 use DrupalCI\Tests\DrupalCIFunctionalTestBase;
 use Symfony\Component\Console\Tester\ApplicationTester;
