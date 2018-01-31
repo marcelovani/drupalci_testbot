@@ -35,10 +35,6 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
     if (FALSE !== getenv(('DCI_UseLocalCodebase'))) {
       $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
     }
-    // Comma separated list of directories to exclude from the rsync (like .git)
-    if (FALSE !== getenv(('DCI_Exclude'))) {
-      $this->configuration['excludes'] = explode(',', getenv(('DCI_Exclude')));
-    }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
     if (FALSE !== getenv(('DCI_LocalBranch'))) {
@@ -62,15 +58,12 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
         $this->terminateBuild("Replication Failed", "The source directory $local_dir does not exist.");
       }
+      $remote_url = $this->execRequiredCommand("git --git-dir ${local_dir}/.git remote -v |grep fetch|awk '{print $2}'", 'Unable to determine git remote url');
       $directory = $this->codebase->getSourceDirectory();
-      $this->io->writeln("<comment>Copying files from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
+      $this->io->writeln("<comment>Cloning local core checkout from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
 
-      $excludes = '';
-      foreach ($this->configuration['exclude'] as $exclude_dir) {
-        $excludes .= '--exclude=' . $exclude_dir . ' ';
-      }
-      $cmd = "rsync -a $excludes  $local_dir/. $directory";
-      $this->execRequiredCommand($cmd, 'Rsync failed');
+      $cmd = "git clone $remote_url --reference ${local_dir} ${directory}";
+      $this->execRequiredCommand($cmd, 'Local git clone failed');
 
       $this->io->writeln("<comment>Copying files complete</comment>");
 
