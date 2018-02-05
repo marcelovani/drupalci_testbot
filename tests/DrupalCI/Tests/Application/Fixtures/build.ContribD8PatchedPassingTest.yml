@@ -31,7 +31,7 @@ build:
           -
             from: stop_block_placement-2728679-8.patch
             to: modules/config_readonly
-      composer:
+      composer.post_patch:
         options: 'install --prefer-dist --no-suggest --no-progress'
       update_dependencies: {  }
     project_subdir: modules/config_readonly
