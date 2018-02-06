@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "90bf920aba7309bd3d4eaa29fabedbe4",
+    "content-hash": "f10a4ee932a97034e128eac28d811044",
     "packages": [
         {
             "name": "clue/stream-filter",
@@ -316,16 +316,16 @@
         },
         {
             "name": "docker-php/docker-php",
-            "version": "dev-2.0-dev",
+            "version": "dev-apifix",
             "source": {
                 "type": "git",
-                "url": "https://github.com/docker-php/docker-php.git",
-                "reference": "52799295b0cae3863c2aaade83f17a51928cc97f"
+                "url": "https://github.com/drupalci/docker-php.git",
+                "reference": "a928eaa595fa8e44d8b8a5e8eff59d88f9dbf898"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/docker-php/docker-php/zipball/52799295b0cae3863c2aaade83f17a51928cc97f",
-                "reference": "52799295b0cae3863c2aaade83f17a51928cc97f",
+                "url": "https://api.github.com/repos/drupalci/docker-php/zipball/a928eaa595fa8e44d8b8a5e8eff59d88f9dbf898",
+                "reference": "a928eaa595fa8e44d8b8a5e8eff59d88f9dbf898",
                 "shasum": ""
             },
             "require": {
@@ -365,25 +365,46 @@
                     "Docker\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Docker\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "test-ci": [
+                    "vendor/bin/phpunit --coverage-clover build/coverage.xml"
+                ],
+                "lint": [
+                    "vendor/bin/php-cs-fixer fix --dry-run --verbose --diff"
+                ],
+                "lint-fix": [
+                    "vendor/bin/php-cs-fixer fix --verbose"
+                ]
+            },
             "license": [
                 "MIT"
             ],
             "description": "A Docker PHP client",
-            "time": "2018-01-13 12:50:26"
+            "support": {
+                "source": "https://github.com/drupalci/docker-php/tree/apifix"
+            },
+            "time": "2018-02-06 14:17:19"
         },
         {
             "name": "docker-php/docker-php-api",
-            "version": "4.1.35.x-dev",
+            "version": "dev-apifix",
             "source": {
                 "type": "git",
-                "url": "https://github.com/docker-php/docker-php-api.git",
-                "reference": "2ecfec0d0b5e9c590c7f7e2d14445776f45d3880"
+                "url": "https://github.com/drupalci/docker-php-api.git",
+                "reference": "7f4c30aedd8d116605ff901771b44e91a33f4937"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/docker-php/docker-php-api/zipball/2ecfec0d0b5e9c590c7f7e2d14445776f45d3880",
-                "reference": "2ecfec0d0b5e9c590c7f7e2d14445776f45d3880",
+                "url": "https://api.github.com/repos/drupalci/docker-php-api/zipball/7f4c30aedd8d116605ff901771b44e91a33f4937",
+                "reference": "7f4c30aedd8d116605ff901771b44e91a33f4937",
                 "shasum": ""
             },
             "require": {
@@ -411,12 +432,14 @@
                     "Docker\\API\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Docker API generated files from OpenAPI Specification",
-            "time": "2018-01-15 23:15:53"
+            "support": {
+                "source": "https://github.com/drupalci/docker-php-api/tree/apifix"
+            },
+            "time": "2018-02-06 14:19:06"
         },
         {
             "name": "doctrine/annotations",
@@ -1410,16 +1433,16 @@
         },
         {
             "name": "jeremykendall/php-domain-parser",
-            "version": "3.0.0",
+            "version": "4.0.3-alpha",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jeremykendall/php-domain-parser.git",
-                "reference": "896e7e70f02bd4fd77190052799bc61e4d779672"
+                "reference": "026a459bb2d32b0352731b5cb525f2c1d2b9d673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jeremykendall/php-domain-parser/zipball/896e7e70f02bd4fd77190052799bc61e4d779672",
-                "reference": "896e7e70f02bd4fd77190052799bc61e4d779672",
+                "url": "https://api.github.com/repos/jeremykendall/php-domain-parser/zipball/026a459bb2d32b0352731b5cb525f2c1d2b9d673",
+                "reference": "026a459bb2d32b0352731b5cb525f2c1d2b9d673",
                 "shasum": ""
             },
             "require": {
@@ -1429,9 +1452,11 @@
                 "php": ">=5.3.0"
             },
             "require-dev": {
+                "fabpot/php-cs-fixer": "^1.11",
                 "jeremykendall/debug-die": "0.0.1.*",
-                "mikey179/vfsstream": "~1.4",
-                "phpunit/phpunit": "~4.4"
+                "mikey179/vfsstream": "~1.6",
+                "phing/phing": "^2.13",
+                "phpunit/phpunit": "~4.8"
             },
             "bin": [
                 "bin/parse",
@@ -1468,7 +1493,7 @@
                 "domain parsing",
                 "url parsing"
             ],
-            "time": "2015-03-30T12:49:45+00:00"
+            "time": "2017-09-28T15:52:11+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -1538,23 +1563,23 @@
         },
         {
             "name": "league/uri",
-            "version": "4.2.2",
+            "version": "4.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/uri.git",
-                "reference": "a2e73bad7e60c3bc61b649680fb8b46876e342e3"
+                "reference": "e7a31846c3f00c190bd2817a36e943c22a1e2512"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/uri/zipball/a2e73bad7e60c3bc61b649680fb8b46876e342e3",
-                "reference": "a2e73bad7e60c3bc61b649680fb8b46876e342e3",
+                "url": "https://api.github.com/repos/thephpleague/uri/zipball/e7a31846c3f00c190bd2817a36e943c22a1e2512",
+                "reference": "e7a31846c3f00c190bd2817a36e943c22a1e2512",
                 "shasum": ""
             },
             "require": {
                 "ext-fileinfo": "*",
                 "ext-intl": "*",
                 "ext-mbstring": "*",
-                "jeremykendall/php-domain-parser": "^3.0",
+                "jeremykendall/php-domain-parser": "4.0.3-alpha",
                 "php": ">=5.5.9",
                 "psr/http-message": "^1.0"
             },
@@ -1602,7 +1627,7 @@
                 "url",
                 "ws"
             ],
-            "time": "2016-12-12T11:36:42+00:00"
+            "time": "2017-10-17T10:28:56+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1715,16 +1740,16 @@
         },
         {
             "name": "php-http/discovery",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/discovery.git",
-                "reference": "7b50ab4d6c9fdaa1ed53ae310c955900af6e3372"
+                "reference": "9a6cb24de552bfe1aa9d7d1569e2d49c5b169a33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/discovery/zipball/7b50ab4d6c9fdaa1ed53ae310c955900af6e3372",
-                "reference": "7b50ab4d6c9fdaa1ed53ae310c955900af6e3372",
+                "url": "https://api.github.com/repos/php-http/discovery/zipball/9a6cb24de552bfe1aa9d7d1569e2d49c5b169a33",
+                "reference": "9a6cb24de552bfe1aa9d7d1569e2d49c5b169a33",
                 "shasum": ""
             },
             "require": {
@@ -1773,7 +1798,7 @@
                 "message",
                 "psr7"
             ],
-            "time": "2017-08-03T10:12:53+00:00"
+            "time": "2018-02-06T10:55:24+00:00"
         },
         {
             "name": "php-http/httplug",
@@ -4811,11 +4836,19 @@
             "time": "2018-01-29T19:49:41+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "4.1.35.x-dev",
+            "alias_normalized": "4.1.35.9999999-dev",
+            "version": "dev-apifix",
+            "package": "docker-php/docker-php-api"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "jane-php/json-schema-runtime": 20,
-        "docker-php/docker-php": 20
+        "docker-php/docker-php": 20,
+        "docker-php/docker-php-api": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
