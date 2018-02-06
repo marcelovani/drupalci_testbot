@@ -2,11 +2,8 @@
 
 namespace DrupalCI\Tests\Build\Environment;
 
-use Docker\API\Model\ExecCreateResult;
-use Docker\API\Model\ExecStartConfig;
-use Docker\API\Model\ExecCommand;
+
 use Docker\Docker;
-use Docker\Manager\ExecManager;
 use Docker\Stream\DockerRawStream;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Tests\DrupalCITestCase;

@@ -4,15 +4,11 @@ namespace DrupalCI\Build\Environment;
 
 use Docker\API\Model\ContainerConfig;
 use Docker\API\Model\ContainersCreatePostBody;
+use Docker\API\Model\ContainersIdExecPostBody;
 use Docker\API\Model\CreateImageInfo;
-use Docker\API\Model\ExecConfig;
-use Docker\API\Model\ExecStartConfig;
+use Docker\API\Model\ExecIdStartPostBody;
 use Docker\API\Model\HostConfig;
-use Docker\API\Model\NetworkConfig;
-use Docker\API\Model\NetworkCreateConfig;
-use Docker\API\Model\NetworkingConfig;
 use Docker\API\Model\NetworksCreatePostBody;
-use Docker\Manager\ExecManager;
 use Docker\Docker;
 use DrupalCI\Injectable;
 use Pimple\Container;
@@ -131,7 +127,8 @@ class Environment implements Injectable, EnvironmentInterface {
         $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
         $executionResult->appendOutput("\nEXECUTING: " . $cmd . "\n");
         $executionResult->appendError("\nEXECUTING: " . $cmd . "\n");
-        $exec_config = new ExecConfig();
+
+        $exec_config = new ContainersIdExecPostBody();
         $exec_config->setTty(FALSE);
         $exec_config->setAttachStderr(TRUE);
         $exec_config->setAttachStdout(TRUE);
@@ -139,17 +136,16 @@ class Environment implements Injectable, EnvironmentInterface {
         $command = ["/bin/bash", "-c", $cmd];
         $exec_config->setCmd($command);
 
-        $exec_manager = $this->docker->getExecManager();
-        $response = $exec_manager->create($id, $exec_config);
+        $response = $this->docker->containerExec($id,$exec_config);
 
         $exec_id = $response->getId();
         // $this->io->writeLn("<info>Command created as exec id " . substr($exec_id, 0, 8) . "</info>");
 
-        $exec_start_config = new ExecStartConfig();
+        $exec_start_config = new ExecIdStartPostBody();
         $exec_start_config->setTty(FALSE);
         $exec_start_config->setDetach(FALSE);
 
-        $stream = $exec_manager->start($exec_id, $exec_start_config, [], ExecManager::FETCH_STREAM);
+        $stream = $this->docker->execStart($exec_id, $exec_start_config, [], $this->docker::FETCH_STREAM);
 
         $stdoutFull = "";
         $stderrFull = "";
@@ -162,7 +158,7 @@ class Environment implements Injectable, EnvironmentInterface {
           $this->io->write($stderr);
         });
         $stream->wait();
-        $exit_code = $exec_manager->find($exec_id)->getExitCode();
+        $exit_code = $this->docker->execInspect($exec_id)->getExitCode();
         $maxExitCode = max($exit_code, $maxExitCode);
         $executionResult->appendOutput($stdoutFull);
         $executionResult->appendError($stderrFull);
@@ -259,24 +255,24 @@ class Environment implements Injectable, EnvironmentInterface {
     $chrome_container['HostConfig']['Binds'] = [];
     $chrome_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
     $chrome_container['HostConfig']['CapAdd'][] = 'SYS_ADMIN';
+    $chrome_container['ExposedPorts'] = new \ArrayObject([ '9515/tcp' => '', '9666/tcp' => '' ]);
 
     $this->chromeContainer = $this->startContainer($chrome_container);
 
   }
   public function terminateContainers() {
 
-    $manager = $this->docker->getContainerManager();
 
     if (!empty($this->executableContainer['id'])) {
       // Kill the containers we started.
-      $manager->remove($this->executableContainer['id'], ['force' => TRUE]);
+      $this->docker->containerDelete($this->executableContainer['id'], ['force' => TRUE]);
     }
     if (!empty($this->chromeContainer['id'])) {
       // Kill the containers we started.
-      $manager->remove($this->chromeContainer['id'], ['force' => TRUE]);
+      $this->docker->containerDelete($this->chromeContainer['id'], ['force' => TRUE]);
     }
     if (($this->database->getDbType() !== 'sqlite') && (!empty($this->databaseContainer['id']))) {
-      $manager->remove($this->databaseContainer['id'], ['force' => TRUE]);
+      $this->docker->containerDelete($this->databaseContainer['id'], ['force' => TRUE]);
     }
 
   }
@@ -299,8 +295,7 @@ class Environment implements Injectable, EnvironmentInterface {
   }
 
   public function destroyContainerNetwork() {
-    $network_manager = $this->docker->getNetworkManager();
-    $network_manager->remove('drupalci_nw');
+    $this->docker->networkDelete('drupalci_nw');
   }
 
   /**
