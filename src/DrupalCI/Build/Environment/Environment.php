@@ -3,6 +3,7 @@
 namespace DrupalCI\Build\Environment;
 
 use Docker\API\Model\ContainerConfig;
+use Docker\API\Model\ContainersCreatePostBody;
 use Docker\API\Model\CreateImageInfo;
 use Docker\API\Model\ExecConfig;
 use Docker\API\Model\ExecStartConfig;
@@ -10,7 +11,9 @@ use Docker\API\Model\HostConfig;
 use Docker\API\Model\NetworkConfig;
 use Docker\API\Model\NetworkCreateConfig;
 use Docker\API\Model\NetworkingConfig;
+use Docker\API\Model\NetworksCreatePostBody;
 use Docker\Manager\ExecManager;
+use Docker\Docker;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
@@ -279,19 +282,20 @@ class Environment implements Injectable, EnvironmentInterface {
   }
 
   public function createContainerNetwork() {
-    $network_manager = $this->docker->getNetworkManager();
     // Loop through the existing docker networks so we do not re-create the
     // existing network.
-    $networks = $network_manager->findAll();
+    $networks = $this->docker->networkList();
     foreach ($networks as $docker_network) {
       if ($docker_network->getName() == 'drupalci_nw') {
-        $this->dockerNetwork = $docker_network;
+        $this->dockerNetwork = $docker_network->getId();
         return;
       }
     }
-    $container_network = new NetworkCreateConfig();
+
+    $container_network = new NetworksCreatePostBody();
     $container_network->setName('drupalci_nw');
-    $this->dockerNetwork = $network_manager->create($container_network);
+    $response = $this->docker->networkCreate($container_network);
+    $this->dockerNetwork = $response->getId();
   }
 
   public function destroyContainerNetwork() {
@@ -323,13 +327,13 @@ class Environment implements Injectable, EnvironmentInterface {
     $container_name = $config['Name'] . '-' . $this->build->getBuildId();
     $container_name = preg_replace('/_|\./', "-", $container_name);
     $parameters = ['name' => $container_name];
-    $create_result = $manager->create($container_config, $parameters);
+    $create_result = $this->docker->containerCreate($container_config, $parameters);
     $container_id = $create_result->getId();
 
-    $response = $manager->start($container_id);
+    $response = $this->docker->containerStart($container_id);
     // TODO: Throw exception if doesn't return 204.
 
-    $executable_container = $manager->find($container_id);
+    $executable_container = $this->docker->containerInspect($container_id);
 
     $container['id'] = $executable_container->getID();
     $container['name'] = ltrim($executable_container->getName(), '/');
@@ -354,15 +358,13 @@ class Environment implements Injectable, EnvironmentInterface {
    * @param $name
    */
   protected function pull($name) {
-    $manager = $this->docker->getImageManager();
     $progressInformation = NULL;
     $image_name = explode(':', $name);
     if (empty($image_name[1])) {
       $image_name[1] = 'latest';
     }
-    $response = $manager->create('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], $manager::FETCH_STREAM);
+    $response = $this->docker->imageCreate('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], [], $this->docker::FETCH_STREAM);
 
-    //$response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
       $createImageInfoList[] = $createImageInfo;
       if ($createImageInfo->getStatus() === "Downloading") {

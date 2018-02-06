@@ -3,7 +3,6 @@
 namespace DrupalCI\Providers;
 
 use Docker\Docker;
-use Docker\DockerClient;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 
@@ -18,7 +17,7 @@ class DockerServiceProvider implements ServiceProviderInterface {
 
     // Parent Docker object
     $container['docker'] = function ($container) {
-      return new Docker(DockerClient::createFromEnv());
+      return Docker::create();
     };
 
     // Docker httpClient
