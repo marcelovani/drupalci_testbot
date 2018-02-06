@@ -311,8 +311,8 @@ class Environment implements Injectable, EnvironmentInterface {
   protected function startContainer($config) {
 
     $this->pull($config['Image']);
-    $manager = $this->docker->getContainerManager();
-    $container_config = new ContainerConfig();
+
+    $container_config = new ContainersCreatePostBody();
     $container_config->setImage($config['Image']);
     $host_config = new HostConfig();
     $host_config->setBinds($config['HostConfig']['Binds']);
