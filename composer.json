@@ -14,21 +14,24 @@
             "DrupalCI\\Tests": "tests"
         }
     },
-    "bin" : [
+    "bin": [
         "drupalci"
     ],
     "config": {
-        "bin-dir" : "bin/"
+        "bin-dir": "bin/"
     },
-    "repositories": [
-        {
+    "repositories": {
+        "0": {
             "type": "vcs",
             "url": "https://github.com/drupalci/docker-php"
+        },
+        "1": {
+            "type": "vcs",
+            "url": "https://github.com/drupalci/docker-php-api"
         }
-    ],
+    },
     "require": {
         "composer/composer": "^1.3",
-        "docker-php/docker-php": "^1.24",
         "doctrine/common": "~2.5.3",
         "drupal/coder": "~8.2",
         "drupal/core-annotation": "^8.4",
@@ -38,7 +41,10 @@
         "symfony/console": "^3.1",
         "symfony/finder": "^3.1",
         "symfony/process": "^3.1",
-        "symfony/yaml": "^3.1"
+        "symfony/yaml": "^3.1",
+        "jane-php/json-schema-runtime": "4.x-dev",
+        "docker-php/docker-php": "dev-apifix",
+        "docker-php/docker-php-api": "dev-apifix as 4.1.35.x-dev"
     },
     "require-dev": {
         "phpunit/phpunit": "~6",
@@ -46,6 +52,7 @@
         "symfony/phpunit-bridge": "^4.0"
     },
     "prefer-stable": true,
+    "minimum-stability": "dev",
     "scripts": {
         "post-autoload-dump": "DrupalCI\\Composer\\Composer::configurePhpcs"
     }
