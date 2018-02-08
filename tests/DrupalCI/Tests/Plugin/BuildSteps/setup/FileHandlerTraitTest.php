@@ -3,6 +3,7 @@
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
 use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @file
@@ -14,7 +15,7 @@ use DrupalCI\Plugin\BuildTask\FileHandlerTrait;
  * @coversDefaultClass \DrupalCI\Plugin\BuildTask\FileHandlerTrait
  */
 
-class FileHandlerTraitTest extends \PHPUnit_Framework_TestCase {
+class FileHandlerTraitTest extends TestCase {
 
   /**
    * @param string $file_definition      The value passed into the patch command

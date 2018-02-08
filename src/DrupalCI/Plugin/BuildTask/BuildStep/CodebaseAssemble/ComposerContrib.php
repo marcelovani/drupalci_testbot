@@ -69,7 +69,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
   public function run() {
     // TODO when https://www.drupal.org/node/2853889 lands, stop using the
     // ExtnetionProjectSubdir to determine the correct branch/project under test.
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = '-vvv ';
       $progress = '';
     } else {

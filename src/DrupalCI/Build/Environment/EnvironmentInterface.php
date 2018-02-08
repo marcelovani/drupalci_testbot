@@ -36,6 +36,7 @@ interface EnvironmentInterface {
 
   public function getExecContainer();
 
+  public function getContainerNetwork();
   /**
    * @return string
    *   The source directory mounted within the container.

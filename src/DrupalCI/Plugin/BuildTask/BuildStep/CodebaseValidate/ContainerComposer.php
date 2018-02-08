@@ -34,7 +34,7 @@ class ContainerComposer extends Composer {
    * {@inheritdoc}
    */
   public function getDefaultConfiguration() {
-    if (!empty(getenv('DCI_Debug'))) {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
       $verbose = ' -vvv';
       $progress = '';
     } else {

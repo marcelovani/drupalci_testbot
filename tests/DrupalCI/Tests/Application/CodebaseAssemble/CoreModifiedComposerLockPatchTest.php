@@ -18,10 +18,9 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
 
   public function testBasicTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreModifiedComposerLockPatchTest.yml',
     ], $options);
@@ -41,7 +40,7 @@ class CoreModifiedComposerLockPatchTest extends DrupalCIFunctionalTestBase {
       }
     }
 
-    $this->assertEquals(0, $app_tester->getStatusCode());
+    $this->assertEquals(0, $this->app_tester->getStatusCode());
   }
 
 }

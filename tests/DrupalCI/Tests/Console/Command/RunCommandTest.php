@@ -13,6 +13,7 @@ class RunCommandTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_CoreRepository=file:///var/lib/drupalci/drupal-checkout',
     'DCI_JobType=simpletest',
+    'DCI_CS_SkipCodesniff=TRUE',
     'DCI_TestItem=ban',
   ];
 

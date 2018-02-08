@@ -32,20 +32,19 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
   ];
 
   public function testPhpLintFailTest() {
-    $app = $this->getConsoleApp();
+
     $options = ['interactive' => FALSE];
-    $app_tester = new ApplicationTester($app);
-    $app_tester->run([
+    $this->app_tester->run([
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.PhpLint.yml',
     ], $options);
-    $foo = $app_tester->getDisplay();
-    $this->assertRegExp('/Parse error:  syntax error, unexpected end of file/', $app_tester->getDisplay());
-    $this->assertRegExp('/PHPLint Failed/', $app_tester->getDisplay());
-    $this->assertEquals(2, $app_tester->getStatusCode());
+    $foo = $this->app_tester->getDisplay();
+    $this->assertRegExp('/Parse error:  syntax error, unexpected end of file/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/PHPLint Failed/', $this->app_tester->getDisplay());
+    $this->assertEquals(2, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
-    $build = $app->getContainer()['build'];
+    $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'PHPLint Failed');
     $this->assertBuildOutputJson($build, 'buildDetails', '
 

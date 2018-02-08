@@ -4,14 +4,16 @@ namespace DrupalCI\Tests;
 
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Providers\DrupalCIServiceProvider;
+use PHPUnit\Framework\TestCase;
 use Pimple\Container;
+use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
  * Framework for test-controlled runs of drupalci.
  *
  * You can specify DCI_* config values by overriding self::$dciConfig.
  */
-abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
+abstract class DrupalCIFunctionalTestBase extends TestCase {
 
   /**
    * DCI_* configuration for this test run.
@@ -37,6 +39,12 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
    * @var \Pimple\Container
    */
   protected $container;
+  /**
+   * The application tester.
+   *
+   * @var \Symfony\Component\Console\Tester\ApplicationTester
+   */
+  protected $app_tester;
 
   /**
    * @return \Pimple\Container
@@ -93,6 +101,7 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
     $build_id = putenv('BUILD_TAG');
 
     $app = $this->getConsoleApp();
+    $this->app_tester = new ApplicationTester($app);
     $app->setAutoExit(FALSE);
   }
 
@@ -134,6 +143,15 @@ abstract class DrupalCIFunctionalTestBase extends \PHPUnit_Framework_TestCase {
    * {@inheritdoc}
    */
   protected function tearDown() {
+    if (!empty($this->app_tester->getOutput())) {
+      $test_output = $this->app_tester->getDisplay();
+      $test_output = preg_replace('/[^\x{0009}\x{000A}\x{000D}\x{0020}-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '�', $test_output);
+      echo $test_output;
+      // Make sure we get a new one next time
+    }
+    unset($this->app_tester);
+    unset($this->container);
+
     parent::tearDown();
     // Complain if there is no config.
     if (!empty($this->dciConfig)) {

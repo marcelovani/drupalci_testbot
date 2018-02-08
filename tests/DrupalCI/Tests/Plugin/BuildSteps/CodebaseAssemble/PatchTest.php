@@ -51,10 +51,8 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testNoFromConfig() {
-    $this->setExpectedException(
-      BuildTaskException::class,
-      'Invalid Patch'
-    );
+    $this->expectException(BuildTaskException::class);
+    $this->expectExceptionMessage('Invalid Patch');
 
     $container = $this->getContainer();
 
@@ -78,10 +76,8 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchValidate() {
-    $this->setExpectedException(
-      BuildTaskException::class,
-      'Patch Validation Error'
-    );
+    $this->expectException(BuildTaskException::class);
+    $this->expectExceptionMessage('Patch Validation Error');
 
     // Make a patch file object that refuses to validate.
     $patch_worker = $this->getMockBuilder(PatchInterface::class)
@@ -114,10 +110,8 @@ class PatchTest extends DrupalCITestCase {
    * @covers ::run
    */
   public function testFailPatchApply() {
-    $this->setExpectedException(
-      BuildTaskException::class,
-      'Patch Failed to Apply'
-    );
+    $this->expectException(BuildTaskException::class);
+    $this->expectExceptionMessage('Patch Failed to Apply');
 
     // Make a patch file object that validates.
     $patch_worker = $this->getMockBuilder(PatchInterface::class)

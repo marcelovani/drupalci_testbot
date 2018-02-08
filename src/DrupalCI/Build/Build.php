@@ -464,7 +464,7 @@ class Build implements BuildInterface, Injectable {
   protected function saveYaml($config) {
 
     $buildfile = $this->getArtifactDirectory() . '/build.' . $this->getBuildId() . '.yml';
-    $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, FALSE, FALSE);
+    $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, 0);
     file_put_contents($buildfile, $yamlstring);
 
   }
@@ -688,7 +688,9 @@ class Build implements BuildInterface, Injectable {
     }
     // Shut off the containers and network.
     $environment->terminateContainers();
-    $environment->destroyContainerNetwork();
+    if (!empty($environment->getContainerNetwork())){
+      $environment->destroyContainerNetwork();
+    }
 
     // Delete the source code and database files
     $fs = new Filesystem();
