@@ -98,6 +98,7 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   public function executeCommands($commands, $container_id = '') {
 
+    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;
     // Data format: 'command [arguments]' or array('command [arguments]', 'command [arguments]')
@@ -252,7 +253,7 @@ class Environment implements Injectable, EnvironmentInterface {
 //    $db_container['HostConfig']['Binds'][0] = $this->build->getDBDirectory() . ':' . $this->database->getDataDir();
 //    $db_container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;
     $chrome_container['Name'] = 'chromedriver';
-    $chrome_container['HostConfig']['Binds'] = [];
+    $chrome_container['HostConfig']['Binds'][] = '/dev/shm:/dev/shm';
     $chrome_container['HostConfig']['Ulimits'][] = ['Name' => 'core', 'Soft' => -1, 'Hard' => -1 ];
     $chrome_container['HostConfig']['CapAdd'][] = 'SYS_ADMIN';
     $chrome_container['ExposedPorts'] = new \ArrayObject([ '9515/tcp' => '', '9666/tcp' => '' ]);
@@ -260,6 +261,7 @@ class Environment implements Injectable, EnvironmentInterface {
     $this->chromeContainer = $this->startContainer($chrome_container);
 
   }
+
   public function terminateContainers() {
 
 
