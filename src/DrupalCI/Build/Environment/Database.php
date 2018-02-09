@@ -353,6 +353,7 @@ class Database implements DatabaseInterface, Injectable {
       $this->io->writeln("<comment>Attempting to connect to database server.</comment>");
       // @TODO: This shouldnt happen here, but lets just do it like this for now.
       $conn = new \PDO($conn_string, $this->username, $this->password);
+      $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
     catch (\PDOException $e) {
       $this->io->writeln("<comment>Could not connect to database server.</comment>");
