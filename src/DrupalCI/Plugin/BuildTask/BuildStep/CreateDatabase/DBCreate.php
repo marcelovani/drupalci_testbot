@@ -36,7 +36,16 @@ class DBCreate extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   public function run() {
 
     if ($this->database->getDbType() !== 'sqlite') {
-      $this->database->createDB();
+      if (!$this->database->createDB()) {
+        // Mysql seems hokey. lets try one more time an fail hard.
+        // Im using NetworkException because this will cause jenkins to retry
+        // @TODO: we need a standard way to communicate to jenkins to try again
+        sleep(5);
+        if (!$this->database->createDB()) {
+          $this->io->writeln('Maybe MySql is suffering from a NetworkException?');
+          $this->terminateBuild('MySql server has gone away', 'Mysql cannot create the database');
+        }
+      }
     }
   }
 
