@@ -6,6 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.username = "testbot"
   config.vm.box = "drupalci/testbot"
+  config.vm.define :drupalci
   config.vm.box_url = "https://s3-us-west-2.amazonaws.com/drupalci-vagrant/vagrant/json/drupalci/testbot.json"
 
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
