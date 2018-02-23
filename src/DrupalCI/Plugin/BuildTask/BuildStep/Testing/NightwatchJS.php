@@ -4,6 +4,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 use DrupalCI\Build\BuildInterface;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTaskBase;
+use Symfony\Component\Dotenv\Dotenv;
 use Pimple\Container;
 /**
  * @PluginID("nightwatchjs")
@@ -24,7 +25,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
    *
    * @var string
    */
-  protected $runscript = 'yarn --cwd /var/www/html/core test:js';
+  protected $runscript = 'yarn --cwd /var/www/html/core test:nightwatch';
   /**
    * Junit XML builder service.
    *
@@ -41,7 +42,9 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
    * @inheritDoc
    */
   public function run() {
-    if (file_exists("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default")) {
+    if (file_exists("{$this->codebase->getSourceDirectory()}/core/.env.example")) {
+      $dotenv = new Dotenv();
+      $envpath = "{$this->codebase->getSourceDirectory()}/core/.env.example";
 
       $this->prepareFilesystem();
 
@@ -49,15 +52,21 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       $database_url = $this->system_database->getUrl();
       $base_url = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
 
-      $nightwatch_settings = json_decode(file_get_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json.default"), TRUE);
-      $nightwatch_settings['BASE_URL'] = $base_url;
-      $nightwatch_settings['DB_URL'] = $database_url;
-      $nightwatch_settings['WEBDRIVER_HOSTNAME'] = $hostname;
-      $nightwatch_settings['NIGHTWATCH_OUTPUT'] = "{$this->environment->getExecContainerSourceDir()}/nightwatch_output";
-      file_put_contents("{$this->codebase->getSourceDirectory()}/core/nightwatch.settings.json", json_encode($nightwatch_settings));
+      $nightwatch_settings = $dotenv->parse(file_get_contents($envpath), $envpath);
+      $nightwatch_settings['DRUPAL_TEST_CHROMEDRIVER_AUTOSTART'] = 'false';
+      $nightwatch_settings['DRUPAL_TEST_WEBDRIVER_CHROME_ARGS'] = '--disable-gpu --headless';
+      $nightwatch_settings['DRUPAL_TEST_BASE_URL'] = $base_url;
+      $nightwatch_settings['DRUPAL_TEST_DB_URL'] = $database_url;
+      $nightwatch_settings['DRUPAL_TEST_WEBDRIVER_HOSTNAME'] = $hostname;
+      $nightwatch_settings['DRUPAL_TEST_WEBDRIVER_PORT'] = 9515;
+      $nightwatch_settings['DRUPAL_NIGHTWATCH_OUTPUT'] = "{$this->environment->getExecContainerSourceDir()}/nightwatch_output";
+      $envfile = '';
+      foreach ($nightwatch_settings as $env => $value) {
+        $envfile .= $env . '=' . $value . "\n";
+      }
+      file_put_contents("{$this->codebase->getSourceDirectory()}/core/.env", $envfile);
 
-
-      $runscript = "sudo NODE_ENV=testbot -u www-data {$this->runscript}";
+      $runscript = "sudo BABEL_DISABLE_CACHE=1 -u www-data {$this->runscript}";
       $result = $this->environment->executeCommands("$runscript");
 
       // Save some artifacts for the build
@@ -77,8 +86,10 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
     $setup_commands = [
       "ln -s ${sourcedir} ${sourcedir}/subdirectory",
       "mkdir -p ${sourcedir}/nightwatch_output",
+      "mkdir -p /var/www/.yarn",
       "chown -fR www-data:www-data ${sourcedir}/sites",
       "chown -fR www-data:www-data ${sourcedir}/nightwatch_output",
+      "chown -fR www-data:www-data /var/www/.yarn",
     ];
     $result = $this->environment->executeCommands($setup_commands);
   }
