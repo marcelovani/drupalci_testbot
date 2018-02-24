@@ -18,7 +18,11 @@ build:
   assessment:
     validate_codebase:
       phplint:
-      container_composer:
+      container_composer.install:
+      container_composer.upgrade_phpunit:
+        options: 'update phpunit/phpunit --with-dependencies --no-progress'
+        executable_path: /usr/local/bin/composer
+        fail_should_terminate: true
       csslint:
       eslint:
       phpcs:
