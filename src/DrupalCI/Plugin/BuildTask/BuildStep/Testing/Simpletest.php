@@ -217,7 +217,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   public function getDefaultConfiguration() {
     return [
       'testgroups' => '--all',
-      'concurrency' => 4,
       'types' => 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional',
       'color' => TRUE,
       'die-on-fail' => FALSE,
@@ -394,6 +393,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (empty($config['url'])) {
       $config['url'] = 'http://' . $this->environment->getExecContainer()['name'] . '/subdirectory';
     }
+    if (empty($config['concurrency'])) {
+      $config['concurrency'] = $this->environment->getHostProcessorCount();
+    }
+
     foreach ($config as $key => $value) {
       // Temporary backwards compatibility fix for https://www.drupal.org/node/2906212
       // This will allow us to use older build.yml files. Remove after Feb 2018 or so.

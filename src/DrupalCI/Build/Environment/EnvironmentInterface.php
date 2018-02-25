@@ -62,4 +62,10 @@ interface EnvironmentInterface {
    */
   public function getContainerComposerCacheDir();
 
+  /**
+   * @return int
+   *   The number of processors available in the host environment
+   */
+  public function getHostProcessorCount();
+
 }
