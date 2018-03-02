@@ -24,6 +24,7 @@ build:
       phpcs:
     testing:
       simpletest.standard:
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
       simpletest.js:
         concurrency: 1
         types: 'PHPUnit-FunctionalJavascript'
