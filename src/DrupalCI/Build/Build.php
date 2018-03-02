@@ -204,7 +204,7 @@ class Build implements BuildInterface, Injectable {
    */
   public function generateBuild($arg) {
 
-    if (FALSE !== getenv('DCI_JobType')) {
+    if (FALSE !== getenv('DCI_JobType') && empty($arg)) {
       $arg = getenv('DCI_JobType');
     }
     if ($arg) {
