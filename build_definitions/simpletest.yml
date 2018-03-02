@@ -24,7 +24,6 @@ build:
       phpcs:
     testing:
       simpletest.standard:
-        concurrency: 31
       simpletest.js:
         concurrency: 1
         types: 'PHPUnit-FunctionalJavascript'
