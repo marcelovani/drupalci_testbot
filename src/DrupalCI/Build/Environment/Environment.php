@@ -390,4 +390,15 @@ class Environment implements Injectable, EnvironmentInterface {
     return $this->chromeContainer['name'];
   }
 
+  /**
+   * @inheritDoc
+   */
+  public function getHostProcessorCount() {
+    $cpuinfo = file_get_contents('/proc/cpuinfo');
+    preg_match_all('/^processor/m', $cpuinfo, $matches);
+    $numCpus = count($matches[0]);
+    return $numCpus;
+  }
+
+
 }

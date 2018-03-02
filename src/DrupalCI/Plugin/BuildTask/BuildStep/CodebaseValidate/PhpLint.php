@@ -60,9 +60,14 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // Make sure
     if (0 < filesize($lintable_files)) {
       $this->saveHostArtifact($lintable_files,'lintable_files.txt');
+
+      if (empty($this->configuration['concurrency'])) {
+        $this->configuration['concurrency'] = $this->environment->getHostProcessorCount();
+      }
+      $concurrency = $this->configuration['concurrency'];
+
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
-      $concurrency = $this->configuration['concurrency'];
       $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . "/lintable_files.txt -I {} php -l '{}'";
       // TODO Throw a BuildException if there are syntax errors.
       $result = $this->environment->executeCommands($cmd);
@@ -79,7 +84,6 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'concurrency' => '4',
     ];
   }
 
