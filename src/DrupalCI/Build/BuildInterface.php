@@ -114,4 +114,13 @@ interface BuildInterface {
 
   public function setupDirectory($directory);
 
+  /**
+   * Set assessment phase build defintion array.
+   *
+   * @param string[] $assessment_phase
+   *   Set the assessment phase build definition array, probably parsed from
+   *   drupalci.yml.
+   */
+  public function setAssessmentBuildDefinition($assessment_phase);
+
 }

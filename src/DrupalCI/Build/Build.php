@@ -43,16 +43,31 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array representing order of plugin execution and
-   *   overridden configuration options.
+   *   overridden configuration options. Does not include the assessment phase.
    */
-  protected $computedBuildDefinition;
+  protected $applicationComputedBuildDefinition;
+
+  /**
+   * @var string[]
+   *
+   * Build definition for the assessment phase.
+   */
+  protected $assessmentComputedBuildDefinition = [];
 
   /**
    * @var array
    *
-   *   Hierarchical array of configured plugins
+   *   Hierarchical array of configured plugins. Does not include assessment
+   *   phase.
    */
-  protected $computedBuildPlugins;
+  protected $applicationComputedBuildPlugins;
+
+  /**
+   * @var array
+   *
+   * Computed build plugins for the assessment phase.
+   */
+  protected $assessmentComputedBuildPlugins;
 
   /**
    * The build task plugin manager.
@@ -242,14 +257,29 @@ class Build implements BuildInterface, Injectable {
 
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
     // After we load the config, we separate the workflow from the config:
-    $this->computedBuildDefinition = $this->initialBuildDefinition['build'];
-    $this->computedBuildPlugins = $this->processBuildConfig($this->computedBuildDefinition);
-    $build_definition['build'] = $this->computedBuildDefinition;
+    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition['build'];
+    if (!empty($this->applicationComputedBuildDefinition['assessment'])) {
+      $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
+      unset($this->applicationComputedBuildDefinition['assessment']);
+    }
+    $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
+    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
     $this->generateBuildId();
     $this->setupWorkSpace();
+    // @todo Save YAML later in the build phase, when drupalci.yml has been
+    //   applied.
     $this->saveYaml($build_definition);
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAssessmentBuildDefinition($assessment_phase) {
+    $this->assessmentComputedBuildDefinition = [];
+    $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
   }
 
   /**
@@ -348,7 +378,10 @@ class Build implements BuildInterface, Injectable {
    */
   public function executeBuild() {
     try {
-      $statuscode = $this->processTask($this->computedBuildPlugins);
+      $statuscode = max([
+        $this->processTask($this->applicationComputedBuildPlugins),
+        $this->processTask($this->assessmentComputedBuildPlugins),
+      ]);
       $buildResults = new BuildResults('Build Successful', '');
       $this->saveBuildState($buildResults);
       return $statuscode;
