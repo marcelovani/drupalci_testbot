@@ -60,7 +60,7 @@ class Build implements BuildInterface, Injectable {
    *   Hierarchical array of configured plugins. Does not include assessment
    *   phase.
    */
-  protected $computedBuildPlugins;
+  protected $applicationComputedBuildPlugins;
 
   /**
    * @var array
@@ -262,7 +262,7 @@ class Build implements BuildInterface, Injectable {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
       unset($this->applicationComputedBuildDefinition['assessment']);
     }
-    $this->computedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
+    $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
     $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
     $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
@@ -379,7 +379,7 @@ class Build implements BuildInterface, Injectable {
   public function executeBuild() {
     try {
       $statuscode = max([
-        $this->processTask($this->computedBuildPlugins),
+        $this->processTask($this->applicationComputedBuildPlugins),
         $this->processTask($this->assessmentComputedBuildPlugins),
       ]);
       $buildResults = new BuildResults('Build Successful', '');
