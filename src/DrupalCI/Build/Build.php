@@ -48,11 +48,25 @@ class Build implements BuildInterface, Injectable {
   protected $computedBuildDefinition;
 
   /**
+   * @var string[]
+   *
+   * Build definition for the assessment phase.
+   */
+  protected $assessmentComputedBuildDefinition;
+
+  /**
    * @var array
    *
    *   Hierarchical array of configured plugins
    */
   protected $computedBuildPlugins;
+
+  /**
+   * @var array
+   *
+   * Computed build plugins for the assessment phase.
+   */
+  protected $assessmentComputedBuildPlugins;
 
   /**
    * The build task plugin manager.
@@ -243,13 +257,28 @@ class Build implements BuildInterface, Injectable {
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
     // After we load the config, we separate the workflow from the config:
     $this->computedBuildDefinition = $this->initialBuildDefinition['build'];
+    if (!empty($this->computedBuildDefinition['assessment'])) {
+      $this->setAssessmentBuildDefinition($this->computedBuildDefinition['assessment']);
+      unset($this->computedBuildDefinition['assessment']);
+    }
     $this->computedBuildPlugins = $this->processBuildConfig($this->computedBuildDefinition);
-    $build_definition['build'] = $this->computedBuildDefinition;
+    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+    $build_definition['build'] = array_merge($this->computedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
     $this->generateBuildId();
     $this->setupWorkSpace();
+    // @todo Save YAML later in the build phase, when drupalci.yml has been
+    //   applied.
     $this->saveYaml($build_definition);
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setAssessmentBuildDefinition($assessment_phase) {
+    $this->assessmentComputedBuildDefinition = [];
+    $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
   }
 
   /**
@@ -348,7 +377,10 @@ class Build implements BuildInterface, Injectable {
    */
   public function executeBuild() {
     try {
-      $statuscode = $this->processTask($this->computedBuildPlugins);
+      $statuscode = max([
+        $this->processTask($this->computedBuildPlugins),
+        $this->processTask($this->assessmentComputedBuildPlugins),
+      ]);
       $buildResults = new BuildResults('Build Successful', '');
       $this->saveBuildState($buildResults);
       return $statuscode;

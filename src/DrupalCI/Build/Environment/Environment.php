@@ -116,7 +116,10 @@ class Environment implements Injectable, EnvironmentInterface {
         }
         else {
           // No existing container to run commands on.
-          return 1;
+          $executionResult->setSignal(1);
+          $executionResult->appendOutput('No existing container to run commands on.');
+          $executionResult->appendError('No existing container to run commands on.');
+          return $executionResult;
         }
       }
 
