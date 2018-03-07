@@ -52,7 +52,7 @@ class Build implements BuildInterface, Injectable {
    *
    * Build definition for the assessment phase.
    */
-  protected $assessmentComputedBuildDefinition;
+  protected $assessmentComputedBuildDefinition = [];
 
   /**
    * @var array
