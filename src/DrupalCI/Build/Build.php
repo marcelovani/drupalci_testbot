@@ -43,9 +43,9 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array representing order of plugin execution and
-   *   overridden configuration options.
+   *   overridden configuration options. Does not include the assessment phase.
    */
-  protected $computedBuildDefinition;
+  protected $applicationComputedBuildDefinition;
 
   /**
    * @var string[]
@@ -57,7 +57,8 @@ class Build implements BuildInterface, Injectable {
   /**
    * @var array
    *
-   *   Hierarchical array of configured plugins
+   *   Hierarchical array of configured plugins. Does not include assessment
+   *   phase.
    */
   protected $computedBuildPlugins;
 
@@ -256,14 +257,14 @@ class Build implements BuildInterface, Injectable {
 
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
     // After we load the config, we separate the workflow from the config:
-    $this->computedBuildDefinition = $this->initialBuildDefinition['build'];
-    if (!empty($this->computedBuildDefinition['assessment'])) {
-      $this->setAssessmentBuildDefinition($this->computedBuildDefinition['assessment']);
-      unset($this->computedBuildDefinition['assessment']);
+    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition['build'];
+    if (!empty($this->applicationComputedBuildDefinition['assessment'])) {
+      $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
+      unset($this->applicationComputedBuildDefinition['assessment']);
     }
-    $this->computedBuildPlugins = $this->processBuildConfig($this->computedBuildDefinition);
+    $this->computedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
     $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
-    $build_definition['build'] = array_merge($this->computedBuildDefinition, $this->assessmentComputedBuildDefinition);
+    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
     $this->generateBuildId();
     $this->setupWorkSpace();
