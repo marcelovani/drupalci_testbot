@@ -6,10 +6,15 @@ interface CodebaseInterface {
 
   public function addPatch(PatchInterface $patch);
 
+  /**
+   * @return string[]
+   *   Array of modified files, relative to the source directory.
+   */
   public function getModifiedFiles();
 
   /**
-   * Returns an array of modified php files, relative to the source directory.
+   * @return string[]
+   *   Array of modified PHP files, relative to the source directory.
    */
   public function getModifiedPhpFiles();
 

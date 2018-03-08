@@ -1,0 +1,12 @@
+build:
+  codebase:
+    assemble_codebase:
+      reload_assessment:
+  environment:
+  assessment:
+    validate_codebase:
+      phplint:
+      container_composer:
+      csslint:
+      eslint:
+      phpcs:

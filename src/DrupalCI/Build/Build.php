@@ -43,14 +43,14 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array representing order of plugin execution and
-   *   overridden configuration options. Does not include the assessment phase.
+   *   overridden configuration options. Does not include the assessment stage.
    */
   protected $applicationComputedBuildDefinition;
 
   /**
    * @var string[]
    *
-   * Build definition for the assessment phase.
+   * Build definition for the assessment stage.
    */
   protected $assessmentComputedBuildDefinition = [];
 
@@ -58,14 +58,14 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array of configured plugins. Does not include assessment
-   *   phase.
+   *   stage.
    */
   protected $applicationComputedBuildPlugins;
 
   /**
    * @var array
    *
-   * Computed build plugins for the assessment phase.
+   * Computed build plugins for the assessment stage.
    */
   protected $assessmentComputedBuildPlugins;
 
@@ -77,9 +77,9 @@ class Build implements BuildInterface, Injectable {
   protected $buildTaskPluginManager;
 
   /**
-   * @var \Symfony\Component\Yaml\Yaml
+   * YAML parser service.
    *
-   *   Parsed Yaml of the build definition.
+   * @var \Symfony\Component\Yaml\Yaml
    */
   protected $yaml;
 
@@ -209,13 +209,7 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * @param $arg
-   *
-   * Takes in either the full path to a build.yml file, or the name of one of
-   * the predefined build_definitions like simpletest or simpletest7, or if
-   * null, defaults to simpletest.  Once it loads the yaml definition, it
-   * recursively iterates over the definition creating and configuring the
-   * build plugins for this build.
+   * {@inheritdoc}
    */
   public function generateBuild($arg) {
 
@@ -258,20 +252,15 @@ class Build implements BuildInterface, Injectable {
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
     // After we load the config, we separate the workflow from the config:
     $this->applicationComputedBuildDefinition = $this->initialBuildDefinition['build'];
+    // If there is an assessment section to the build, handle it separately.
     if (!empty($this->applicationComputedBuildDefinition['assessment'])) {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
       unset($this->applicationComputedBuildDefinition['assessment']);
     }
     $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
-    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
-    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
     $this->generateBuildId();
     $this->setupWorkSpace();
-    // @todo Save YAML later in the build phase, when drupalci.yml has been
-    //   applied.
-    $this->saveYaml($build_definition);
-
   }
 
   /**
@@ -280,6 +269,16 @@ class Build implements BuildInterface, Injectable {
   public function setAssessmentBuildDefinition($assessment_phase) {
     $this->assessmentComputedBuildDefinition = [];
     $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
+    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveModifiedBuildDefiniton() {
+    $this->io->writeln('Saving build definition.');
+    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
+    $this->saveYaml($build_definition);
   }
 
   /**
@@ -488,18 +487,14 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * Given a file, returns an array containing the parsed YAML contents from that file
+   * Given a build array, save it as a build artifact.
    *
    * @param $config
-   *
-   * @TODO refactor out the buildfile and pass it as an arg too.
    */
   protected function saveYaml($config) {
-
     $buildfile = $this->getArtifactDirectory() . '/build.' . $this->getBuildId() . '.yml';
     $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, 0);
     file_put_contents($buildfile, $yamlstring);
-
   }
 
   /**

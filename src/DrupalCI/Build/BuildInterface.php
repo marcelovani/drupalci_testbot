@@ -27,9 +27,15 @@ interface BuildInterface {
   public function getBuildFile();
 
   /**
-   * @param string
+   * @param string $build
+   *
+   * Either the full path to a build.yml file, or the name of one of
+   * the predefined build_definitions like simpletest or simpletest7, or if
+   * null, defaults to simpletest.  Once it loads the yaml definition, it
+   * recursively iterates over the definition creating and configuring the
+   * build plugins for this build.
    */
-  public function generateBuild($arg);
+  public function generateBuild($build);
 
   /**
    * Executes a configured build.
@@ -115,12 +121,17 @@ interface BuildInterface {
   public function setupDirectory($directory);
 
   /**
-   * Set assessment phase build defintion array.
+   * Set and parse the assessment build stage.
    *
    * @param string[] $assessment_phase
    *   Set the assessment phase build definition array, probably parsed from
-   *   drupalci.yml.
+   *   drupalci.yml. This is the section inside the 'assessment' key.
    */
   public function setAssessmentBuildDefinition($assessment_phase);
+
+  /**
+   * Save the build definition after it has been modified in the codebase stage.
+   */
+  public function saveModifiedBuildDefiniton();
 
 }
