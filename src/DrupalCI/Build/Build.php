@@ -256,8 +256,11 @@ class Build implements BuildInterface, Injectable {
     }
 
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
-    // After we load the config, we separate the workflow from the config:
-    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition['build'];
+
+    // Separate the assessment stage of the build definition from everything
+    // else. 'Application' is all elements of the build defintion that are not
+    // the assessment.
+    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition[$this->getBuildTarget()];
     // If there is an assessment section to the build, handle it separately.
     if (!empty($this->applicationComputedBuildDefinition['assessment'])) {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
@@ -274,8 +277,20 @@ class Build implements BuildInterface, Injectable {
    */
   public function setAssessmentBuildDefinition($assessment_phase) {
     $this->assessmentComputedBuildDefinition = [];
-    $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
-    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+    if (!empty($assessment_phase)) {
+      $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
+      $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+    }
+    else {
+      $this->assessmentComputedBuildPlugins = [];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBuildTarget() {
+    return 'build';
   }
 
   /**
@@ -451,6 +466,10 @@ class Build implements BuildInterface, Injectable {
      *
      * $buildtask->
      */
+    // Some build stages can be empty, such as assessment.
+    if (empty($taskConfig)) {
+      return 0;
+    }
     $total_status = 0;
     foreach ($taskConfig as $task) {
       // Each task is an array, so that we can support running the same task

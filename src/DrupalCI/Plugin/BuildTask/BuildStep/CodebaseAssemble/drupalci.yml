@@ -1,8 +1,0 @@
-build:
-  assessment:
-    validate_codebase:
-      message.was_loaded:
-        text: This is loaded from an external drupalci.yml file.
-        style: error
-    testing:
-      phplint:

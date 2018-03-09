@@ -11,6 +11,14 @@ interface BuildInterface {
 
   /**
    * @return string
+   *   The current build target key. Currently always returns 'build'.
+   *
+   * @see https://www.drupal.org/project/drupalci_testbot/issues/2951375
+   */
+  public function getBuildTarget();
+
+  /**
+   * @return string
    */
   public function getBuildId();
 
@@ -123,11 +131,12 @@ interface BuildInterface {
   /**
    * Set and parse the assessment build stage.
    *
-   * @param string[] $assessment_phase
-   *   Set the assessment phase build definition array, probably parsed from
-   *   drupalci.yml. This is the section inside the 'assessment' key.
+   * @param string[] $assessment_stage
+   *   Set the assessment stage build definition array, probably parsed from
+   *   drupalci.yml. This is the section inside the 'assessment' key. Adding an
+   *   empty array results in no assessment stage for the build.
    */
-  public function setAssessmentBuildDefinition($assessment_phase);
+  public function setAssessmentBuildDefinition($assessment_stage);
 
   /**
    * Save the build definition after it has been modified in the codebase stage.
