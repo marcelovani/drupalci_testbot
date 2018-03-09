@@ -223,7 +223,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results' => TRUE,
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
-      'concurrency' => 1,
+      'concurrency' => 0,
       // testing modules or themes?
       'extension_test' => FALSE,
       'suppress-deprecations' => FALSE,
