@@ -58,23 +58,6 @@ class ReloadAssessment extends BuildTaskBase {
     );
   }
 
-  public function addMessageToAssessment($message = 'woot') {
-    $ref_assessment = new \ReflectionProperty($this->build, 'assessmentComputedBuildDefinition');
-    $ref_assessment->setAccessible(TRUE);
-
-    $build = $ref_assessment->getValue($this->build);
-
-    $validate_codebase = $build['assessment']['validate_codebase'];
-    $validate_codebase = array_merge(
-      ['message' => ['message' => 'kilroy was here', 'style' => 'error']],
-      $validate_codebase
-    );
-
-    $build['assessment']['validate_codebase'] = $validate_codebase;
-
-    $this->build->setAssessmentBuildDefinition($build['assessment']);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -97,8 +80,6 @@ class ReloadAssessment extends BuildTaskBase {
     else {
       $this->io->writeln('Using: ' . $drupalci_yml_file);
     }
-
-    $message = 'HELLOOOOOOO.....';
 
     // @todo: Figure out the build event.
     $build_event = 'build';

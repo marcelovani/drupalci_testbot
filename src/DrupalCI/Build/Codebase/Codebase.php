@@ -42,8 +42,6 @@ class Codebase implements CodebaseInterface, Injectable {
 
   /**
    * A storage variable for any modified files
-   *
-   * @var string[]
    */
   protected $modified_files = [];
 
@@ -65,9 +63,6 @@ class Codebase implements CodebaseInterface, Injectable {
     }
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function getModifiedFiles() {
     return $this->modified_files;
   }

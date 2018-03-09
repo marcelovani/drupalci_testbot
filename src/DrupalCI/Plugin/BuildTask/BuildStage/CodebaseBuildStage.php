@@ -51,9 +51,9 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     }
     if (!empty($this->configuration['project_name']) && $this->configuration['project_name'] !== 'drupal') {
       $this->codebase->setProjectName($this->configuration['project_name']);
-      // @TODO: this assumes that the project type is module. Once
-      // https://www.drupal.org/project/project_issue_file_test/issues/2909467
-      // is in, we can rely on that for the project type.
+      // @TODO: this assumes that the project type is module
+      // once https://www.drupal.org/node/2853889 is in, we can rely on that for
+      // the project type.
 
       $this->codebase->setProjectType('module');
     }
