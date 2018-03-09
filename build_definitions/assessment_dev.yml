@@ -1,7 +1,7 @@
 build:
   codebase:
     assemble_codebase:
-      reload_assessment:
+      update_build:
   environment:
   assessment:
     validate_codebase:

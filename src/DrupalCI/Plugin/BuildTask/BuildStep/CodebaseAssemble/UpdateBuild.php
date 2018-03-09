@@ -4,16 +4,15 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
-use DrupalCI\Build\Codebase\CodebaseInterface;
 use DrupalCI\Plugin\MessageBase;
 
 
 /**
  * Reload the assessment phase if drupalci.yml has changed.
  *
- * @PluginID("reload_assessment")
+ * @PluginID("update_build")
  */
-class ReloadAssessment extends BuildTaskBase {
+class UpdateBuild extends BuildTaskBase {
 
   /**
    * @var \DrupalCI\Build\Codebase\CodebaseInterface
@@ -87,63 +86,13 @@ class ReloadAssessment extends BuildTaskBase {
     $drupalci_yml = $this->yaml->parse(file_get_contents($drupalci_yml_file));
 
     if (isset($drupalci_yml[$build_event]['assessment'])) {
-      $message = 'This assessment stage was replaced with drupalci.yml.';
+      $this->io->writeln('Replacing assessment stage with drupalci.yml');
       $project_build = $drupalci_yml[$build_event]['assessment'];
     }
-
-    if (empty($project_build['validate_codebase'])) {
-      $project_build['validate_codebase'] = [];
-    }
-    $project_build['validate_codebase'] = array_merge(
-      MessageBase::generateDefinition($message),
-      $project_build['validate_codebase']
-    );
 
     $this->build->setAssessmentBuildDefinition($project_build);
 
     return 0;
-
-
-    // Load drupalci.yml.
-
-/*
-    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = ' --verbose';
-      $progress = '';
-    } else {
-      $verbose = '';
-      $progress = ' --no-progress';
-    }
-    $output = [];
-    $result = 0;
-    $this->io->writeln('Executing yarn install for core nodejs dev dependencies.');
-
-    $work_dir = $this->codebase->getSourceDirectory() . '/core';
-    $this->exec("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
-
-    $this->saveStringArtifact('yarn_install.txt', implode("\n", $output));
-
-    if ($result !== 0) {
-      $message = "Yarn install command returned code: $result";
-      if ($this->configuration['die-on-fail']) {
-
-        $this->terminateBuild($message, implode("\n", $output));
-      }
-      else {
-        $this->io->writeln($message . "\nYarn install failed; Proceeding anyways...");
-        return 0;
-        // Skip the list and licenses below.
-      }
-    } else {
-      $this->io->writeln('Yarn install success');
-    }
-    $output = [];
-    $this->exec("yarn${verbose} list$progress --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
-    $this->saveStringArtifact('yarn_list.txt', implode("\n", $output));
-    $output = [];
-    $this->exec("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list 2>&1", $output, $result);
-    $this->saveStringArtifact('yarn_licenses.txt', implode("\n", $output));
-    return $result;*/
   }
 
 }

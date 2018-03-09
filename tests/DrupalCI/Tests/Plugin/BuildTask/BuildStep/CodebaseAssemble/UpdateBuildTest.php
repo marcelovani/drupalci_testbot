@@ -8,7 +8,7 @@ use DrupalCI\Build\Codebase\CodebaseInterface;
 /**
  * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Fetch
  */
-class ReloadAssessmentTest extends DrupalCITestCase {
+class UpdateBuildTest extends DrupalCITestCase {
 
   /**
    * Get a fetch plugin from the factory.
@@ -20,7 +20,7 @@ class ReloadAssessmentTest extends DrupalCITestCase {
    */
   protected function getFetchPlugin($configuration = []) {
     $plugin_factory = $this->getContainer()['plugin.manager.factory']->create('BuildTask');
-    return $plugin_factory->getPlugin('BuildStep', 'reload_assessment', $configuration);
+    return $plugin_factory->getPlugin('BuildStep', 'update_build', $configuration);
   }
 
   /**
@@ -47,7 +47,7 @@ class ReloadAssessmentTest extends DrupalCITestCase {
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
-    $plugin = $plugin_factory->getPlugin('BuildStep', 'reload_assessment', []);
+    $plugin = $plugin_factory->getPlugin('BuildStep', 'update_build', []);
 
     $ref_should = new \ReflectionMethod($plugin, 'shouldReplaceAssessmentStage');
     $ref_should->setAccessible(TRUE);
