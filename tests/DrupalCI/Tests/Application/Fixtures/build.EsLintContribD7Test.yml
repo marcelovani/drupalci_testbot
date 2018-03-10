@@ -8,6 +8,8 @@ build:
         git_commit_hash: '59b450939fe923baf5416a4d6bab742fdb5e68c0'
       checkout_core_d7:
       composer_contrib_d7:
+        project: 'metatag'
+        branch: '7.x-1.x#a94f3b25b7740d67ff7d69a4bf18f529c07d6db3'
       fetch:
       patch:
   environment:

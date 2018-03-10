@@ -20,47 +20,49 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
    * @inheritDoc
    */
   public function run() {
-    // TODO when https://www.drupal.org/node/2853889 lands, stop using the
-    // ExtnetionProjectSubdir to determine the correct branch/project under test.
-    foreach ($this->configuration['repositories'] as $checkout_repo) {
-      $checkout_directory = $checkout_repo['checkout_dir'];
-      if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
-
-        $source_dir = $this->codebase->getSourceDirectory();
-        $cmd = "composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
-        $this->io->writeln("Initializing composer repository");
-        $this->execRequiredCommand($cmd, 'Composer init failure');
-
-        $cmd = "composer config discard-changes true --working-dir " . $source_dir;;
-        $this->io->writeln("Ignoring Composer Changes");
-        $this->execRequiredCommand($cmd, 'Composer config failure');
-
-        $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
-        $this->io->writeln("Setting Minimum Stability");
-        $this->execRequiredCommand($cmd, 'Composer config failure');
-
-        $cmd = "composer config prefer-stable true --working-dir " . $source_dir;
-        $this->io->writeln("Setting Preferred Stability");
-        $this->execRequiredCommand($cmd, 'Composer config failure');
-
-        $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
-        $this->io->writeln("Composer Command: $cmd");
-        $this->execRequiredCommand($cmd, 'Composer require failure');
-
-        $composer_json = $source_dir . '/composer.json';
-        if (file_exists($composer_json)) {
-          $composerFile = new JsonFile($composer_json);
-          $composer_config = $composerFile->read();
-          foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
-            $path = $path . '/{$name}';
-            $extension_type = rtrim($extension_type, 's');
-            $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
-          }
-          $composerFile->write($composer_config);
-        }
-      }
+    // TODO: When we finish up
+    // https://www.drupal.org/project/project_issue_file_test/issues/2951863 ,
+    // Then we can remove the configuration['repositories']
+    if ((!empty($this->configuration['repositories'])) || (!empty($this->configuration['project']))) {
+          $this->setupD7Composer();
     }
+
     parent::run();
+  }
+
+  protected function setupD7Composer(): void {
+    $source_dir = $this->codebase->getSourceDirectory();
+    $cmd = "composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
+    $this->io->writeln("Initializing composer repository");
+    $this->execRequiredCommand($cmd, 'Composer init failure');
+
+    $cmd = "composer config discard-changes true --working-dir " . $source_dir;;
+    $this->io->writeln("Ignoring Composer Changes");
+    $this->execRequiredCommand($cmd, 'Composer config failure');
+
+    $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
+    $this->io->writeln("Setting Minimum Stability");
+    $this->execRequiredCommand($cmd, 'Composer config failure');
+
+    $cmd = "composer config prefer-stable true --working-dir " . $source_dir;
+    $this->io->writeln("Setting Preferred Stability");
+    $this->execRequiredCommand($cmd, 'Composer config failure');
+
+    $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
+    $this->io->writeln("Composer Command: $cmd");
+    $this->execRequiredCommand($cmd, 'Composer require failure');
+
+    $composer_json = $source_dir . '/composer.json';
+    if (file_exists($composer_json)) {
+      $composerFile = new JsonFile($composer_json);
+      $composer_config = $composerFile->read();
+      foreach ($this->codebase->getExtensionPaths() as $extension_type => $path) {
+        $path = $path . '/{$name}';
+        $extension_type = rtrim($extension_type, 's');
+        $composer_config['extra']['installer-paths'][$path] = ["type:drupal-$extension_type"];
+      }
+      $composerFile->write($composer_config);
+    }
   }
 
 }
