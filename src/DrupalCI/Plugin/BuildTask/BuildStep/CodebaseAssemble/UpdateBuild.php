@@ -44,11 +44,14 @@ class UpdateBuild extends BuildTaskBase {
    * Figure out where the drupalci.yml file should be.
    *
    * @return string
-   *   Full path where we expect to find a drupalci.yml file.
+   *   Relative path where we expect to find a drupalci.yml file.
    */
   protected function locateDrupalCiYmlFile() {
     // @todo: Adjust to make sure this works for contrib.
-    return $this->codebase->getSourceDirectory() . '/drupalci.yml';
+    // @todo: Change this once there's build metadata about which type of
+    //   project we're using.
+    // For Core:
+    return 'core/drupalci.yml';
   }
 
   /**
@@ -74,7 +77,7 @@ class UpdateBuild extends BuildTaskBase {
    */
   public function run() {
     // The rules:
-    // - This method should never halt the build.
+    // - This plugin should never halt the build.
     // - Is drupalci.yml modified? No? We're done.
     // - If yes, replace the build's assessment phase with the contents of
     //   drupalci.yml for the current event.
@@ -89,20 +92,17 @@ class UpdateBuild extends BuildTaskBase {
     // assessment stage from happening? If so, they should have set it to
     // contain an empty array, because at this point in the code, we can't read
     // a missing file.
-    $drupalci_yml_file = $this->locateDrupalCiYmlFile();
+    $drupalci_yml_file = $this->codebase->getSourceDirectory() . DIRECTORY_SEPARATOR . $this->locateDrupalCiYmlFile();
     if (!file_exists($drupalci_yml_file)) {
       $this->io->writeln($drupalci_yml_file . ' does not exist');
       return 0;
-    }
-    else {
-      $this->io->writeln('Using: ' . $drupalci_yml_file);
     }
 
     // If we've gotten this far, then we have a patched drupalci.yml. The patch
     // could be trying to remove the assessment stage (by placing an empty array
     // in the YML), so we should always use it.
     $build_target = $this->build->getBuildTarget();
-    $this->io->writeln("Replacing {$build_target}:assessment stage with drupalci.yml");
+    $this->io->writeln("Replacing {$build_target}:assessment stage with {$drupalci_yml_file}");
 
     $drupalci_yml = $this->yaml->parse(file_get_contents($drupalci_yml_file));
 

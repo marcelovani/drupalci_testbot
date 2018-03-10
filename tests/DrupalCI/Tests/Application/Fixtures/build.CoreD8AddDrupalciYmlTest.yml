@@ -1,0 +1,50 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.6.x'
+        git_commit_hash: 8bf69b5
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories: {  }
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/2018-03-10/2951843_2_adds_drupalci_yml.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: 2951843_2_adds_drupalci_yml.patch
+            to: .
+      update_build:
+      update_dependencies: {  }
+    project_subdir: ''
+    project_name: ''
+    project_type: ''
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    testing:
+      simpletest.standard:
+        concurrency: 31
+        testgroups: 'Test'
+        types: 'PHPUnit-Unit'
+        url: 'http://localhost/subdirectory'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        extension_test: false
