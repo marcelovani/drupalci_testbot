@@ -60,6 +60,13 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
     if (!empty($this->configuration['project_type'])) {
       $this->codebase->setProjectType($this->configuration['project_type']);
     }
+    else if (!empty($this->configuration['project_subdir'])) {
+      $this->configuration['project_subdir'] = str_replace('sites/all/','',$this->configuration['project_subdir']);
+      $pathcomponents = explode('/', $this->configuration['project_subdir']);
+
+      $project_type = rtrim($pathcomponents[0], 's');
+      $this->codebase->setProjectType($project_type);
+    }
     $this->codebase->setupDirectories();
 
   }
