@@ -29,8 +29,8 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=469d128',
     'DCI_JobType=simpletest',
     'DCI_ProjectType=module',
+    'DCI_ProjectName=block_field',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_TestItem=directory:modules/block_field',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
 

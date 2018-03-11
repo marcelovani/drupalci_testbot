@@ -44,9 +44,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     if (FALSE !== getenv('DCI_Composer_Branch')) {
       $this->configuration['branch'] = getenv('DCI_Composer_Branch');
     }
-    // Currently DCI_AdditionalRepositories, in conjunction with DCI_TestItem,
-    // are the mechanisms we use to sort out which contrib module to check out.
-    //
+    // TODO: Remove DCI_AdditionalRepositories
     if (FALSE !== getenv(('DCI_AdditionalRepositories'))) {
       // Parse the provided repository string into it's components
       $entries = explode(';', getenv(('DCI_AdditionalRepositories')));

@@ -500,9 +500,7 @@ This method looks for defined environment variables and overrides the
 configuration variables based on those environment variables. Sometimes
 there isn't a 1:1 mapping of environment variables to config options, or
 the environment variable contains a serialized format of data that needs
-to be parsed into individual values. In the following example,
-DCI_TestItem needs to be parsed to figure out what it is trying to
-accomplish.
+to be parsed into individual values. 
 
 ```php
  /**
@@ -527,10 +525,6 @@ accomplish.
 
    if (FALSE !== getenv('DCI_RTColor')) {
      $this->configuration['color'] = getenv('DCI_RTColor');
-   }
-
-   if (FALSE !== getenv('DCI_TestItem')) {
-     $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
    }
 
    if (FALSE !== getenv('DCI_RTDieOnFail')) {
@@ -649,7 +643,7 @@ to the test. We can achieve that a few ways.
            'DCI_LocalBranch=8.3.x',
            'DCI_LocalCommitHash=c187f1d',
            'DCI_JobType=simpletest',
-           'DCI_TestItem=Url',
+           'DCI_TestGroups=Url',
            'DCI_PHPVersion=php-7.0-apache:production',
            'DCI_DBType=mysql',
            'DCI_DBVersion=5.5',
