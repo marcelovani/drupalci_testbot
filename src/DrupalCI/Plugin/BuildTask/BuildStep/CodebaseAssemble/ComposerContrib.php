@@ -44,39 +44,14 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     if (FALSE !== getenv('DCI_Composer_Branch')) {
       $this->configuration['branch'] = getenv('DCI_Composer_Branch');
     }
-    // TODO: Remove DCI_AdditionalRepositories
-    if (FALSE !== getenv(('DCI_AdditionalRepositories'))) {
-      // Parse the provided repository string into it's components
-      $entries = explode(';', getenv(('DCI_AdditionalRepositories')));
-      foreach ($entries as $entry) {
-        if (empty($entry)) {
-          continue;
-        }
-        $components = explode(',', $entry);
-        // Ensure we have at least 3 components
-        if (count($components) < 4) {
-          $this->terminateBuild("Unable to parse repository info", "Unable to parse repository info for value $entry");
-        }
-        // Create the build definition entry
-        $output = [
-          'repo' => $components[1],
-          'branch' => $components[2],
-          'checkout_dir' => $components[3]
-        ];
-        $this->configuration['repositories'][] = $output;
-      }
-    }
-
-
   }
 
   /**
    * @inheritDoc
    */
   public function run() {
-    // TODO when https://www.drupal.org/project/project_issue_file_test/issues/2951863
-    // lands, we can get rid of the repository key/config.
-
+    // The repositories key is deprecated, but we'll keep it here to maintain
+    // BC with older build.yml files.
     if (!empty($this->configuration['repositories'])) {
       foreach ($this->configuration['repositories'] as $checkout_repo) {
         $checkout_directory = $checkout_repo['checkout_dir'];

@@ -21,7 +21,6 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/block_field.git,8.x-1.x,modules/block_field,1;',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
@@ -31,6 +30,8 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_ProjectType=module',
     'DCI_ProjectName=block_field',
+    'DCI_Composer_Project=blcok_field',
+    'DCI_Composer_Branch=8.x-1.x',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
 
