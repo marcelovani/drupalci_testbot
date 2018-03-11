@@ -29,6 +29,7 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalCommitHash=5533335',
     'DCI_JobType=simpletestlegacy7',
     'DCI_PHPVersion=php-5.3.29-apache:production',
+    'DCI_ProjectType=module',
     'DCI_TestItem=directory:sites/all/modules/forena',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
