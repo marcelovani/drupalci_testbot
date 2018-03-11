@@ -173,12 +173,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
-    // Extension test is assumed to be a contrib project, so we specify
-    // --directory, unless we've got something other than "--all" for testgroups
-    if (($this->configuration['testgroups'] != '--all') && (substr($this->configuration['testgroups'], 0, 11 ) !== "--directory")){
-      $command[] = $this->configuration['testgroups'];
-    }
-    else if ($is_extension_test) {
+    // If its a contrib test, then either empty, --all, or a --directory
+    // switch needs to be converted to use our TrueExtensionSubDirectory.
+    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] != '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
     }
     else {
