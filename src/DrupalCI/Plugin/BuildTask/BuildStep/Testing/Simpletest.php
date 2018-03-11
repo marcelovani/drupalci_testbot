@@ -175,7 +175,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     // If its a contrib test, then either empty, --all, or a --directory
     // switch needs to be converted to use our TrueExtensionSubDirectory.
-    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] != '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
+    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
     }
     else {

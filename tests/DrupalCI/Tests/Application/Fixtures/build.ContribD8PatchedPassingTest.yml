@@ -65,7 +65,6 @@ build:
       simpletest.js:
         concurrency: 1
         types: PHPUnit-FunctionalJavascript
-        testgroups: '--directory modules/config_readonly'
         color: true
         die-on-fail: false
         keep-results: true
