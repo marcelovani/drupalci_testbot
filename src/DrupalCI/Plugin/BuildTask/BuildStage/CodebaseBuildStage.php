@@ -55,7 +55,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       // once https://www.drupal.org/node/2853889 is in, we can rely on that for
       // the project type.
 
-      $this->codebase->setProjectType('module');
+
     }
     if (!empty($this->configuration['project_type'])) {
       $this->codebase->setProjectType($this->configuration['project_type']);
