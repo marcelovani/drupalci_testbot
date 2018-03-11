@@ -34,7 +34,7 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     'DCI_Patch=2716613-69.flag_.permissions-author.patch,modules/flag',
     'DCI_PHPVersion=php-5.6-apache:production',
     'DCI_ProjectType=module',
-    'DCI_TestItem=directory:modules/flag',
+    'DCI_ProjectName=flag',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
 
