@@ -30,7 +30,7 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_ProjectType=module',
     'DCI_ProjectName=block_field',
-    'DCI_Composer_Project=blcok_field',
+    'DCI_Composer_Project=block_field',
     'DCI_Composer_Branch=8.x-1.x',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
