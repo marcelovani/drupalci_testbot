@@ -21,7 +21,6 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/forena.git,7.x-4.x,sites/all/modules/forena,1;',
     'DCI_LocalBranch=7.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
     'DCI_DBType=mysql',
@@ -30,7 +29,9 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletestlegacy7',
     'DCI_PHPVersion=php-5.3.29-apache:production',
     'DCI_ProjectType=module',
-    'DCI_TestItem=directory:sites/all/modules/forena',
+    'DCI_ProjectName=forena',
+    'DCI_Composer_Project=forena',
+    'DCI_Composer_Branch=7.x-4.x',
     'DCI_CS_SkipCodesniff=TRUE',
   ];
 

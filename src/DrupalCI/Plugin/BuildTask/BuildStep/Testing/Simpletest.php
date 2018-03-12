@@ -74,8 +74,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_RTColor')) {
       $this->configuration['color'] = getenv('DCI_RTColor');
     }
-    if (FALSE !== getenv('DCI_TestItem')) {
-      $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
+    if (FALSE !== getenv('DCI_TestGroups')) {
+      $this->configuration['testgroups'] = getenv('DCI_TestGroups');
+    }
+    if ((FALSE !== getenv('DCI_ProjectType')) && (getenv('DCI_ProjectType') != 'core')) {
+      $this->configuration['extension_test'] = TRUE;
     }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
       $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
@@ -225,28 +228,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'extension_test' => FALSE,
       'suppress-deprecations' => FALSE,
     ];
-  }
-
-  protected function parseTestItems($testitem) {
-    // Special case for 'all'
-    if (strtolower($testitem) === 'all') {
-      return '--all';
-    }
-
-    // Split the string components
-    $components = explode(':', $testitem);
-    if (!in_array($components[0], array('module', 'class', 'file', 'directory'))) {
-      // Invalid entry.
-      return $testitem;
-    }
-
-    $testgroups = '--' . $components[0] . ' ' . $components[1];
-    // Perhaps this crude hack could go somewhere else.
-    // If this is a directory testItem, flag it as an extension test.
-    if ($components[0] == 'directory') {
-      $this->configuration['extension_test'] = TRUE;
-    }
-    return $testgroups;
   }
 
   /**

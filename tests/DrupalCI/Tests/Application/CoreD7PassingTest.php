@@ -28,7 +28,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_JobType=simpletestlegacy7',
     // This hash will fail the Coder scan, but the build should pass.
     'DCI_LocalCommitHash=3d5bcd3',
-    'DCI_TestItem=Syslog',
+    'DCI_TestGroups=Syslog',
     'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
