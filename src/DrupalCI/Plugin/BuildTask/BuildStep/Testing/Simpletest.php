@@ -77,6 +77,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_TestGroups')) {
       $this->configuration['testgroups'] = getenv('DCI_TestGroups');
     }
+    if ((FALSE !== getenv('DCI_ProjectType')) && (getenv('DCI_ProjectType') != 'core')) {
+      $this->configuration['extension_test'] = TRUE;
+    }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
       $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
     }
