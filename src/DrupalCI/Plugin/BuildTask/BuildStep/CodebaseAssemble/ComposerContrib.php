@@ -28,6 +28,8 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
   public function getDefaultConfiguration() {
     return [
       'repositories' => [],
+      'project' => '',
+      'branch' => '',
     ];
 
   }
@@ -36,30 +38,11 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
    * @inheritDoc
    */
   public function configure() {
-
-    // Currently DCI_AdditionalRepositories, in conjunction with DCI_TestItem,
-    // are the mechanisms we use to sort out which contrib module to check out.
-    //
-    if (FALSE !== getenv(('DCI_AdditionalRepositories'))) {
-      // Parse the provided repository string into it's components
-      $entries = explode(';', getenv(('DCI_AdditionalRepositories')));
-      foreach ($entries as $entry) {
-        if (empty($entry)) {
-          continue;
-        }
-        $components = explode(',', $entry);
-        // Ensure we have at least 3 components
-        if (count($components) < 4) {
-          $this->terminateBuild("Unable to parse repository info", "Unable to parse repository info for value $entry");
-        }
-        // Create the build definition entry
-        $output = [
-          'repo' => $components[1],
-          'branch' => $components[2],
-          'checkout_dir' => $components[3]
-        ];
-        $this->configuration['repositories'][] = $output;
-      }
+    if (FALSE !== getenv('DCI_Composer_Project')) {
+      $this->configuration['project'] = getenv('DCI_Composer_Project');
+    }
+    if (FALSE !== getenv('DCI_Composer_Branch')) {
+      $this->configuration['branch'] = getenv('DCI_Composer_Branch');
     }
   }
 
@@ -67,43 +50,20 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
    * @inheritDoc
    */
   public function run() {
-    // TODO when https://www.drupal.org/node/2853889 lands, stop using the
-    // ExtnetionProjectSubdir to determine the correct branch/project under test.
-    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = '-vvv ';
-      $progress = '';
-    } else {
-      $verbose = '';
-      $progress = ' --no-progress';
-    }
-    foreach ($this->configuration['repositories'] as $checkout_repo) {
-      $checkout_directory = $checkout_repo['checkout_dir'];
-      if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
+    // The repositories key is deprecated, but we'll keep it here to maintain
+    // BC with older build.yml files.
+    if (!empty($this->configuration['repositories'])) {
+      foreach ($this->configuration['repositories'] as $checkout_repo) {
+        $checkout_directory = $checkout_repo['checkout_dir'];
         $branch = $checkout_repo['branch'];
-        $composer_branch = $this->getSemverBranch($branch);
-
-        $source_dir = $this->codebase->getSourceDirectory();
-        $cmd = "./bin/composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
-        $this->io->writeln("Adding packages.drupal.org as composer repository");
-        $this->execRequiredCommand($cmd, 'Composer config failure');
-
-
-        $cmd = "./bin/composer ${verbose} require drupal/" . $this->codebase->getProjectName() . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
-
-        $this->io->writeln("Composer Command: $cmd");
-        $this->execRequiredCommand($cmd, 'Composer require failure');
-
-        // Composer does not respect require-dev anywhere but the root package
-        // Lets probe for require-dev in our newly installed module, and add
-        // Those dependencies in as well.
-        $packages = $this->codebase->getComposerDevRequirements();
-        if (!empty($packages)) {
-          $cmd = "./bin/composer ${verbose} require --no-interaction --ignore-platform-reqs " . implode(' ',$packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
-          $this->io->writeln("Composer Command: $cmd");
-          $this->execRequiredCommand($cmd, 'Composer require failure');
-
+        $project = $this->codebase->getProjectName();
+        if ($checkout_directory == $this->codebase->getExtensionProjectSubdir()) {
+          $this->addComposerProject($project, $branch);
         }
       }
+    }
+    elseif (!empty($this->configuration['project'])) {
+      $this->addComposerProject($this->configuration['project'], $this->configuration['branch']);
     }
   }
 
@@ -118,6 +78,44 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
   protected function getSemverBranch($branch) {
     $converted_version = 'dev-' . preg_replace('/^\d+\.x-/', '', $branch);
     return $converted_version;
+  }
+
+  /**
+   * @param $branch
+   * @param $project
+   */
+  protected function addComposerProject($project, $branch): void {
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
+      $verbose = '-vvv ';
+      $progress = '';
+    }
+    else {
+      $verbose = '';
+      $progress = ' --no-progress';
+    }
+    $composer_branch = $this->getSemverBranch($branch);
+
+    $source_dir = $this->codebase->getSourceDirectory();
+    $cmd = "./bin/composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
+    $this->io->writeln("Adding packages.drupal.org as composer repository");
+    $this->execRequiredCommand($cmd, 'Composer config failure');
+
+
+    $cmd = "./bin/composer ${verbose} require drupal/" . $project . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
+
+    $this->io->writeln("Composer Command: $cmd");
+    $this->execRequiredCommand($cmd, 'Composer require failure');
+
+    // Composer does not respect require-dev anywhere but the root package
+    // Lets probe for require-dev in our newly installed module, and add
+    // Those dependencies in as well.
+    $packages = $this->codebase->getComposerDevRequirements();
+    if (!empty($packages)) {
+      $cmd = "./bin/composer ${verbose} require --no-interaction --ignore-platform-reqs " . implode(' ', $packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
+      $this->io->writeln("Composer Command: $cmd");
+      $this->execRequiredCommand($cmd, 'Composer require failure');
+
+    }
   }
 
 }

@@ -25,9 +25,9 @@ class EsLintD7ContribSuccessTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=7.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-5.6-apache:production',
-    'DCI_TestItem=directory:modules/metatag',
-    'DCI_AdditionalRepositories=git,git://git.drupal.org/project/metatag.git,7.x-1.x#a94f3b25b7740d67ff7d69a4bf18f529c07d6db3,modules/metatag,1;',
-    'DCI_TestItem=directory:modules/metatag',
+    'DCI_ProjectName=metatag',
+    'DCI_ProjectType=module',
+
   ];
 
   public function testEslintContribTest() {

@@ -24,14 +24,6 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    * @inheritDoc
    */
   public function configure() {
-    // DCI_TestItem may have --directory modules/<projectname>, if it does,
-    // we can assume that it is the module we wish to test, and therefore needs
-    // to be built in the codebase tmp directory and pointed to by composer.
-    if (FALSE !== getenv(('DCI_TestItem'))) {
-      $this->configuration['project_subdir'] = $this->getProjectSubDir(getenv(('DCI_TestItem')));
-      // @TODO: change this to DCI_Projectname once https://www.drupal.org/node/2853889 is solved.
-      $this->configuration['project_name'] = $this->getProjectName(getenv(('DCI_TestItem')));
-    }
     if (FALSE !== getenv(('DCI_ProjectType'))) {
       $this->configuration['project_type'] = getenv('DCI_ProjectType');
     }
@@ -46,6 +38,7 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    */
   public function run() {
 
+    // TODO: ignore project_subdir
     if (!empty($this->configuration['project_subdir'])) {
       $this->codebase->setExtensionProjectSubdir($this->configuration['project_subdir']);
     }
@@ -55,10 +48,17 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       // once https://www.drupal.org/node/2853889 is in, we can rely on that for
       // the project type.
 
-      $this->codebase->setProjectType('module');
+
     }
     if (!empty($this->configuration['project_type'])) {
       $this->codebase->setProjectType($this->configuration['project_type']);
+    }
+    else if (!empty($this->configuration['project_subdir'])) {
+      $this->configuration['project_subdir'] = str_replace('sites/all/','',$this->configuration['project_subdir']);
+      $pathcomponents = explode('/', $this->configuration['project_subdir']);
+
+      $project_type = rtrim($pathcomponents[0], 's');
+      $this->codebase->setProjectType($project_type);
     }
     $this->codebase->setupDirectories();
 
@@ -93,26 +93,6 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       'project_type' => '',
     ];
 
-  }
-
-  protected function getProjectSubDir($testitem) {
-    if (strpos($testitem, 'directory') === 0) {
-      $components = explode(':', $testitem);
-      return $components[1];
-    }
-    return FALSE;
-  }
-
-  protected function getProjectName($testitem) {
-    if (strpos($testitem, 'directory') === 0) {
-      $components = explode(':', $testitem);
-      $pathcomponents = explode("/", $components[1]);
-    }
-    if (!empty($pathcomponents)) {
-      return array_pop($pathcomponents);
-    } else {
-      return 'drupal';
-    }
   }
 
 }

@@ -74,8 +74,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_RTColor')) {
       $this->configuration['color'] = getenv('DCI_RTColor');
     }
-    if (FALSE !== getenv('DCI_TestItem')) {
-      $this->configuration['testgroups'] = $this->parseTestItems(getenv('DCI_TestItem'));
+    if (FALSE !== getenv('DCI_TestGroups')) {
+      $this->configuration['testgroups'] = getenv('DCI_TestGroups');
+    }
+    if ((FALSE !== getenv('DCI_ProjectType')) && (getenv('DCI_ProjectType') != 'core')) {
+      $this->configuration['extension_test'] = TRUE;
     }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
       $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
@@ -173,12 +176,9 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $command[] = $this->getRunTestsFlagValues($this->configuration);
     $command[] = $this->getRunTestsValues($this->configuration);
 
-    // Extension test is assumed to be a contrib project, so we specify
-    // --directory, unless we've got something other than "--all" for testgroups
-    if (($this->configuration['testgroups'] != '--all') && (substr($this->configuration['testgroups'], 0, 11 ) !== "--directory")){
-      $command[] = $this->configuration['testgroups'];
-    }
-    else if ($is_extension_test) {
+    // If its a contrib test, then either empty, --all, or a --directory
+    // switch needs to be converted to use our TrueExtensionSubDirectory.
+    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
       $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
     }
     else {
@@ -223,32 +223,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results' => TRUE,
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
+      'concurrency' => 1,
       // testing modules or themes?
       'extension_test' => FALSE,
       'suppress-deprecations' => FALSE,
     ];
-  }
-
-  protected function parseTestItems($testitem) {
-    // Special case for 'all'
-    if (strtolower($testitem) === 'all') {
-      return '--all';
-    }
-
-    // Split the string components
-    $components = explode(':', $testitem);
-    if (!in_array($components[0], array('module', 'class', 'file', 'directory'))) {
-      // Invalid entry.
-      return $testitem;
-    }
-
-    $testgroups = '--' . $components[0] . ' ' . $components[1];
-    // Perhaps this crude hack could go somewhere else.
-    // If this is a directory testItem, flag it as an extension test.
-    if ($components[0] == 'directory') {
-      $this->configuration['extension_test'] = TRUE;
-    }
-    return $testgroups;
   }
 
   /**

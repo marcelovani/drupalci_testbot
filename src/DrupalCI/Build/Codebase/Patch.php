@@ -280,7 +280,7 @@ class Patch implements PatchInterface, Injectable {
 
       $this->modified_files = array();
       foreach ($files as $file) {
-        $this->modified_files[] = $this->getTargetApplyDir() . '/' . $file;
+        $this->modified_files[] = realpath($this->getTargetApplyDir()) . '/' . $file;
       }
     }
     return $this->modified_files;
