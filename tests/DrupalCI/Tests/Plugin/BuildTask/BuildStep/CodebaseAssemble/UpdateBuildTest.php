@@ -4,7 +4,6 @@ namespace DrupalCI\Tests\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 use DrupalCI\Build\Codebase\CodebaseInterface;
 use DrupalCI\Tests\DrupalCITestCase;
-use org\bovigo\vfs\vfsStream;
 
 /**
  * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\UpdateBuild
@@ -23,27 +22,33 @@ class UpdateBuildTest extends DrupalCITestCase {
     $this->assertSame(0, $plugin->run());
   }
 
+  public function provideShouldReplace() {
+    return [
+      // [expected outcome, path to drupalci.yml, is drupalci.yml modified?]
+      'modified-drupalciyml' => [TRUE, 'core/drupalci.yml', TRUE],
+      'unmodified-drupalciyml' => [FALSE, 'core/drupalci.yml', FALSE],
+      'no-drupalciyml' => [FALSE, '', FALSE],
+    ];
+  }
+
   /**
    * @covers ::shouldReplaceAssessmentStage
+   * @dataProvider provideShouldReplace
    */
-  public function testShouldReplaceAssessmentStage() {
-    vfsStream::setup('locate', NULL, ['source_dir' => ['drupalci.yml' => 'yml: goodness']]);
-
+  public function testShouldReplaceAssessmentStage($expected, $drupalci_yml_path, $modified) {
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getModifiedFiles'])
+      ->setMethods(['getModifiedFiles', 'getProjectType'])
       ->getMockForAbstractClass();
-
-    // Set up getSourceDirectory so locateDrupalCiYmlFile() can consume it.
-    $codebase->expects($this->atMost(2))
-      ->method('getSourceDirectory')
-      ->willReturn(vfsStream::url('locate/source_dir'));
-
-    // Set up getModifiedFiles() so shouldReplaceAssessmentStage() can consume
-    // it. First run says drupalci.yml is modified, second says no
-    // modifications.
-    $codebase->expects($this->atMost(2))
+    $modified_files = [];
+    if ($modified) {
+      $modified_files = [$drupalci_yml_path];
+    }
+    $codebase->expects($this->once())
       ->method('getModifiedFiles')
-      ->willReturnOnConsecutiveCalls([vfsStream::url('locate/source_dir/drupalci.yml')], []);
+      ->willReturn($modified_files);
+    $codebase->expects($this->once())
+      ->method('getProjectType')
+      ->willReturn('core');
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
@@ -53,8 +58,7 @@ class UpdateBuildTest extends DrupalCITestCase {
     $ref_should = new \ReflectionMethod($plugin, 'shouldReplaceAssessmentStage');
     $ref_should->setAccessible(TRUE);
 
-    $this->assertTrue($ref_should->invoke($plugin));
-    $this->assertFalse($ref_should->invoke($plugin));
+    $this->assertEquals($expected, $ref_should->invoke($plugin));
   }
 
   /**
@@ -86,18 +90,29 @@ class UpdateBuildTest extends DrupalCITestCase {
   }
 
   /**
-   * @covers ::locateDrupalCiYmlFile
-   * @todo Make this test contrib.
+   * All the documented return values for CodebaseInterface::getProjectType().
    */
-  public function testLocateDrupalCiYmlFile() {
-    vfsStream::setup('locate', NULL, ['source_dir' => ['drupalci.yml' => 'yml: goodness']]);
+  public function provideLocateDrupalCiYmlFile() {
+    return [
+      'core' => ['core/drupalci.yml', 'core'],
+      'module' => ['drupalci.yml', 'module'],
+      'theme' => ['drupalci.yml', 'theme'],
+      'distribution' => ['drupalci.yml', 'distribution'],
+      'library' => ['drupalci.yml', 'library'],
+    ];
+  }
 
+  /**
+   * @covers ::locateDrupalCiYmlFile
+   * @dataProvider provideLocateDrupalCiYmlFile
+   */
+  public function testLocateDrupalCiYmlFile($expected, $project_type) {
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getSourceDirectory'])
+      ->setMethods(['getProjectType'])
       ->getMockForAbstractClass();
-    $codebase->expects($this->atMost(2))
-      ->method('getSourceDirectory')
-      ->willReturn(vfsStream::url('locate/source_dir'));
+    $codebase->expects($this->once())
+      ->method('getProjectType')
+      ->willReturn($project_type);
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
@@ -106,7 +121,7 @@ class UpdateBuildTest extends DrupalCITestCase {
     $ref_locate = new \ReflectionMethod($plugin, 'locateDrupalCiYmlFile');
     $ref_locate->setAccessible(TRUE);
 
-    $this->assertEquals('vfs://locate/source_dir/drupalci.yml', $ref_locate->invoke($plugin));
+    $this->assertEquals($expected, $ref_locate->invoke($plugin));
   }
 
 }

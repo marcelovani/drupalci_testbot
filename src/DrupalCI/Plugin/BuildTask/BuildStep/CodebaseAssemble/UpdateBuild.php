@@ -47,11 +47,13 @@ class UpdateBuild extends BuildTaskBase {
    *   Relative path where we expect to find a drupalci.yml file.
    */
   protected function locateDrupalCiYmlFile() {
-    // @todo: Adjust to make sure this works for contrib.
-    // @todo: Change this once there's build metadata about which type of
-    //   project we're using.
-    // For Core:
-    return 'core/drupalci.yml';
+    $path = [];
+    $type = $this->codebase->getProjectType();
+    if ($type == 'core') {
+      $path[] = 'core';
+    }
+    $path[] = 'drupalci.yml';
+    return implode(DIRECTORY_SEPARATOR, $path);
   }
 
   /**
