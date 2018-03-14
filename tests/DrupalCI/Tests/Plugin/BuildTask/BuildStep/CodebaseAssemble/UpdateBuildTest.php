@@ -95,10 +95,10 @@ class UpdateBuildTest extends DrupalCITestCase {
   public function provideLocateDrupalCiYmlFile() {
     return [
       'core' => ['core/drupalci.yml', 'core'],
-      'module' => ['drupalci.yml', 'module'],
-      'theme' => ['drupalci.yml', 'theme'],
-      'distribution' => ['drupalci.yml', 'distribution'],
-      'library' => ['drupalci.yml', 'library'],
+      'module' => ['contrib/drupalci.yml', 'module'],
+      'theme' => ['contrib/drupalci.yml', 'theme'],
+      'distribution' => ['contrib/drupalci.yml', 'distribution'],
+      'library' => ['contrib/drupalci.yml', 'library'],
     ];
   }
 
@@ -108,11 +108,14 @@ class UpdateBuildTest extends DrupalCITestCase {
    */
   public function testLocateDrupalCiYmlFile($expected, $project_type) {
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getProjectType'])
+      ->setMethods(['getProjectType', 'getTrueExtensionSubDirectory'])
       ->getMockForAbstractClass();
     $codebase->expects($this->once())
       ->method('getProjectType')
       ->willReturn($project_type);
+    $codebase->expects($this->any())
+      ->method('getTrueExtensionSubDirectory')
+      ->willReturn('contrib');
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
