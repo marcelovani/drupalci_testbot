@@ -188,10 +188,23 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $this->elapsedTime;
   }
 
+  /**
+   * Execute a shell command.
+   *
+   * @param string $command
+   * @param string[] &$output
+   * @param int &$return_var
+   */
   protected function exec($command, &$output, &$return_var) {
     exec($command, $output, $return_var);
   }
 
+  /**
+   * Execute a shell command, terminate build on failure, emit message.
+   *
+   * @param string $command
+   * @param string $failure_message
+   */
   protected function execRequiredCommand($command, $failure_message) {
     $command .= ' 2>&1';
 
@@ -205,7 +218,44 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       $this->terminateBuild($failure_message, $output);
     }
     return $output;
+  }
 
+  /**
+   * Execute a shell command, saving results as an artifact.
+   *
+   * @param string $command
+   *   The command to execute.
+   * @param string $filename
+   *   (optional) An output file name.
+   *
+   * @return string
+   *   Output and error logging from the command.
+   *
+   * @throws BuildTaskException
+   *   If the command returns a non-zero signal, then we throw an exception via
+   *   terminateBuild().
+   *
+   * @todo Figure out how to reconcile this with execRequiredCommand().
+   */
+  protected function execWithArtifact($command, $filename = '') {
+    $this->io->writeln('Executing: ' . $command);
+    if (empty($filename)) {
+      $filename = 'command_output';
+    }
+    $command .= ' 2>&1';
+
+    $this->exec($command, $output, $return_var);
+    $output = implode("\n",$output);
+    $artifact = implode("\n", [
+      $command,
+      'Return code: ' . $return_var,
+      $output,
+    ]);
+    $this->saveStringArtifact($filename, $artifact);
+    if ($return_var !== 0) {
+      $this->terminateBuild('Shell execution failed.', $artifact);
+    }
+    return $output;
   }
 
   // TODO 2851000 Ensure saving host artifacts works
