@@ -98,7 +98,7 @@ class Environment implements Injectable, EnvironmentInterface {
    */
   public function executeCommands($commands, $container_id = '') {
 
-    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    /* @var $executionResult \DrupalCI\Build\Environment\CommandResultInterface */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;
     // Data format: 'command [arguments]' or array('command [arguments]', 'command [arguments]')
@@ -196,7 +196,6 @@ class Environment implements Injectable, EnvironmentInterface {
 
   /**
    * @return string
-   * TODO 2851000 - convert all of these to WorkDir
    */
   public function getContainerArtifactDir() {
     return $this->containerArtifactDir;

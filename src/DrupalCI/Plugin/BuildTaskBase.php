@@ -258,7 +258,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $output;
   }
 
-  // TODO 2851000 Ensure saving host artifacts works
   protected function saveHostArtifact($filepath, $savename) {
     $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 

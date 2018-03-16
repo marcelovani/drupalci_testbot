@@ -20,7 +20,7 @@ build:
     startcontainers:
       runcontainers:
   assessment:
-    pre_assessment:
+    pre_assessment.setup:
       die-on-nonzero: FALSE
       execution-environment: host
       commands:
@@ -28,3 +28,8 @@ build:
         - ls
     validate_codebase:
       phplint:
+    pre_assessment.coding-standards:
+      die-on-nonzero: FALSE
+      execution-environment: php-container
+      commands:
+        cd core && ../vendor/bin/phpcs -ps lib/Drupal/Component

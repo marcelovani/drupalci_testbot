@@ -67,6 +67,8 @@ class PreAssessmentPhase extends BuildTaskBase implements BuildPhaseInterface, B
   public function run() {
     $this->io->writeln('<info>Pre-assessment phase.</info>');
 
+    // Check the execution environment first because we want the user to know
+    // this problem first.
     $this->checkExecutionEnvironment();
 
     // Don't do anything if there's nothing to do.
@@ -80,25 +82,36 @@ class PreAssessmentPhase extends BuildTaskBase implements BuildPhaseInterface, B
       $this->configuration['commands'] = [$this->configuration['commands']];
     }
 
-    // @todo: Add stuff for contrib.
-    if (!chdir($this->codebase->getSourceDirectory())) {
-      $this->terminateBuild('Unable to change working directory to source directory.');
-    }
-
     switch ($this->configuration['execution-environment']) {
       case 'host':
-        $this->executeOnHost($this->configuration['commands'], $this->configuration['die-on-nonzero']);
-        break;
+        return $this->executeOnHost(
+          $this->configuration['commands'],
+          $this->configuration['die-on-nonzero']
+        );
 
       case 'php-container':
-        $this->executeOnPhpContainer($this->configuration['commands'], $this->configuration['die-on-nonzero']);
-        break;
+        return $this->executeOnPhpContainer(
+          $this->configuration['commands'],
+          $this->configuration['die-on-nonzero']
+        );
     }
-
     return 0;
   }
 
+  /**
+   * Execute the commands on the host environment.
+   *
+   * @param type $commands
+   * @param type $die_on_fail
+   * @return int
+   * @throws BuildTaskException
+   */
   protected function executeOnHost($commands, $die_on_fail) {
+    // @todo: Add stuff for contrib.
+    // @todo: Don't die if we're configured not to.
+    if (!chdir($this->codebase->getSourceDirectory())) {
+      $this->terminateBuild('Unable to change working directory to source directory.');
+    }
     foreach ($commands as $key => $command) {
       try {
         $this->execWithArtifact($command, 'command_output.' . $key);
@@ -108,10 +121,34 @@ class PreAssessmentPhase extends BuildTaskBase implements BuildPhaseInterface, B
         }
       }
     }
+    return 0;
   }
 
+  /**
+   * Execute the commands in the PHP container.
+   *
+   * @param string[] $commands
+   * @param bool $die_on_fail
+   * @return int
+   * @throws BuildTaskException
+   *
+   * @todo: Explicitly set the container in executeCommands().
+   */
   protected function executeOnPhpContainer($commands, $die_on_fail) {
-    
+    // @todo: Add contrib path stuff.
+    $commands = array_merge(
+      ['cd ' . $this->environment->getExecContainerSourceDir()],
+      $commands
+    );
+
+    $result = $this->environment->executeCommands($commands);
+    $this->saveStringArtifact('php-container-command', $result->getOutput());
+    if ($result->getSignal() != 0) {
+      if ($die_on_fail) {
+        $this->terminateBuild('Unable to execute in PHP container.', $result->getError());
+      }
+    }
+    return 0;
   }
 
 }
