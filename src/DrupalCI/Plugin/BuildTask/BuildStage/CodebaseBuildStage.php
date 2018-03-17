@@ -68,6 +68,11 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
    * @inheritDoc
    */
   public function complete($childStatus) {
+    // The build definition can be changed during the codebase stage, because
+    // drupalci.yml can be patched. Therefore we have to store the new build as
+    // a final stage here.
+    $this->build->saveModifiedBuildDefiniton();
+
     $this->saveHostArtifact($this->codebase->getSourceDirectory() . '/vendor/composer/installed.json', 'composer-installed.json');
 
     $extensionDir = '';

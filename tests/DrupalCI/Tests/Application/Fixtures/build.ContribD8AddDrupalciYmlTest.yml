@@ -1,0 +1,68 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.5.x'
+        git_commit_hash: '418ee453'
+      checkout_core:
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
+      composer_contrib:
+        project: examples
+        branch: 8.x-1.x
+        repositories: {  }
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/2018-03-14/2952984_2_add_drupalciyml.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: 2952984_2_add_drupalciyml.patch
+            to: .
+      update_build:
+      update_dependencies: {  }
+      yarn_install:
+        die-on-fail: false
+    project_name: examples
+    project_type: module
+    project_subdir: ''
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+  assessment:
+    validate_codebase:
+      phplint: {  }
+      container_composer:
+        options: ' install --prefer-dist --no-suggest --no-progress --no-interaction'
+        executable_path: /usr/local/bin/composer
+        fail_should_terminate: true
+      csslint:
+        lint_fails_test: false
+        skip_linting: false
+      eslint:
+        lint_fails_test: false
+        skip_linting: false
+      phpcs:
+        sniff_all_files: false
+        start_directory: core
+        installed_paths: vendor/drupal/coder/coder_sniffer/
+        warning_fails_sniff: false
+        sniff_fails_test: false
+        coder_version: ^8.2@stable
+        skip_codesniff: false
+    testing:
+      simpletest.standard:
+        types: 'PHPUnit-Unit'
+        testgroups: '--all'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        concurrency: 0
+        suppress-deprecations: false

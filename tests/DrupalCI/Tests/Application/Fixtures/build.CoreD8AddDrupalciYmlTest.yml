@@ -4,40 +4,31 @@ build:
       replicate:
         exclude: {  }
         local_dir: '/var/lib/drupalci/drupal-checkout'
-        git_branch: '8.4.2'
-        git_commit_hash: ''
-      checkout_core:
-        repositories:
-          -
-            repo: ''
-            branch: ''
+        git_branch: '8.6.x'
+        git_commit_hash: 8bf69b5
       composer.core_install:
         options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
       composer_contrib:
-        repositories:
-          -
-            repo: 'git://git.drupal.org/project/examples.git'
-            branch: 8.x-1.x#a63b8a96dab95f2dd30e971a4d1c9c94818f4057
-            checkout_dir: modules/examples
+        repositories: {  }
       fetch:
         files:
           -
-            from: 'https://www.drupal.org/files/issues/lessSimpleTest-2924387-2.patch'
-            to: modules/examples
+            from: 'https://www.drupal.org/files/issues/2018-03-10/2951843_2_adds_drupalci_yml.patch'
+            to: .
       patch:
         patches:
           -
-            from: lessSimpleTest-2924387-2.patch
-            to: modules/examples
+            from: 2951843_2_adds_drupalci_yml.patch
+            to: .
+      update_build:
       update_dependencies: {  }
-    project_subdir: modules/examples
-    project_name: examples
+    project_subdir: ''
+    project_name: ''
     project_type: ''
   environment:
     startcontainers:
       runcontainers:
-        phpversion: 'php-5.5.38-apache:production'
-      start_phantomjs: {  }
+        phpversion: 'php-7.0-apache:production'
     create_db:
       dbcreate: {  }
     db_type: mysql
@@ -48,8 +39,8 @@ build:
     testing:
       simpletest.standard:
         concurrency: 31
-        testgroups: '--directory modules/examples'
-        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        testgroups: 'Test'
+        types: 'PHPUnit-Unit'
         url: 'http://localhost/subdirectory'
         color: true
         die-on-fail: false

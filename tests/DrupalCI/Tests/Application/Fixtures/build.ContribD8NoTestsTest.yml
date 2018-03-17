@@ -52,7 +52,6 @@ build:
         keep-results: true
         keep-results-table: false
         verbose: false
-        extension_test: true
       simpletest.js:
         concurrency: 1
         types: PHPUnit-FunctionalJavascript
@@ -63,4 +62,3 @@ build:
         keep-results: true
         keep-results-table: false
         verbose: false
-        extension_test: true
