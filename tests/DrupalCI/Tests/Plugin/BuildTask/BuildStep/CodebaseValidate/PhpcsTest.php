@@ -233,7 +233,7 @@ class PhpcsTest extends DrupalCITestCase {
         // We just mock writeSniffableFiles() so it does nothing.
         'writeSniffableFiles',
       ])
-      ->setConstructorArgs([['sniff_all_files' => $sniff_all_files]])
+      ->setConstructorArgs([['sniff-all-files' => $sniff_all_files]])
       ->getMock();
 
     // Use our mocked codebase and build.

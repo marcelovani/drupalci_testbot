@@ -43,14 +43,14 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array representing order of plugin execution and
-   *   overridden configuration options. Does not include the assessment phase.
+   *   overridden configuration options. Does not include the assessment stage.
    */
   protected $applicationComputedBuildDefinition;
 
   /**
    * @var string[]
    *
-   * Build definition for the assessment phase.
+   * Build definition for the assessment stage.
    */
   protected $assessmentComputedBuildDefinition = [];
 
@@ -58,14 +58,14 @@ class Build implements BuildInterface, Injectable {
    * @var array
    *
    *   Hierarchical array of configured plugins. Does not include assessment
-   *   phase.
+   *   stage.
    */
   protected $applicationComputedBuildPlugins;
 
   /**
    * @var array
    *
-   * Computed build plugins for the assessment phase.
+   * Computed build plugins for the assessment stage.
    */
   protected $assessmentComputedBuildPlugins;
 
@@ -77,9 +77,9 @@ class Build implements BuildInterface, Injectable {
   protected $buildTaskPluginManager;
 
   /**
-   * @var \Symfony\Component\Yaml\Yaml
+   * YAML parser service.
    *
-   *   Parsed Yaml of the build definition.
+   * @var \Symfony\Component\Yaml\Yaml
    */
   protected $yaml;
 
@@ -256,22 +256,20 @@ class Build implements BuildInterface, Injectable {
     }
 
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);
-    // After we load the config, we separate the workflow from the config:
-    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition['build'];
+
+    // Separate the assessment stage of the build definition from everything
+    // else. 'Application' is all elements of the build defintion that are not
+    // the assessment.
+    $this->applicationComputedBuildDefinition = $this->initialBuildDefinition[$this->getBuildTarget()];
+    // If there is an assessment section to the build, handle it separately.
     if (!empty($this->applicationComputedBuildDefinition['assessment'])) {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
       unset($this->applicationComputedBuildDefinition['assessment']);
     }
     $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
-    $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
-    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
 
     $this->generateBuildId();
     $this->setupWorkSpace();
-    // @todo Save YAML later in the build phase, when drupalci.yml has been
-    //   applied.
-    $this->saveYaml($build_definition);
-
   }
 
   /**
@@ -279,7 +277,29 @@ class Build implements BuildInterface, Injectable {
    */
   public function setAssessmentBuildDefinition($assessment_phase) {
     $this->assessmentComputedBuildDefinition = [];
-    $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
+    if (!empty($assessment_phase)) {
+      $this->assessmentComputedBuildDefinition['assessment'] = $assessment_phase;
+      $this->assessmentComputedBuildPlugins = $this->processBuildConfig($this->assessmentComputedBuildDefinition);
+    }
+    else {
+      $this->assessmentComputedBuildPlugins = [];
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getBuildTarget() {
+    return 'build';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveModifiedBuildDefiniton() {
+    $this->io->writeln('Saving build definition.');
+    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
+    $this->saveYaml($build_definition);
   }
 
   /**
@@ -366,7 +386,10 @@ class Build implements BuildInterface, Injectable {
       }
       else {
         // The key is not a plugin, therefore it is a configuration directive for the plugin above it.
-        $transformed_config['#configuration'][$config_key] = $config[$config_key];
+        // Support underscores and dashes in config keys for BC. Remove After October 2018.
+        $new_config_key = str_replace('_', '-', $config_key);
+
+        $transformed_config['#configuration'][$new_config_key] = $config[$config_key];
       }
     }
     return $transformed_config;
@@ -446,6 +469,10 @@ class Build implements BuildInterface, Injectable {
      *
      * $buildtask->
      */
+    // Some build stages can be empty, such as assessment.
+    if (empty($taskConfig)) {
+      return 0;
+    }
     $total_status = 0;
     foreach ($taskConfig as $task) {
       // Each task is an array, so that we can support running the same task
@@ -488,18 +515,14 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
-   * Given a file, returns an array containing the parsed YAML contents from that file
+   * Given a build array, save it as a build artifact.
    *
    * @param $config
-   *
-   * @TODO refactor out the buildfile and pass it as an arg too.
    */
   protected function saveYaml($config) {
-
     $buildfile = $this->getArtifactDirectory() . '/build.' . $this->getBuildId() . '.yml';
     $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, 0);
     file_put_contents($buildfile, $yamlstring);
-
   }
 
   /**

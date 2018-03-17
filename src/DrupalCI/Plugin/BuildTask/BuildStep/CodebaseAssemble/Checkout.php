@@ -35,7 +35,7 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         $repo['branch'] = getenv('DCI_Checkout_Branch');
       }
       if (FALSE !== getenv('DCI_Checkout_Hash')) {
-        $repo['commit_hash'] = getenv('DCI_Checkout_Hash');
+        $repo['commit-hash'] = getenv('DCI_Checkout_Hash');
       }
       $this->configuration['repositories'][0] = $repo;
     }
@@ -53,10 +53,10 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $repo = $repository['repo'];
       $git_branch = isset($repository['branch']) ? "-b " . $repository['branch'] : '';
       $git_depth = '';
-      if (empty($repository['commit_hash'])) {
+      if (empty($repository['commit-hash'])) {
         $git_depth = '--depth 1';
       }
-      $directory = isset($repository['checkout_dir']) ? $repository['checkout_dir'] : $this->codebase->getSourceDirectory();
+      $directory = isset($repository['checkout-dir']) ? $repository['checkout-dir'] : $this->codebase->getSourceDirectory();
 
       $this->io->writeln("<comment>Performing git checkout of $repo $git_branch to $directory.</comment>");
 
@@ -64,8 +64,8 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $this->io->writeln("Git Command: $cmd");
       $this->execRequiredCommand($cmd, 'Checkout Error');
 
-      if (!empty($repository['commit_hash'])) {
-        $cmd = "cd " . $directory . " && git reset -q --hard " . $repository['commit_hash'] . " ";
+      if (!empty($repository['commit-hash'])) {
+        $cmd = "cd " . $directory . " && git reset -q --hard " . $repository['commit-hash'] . " ";
         $this->io->writeln("Git Command: $cmd");
         $this->execRequiredCommand($cmd, 'git reset returned an error.');
       }

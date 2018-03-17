@@ -77,9 +77,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if (FALSE !== getenv('DCI_TestGroups')) {
       $this->configuration['testgroups'] = getenv('DCI_TestGroups');
     }
-    if ((FALSE !== getenv('DCI_ProjectType')) && (getenv('DCI_ProjectType') != 'core')) {
-      $this->configuration['extension_test'] = TRUE;
-    }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
       $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
     }
@@ -157,7 +154,10 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
   protected function getRunTestsCommand() {
     // Figure out if this is a contrib test.
-    $is_extension_test = isset($this->configuration['extension_test']) && ($this->configuration['extension_test']);
+    $is_extension_test = FALSE;
+    if ($this->codebase->getProjectType() != 'core') {
+      $is_extension_test = TRUE;
+    }
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
     if ($is_extension_test) {
@@ -224,8 +224,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
       'concurrency' => 1,
-      // testing modules or themes?
-      'extension_test' => FALSE,
       'suppress-deprecations' => FALSE,
     ];
   }
@@ -404,7 +402,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $test_groups = $this->parseGroups($test_list);
 
-    $doc = $this->junitXmlBuilder->generate($test_groups);
+    $doc = $this->junitXmlBuilder->generate($test_groups, $this->results_database);
 
     $label = '';
     if (isset($this->pluginLabel)) {
