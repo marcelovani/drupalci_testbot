@@ -107,15 +107,15 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function getDefaultConfiguration() {
     return [
-      'sniff_all_files' => FALSE,
-      'start_directory' => 'core',
-      'installed_paths' => 'vendor/drupal/coder/coder_sniffer/',
-      'warning_fails_sniff' => FALSE,
+      'sniff-all-files' => FALSE,
+      'start-directory' => 'core',
+      'installed-paths' => 'vendor/drupal/coder/coder_sniffer/',
+      'warning-fails-sniff' => FALSE,
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
-      'sniff_fails_test' => FALSE,
-      'coder_version' => '^8.2@stable',
-      'skip_codesniff' => FALSE,
+      'sniff-fails-test' => FALSE,
+      'coder-version' => '^8.2@stable',
+      'skip-codesniff' => FALSE,
     ];
   }
 
@@ -126,25 +126,25 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // The start directory is where the phpcs.xml file resides. Relative to the
     // source directory.
     if (FALSE !== getenv('DCI_CS_SniffAllFiles')) {
-      $this->configuration['sniff_all_files'] = getenv('DCI_CS_SniffAllFiles');
+      $this->configuration['sniff-all-files'] = getenv('DCI_CS_SniffAllFiles');
     }
     if (FALSE !== getenv('DCI_CS_SniffStartDirectory')) {
-      $this->configuration['start_directory'] = getenv('DCI_CS_SniffStartDirectory');
+      $this->configuration['start-directory'] = getenv('DCI_CS_SniffStartDirectory');
     }
     if (FALSE !== getenv('DCI_CS_ConfigInstalledPaths')) {
-      $this->configuration['installed_paths'] = getenv('DCI_CS_ConfigInstalledPaths');
+      $this->configuration['installed-paths'] = getenv('DCI_CS_ConfigInstalledPaths');
     }
     if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
-      $this->configuration['sniff_fails_test'] = getenv('DCI_CS_SniffFailsTest');
+      $this->configuration['sniff-fails-test'] = getenv('DCI_CS_SniffFailsTest');
     }
     if (FALSE !== getenv('DCI_CS_WarningFailsSniff')) {
-      $this->configuration['warning_fails_sniff'] = getenv('DCI_CS_WarningFailsSniff');
+      $this->configuration['warning-fails-sniff'] = getenv('DCI_CS_WarningFailsSniff');
     }
     if (FALSE !== getenv('DCI_CS_CoderVersion')) {
-      $this->configuration['coder_version'] = getenv('DCI_CS_CoderVersion');
+      $this->configuration['coder-version'] = getenv('DCI_CS_CoderVersion');
     }
     if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
-      $this->configuration['skip_codesniff'] = getenv('DCI_CS_SkipCodesniff');
+      $this->configuration['skip-codesniff'] = getenv('DCI_CS_SkipCodesniff');
     }
   }
 
@@ -155,7 +155,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('<info>PHPCS sniffing the project.</info>');
 
     // Allow for skipping codesniffer outright, in some tests for example.
-    if ($this->configuration['skip_codesniff']) {
+    if ($this->configuration['skip-codesniff']) {
       return 0;
     }
     // Set up state as much as possible in a mockable method.
@@ -166,7 +166,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // There was an error installing generic drupal/coder. Bail on sniffing,
         // or terminate the build if the config says so.
         $msg = 'Unable to install Coder tools for Drupal standards sniff.';
-        if ($this->configuration['sniff_fails_test']) {
+        if ($this->configuration['sniff-fails-test']) {
           $this->terminateBuild('Coder error', $msg);
         }
         $this->io->writeln($msg);
@@ -179,12 +179,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin = $this->getPhpcsExecutable();
 
       // We have to configure phpcs to use drupal/coder. We need to be able to use
-      // the Drupal standard. The 'installed_paths' configuration is set to the
+      // the Drupal standard. The 'installed-paths' configuration is set to the
       // path for the Drupal standard by default in getDefaultConfiguration(),
-      if (!empty($this->configuration['installed_paths'])) {
+      if (!empty($this->configuration['installed-paths'])) {
         $cmd = [
           $phpcs_bin,
-          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed_paths'],
+          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed-paths'],
         ];
         $result = $this->environment->executeCommands(implode(' ', $cmd));
         // Let the user figure out if it worked.
@@ -202,7 +202,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
     // error.
     $minimum_error = 2;
-    if ($this->configuration['warning_fails_sniff']) {
+    if ($this->configuration['warning-fails-sniff']) {
       $minimum_error = 1;
     }
 
@@ -226,12 +226,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $files_to_sniff = $this->getSniffableFiles();
 
     if ($files_to_sniff == 'all') {
-      // We can use start_directory since we're supposed to sniff the codebase.
-      if (!empty($this->configuration['start_directory'])) {
-        $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start_directory'];
+      // We can use start-directory since we're supposed to sniff the codebase.
+      if (!empty($this->configuration['start-directory'])) {
+        $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start-directory'];
       }
       else {
-        // If there's no start_directory, use .
+        // If there's no start-directory, use .
         $phpcs_args[] = $this->environment->getExecContainerSourceDir();
       }
     }
@@ -260,7 +260,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['sniff_fails_test']) {
+    if ($this->configuration['sniff-fails-test']) {
       return $result->getSignal();
     }
     return 0;
@@ -288,7 +288,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // @todo: For now, core has no project name, but contrib does. This could
     // easily change, so we'll need to change the behavior here.
     if ($project !== 'drupal') {
-      $this->configuration['start_directory'] = $this->codebase->getTrueExtensionSubDirectory();
+      $this->configuration['start-directory'] = $this->codebase->getTrueExtensionSubDirectory();
     }
 
     // Does the code have a phpcs.xml.dist file after patching?
@@ -367,8 +367,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $source_dir = $this->environment->getExecContainerSourceDir();
     $start_dir = $source_dir;
     // Add the start directory from configuration.
-    if (!empty($this->configuration['start_directory'])) {
-      $start_dir = $source_dir . '/' . $this->configuration['start_directory'];
+    if (!empty($this->configuration['start-directory'])) {
+      $start_dir = $source_dir . '/' . $this->configuration['start-directory'];
     }
     return $start_dir;
   }
@@ -376,7 +376,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   /**
    * Determine whether the project has a phpcs.xml(.dist) file.
    *
-   * Uses start_directory as the place to look.
+   * Uses start-directory as the place to look.
    *
    * @return bool
    *   TRUE if the config file exists, false otherwise.
@@ -403,8 +403,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Get the list of modified files.
     $modified_files = $this->codebase->getModifiedFiles();
     $start_dir = '';
-    if (!empty($this->configuration['start_directory'])) {
-      $start_dir = $this->configuration['start_directory'];
+    if (!empty($this->configuration['start-directory'])) {
+      $start_dir = $this->configuration['start-directory'];
     }
     return (
       in_array($start_dir . '/phpcs.xml', $modified_files) ||
@@ -440,7 +440,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected function installGenericCoder() {
     // Install drupal/coder.
-    $coder_version = $this->configuration['coder_version'];
+    $coder_version = $this->configuration['coder-version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
     $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE composer require --dev drupal/coder " . $coder_version;
     $result = $this->environment->executeCommands($cmd);
@@ -454,7 +454,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
   protected function getSniffableFiles() {
     // Check if we should only sniff modified files.
-    if ($this->configuration['sniff_all_files']) {
+    if ($this->configuration['sniff-all-files']) {
       return 'all';
     }
 

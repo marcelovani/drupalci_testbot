@@ -37,7 +37,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     return [
       // If lint_fails_test is TRUE, then abort the build.
       'lint_fails_test' => FALSE,
-      'skip_linting' => FALSE,
+      'skip-linting' => FALSE,
     ];
   }
 
@@ -47,10 +47,10 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   public function configure() {
 
     if (FALSE !== getenv('DCI_CSS_LintFailsTest')) {
-      $this->configuration['lint_fails_test'] = getenv('DCI_CSS_LintFailsTest');
+      $this->configuration['lint-fails-test'] = getenv('DCI_CSS_LintFailsTest');
     }
     if (FALSE !== getenv('DCI_CSS_SkipLinting')) {
-      $this->configuration['skip_linting'] = getenv('DCI_CSS_SkipLinting');
+      $this->configuration['skip-linting'] = getenv('DCI_CSS_SkipLinting');
     }
   }
 
@@ -69,7 +69,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   public function run() {
     $config = $this->getCssLintConfig();
     // If there is no config file or we want to skip csslint outright
-    if (empty($config) || $this->configuration['skip_linting']) {
+    if (empty($config) || $this->configuration['skip-linting']) {
       return 0;
     }
     $this->io->writeln('<info>csslinting the project.</info>');
@@ -109,7 +109,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint_fails_test']) {
+    if ($this->configuration['lint-fails-test']) {
       return $result->getSignal();
     }
     return 0;
