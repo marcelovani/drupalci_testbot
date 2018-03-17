@@ -402,7 +402,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
 
     $test_groups = $this->parseGroups($test_list);
 
-    $doc = $this->junitXmlBuilder->generate($test_groups);
+    $doc = $this->junitXmlBuilder->generate($test_groups, $this->results_database);
 
     $label = '';
     if (isset($this->pluginLabel)) {
