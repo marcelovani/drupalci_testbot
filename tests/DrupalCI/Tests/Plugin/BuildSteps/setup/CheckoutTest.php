@@ -20,7 +20,7 @@ class CheckoutTest extends DrupalCITestCase {
           'protocol' => 'git',
           'repo' => 'https://git.drupal.org/project/drupal.git',
           'branch' => '8.0.x',
-          'checkout_dir' => $dir,
+          'checkout-dir' => $dir,
           'depth' => 1,
         ]
       ],
@@ -39,7 +39,7 @@ class CheckoutTest extends DrupalCITestCase {
     $env_variables = [
       'DCI_Checkout_Repo=repo',
       'DCI_Checkout_Branch=branch',
-      'DCI_Checkout_Hash=commit_hash',
+      'DCI_Checkout_Hash=commit-hash',
     ];
     foreach ($env_variables as $variable) {
       putenv($variable);

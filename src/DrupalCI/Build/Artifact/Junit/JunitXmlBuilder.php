@@ -2,17 +2,11 @@
 
 namespace DrupalCI\Build\Artifact\Junit;
 
+use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Injectable;
 use Pimple\Container;
 
 class JunitXmlBuilder implements Injectable {
-
-  /**
-   * The results database to query.
-   *
-   * @var  \DrupalCI\Build\Environment\DatabaseInterface
-   */
-  protected $resultsDatabase;
 
   /**
    * The environment's container source directory.
@@ -27,7 +21,6 @@ class JunitXmlBuilder implements Injectable {
    * {@inheritdoc}
    */
   public function inject(Container $container) {
-    $this->resultsDatabase = $container['db.results'];
     $this->containerSourceDir = $container['environment']->getExecContainerSourceDir();
   }
 
@@ -37,6 +30,8 @@ class JunitXmlBuilder implements Injectable {
    * @param string[] $test_groups
    *   Array of test groups, keyed by class name.
    *
+   * @param \DrupalCI\Build\Environment\DatabaseInterface $results_database
+   *
    * @return \DOMDocument
    *   JUnit XML dom document.
    *
@@ -44,10 +39,10 @@ class JunitXmlBuilder implements Injectable {
    *       state for the results DB somehow, and so we can't get it from the
    *       container.
    */
-  public function generate(array $test_groups) {
+  public function generate(array $test_groups, DatabaseInterface $results_database) {
     $mapped_results = [];
 
-    $db = $this->resultsDatabase->connect($this->resultsDatabase->getDbname());
+    $db = $results_database->connect($results_database->getDbname());
 
     $q_result = $db->query('SELECT * FROM simpletest ORDER BY test_id, test_class, message_id;');
 

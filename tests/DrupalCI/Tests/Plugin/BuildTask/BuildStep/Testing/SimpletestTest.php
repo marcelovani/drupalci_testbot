@@ -18,11 +18,11 @@ class SimpletestTest extends DrupalCITestCase {
     return [
       'core' => [
         'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --values=value --all',
-        [],
+        'core',
       ],
       'contrib-default' => [
         'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --keep-results --suppress-deprecations --values=value --directory true-extension-subdirectory',
-        ['extension_test' => TRUE],
+        'contrib',
       ],
     ];
   }
@@ -65,6 +65,9 @@ class SimpletestTest extends DrupalCITestCase {
     $codebase->expects($this->any())
       ->method('getTrueExtensionSubDirectory')
       ->willReturn('true-extension-subdirectory');
+    $codebase->expects($this->any())
+      ->method('getProjectType')
+      ->willReturn($configuration);
 
     $container = $this->getContainer([
       'environment' => $environment,
@@ -83,16 +86,6 @@ class SimpletestTest extends DrupalCITestCase {
     // Use our mocked services.
     $simpletest->inject($container);
 
-    // Set up config.
-    $ref_configuration = new \ReflectionProperty($simpletest, 'configuration');
-    $ref_configuration->setAccessible(TRUE);
-    $ref_configuration->setValue(
-      $simpletest,
-      array_merge(
-        $simpletest->getDefaultConfiguration(),
-        $configuration
-      )
-    );
 
     // Run getRunTestsCommand().
     $ref_get_run_tests_command = new \ReflectionMethod($simpletest, 'getRunTestsCommand');

@@ -5,7 +5,6 @@ namespace DrupalCI\Plugin;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
-use DrupalCI\Plugin\BuildTask\BuildTaskTrait;
 use Pimple\Container;
 
 /**

@@ -33,16 +33,16 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
     // The source directory to copy
     if (FALSE !== getenv(('DCI_UseLocalCodebase'))) {
-      $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
+      $this->configuration['local-dir'] = getenv(('DCI_UseLocalCodebase'));
     }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
     if (FALSE !== getenv(('DCI_LocalBranch'))) {
-      $this->configuration['git_branch'] = getenv(('DCI_LocalBranch'));
+      $this->configuration['git-branch'] = getenv(('DCI_LocalBranch'));
     }
 
     if (FALSE !== getenv(('DCI_LocalCommitHash'))) {
-      $this->configuration['git_commit_hash'] = getenv(('DCI_LocalCommitHash'));
+      $this->configuration['git-commit-hash'] = getenv(('DCI_LocalCommitHash'));
     }
   }
 
@@ -51,7 +51,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
    */
   public function run() {
     $this->io->writeln("<info>Replicating local codebase.</info>");
-    $local_dir = $this->configuration['local_dir'];
+    $local_dir = $this->configuration['local-dir'];
     if (!empty($local_dir)) {
       // Validate local directory
       if (!is_dir($local_dir)) {
@@ -69,14 +69,14 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
       // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
-        if (!empty($this->configuration['git_branch'])) {
-          $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git_branch'];
+        if (!empty($this->configuration['git-branch'])) {
+          $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git-branch'];
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommand($cmd, 'git checkout failure');
 
         }
-        if (!empty($this->configuration['git_commit_hash'])) {
-          $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git_commit_hash'];
+        if (!empty($this->configuration['git-commit-hash'])) {
+          $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git-commit-hash'];
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommand($cmd, 'git reset failure');
         }
@@ -102,9 +102,9 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
      */
     return [
       'exclude' => [],
-      'local_dir' => '',
-      'git_branch' => '',
-      'git_commit_hash' => '',
+      'local-dir' => '',
+      'git-branch' => '',
+      'git-commit-hash' => '',
     ];
   }
 

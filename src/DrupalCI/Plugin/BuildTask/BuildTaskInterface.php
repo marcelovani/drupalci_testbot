@@ -3,7 +3,10 @@
 namespace DrupalCI\Plugin\BuildTask;
 
 /**
- * Interface BuildTaskInterface
+ * Interface for all build tasks.
+ *
+ * All tasks receive these signals in these order:
+ * start->run->complete->finish
  *
  * @package Plugin
  */
@@ -22,27 +25,40 @@ interface BuildTaskInterface {
   public function configure();
 
   /**
-   * Decorator for run functions to allow all of them to be timed.
+   * Allow the task to know that it is about to run.
+   *
+   * Mainly a decorator for run() functions to allow all of them to be timed.
+   *
+   * start() and finish() are the bookends wrapping all child tasks of the
+   * current one.
    */
   public function start();
 
   /**
-   *   The build override configuration as defined in the yml file.
+   * Perform the main purpose of the task.
    *
    * @return int
    *   returns the status code of this BuildTask's execution. 0 = pass,
    *   1 = fail, and 2 = exception.  Note that if this BuildTask needs to halt
    *   execution of the build, it should throw a BuildTaskException rather than
    *   return a 2.
+   *
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   *   This exception should halt the build and allow for cleanup and artifact
+   *   collection.
    */
   public function run();
 
   /**
-   * Decorator for complete functions to stop their timer.
+   * Allow the task to determine what to do, based on child task status.
+   *
+   * Mainly a decorator for complete functions to stop their timer.
+   *
+   * start() and finish() are the bookends wrapping all child tasks of the
+   * current one.
    *
    * @param $childStatus
    *   aggregate status code of all child tasks
-   *
    */
   public function finish($childStatus);
 

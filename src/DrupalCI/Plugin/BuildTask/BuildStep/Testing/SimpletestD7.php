@@ -18,9 +18,9 @@ class SimpletestD7 extends Simpletest {
    */
   public function inject(Container $container) {
     // D7 uses the same database for both system and results, so we'll adjust
-    // the container here.
-    $container['db.results'] = $container['db.system'];
+    // it here, after we setup the parent.
     parent::inject($container);
+    $this->results_database = $container['db.system'];
   }
 
   protected function setupSimpletestDB(BuildInterface $build) {
