@@ -56,4 +56,3 @@ build:
         keep-results: true
         keep-results-table: false
         verbose: false
-        extension_test: true

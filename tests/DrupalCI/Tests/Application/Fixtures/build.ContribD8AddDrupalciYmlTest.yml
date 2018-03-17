@@ -58,7 +58,6 @@ build:
     testing:
       simpletest.standard:
         types: 'PHPUnit-Unit'
-        extension_test: 'true'
         testgroups: '--all'
         color: true
         die-on-fail: false

@@ -487,8 +487,6 @@ public function getDefaultConfiguration() {
     'keep-results' => TRUE,
     'keep-results-table' => FALSE,
     'verbose' => FALSE,
-    // testing modules or themes?
-    'extension_test' => FALSE,
   ];
 
 }
