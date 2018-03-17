@@ -36,7 +36,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   public function getDefaultConfiguration() {
     return [
       // If lint_fails_test is TRUE, then abort the build.
-      'lint_fails_test' => FALSE,
+      'lint-fails-test' => FALSE,
       'skip-linting' => FALSE,
     ];
   }
