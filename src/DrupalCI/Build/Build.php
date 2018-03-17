@@ -387,8 +387,9 @@ class Build implements BuildInterface, Injectable {
       else {
         // The key is not a plugin, therefore it is a configuration directive for the plugin above it.
         // Support underscores and dashes in config keys for BC. Remove After October 2018.
-        $config_key = str_replace('_', '-', $config_key);
-        $transformed_config['#configuration'][$config_key] = $config[$config_key];
+        $new_config_key = str_replace('_', '-', $config_key);
+
+        $transformed_config['#configuration'][$new_config_key] = $config[$config_key];
       }
     }
     return $transformed_config;

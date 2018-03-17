@@ -33,7 +33,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
 
     // The source directory to copy
     if (FALSE !== getenv(('DCI_UseLocalCodebase'))) {
-      $this->configuration['local_dir'] = getenv(('DCI_UseLocalCodebase'));
+      $this->configuration['local-dir'] = getenv(('DCI_UseLocalCodebase'));
     }
     // If either DCI_LocalBranch or DCI_LocalCommitHash is specified,
     // assume those Refer to the git repository at the root of the directory.
