@@ -29,17 +29,17 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
   public function configure() {
     // TODO: Overriding configuration should not be a manual process.
     if (FALSE !== getenv('DCI_DBType')) {
-      $this->configuration['db_type'] = getenv('DCI_DBType');
+      $this->configuration['db-type'] = getenv('DCI_DBType');
     }
 
     if (FALSE !== getenv('DCI_DBVersion')) {
       // DCI_DBVersion can sometimes be in the format of DBType-DBVersion.
       if (strpos(getenv('DCI_DBVersion'), '-')) {
-        $this->configuration['db_type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
-        $this->configuration['db_version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
+        $this->configuration['db-type'] = explode('-', getenv('DCI_DBVersion'), 2)[0];
+        $this->configuration['db-version'] = explode('-', getenv('DCI_DBVersion'), 2)[1];
       }
       else {
-        $this->configuration['db_version'] = getenv('DCI_DBVersion');
+        $this->configuration['db-version'] = getenv('DCI_DBVersion');
       }
     }
 
@@ -56,8 +56,8 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
    * @inheritDoc
    */
   public function run() {
-    $this->database->setVersion($this->configuration['db_version']);
-    $this->database->setDbType($this->configuration['db_type']);
+    $this->database->setVersion($this->configuration['db-version']);
+    $this->database->setDbType($this->configuration['db-type']);
     $db_name = str_replace('-', '_', $this->build->getBuildId());
     $db_name = preg_replace('/[^0-9_A-Za-z]/', '', $db_name);
     $this->database->setDbname($db_name);
@@ -71,8 +71,8 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
    */
   public function getDefaultConfiguration() {
     return [
-      'db_type' => 'mysql',
-      'db_version' => '5.5',
+      'db-type' => 'mysql',
+      'db-version' => '5.5',
       'dbuser' => 'drupaltestbot',
       'dbpassword' => 'drupaltestbotpw',
     ];

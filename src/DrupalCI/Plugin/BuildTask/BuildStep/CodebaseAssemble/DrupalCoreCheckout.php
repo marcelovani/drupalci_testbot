@@ -23,7 +23,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
         $repo['branch'] = getenv(('DCI_CoreBranch'));
       }
       if (FALSE !== getenv(('DCI_GitCommitHash'))) {
-        $repo['commit_hash'] = getenv(('DCI_GitCommitHash'));
+        $repo['commit-hash'] = getenv(('DCI_GitCommitHash'));
       }
       $this->configuration['repositories'][0] = $repo;
     }
@@ -39,8 +39,8 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
         [
           'repo' => '',
           'branch' => '',
-          'commit_hash' => '',
-          'checkout_dir' => '',
+          'commit-hash' => '',
+          'checkout-dir' => '',
         ]
       ],
     ];
@@ -49,7 +49,7 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
   public function run() {
 
     if (!empty($this->configuration['repositories'][0]['repo'])) {
-      $core_dir = $this->configuration['repositories'][0]['checkout_dir'] = $this->codebase->getSourceDirectory();
+      $core_dir = $this->configuration['repositories'][0]['checkout-dir'] = $this->codebase->getSourceDirectory();
       parent::run();
     }
     $this->codebase->setExtensionPaths($this->discoverExentionPaths());

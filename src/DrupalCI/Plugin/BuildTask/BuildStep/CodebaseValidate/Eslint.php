@@ -36,9 +36,9 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    */
   public function getDefaultConfiguration() {
     return [
-      // If lint_fails_test is TRUE, then abort the build.
-      'lint_fails_test' => FALSE,
-      'skip_linting' => FALSE,
+      // If lint-fails-test is TRUE, then abort the build.
+      'lint-fails-test' => FALSE,
+      'skip-linting' => FALSE,
     ];
   }
 
@@ -48,10 +48,10 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
   public function configure() {
 
     if (FALSE !== getenv('DCI_ES_LintFailsTest')) {
-      $this->configuration['lint_fails_test'] = getenv('DCI_ES_LintFailsTest');
+      $this->configuration['lint-fails-test'] = getenv('DCI_ES_LintFailsTest');
     }
     if (FALSE !== getenv('DCI_ES_SkipLinting')) {
-      $this->configuration['skip_linting'] = getenv('DCI_ES_SkipLinting');
+      $this->configuration['skip-linting'] = getenv('DCI_ES_SkipLinting');
     }
   }
 
@@ -69,7 +69,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    */
   public function run() {
     // If there is no config file or we want to skip eslint outright
-    if ($this->configuration['skip_linting']) {
+    if ($this->configuration['skip-linting']) {
       return 0;
     }
     $this->io->writeln('<info>eslinting the project.</info>');
@@ -114,7 +114,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint_fails_test'] && !empty($return)) {
+    if ($this->configuration['lint-fails-test'] && !empty($return)) {
       $this->terminatebuild('Javascript coding standards error', '');
     }
     return 0;
