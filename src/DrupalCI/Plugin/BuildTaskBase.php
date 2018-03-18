@@ -210,6 +210,9 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @param string $command
    * @param string $failure_message
+   *
+   * @todo Figure out how to reconcile this with execWithArtifact() in
+   *   https://www.drupal.org/project/drupalci_testbot/issues/2847205
    */
   protected function execRequiredCommand($command, $failure_message) {
     $command .= ' 2>&1';
@@ -241,7 +244,8 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *   If the command returns a non-zero signal, then we throw an exception via
    *   terminateBuild().
    *
-   * @todo Figure out how to reconcile this with execRequiredCommand().
+   * @todo Figure out how to reconcile this with execRequiredCommand() in
+   *   https://www.drupal.org/project/drupalci_testbot/issues/2847205
    */
   protected function execWithArtifact($command, $filename = '') {
     $this->io->writeln('Executing: ' . $command);

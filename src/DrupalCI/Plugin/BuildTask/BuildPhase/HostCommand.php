@@ -70,8 +70,7 @@ class HostCommand extends BuildTaskBase implements BuildPhaseInterface, BuildTas
    * @throws BuildTaskException
    */
   protected function executeOnHost($commands, $die_on_fail) {
-    // @todo: Add stuff for contrib.
-    if (!chdir($this->codebase->getSourceDirectory())) {
+    if (!chdir($this->codebase->getWorkingDirectory())) {
       $message = 'Unable to change working directory to source directory.';
       if ($die_on_fail) {
         $this->terminateBuild($message);
