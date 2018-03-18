@@ -20,16 +20,19 @@ build:
     startcontainers:
       runcontainers:
   assessment:
-    pre_assessment.setup:
+    host_command.composer_existy:
       die-on-nonzero: FALSE
-      execution-environment: host
       commands:
-        - pwd
-        - ls
-    validate_codebase:
-      phplint:
-    pre_assessment.coding-standards:
+        test -f composer.json
+    host_command.bad_file:
+      die-on-nonzero: TRUE
+      commands:
+        test -f no_such_file
+    container_command.composer_exists:
       die-on-nonzero: FALSE
-      execution-environment: php-container
       commands:
-        cd core && ../vendor/bin/phpcs -ps lib/Drupal/Component
+        test -f composer.json
+    container_command.badder_file:
+      die-on-nonzero: FALSE
+      commands:
+        test -f no_such_file

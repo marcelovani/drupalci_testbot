@@ -134,7 +134,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   public function start() {
     $this->startTime = microtime(TRUE);
-    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->pluginId . "</>   ----------------</info>");
+    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->getPluginIdLabel() . "</>   ----------------</info>");
 
     $this->setup();
     $statuscode = $this->run();
@@ -157,19 +157,26 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
     $datetime = new \DateTime();
-    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . number_format($elapsed_time, 3) . " seconds ---------------- </info>");
+    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->getPluginIdLabel() . "</> in " . number_format($elapsed_time, 3) . " seconds ---------------- </info>");
   }
 
   private function setup(){
     // Sets up the artifact and ancillary directories for the plugins.
-
-    $this->pluginDir = $this->pluginId;
-    if (!empty($this->pluginLabel)) {
-      $this->pluginDir = $this->pluginDir . '.' . $this->pluginLabel;
-    }
+    $this->pluginDir = $this->getPluginIdLabel();
     $this->pluginWorkDir = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir;
     $this->build->setupDirectory($this->pluginWorkDir);
 
+  }
+
+  /**
+   * Get the plugin id + label, as in composer.update.
+   */
+  protected function getPluginIdLabel() {
+    $id = $this->pluginId;
+    if (!empty($this->pluginLabel)) {
+      $id = $this->pluginId . '.' . $this->pluginLabel;
+    }
+    return $id;
   }
 
   private function teardown() {
