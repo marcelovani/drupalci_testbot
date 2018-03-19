@@ -24,7 +24,7 @@ class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildT
     $setup_commands = [
       'supervisorctl start phantomjs',
     ];
-    $result = $this->execRequiredEnvironmentCommands($setup_commands,"Unable to start phantomjs");
+    $this->execRequiredEnvironmentCommands($setup_commands,"Unable to start phantomjs");
 
     return 0;
   }

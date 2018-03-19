@@ -193,7 +193,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $container_command_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/debugscript.gdb';
     foreach ($phpcoredumps as $core_file) {
       $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
-      $result = $this->environment->executeCommands($command);
+      $this->execEnvironmentCommands($command);
       $this->saveStringArtifact(basename($core_file) . ".debug", $response->getOutput());
       if (FALSE === (getenv('DCI_Debug'))) {
         $cmd = "sudo rm -rf $core_file";
