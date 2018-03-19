@@ -210,9 +210,6 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @param string $command
    * @param string $failure_message
-   *
-   * @todo Figure out how to reconcile this with execWithArtifact() in
-   *   https://www.drupal.org/project/drupalci_testbot/issues/2847205
    */
   protected function execRequiredCommand($command, $failure_message) {
     $command .= ' 2>&1';
@@ -227,45 +224,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       $this->terminateBuild($failure_message, $output);
     }
     return $output;
-  }
 
-  /**
-   * Execute a shell command, saving results as an artifact.
-   *
-   * @param string $command
-   *   The command to execute.
-   * @param string $filename
-   *   (optional) An output file name.
-   *
-   * @return string
-   *   Output and error logging from the command.
-   *
-   * @throws BuildTaskException
-   *   If the command returns a non-zero signal, then we throw an exception via
-   *   terminateBuild().
-   *
-   * @todo Figure out how to reconcile this with execRequiredCommand() in
-   *   https://www.drupal.org/project/drupalci_testbot/issues/2847205
-   */
-  protected function execWithArtifact($command, $filename = '') {
-    $this->io->writeln('Executing: ' . $command);
-    if (empty($filename)) {
-      $filename = 'command_output';
-    }
-    $command .= ' 2>&1';
-
-    $this->exec($command, $output, $return_var);
-    $output = implode("\n",$output);
-    $artifact = implode("\n", [
-      $command,
-      'Return code: ' . $return_var,
-      $output,
-    ]);
-    $this->saveStringArtifact($filename, $artifact);
-    if ($return_var !== 0) {
-      $this->terminateBuild('Shell execution failed.', $artifact);
-    }
-    return $output;
   }
 
   protected function saveHostArtifact($filepath, $savename) {
