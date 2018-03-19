@@ -188,7 +188,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         ];
         $result = $this->environment->executeCommands(implode(' ', $cmd));
         // Let the user figure out if it worked.
-        $this->environment->executeCommands("$phpcs_bin -i");
+        $result = $this->environment->executeCommands("$phpcs_bin -i");
       }
     }
     catch (\Exception $e) {
@@ -250,7 +250,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Save phpcs sniffs as an artifact.
     $commands[] = 'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
-    $this->environment->executeCommands($commands);
+    $result = $this->environment->executeCommands($commands);
     $this->saveHostArtifact($this->pluginWorkDir . '/phpcs_sniffs.txt', 'phpcs_sniffs.txt');
 
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
