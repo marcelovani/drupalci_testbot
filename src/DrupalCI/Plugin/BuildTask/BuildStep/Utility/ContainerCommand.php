@@ -11,7 +11,7 @@ use Pimple\Container;
 /**
  * @PluginID("container_command")
  */
-class ContainerCommand extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class ContainerCommand extends Command implements BuildStepInterface,BuildTaskInterface {
 
   /**
    * The testing environment.
@@ -24,43 +24,8 @@ class ContainerCommand extends BuildTaskBase implements BuildStepInterface, Buil
    * {@inheritdoc}
    */
   public function inject(Container $container) {
-    parent::inject($container);
     $this->environment = $container['environment'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultConfiguration() {
-    return [
-      'die-on-nonzero' => FALSE,
-      'commands' => [],
-    ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function run() {
-    $this->io->writeln('<info>Container execution.</info>');
-
-    // Don't do anything if there's nothing to do.
-    if (empty($this->configuration['commands'])) {
-      $this->io->writeln('No commands to execute.');
-      return 0;
-    }
-
-    // Normalize on arrays.
-    if (!is_array($this->configuration['commands'])) {
-      $this->configuration['commands'] = [$this->configuration['commands']];
-    }
-
-    // @todo: Add arbitrary container name. For now we only care about default
-    //   PHP container.
-    return $this->executeOnPhpContainer(
-      $this->configuration['commands'],
-      $this->configuration['die-on-nonzero']
-    );
+    parent::inject($container);
   }
 
   /**
@@ -73,7 +38,7 @@ class ContainerCommand extends BuildTaskBase implements BuildStepInterface, Buil
    *
    * @todo: Explicitly set the container in executeCommands().
    */
-  protected function executeOnPhpContainer($commands, $die_on_fail) {
+  protected function execute($commands, $die_on_fail) {
     // @todo: Add contrib path stuff.
     $commands = array_merge(
       ['cd ' . $this->environment->getExecContainerSourceDir()],
