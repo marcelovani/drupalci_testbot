@@ -59,10 +59,9 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       // 1. Get the currently checked out composer branch name <CBRANCH>
       $cmd = "composer${verbose} show --working-dir " . $source_dir . " |grep 'drupal/$project_name ' |awk '{print $2}'";
       $this->io->writeln("Determining composer branch: $cmd");
-      $cmdoutput = $this->execRequiredCommands($cmd, 'Unable to determine composer branch');
+      $result = $this->execRequiredCommands($cmd, 'Unable to determine composer branch');
 
-
-      $composer_branchname = $cmdoutput;
+      $composer_branchname = $result->getOutput();
       $composer_branchname = $this->flipDevBranch($composer_branchname);
       // Copy directory to ancillary
       $project_dir = $source_dir . '/' . $contrib_dir;

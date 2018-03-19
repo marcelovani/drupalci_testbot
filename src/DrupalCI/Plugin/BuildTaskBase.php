@@ -243,7 +243,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @param string $failure_message
    * @param bool $save_output
    *
-   * @return string
+   * @return \DrupalCI\Build\Environment\CommandResult
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
@@ -256,7 +256,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       $output = $command_strings . "\nReturn Code:" . $return_signal . "\n" . $executionResult->getOutput();
       $this->terminateBuild($failure_message, $output);
     }
-    return $executionResult->getOutput();
+    return $executionResult;
   }
 
   /**
