@@ -197,7 +197,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       $this->saveStringArtifact(basename($core_file) . ".debug", $response->getOutput());
       if (FALSE === (getenv('DCI_Debug'))) {
         $cmd = "sudo rm -rf $core_file";
-        $this->execCommands($cmd, $cmdoutput, $result);
+        $result = $this->execCommands($cmd);
       }
     }
 
