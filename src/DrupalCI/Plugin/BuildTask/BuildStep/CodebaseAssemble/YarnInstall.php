@@ -50,7 +50,7 @@ class YarnInstall extends BuildTaskBase {
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
     // Should this be execRequiredCommand?
-    $this->exec("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", $output, $result);
+    $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", $output, $result);
 
     $this->saveStringArtifact('yarn_install.txt', $output);
 
@@ -69,10 +69,10 @@ class YarnInstall extends BuildTaskBase {
       $this->io->writeln('Yarn install success');
     }
     $output = [];
-    $this->exec("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", $output, $result);
+    $this->execCommands("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", $output, $result);
     $this->saveStringArtifact('yarn_list.txt', $output);
     $output = [];
-    $this->exec("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", $output, $result);
+    $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", $output, $result);
     $this->saveStringArtifact('yarn_licenses.txt', $output);
     return $result;
   }
