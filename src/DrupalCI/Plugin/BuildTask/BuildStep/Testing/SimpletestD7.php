@@ -41,10 +41,7 @@ class SimpletestD7 extends Simpletest {
       'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' vset simpletest_verbose \'0\' 2>&1',
       'cd ' . $sourcedir . ' && sudo -u www-data DRUSH_NO_MIN_PHP=1 /usr/local/bin/drush -r ' . $sourcedir . ' en -y simpletest 2>&1',
     ];
-    $result = $this->environment->executeCommands($setup_commands);
-    if ($result->getSignal() !== 0) {
-      $this->terminateBuild("Drush setup of Drupal Failed", $result->getError());
-    }
+    $this->execRequiredEnvironmentCommands($setup_commands, "Drush setup of Drupal Failed");
 
     return 0;
   }

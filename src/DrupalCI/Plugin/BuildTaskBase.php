@@ -221,6 +221,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     exec($command, $output, $return_var);
     $output = implode("\n",$output);
     if ($save_output) {
+      // TODO: save as machine readable json?
       $this->buildTaskCommandOutput[] = "Host command: ${command}";
       $this->buildTaskCommandOutput[] = "Return code: ${return_var}";
       $this->buildTaskCommandOutput[] = "Output: ${output}";
@@ -240,12 +241,46 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   protected function execRequiredCommand($command, $failure_message, $save_output = TRUE) {
 
-    $this->exec($command, $output, $return_var, $save_output);
-    if ($return_var !== 0) {
-      $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
+    $this->exec($command, $output, $return_signal, $save_output);
+    if ($return_signal !== 0) {
+      $output = $command . "\nReturn Code:" . $return_signal . "\n" . $output;
       $this->terminateBuild($failure_message, $output);
     }
     return $output;
+  }
+
+  protected function execEnvironmentCommands($commands, $container_id = NULL, $save_output = TRUE) {
+
+    $result = $this->environment->executeCommands($commands, $container_id);
+    if ($save_output) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $return_signal = $result->getSignal();
+      $commands_output = $result->getOutput();
+      $commands_error = $result->getError();
+      // TODO: save as machine readable json?
+      $this->buildTaskCommandOutput[] = "Host commands: ${command_strings}";
+      $this->buildTaskCommandOutput[] = "Return code: ${return_signal}";
+      $this->buildTaskCommandOutput[] = "Output: ${commands_output}";
+      $this->buildTaskCommandOutput[] = "StdErr: ${commands_error}";
+    }
+    return $result;
+  }
+
+  protected function execRequiredEnvironmentCommands($commands, $failure_message, $container_id = NULL, $save_output = TRUE) {
+    $result = $this->execEnvironmentCommands($commands, $container_id, $save_output);
+    $return_signal = $result->getSignal();
+
+    $command_strings = is_array($commands) ? $commands : [$commands];
+    $command_strings = implode("\n",$command_strings);
+
+    if ($return_signal !== 0) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $output = $command_strings . "\nReturn Code:" . $return_signal . "\n" . $result->getOutput() . "\n" . $result->getError();
+      $this->terminateBuild($failure_message, $output);
+    }
+    return $result;
 
   }
 
