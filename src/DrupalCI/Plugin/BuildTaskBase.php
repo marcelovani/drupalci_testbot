@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Build\Environment\CommandResult;
 use Pimple\Container;
 
 /**
@@ -213,20 +214,33 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @param int &$return_var
    * @param bool $save_output
    *
-   * @return string|string[]
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
    */
-  protected function exec($command, &$output, &$return_var, $save_output = TRUE) {
-    // TODO: detect if this is there already and only add if absent.
-    $command .= ' 2>&1';
-    exec($command, $output, $return_var);
-    $output = implode("\n",$output);
-    if ($save_output) {
-      // TODO: save as machine readable json?
-      $this->buildTaskCommandOutput[] = "Host command: ${command}";
-      $this->buildTaskCommandOutput[] = "Return code: ${return_var}";
-      $this->buildTaskCommandOutput[] = "Output: ${output}";
+  protected function exec($commands, &$output, &$return_var, $save_output = TRUE) {
+    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    $executionResult = $this->container['command.result'];
+    $maxExitCode = 0;
+    $commands = is_array($commands) ? $commands : [$commands];
+    foreach ($commands as $cmd) {
+      // TODO: detect if this is there already and only add if absent.
+      $cmd .= ' 2>&1';
+
+      $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
+
+      // TODO: use proc_open to properly get stdout/stderr
+      exec($cmd, $cmd_output, $return_signal);
+
+      $maxExitCode = max($return_signal, $maxExitCode);
+      $fulloutput = implode("\n", $cmd_output);
+      $executionResult->appendOutput($fulloutput);
+      if ($save_output) {
+        // TODO: save as machine readable json?
+        $this->buildTaskCommandOutput[] = "Host command: ${cmd}";
+        $this->buildTaskCommandOutput[] = "Return code: ${return_signal}";
+        $this->buildTaskCommandOutput[] = "Output: ${fulloutput}";
+      }
     }
-    return $output;
+    return $executionResult;
   }
 
   /**
@@ -241,12 +255,15 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
 
-    $this->exec($command, $output, $return_signal, $save_output);
-    if ($return_signal !== 0) {
-      $output = $command . "\nReturn Code:" . $return_signal . "\n" . $output;
+    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    $executionResult = $this->exec($commands, $output, $return_signal, $save_output);
+    if ($executionResult->getSignal() !== 0) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $output = $command_strings . "\nReturn Code:" . $return_signal . "\n" . $executionResult->getOutput();
       $this->terminateBuild($failure_message, $output);
     }
-    return $output;
+    return $executionResult->getOutput();
   }
 
   /**
