@@ -11,7 +11,7 @@ use Pimple\Container;
 /**
  * @PluginID("container_command")
  */
-class ContainerCommand extends Command implements BuildStepInterface,BuildTaskInterface {
+class ContainerCommand extends Command implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * The testing environment.
