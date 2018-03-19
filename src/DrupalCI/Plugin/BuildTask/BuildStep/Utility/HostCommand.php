@@ -1,7 +1,8 @@
 <?php
 
-namespace DrupalCI\Plugin\BuildTask\BuildPhase;
+namespace DrupalCI\Plugin\BuildTask\BuildStep\Utility;
 
+use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
@@ -10,12 +11,12 @@ use Pimple\Container;
 /**
  * @PluginID("host_command")
  */
-class HostCommand extends BuildTaskBase implements BuildPhaseInterface, BuildTaskInterface {
+class HostCommand extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * The codebase.
    *
-   * @var DrupalCI\Build\Codebase\CodebaseInterface
+   * @var \DrupalCI\Build\Codebase\CodebaseInterface
    */
   protected $codebase;
 
