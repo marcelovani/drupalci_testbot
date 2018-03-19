@@ -209,7 +209,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @return \DrupalCI\Build\Environment\CommandResultInterface
    */
-  protected function execCommands($commands, &$output, &$return_var, $save_output = TRUE) {
+  protected function execCommands($commands, $save_output = TRUE) {
     /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;
@@ -249,11 +249,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
 
     /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
-    $executionResult = $this->execCommands($commands, $output, $return_signal, $save_output);
+    $executionResult = $this->execCommands($commands, $save_output);
     if ($executionResult->getSignal() !== 0) {
       $command_strings = is_array($commands) ? $commands : [$commands];
       $command_strings = implode("\n",$command_strings);
-      $output = $command_strings . "\nReturn Code:" . $return_signal . "\n" . $executionResult->getOutput();
+      $output = $command_strings . "\nReturn Code:" . $executionResult->getSignal() . "\n" . $executionResult->getOutput();
       $this->terminateBuild($failure_message, $output);
     }
     return $executionResult;

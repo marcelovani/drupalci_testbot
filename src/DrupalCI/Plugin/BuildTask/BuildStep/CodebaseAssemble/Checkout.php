@@ -71,9 +71,10 @@ class Checkout extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       }
 
       $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
-      $this->execCommands($cmd, $cmdoutput, $result);
+      $result = $this->execCommands($cmd);
+      $cmdoutput = $result->getOutput();
       $this->io->writeln("<comment>Git commit info:</comment>");
-      $this->io->writeln("<comment>\t{$cmdoutput}");
+      $this->io->writeln("<comment>\t${cmdoutput}");
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
     }

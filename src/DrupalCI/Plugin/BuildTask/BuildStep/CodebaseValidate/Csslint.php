@@ -90,10 +90,10 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     $command = 'cd ' . $this->codebase->getSourceDirectory() . ' && ' . 'csslint --format=checkstyle-xml --config=' . $config . ' ' . $lintfiles . ' > ' . $outputfile;
     //--exclude-list=core/vendor,core/assets/vendor/,core/tests
-    $this->execCommands($command, $output, $return);
+    $result = $this->execCommands($command);
     // csslint doesnt produce valid xml
     $command = 'cd ' . $this->codebase->getSourceDirectory() . " && perl -CSDA -i -pe 's/[^\x9\xA\xD\x20-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]+//g;' " . $outputfile;
-    $this->execCommands($command, $output, $return);
+    $result = $this->execCommands($command);
 
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
 

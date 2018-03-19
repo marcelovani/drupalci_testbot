@@ -50,9 +50,8 @@ class YarnInstall extends BuildTaskBase {
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
     // Should this be execRequiredCommand?
-    $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", $output, $result);
-
-    $this->saveStringArtifact('yarn_install.txt', $output);
+    $result = $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
+    $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
     if ($result !== 0) {
       $message = "Yarn install command returned code: $result";
@@ -68,12 +67,12 @@ class YarnInstall extends BuildTaskBase {
     } else {
       $this->io->writeln('Yarn install success');
     }
-    $output = [];
-    $this->execCommands("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", $output, $result);
-    $this->saveStringArtifact('yarn_list.txt', $output);
-    $output = [];
-    $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", $output, $result);
-    $this->saveStringArtifact('yarn_licenses.txt', $output);
+
+    $result = $this->execCommands("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
+    $this->saveStringArtifact('yarn_list.txt', $result->getOutput());
+
+    $result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
+    $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
     return $result;
   }
 
