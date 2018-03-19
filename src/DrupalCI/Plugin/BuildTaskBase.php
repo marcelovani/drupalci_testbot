@@ -249,6 +249,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $output;
   }
 
+  /**
+   * @param $commands
+   * @param null $container_id
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   */
   protected function execEnvironmentCommands($commands, $container_id = NULL, $save_output = TRUE) {
 
     $result = $this->environment->executeCommands($commands, $container_id);
@@ -267,12 +274,18 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $result;
   }
 
+  /**
+   * @param $commands
+   * @param $failure_message
+   * @param null $container_id
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   */
   protected function execRequiredEnvironmentCommands($commands, $failure_message, $container_id = NULL, $save_output = TRUE) {
     $result = $this->execEnvironmentCommands($commands, $container_id, $save_output);
     $return_signal = $result->getSignal();
-
-    $command_strings = is_array($commands) ? $commands : [$commands];
-    $command_strings = implode("\n",$command_strings);
 
     if ($return_signal !== 0) {
       $command_strings = is_array($commands) ? $commands : [$commands];
