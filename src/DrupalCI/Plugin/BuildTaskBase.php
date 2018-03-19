@@ -90,7 +90,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @var array
    */
-  protected $hostCommandOutput;
+  protected $buildTaskCommandOutput;
 
   /**
    * @var float
@@ -180,8 +180,8 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   }
 
   private function teardown() {
-    if (!empty($this->hostCommandOutput)){
-      $output = implode("\n", $this->hostCommandOutput);
+    if (!empty($this->buildTaskCommandOutput)){
+      $output = implode("\n", $this->buildTaskCommandOutput);
       $this->saveStringArtifact('command_output',$output);
 
     }
@@ -196,18 +196,28 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   /**
    * Execute a shell command.
+   * Will save the output as a command_output artifact on the build,
+   * however, sometimes you want to explicitly name an artifact that is the
+   * output of a command. You can skip saving the command output in that case
+   * if the plugin already has other plans for the output.
    *
    * @param string $command
    * @param string[] &$output
    * @param int &$return_var
+   * @param bool $save_output
+   *
+   * @return string|string[]
    */
-  protected function exec($command, &$output, &$return_var) {
+  protected function exec($command, &$output, &$return_var, $save_output = TRUE) {
+    // TODO: detect if this is there already and only add if absent.
     $command .= ' 2>&1';
     exec($command, $output, $return_var);
     $output = implode("\n",$output);
-    $this->hostCommandOutput[] = $command;
-    $this->hostCommandOutput[] = 'Return code: ' . $return_var;
-    $this->hostCommandOutput[] = $output;
+    if ($save_output) {
+      $this->buildTaskCommandOutput[] = "Host command: ${command}";
+      $this->buildTaskCommandOutput[] = "Return code: ${return_var}";
+      $this->buildTaskCommandOutput[] = "Output: ${output}";
+    }
     return $output;
   }
 
@@ -216,10 +226,14 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @param string $command
    * @param string $failure_message
+   * @param bool $save_output
+   *
+   * @return string
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
-  protected function execRequiredCommand($command, $failure_message) {
+  protected function execRequiredCommand($command, $failure_message, $save_output = TRUE) {
 
-    $this->exec($command, $output, $return_var);
+    $this->exec($command, $output, $return_var, $save_output);
     if ($return_var !== 0) {
       $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
       $this->terminateBuild($failure_message, $output);

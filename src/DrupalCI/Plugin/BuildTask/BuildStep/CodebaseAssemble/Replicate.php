@@ -84,7 +84,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
         $this->exec($cmd, $cmdoutput, $result);
         $this->io->writeln("<comment>Git commit info:</comment>");
-        $this->io->writeln("<comment>\t" . implode("\n",$cmdoutput));
+        $this->io->writeln("<comment>\t{$cmdoutput}");
       }
 
       $this->io->writeln("<comment>Checkout complete.</comment>");

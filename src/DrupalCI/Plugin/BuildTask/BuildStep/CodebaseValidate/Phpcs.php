@@ -425,7 +425,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
       // @todo remove this when container and host uids have parity.
-      $this->exec('sudo chmod 666 ' . $checkstyle_report_filename);
+      $this->exec('sudo chmod 666 ' . $checkstyle_report_filename, $output, $return);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
       $checkstyle_xml = preg_replace("!<file name=\"" . $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
