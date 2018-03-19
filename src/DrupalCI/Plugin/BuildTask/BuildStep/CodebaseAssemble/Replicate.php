@@ -58,12 +58,12 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
         $this->terminateBuild("Replication Failed", "The source directory $local_dir does not exist.");
       }
-      $remote_url = $this->execRequiredCommand("git --git-dir ${local_dir}/.git remote -v |grep fetch|awk '{print $2}'", 'Unable to determine git remote url');
+      $remote_url = $this->execRequiredCommands("git --git-dir ${local_dir}/.git remote -v |grep fetch|awk '{print $2}'", 'Unable to determine git remote url');
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Cloning local core checkout from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
 
       $cmd = "git clone $remote_url --reference ${local_dir} ${directory}";
-      $this->execRequiredCommand($cmd, 'Local git clone failed');
+      $this->execRequiredCommands($cmd, 'Local git clone failed');
 
       $this->io->writeln("<comment>Copying files complete</comment>");
 
@@ -72,13 +72,13 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         if (!empty($this->configuration['git-branch'])) {
           $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git-branch'];
           $this->io->writeln("Git Command: $cmd");
-          $this->execRequiredCommand($cmd, 'git checkout failure');
+          $this->execRequiredCommands($cmd, 'git checkout failure');
 
         }
         if (!empty($this->configuration['git-commit-hash'])) {
           $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git-commit-hash'];
           $this->io->writeln("Git Command: $cmd");
-          $this->execRequiredCommand($cmd, 'git reset failure');
+          $this->execRequiredCommands($cmd, 'git reset failure');
         }
 
         $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";

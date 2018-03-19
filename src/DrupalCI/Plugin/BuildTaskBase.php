@@ -208,7 +208,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * output of a command. You can skip saving the command output in that case
    * if the plugin already has other plans for the output.
    *
-   * @param string $command
+   * @param string[] $commands
    * @param string[] &$output
    * @param int &$return_var
    * @param bool $save_output
@@ -232,14 +232,14 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   /**
    * Execute a shell command, terminate build on failure, emit message.
    *
-   * @param string $command
+   * @param string $commands
    * @param string $failure_message
    * @param bool $save_output
    *
    * @return string
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
-  protected function execRequiredCommand($command, $failure_message, $save_output = TRUE) {
+  protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
 
     $this->exec($command, $output, $return_signal, $save_output);
     if ($return_signal !== 0) {
