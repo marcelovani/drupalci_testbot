@@ -96,7 +96,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     $this->generateTestGroups();
 
 
-    $result = $this->environment->executeCommands($this->getRunTestsCommand());
+    $result = $this->execEnvironmentCommands($this->getRunTestsCommand());
 
     // Allow a pass if no tests are found. This allows DrupalCI to be used for
     // lint/coding standards only.
@@ -155,7 +155,7 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     if ($is_extension_test) {
       // Always add --suppress-deprecations for contrib, if its available
       $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
-      $result = $this->environment->executeCommands($suppress_check_command);
+      $result = $this->execEnvironmentCommands($suppress_check_command);
       // @todo Turn this off when some other solution is decided in
       //   https://www.drupal.org/project/drupal/issues/2607260
 
@@ -233,13 +233,8 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
     ];
-    $result = $this->environment->executeCommands($setup_commands);
-    $return = $result->getSignal();
-    if ($return !== 0) {
-      // Directory setup failed threw an error.
-      $this->terminateBuild("Prepare Simpletest filesystem failed", "Setting up the filesystem failed:  Error Code: $return");
-    }
-    return $return;
+    $this->execRequiredEnvironmentCommands($setup_commands, "Prepare Simpletest filesystem failed");
+    return 0;
   }
 
   protected function setupSimpletestDB(BuildInterface $build) {
@@ -265,13 +260,11 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
   protected function generateTestGroups() {
     $testgroups_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/testgroups.txt';
     $cmd = 'sudo -u www-data php ' . $this->environment->getExecContainerSourceDir() . $this->runscript . ' --list > ' . $testgroups_file;
-    $result = $this->environment->executeCommands($cmd);
-    if ($result->getSignal() !== 0) {
-      $this->terminateBuild('Unable to generate test groups', $result->getError());
-    }
+    $this->execRequiredEnvironmentCommands($cmd, "Unable to generate test groups");
+
     $host_testgroups = $this->pluginWorkDir . '/testgroups.txt';
     $this->saveContainerArtifact($testgroups_file,'testgroups.txt');
-    return $result->getSignal();
+    return 0;
   }
 
   /**
