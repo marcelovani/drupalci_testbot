@@ -187,10 +187,23 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $this->elapsedTime;
   }
 
+  /**
+   * Execute a shell command.
+   *
+   * @param string $command
+   * @param string[] &$output
+   * @param int &$return_var
+   */
   protected function exec($command, &$output, &$return_var) {
     exec($command, $output, $return_var);
   }
 
+  /**
+   * Execute a shell command, terminate build on failure, emit message.
+   *
+   * @param string $command
+   * @param string $failure_message
+   */
   protected function execRequiredCommand($command, $failure_message) {
     $command .= ' 2>&1';
 
