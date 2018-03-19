@@ -29,13 +29,6 @@ use Pimple\Container;
 class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
    * The codebase.
    *
    * @var \DrupalCI\Build\Codebase\CodebaseInterface
@@ -98,7 +91,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 

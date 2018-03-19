@@ -15,18 +15,10 @@ use Pimple\Container;
 class ContainerComposer extends Composer {
 
   /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 

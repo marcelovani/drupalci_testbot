@@ -17,14 +17,6 @@ use Pimple\Container;
  */
 class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
-  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
-  protected $environment;
-
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-  }
-
   /**
    * @inheritDoc
    */
