@@ -12,12 +12,7 @@ use Pimple\Container;
 class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
-  /**
-   * The current container environment
-   *
-   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
+
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
   /**
@@ -35,7 +30,6 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   public function inject(Container $container) {
     parent::inject($container);
     $this->system_database = $container['db.system'];
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
   /**
@@ -67,7 +61,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       file_put_contents("{$this->codebase->getSourceDirectory()}/core/.env", $envfile);
 
       $runscript = "sudo BABEL_DISABLE_CACHE=1 -u www-data {$this->runscript}";
-      $result = $this->environment->executeCommands("$runscript");
+      $result = $this->execEnvironmentCommands("$runscript");
 
       // Save some artifacts for the build
       if ($result->getSignal() == 0) {
@@ -91,7 +85,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       "chown -fR www-data:www-data ${sourcedir}/nightwatch_output",
       "chown -fR www-data:www-data /var/www/.yarn",
     ];
-    $result = $this->environment->executeCommands($setup_commands);
+    $result = $this->execEnvironmentCommands($setup_commands);
   }
 
 }

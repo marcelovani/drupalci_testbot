@@ -99,7 +99,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     $this->io->writeln('Executing eslint.');
 
     $command = 'cd ' . $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory() . ' && ' . 'eslint ' . implode(' ', $args) . ' ' . $lintfiles;
-    $this->exec($command, $output, $return);
+    $result = $this->execCommands($command);
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
 
 

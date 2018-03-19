@@ -49,15 +49,15 @@ class YarnInstall extends BuildTaskBase {
     $this->io->writeln('Executing yarn install for core nodejs dev dependencies.');
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
-    $this->exec("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
-
-    $this->saveStringArtifact('yarn_install.txt', implode("\n", $output));
+    // Should this be execRequiredCommand?
+    $result = $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
+    $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
     if ($result !== 0) {
       $message = "Yarn install command returned code: $result";
       if ($this->configuration['die-on-fail']) {
 
-        $this->terminateBuild($message, implode("\n", $output));
+        $this->terminateBuild($message, $output);
       }
       else {
         $this->io->writeln($message . "\nYarn install failed; Proceeding anyways...");
@@ -67,12 +67,12 @@ class YarnInstall extends BuildTaskBase {
     } else {
       $this->io->writeln('Yarn install success');
     }
-    $output = [];
-    $this->exec("yarn${verbose} list$progress --non-interactive --cwd ${work_dir} 2>&1", $output, $result);
-    $this->saveStringArtifact('yarn_list.txt', implode("\n", $output));
-    $output = [];
-    $this->exec("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list 2>&1", $output, $result);
-    $this->saveStringArtifact('yarn_licenses.txt', implode("\n", $output));
+
+    $result = $this->execCommands("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
+    $this->saveStringArtifact('yarn_list.txt', $result->getOutput());
+
+    $result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
+    $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
     return $result;
   }
 

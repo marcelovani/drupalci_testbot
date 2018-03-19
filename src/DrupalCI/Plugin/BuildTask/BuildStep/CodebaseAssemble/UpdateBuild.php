@@ -106,7 +106,7 @@ class UpdateBuild extends BuildTaskBase {
     // could be trying to remove the assessment stage (by placing an empty array
     // in the YML), so we should always use it.
     $build_target = $this->build->getBuildTarget();
-    $this->io->writeln("Replacing {$build_target}:assessment stage with {$drupalci_yml_file}");
+    $this->io->writeln("Replacing ${build_target}:assessment stage with ${drupalci_yml_file}");
 
     $drupalci_yml = $this->yaml->parse(file_get_contents($drupalci_yml_file));
 

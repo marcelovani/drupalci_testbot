@@ -44,7 +44,11 @@ class CommandResult implements CommandResultInterface {
    * @param string $output
    */
   public function appendOutput($output) {
-    $this->output = $this->output . "\n" . $output;
+    if (empty($this->output)) {
+      $this->output = $output;
+    } else {
+      $this->output = $this->output . "\n" . $output;
+    }
   }
 
   /**

@@ -59,20 +59,19 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       // 1. Get the currently checked out composer branch name <CBRANCH>
       $cmd = "composer${verbose} show --working-dir " . $source_dir . " |grep 'drupal/$project_name ' |awk '{print $2}'";
       $this->io->writeln("Determining composer branch: $cmd");
-      $cmdoutput = $this->execRequiredCommand($cmd, 'Unable to determine composer branch');
+      $result = $this->execRequiredCommands($cmd, 'Unable to determine composer branch');
 
-
-      $composer_branchname = $cmdoutput;
+      $composer_branchname = $result->getOutput();
       $composer_branchname = $this->flipDevBranch($composer_branchname);
       // Copy directory to ancillary
       $project_dir = $source_dir . '/' . $contrib_dir;
       $cmd = "cp -r $project_dir $ancillary_dir";
-      $this->execRequiredCommand($cmd, 'Ancillary Copy Failure');
+      $this->execRequiredCommands($cmd, 'Ancillary Copy Failure');
 
       // Remove the project via composer
       $cmd = "./bin/composer${verbose} remove drupal/" . $project_name . " --ignore-platform-reqs --no-interaction --working-dir " . $source_dir;
       $this->io->writeln("Removing project: $cmd");
-      $this->execRequiredCommand($cmd, 'Removal of modified project failed');
+      $this->execRequiredCommands($cmd, 'Removal of modified project failed');
       // Remove any of its dev dependnecies
       // $this->io->writeln("Removing dev dependencies: $cmd");
       // $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
@@ -81,42 +80,42 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
         $dev_dep = str_replace("'", "", strstr($package, ':', TRUE));
         $cmd = "./bin/composer${verbose} remove " . $dev_dep . " --no-interaction --ignore-platform-reqs --working-dir " . $source_dir;
         $this->io->writeln("Removing dev dependencies: $cmd");
-        $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
+        $this->execRequiredCommands($cmd, 'Dev dependency Removal Failure');
 
       }
       // make a fake branch in ancillary <TBRANCH>
       $cmd = "cd " . $ancillary_dir . " && git checkout -b ancillary-branch";
       $this->io->writeln("Creating ancillary branch: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary branch creation failure');
+      $this->execRequiredCommands($cmd, 'Ancillary branch creation failure');
 
       // commit to ancillary
       $cmd = "cd " . $ancillary_dir . " && git add . && git config --global user.email \"drupalci@drupalci.org\" &&
 git config --global user.name \"The Testbot\" && git commit -am 'intermediate commit'";
       $this->io->writeln("Git Command: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary commit failure');
+      $this->execRequiredCommands($cmd, 'Ancillary commit failure');
 
       // unset pdo
       $cmd = "./bin/composer${verbose} config repositories.pdo --unset --working-dir " . $source_dir;
       $this->io->writeln("Unset pdo repo: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary repo config failure');
+      $this->execRequiredCommands($cmd, 'Ancillary repo config failure');
 
       // add ancillary as a composer repo
       $cmd = "./bin/composer${verbose} config repositories.ancillary '{\"type\": \"path\", \"url\": \"" . $ancillary_dir . "\", \"options\": {\"symlink\": false}}' --working-dir " . $source_dir;
 
       $this->io->writeln("Git Command: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary repo config failure');
+      $this->execRequiredCommands($cmd, 'Ancillary repo config failure');
 
       // reset pdo
       $cmd = "./bin/composer${verbose} config repositories.pdo composer $this->drupalPackageRepository --working-dir " . $source_dir;
 
       $this->io->writeln("Git Command: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary repo config failure');
+      $this->execRequiredCommands($cmd, 'Ancillary repo config failure');
 
       // composer require drupal/project "<TBRANCH> AS <CBRANCH>"
       $cmd = "./bin/composer${verbose} require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --ignore-platform-reqs --working-dir " . $source_dir;
 
       $this->io->writeln("Git Command: $cmd");
-      $this->execRequiredCommand($cmd, 'Ancillary require failure');
+      $this->execRequiredCommands($cmd, 'Ancillary require failure');
 
       // Look for changes to require dev as well. These require-dev packages will
       // Only exist if there exists dev-depenencies in composer.json
@@ -126,7 +125,7 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       if (!empty($packages)) {
         $cmd = "./bin/composer${verbose} require " . implode(" ", $packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
-        $this->execRequiredCommand($cmd, 'Composer require failure');
+        $this->execRequiredCommands($cmd, 'Composer require failure');
 
       }
     }

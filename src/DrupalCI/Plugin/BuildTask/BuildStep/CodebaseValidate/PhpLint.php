@@ -12,15 +12,11 @@ use Pimple\Container;
  */
 class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
-  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
-  protected $environment;
-
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 
@@ -69,12 +65,7 @@ class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
       // This should be come Codebase->getLocalDir() or similar
       // Use xargs to concurrently run linting on file.
       $cmd = "cd " . $this->environment->getExecContainerSourceDir() . " && xargs -P $concurrency -a " . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . "/lintable_files.txt -I {} php -l '{}'";
-      // TODO Throw a BuildException if there are syntax errors.
-      $result = $this->environment->executeCommands($cmd);
-      if ($result->getSignal() !== 0) {
-        // Git threw an error.
-        $this->terminateBuild("PHPLint Failed", $result->getError());
-      }
+      $this->execRequiredEnvironmentCommands($cmd, "PHPLint Failed");
     }
     return 0;
   }
