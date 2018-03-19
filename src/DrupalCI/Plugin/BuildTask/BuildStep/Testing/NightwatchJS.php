@@ -12,12 +12,7 @@ use Pimple\Container;
 class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   /* @var  \DrupalCI\Build\Environment\DatabaseInterface */
   protected $system_database;
-  /**
-   * The current container environment
-   *
-   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
+
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
   /**
@@ -35,7 +30,6 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
   public function inject(Container $container) {
     parent::inject($container);
     $this->system_database = $container['db.system'];
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
   /**

@@ -12,15 +12,11 @@ use Pimple\Container;
  */
 class PhpLint extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
-  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
-  protected $environment;
-
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 

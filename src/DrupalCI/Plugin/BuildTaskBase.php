@@ -64,6 +64,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $build;
 
   /**
+   * The current container environment
+   *
+   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
+   */
+  protected $environment;
+
+  /**
    * The container.
    *
    * We need this to inject into other objects.
@@ -272,6 +279,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   public function inject(Container $container) {
     $this->build = $container['build'];
+    $this->environment = $container['environment'];
     $this->io = $container['console.io'];
     $this->container = $container;
   }

@@ -24,13 +24,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
    */
   protected $results_database;
 
-  /**
-   * The current container environment
-   *
-   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
@@ -52,7 +45,6 @@ class Simpletest extends BuildTaskBase implements BuildStepInterface, BuildTaskI
     parent::inject($container);
     $this->system_database = $container['db.system'];
     $this->results_database = $container['db.results'];
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
     $this->junitXmlBuilder = $container['junit_xml_builder'];
   }
