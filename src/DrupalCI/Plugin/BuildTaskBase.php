@@ -233,6 +233,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
       $maxExitCode = max($return_signal, $maxExitCode);
       $fulloutput = implode("\n", $cmd_output);
       $executionResult->appendOutput($fulloutput);
+      $executionResult->setSignal($maxExitCode);
       if ($save_output) {
         // TODO: save as machine readable json?
         $this->buildTaskCommandOutput[] = "Host command: ${cmd}";
@@ -307,7 +308,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     if ($return_signal !== 0) {
       $command_strings = is_array($commands) ? $commands : [$commands];
       $command_strings = implode("\n",$command_strings);
-      $output = $command_strings . "\nReturn Code:" . $return_signal . "\n" . $result->getOutput() . "\n" . $result->getError();
+      $output = "--- Commands Executed ---\n${command_strings}\nReturn Code: ${return_signal}\n--- Output ---\n{$result->getOutput()}--- Errors ---\n{$result->getError()}";
       $this->terminateBuild($failure_message, $output);
     }
     return $result;
