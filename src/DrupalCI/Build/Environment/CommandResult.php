@@ -62,7 +62,12 @@ class CommandResult implements CommandResultInterface {
    * @param string $error
    */
   public function appendError($error) {
-    $this->error = $this->error . "\n" . $error;
+    if (empty($this->error)) {
+      $this->error = $error;
+    } else {
+      $this->error = $this->error . "\n" . $error;
+    }
+
   }
 
 }
