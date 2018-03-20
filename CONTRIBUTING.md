@@ -359,45 +359,56 @@ public function run(){
 
 ## Executing Commands
 
-Most plugins will want to run commands, both on the host and inside the
-testing environment.
+Most plugins will want to run shell commands, both on the host and inside the
+testing environment. In order to run a command the following four questions need to be addressed:
 
-If you wish to execute commands locally on the host, there are two
-types: required commands that, if they fail, should abort the build, and
-optional commands that if they fail, the build should continue
-processing.
+<ol>
+  <li>Where does the command need to execute, on the host, or in a container?</li>
+  <li>Should the build terminate/abort if the command does not succeed?</li>
+  <li>Should the command and its output automatically be saved as an artifact or not, and the output will be used for other purposes</li>
+  <li>Can multiple commands be grouped together?</li>
+</ol>
 
-`// Execute a required command on the host. Failure aborts the build:`
+There are four methods on BuildTaskBase, so any plugin can call these methods to execute commands.
+<ol>
+  <li>execCommands($commands, $save_output)</li>
+  <li>execRequiredCommands($commands, $failure_message, $save_output)</li>
+  <li>execEnvironmentCommands($commands, $container_id, $save_output)</li>
+  <li>execRequiredEnvironmentCommands($commands, $failure_message, $container_id, $save_output)</li>
+</ol>
 
-`$this->execRequiredCommand($cmd, 'Composer config failure');`
+All four of these methods can accept either an array or a string as the $commands variable.
 
-execRequiredCommand takes in the command, and a short message to display
-in the build outcome if the required command fails.
+`$this->execCommands($commands, $save_output)`
 
-Example of a non-required command -always use the $this->exec() form
-so that during testing you can skip actual execution of the exec, and
-see that it was attempted.
+This is a basic, non-required command to run in the host environment.  Most of the commands in the host environment are best suited for manipulating the codebase, or interacting with git.
 
-`$cmd = "cd '$directory' && git log --oneline -n 1 --decorate";`
+`$this->execRequiredCommands($commands, $failure_message, $save_output)`
 
-`$this->exec($cmd, $cmdoutput, $result);`
+This is used for commands that if they fail for any reason, the build should terminate.
+The `$failure message` is provided as a mechanism to label the failure in the logs, as well as in the buildresult.json that gets created.
 
-Sometimes the environment that the command is executed within needs to
-match the testing environment, and the commands need to run inside of
-the docker containers. Currently the 'environment' build object provides
-access to those containers in order to execute commands:
+`$this-execEnvironmentCommands($commands, $container_id, $save_output)`
 
-`// Execute a command inside the php docker container`
+This will execute non-required commands in the environment specified by the $container_id. The default container will be the php container, so usually that arg can be left NULL.  This method is useful for returning metadata about the system under test, like `php -i`, for example.
 
-`$result = $this->environment->executeCommands($commands);`
+`$this-execRequiredEnvironmentCommands($commands, $failure_message, $container_id, $save_output)`
 
-`// Execute a command inside a particular docker container`
+This will run essential commands on the container, and use the failure message to lable anything other than a successful execution. This is useful for commands that start essential services (like phantomjs), or do essential build steps (like drush) that are required for testing to proceed.
 
-`$result = $this->environment->executeCommands($commands,
-$container['id']);`
+All of these methods can accept a '$save_output' variable, which defaults to TRUE, which will accumulate all command strings, return signals, and errors/output and output it into a plugin specific artifact called "command_output" in each plugin directory.  The purpose of sending $save_output = FALSE is perhaps one wants to capture the output of a command and save it as a named artifact, like the yarn_install plugin does:
 
-Both of those container commands return a CommandResult object which
-contain the output, error, and return signal of those commands.
+```
+$result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
+$this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
+```
+
+Executing any of these plugins will return a `\DrupalCI\Build\Environment\CommandResult` object that lets the executor access the cumulative signal/output/errors of the passed in command or commands. Each execution of these methods should likely take the form of
+```$result = $this->execCommands($commands, $save_output)
+$output = $result->getOutput();
+$signal = $result->getSignal();
+//do something with the signal and output.
+```
 
 ## Terminating the Build
 
