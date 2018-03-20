@@ -1,6 +1,6 @@
 <?php
 
-namespace DrupalCI\Tests\Application\Phpcs;
+namespace DrupalCI\Tests\Application\EsLint;
 
 use DrupalCI\Tests\DrupalCIFunctionalTestBase;
 use Symfony\Component\Console\Tester\ApplicationTester;

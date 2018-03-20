@@ -2,6 +2,8 @@
 
 namespace DrupalCI\Tests\Plugin\BuildSteps\setup;
 
+use DrupalCI\Build\Environment\CommandResult;
+
 trait TestSetupBaseTrait {
 
   protected $validate;
@@ -18,10 +20,17 @@ trait TestSetupBaseTrait {
     $this->validate = $validate;
   }
 
-  function exec($command, &$output, &$result) {
+  function execCommands($command, $save_output = TRUE) {
     $this->commands[] = $command;
     $output = [];
     $result = $this->execResult;
+    return new CommandResult();
+  }
+  function execRequiredCommands($command, $failure_message, $save_output = TRUE) {
+    $this->commands[] = $command;
+    $output = [];
+    $result = $this->execResult;
+    return new CommandResult();
   }
 
   function getCommands() {

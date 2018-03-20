@@ -44,7 +44,11 @@ class CommandResult implements CommandResultInterface {
    * @param string $output
    */
   public function appendOutput($output) {
-    $this->output = $this->output . "\n" . $output;
+    if (empty($this->output)) {
+      $this->output = $output;
+    } else {
+      $this->output = $this->output . "\n" . $output;
+    }
   }
 
   /**
@@ -58,7 +62,12 @@ class CommandResult implements CommandResultInterface {
    * @param string $error
    */
   public function appendError($error) {
-    $this->error = $this->error . "\n" . $error;
+    if (empty($this->error)) {
+      $this->error = $error;
+    } else {
+      $this->error = $this->error . "\n" . $error;
+    }
+
   }
 
 }

@@ -15,18 +15,10 @@ use Pimple\Container;
 class ContainerComposer extends Composer {
 
   /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
    * {@inheritdoc}
    */
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 
@@ -65,7 +57,7 @@ class ContainerComposer extends Composer {
       'config -g discard-changes true',
     ];
     $commands[] = implode(' ', $command);
-    $result = $this->environment->executeCommands($commands);
+    $result = $this->execEnvironmentCommands($commands);
 
     // Build a containerized Composer command.
     $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
@@ -74,7 +66,10 @@ class ContainerComposer extends Composer {
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
     $commands[] = implode(' ', $command);
-    $result = $this->environment->executeCommands($commands);
+    // TODO: fail-should-terminate should determine which execEnvironmentComands
+    // instead of terminating the build itself
+
+    $result = $this->execEnvironmentCommands($commands);
 
     if ($result->getSignal() != 0) {
       if ($this->configuration['fail-should-terminate']) {

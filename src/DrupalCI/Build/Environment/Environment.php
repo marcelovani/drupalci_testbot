@@ -48,9 +48,6 @@ class Environment implements Injectable, EnvironmentInterface {
   /* @var \Pimple\Container */
   protected $container;
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
-
   /**
    * @var string
    * The source directory within the exec container.
@@ -86,7 +83,6 @@ class Environment implements Injectable, EnvironmentInterface {
 
     $this->io = $container['console.io'];
     $this->docker = $container['docker'];
-    $this->codebase = $container['codebase'];
     $this->database = $container['db.system'];
     $this->build = $container['build'];
     $this->container = $container;
@@ -129,8 +125,6 @@ class Environment implements Injectable, EnvironmentInterface {
       //$this->io->writeLn("<info>Executing on container instance $short_id:</info>");
       foreach ($commands as $cmd) {
         $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
-        $executionResult->appendOutput("\nEXECUTING: " . $cmd . "\n");
-        $executionResult->appendError("\nEXECUTING: " . $cmd . "\n");
 
         $exec_config = new ContainersIdExecPostBody();
         $exec_config->setTty(FALSE);
@@ -223,7 +217,7 @@ class Environment implements Injectable, EnvironmentInterface {
 
     // Map working directory
     $container['Name'] = 'php-apache';
-    $container['HostConfig']['Binds'][] = $this->codebase->getSourceDirectory() . ':' . $this->execContainerSourceDir;
+    $container['HostConfig']['Binds'][] = $this->build->getBuildDirectory() . '/source:' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;

@@ -732,7 +732,7 @@ class Build implements BuildInterface, Injectable {
                  'chown -R ' . $uid . ' ' . $environment->getContainerComposerCacheDir(),
                  'chmod -R 777 ' . $environment->getExecContainerSourceDir(),
                 ];
-    $environment->executeCommands($commands);
+    $result = $environment->executeCommands($commands);
     $db_container = $environment->getDatabaseContainer();
     $db_dir = $this->container['db.system']->getDataDir();
     $commands = [
@@ -740,7 +740,7 @@ class Build implements BuildInterface, Injectable {
       'chmod -R 777 ' . $db_dir,
     ];
     if (!empty($db_container)) {
-      $environment->executeCommands($commands, $db_container['id']);
+      $result = $environment->executeCommands($commands, $db_container['id']);
     }
     // Shut off the containers and network.
     $environment->terminateContainers();

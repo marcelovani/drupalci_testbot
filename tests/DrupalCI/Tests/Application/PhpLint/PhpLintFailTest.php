@@ -47,10 +47,12 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'PHPLint Failed');
-    $this->assertBuildOutputJson($build, 'buildDetails', '
-
-EXECUTING: cd /var/www/html && xargs -P 4 -a /var/lib/drupalci/workdir/phplint/lintable_files.txt -I {} php -l \'{}\'
-
+    $this->assertBuildOutputJson($build, 'buildDetails', '--- Commands Executed ---
+cd /var/www/html && xargs -P 4 -a /var/lib/drupalci/workdir/phplint/lintable_files.txt -I {} php -l \'{}\'
+Return Code: 124
+--- Output ---
+Errors parsing /var/www/html/core/IWillFailLinting.php
+--- Errors ---
 PHP Parse error:  syntax error, unexpected end of file in /var/www/html/core/IWillFailLinting.php on line 3
 xargs: php: exited with status 255; aborting
 ');

@@ -17,14 +17,6 @@ use Pimple\Container;
  */
 class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface, Injectable {
 
-  /* @var  \DrupalCI\Build\Environment\EnvironmentInterface */
-  protected $environment;
-
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->environment = $container['environment'];
-  }
-
   /**
    * @inheritDoc
    */
@@ -32,13 +24,9 @@ class StartPhantomJS extends BuildTaskBase implements BuildStepInterface, BuildT
     $setup_commands = [
       'supervisorctl start phantomjs',
     ];
-    $result = $this->environment->executeCommands($setup_commands);
-    $return = $result->getSignal();
-    if ($return !== 0) {
-      // Directory setup failed threw an error.
-      $this->terminateBuild("Unable to start phantomjs", $result->getError());
-    }
-    return $result->getSignal();
+    $this->execRequiredEnvironmentCommands($setup_commands,"Unable to start phantomjs");
+
+    return 0;
   }
 
 }

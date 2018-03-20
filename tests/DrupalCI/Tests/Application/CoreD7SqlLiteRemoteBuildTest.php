@@ -17,8 +17,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  *
- * @todo Fix this in
- *   https://www.drupal.org/project/drupalci_testbot/issues/2925400
  */
 class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
 

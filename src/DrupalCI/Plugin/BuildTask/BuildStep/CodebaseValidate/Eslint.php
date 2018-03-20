@@ -99,7 +99,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     $this->io->writeln('Executing eslint.');
 
     $command = 'cd ' . $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory() . ' && ' . 'eslint ' . implode(' ', $args) . ' ' . $lintfiles;
-    $this->exec($command, $output, $return);
+    $result = $this->execCommands($command);
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
 
 
@@ -114,9 +114,12 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint-fails-test'] && !empty($return)) {
+    if ($this->configuration['lint-fails-test'] && !empty($result->getSignal())) {
       $this->terminatebuild('Javascript coding standards error', '');
     }
+    // TODO: d7 eslint doenst have a config file, so, no config means we should
+    // pretend everything was fine.
+    //return $result->getSignal();
     return 0;
   }
 

@@ -29,13 +29,6 @@ use Pimple\Container;
 class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
-   * The testing environment.
-   *
-   * @var \DrupalCI\Build\Environment\EnvironmentInterface
-   */
-  protected $environment;
-
-  /**
    * The codebase.
    *
    * @var \DrupalCI\Build\Codebase\CodebaseInterface
@@ -98,7 +91,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   public function inject(Container $container) {
     parent::inject($container);
-    $this->environment = $container['environment'];
     $this->codebase = $container['codebase'];
   }
 
@@ -186,9 +178,9 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
           $phpcs_bin,
           '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed-paths'],
         ];
-        $result = $this->environment->executeCommands(implode(' ', $cmd));
+        $result = $this->execEnvironmentCommands(implode(' ', $cmd));
         // Let the user figure out if it worked.
-        $this->environment->executeCommands("$phpcs_bin -i");
+        $result = $this->execEnvironmentCommands("$phpcs_bin -i");
       }
     }
     catch (\Exception $e) {
@@ -244,13 +236,14 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     $this->io->writeln('Executing PHPCS.');
 
-    $result = $this->environment->executeCommands([
+    $sniffresult = $this->execEnvironmentCommands([
       'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
 
+
     // Save phpcs sniffs as an artifact.
     $commands[] = 'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
-    $this->environment->executeCommands($commands);
+    $result = $this->execEnvironmentCommands($commands);
     $this->saveHostArtifact($this->pluginWorkDir . '/phpcs_sniffs.txt', 'phpcs_sniffs.txt');
 
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
@@ -261,7 +254,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
     if ($this->configuration['sniff-fails-test']) {
-      return $result->getSignal();
+      return $sniffresult->getSignal();
     }
     return 0;
   }
@@ -348,7 +341,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('Checking for phpcs tool in codebase.');
     $source_dir = $this->environment->getExecContainerSourceDir();
     $phpcs_bin = $source_dir . static::$phpcsExecutable;
-    $result = $this->environment->executeCommands('test -e ' . $phpcs_bin);
+    $result = $this->execEnvironmentCommands('test -e ' . $phpcs_bin);
     if ($result->getSignal() == 0) {
       return $phpcs_bin;
     }
@@ -386,7 +379,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $config_dir = $this->getStartDirectory();
     $config_file = $config_dir . '/phpcs.xml*';
     $this->io->writeln('Checking for PHPCS config file: ' . $config_file);
-    $result = $this->environment->executeCommands('test -e ' . $config_file);
+    $result = $this->execEnvironmentCommands('test -e ' . $config_file);
     return ($result->getSignal() == 0);
   }
 
@@ -425,7 +418,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (file_exists($checkstyle_report_filename)) {
       // The file is probably owned by root and not writable.
       // @todo remove this when container and host uids have parity.
-      exec('sudo chmod 666 ' . $checkstyle_report_filename);
+      $result = $this->execCommands('sudo chmod 666 ' . $checkstyle_report_filename);
       $checkstyle_xml = file_get_contents($checkstyle_report_filename);
       $checkstyle_xml = preg_replace("!<file name=\"" . $this->environment->getExecContainerSourceDir() . "!", "<file name=\"" . $this->codebase->getSourceDirectory(), $checkstyle_xml);
       file_put_contents($checkstyle_report_filename, $checkstyle_xml);
@@ -443,7 +436,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $coder_version = $this->configuration['coder-version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
     $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE composer require --dev drupal/coder " . $coder_version;
-    $result = $this->environment->executeCommands($cmd);
+    $result = $this->execEnvironmentCommands($cmd);
     if ($result->getSignal() !== 0) {
       // If it didn't work, then we bail, but we don't halt build execution.
       $this->io->writeln('Unable to install generic drupal/coder.');

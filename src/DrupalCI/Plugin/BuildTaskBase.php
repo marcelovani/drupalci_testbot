@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Build\Environment\CommandResult;
 use Pimple\Container;
 
 /**
@@ -64,6 +65,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   protected $build;
 
   /**
+   * The current container environment
+   *
+   * @var  \DrupalCI\Build\Environment\EnvironmentInterface
+   */
+  protected $environment;
+
+  /**
    * The container.
    *
    * We need this to inject into other objects.
@@ -90,7 +98,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @var array
    */
-  protected $hostCommandOutput;
+  protected $buildTaskCommandOutput;
 
   /**
    * @var float
@@ -173,8 +181,8 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   }
 
   private function teardown() {
-    if (!empty($this->hostCommandOutput)){
-      $output = implode("\n", $this->hostCommandOutput);
+    if (!empty($this->buildTaskCommandOutput)){
+      $output = implode("\n", $this->buildTaskCommandOutput);
       $this->saveStringArtifact('command_output',$output);
 
     }
@@ -187,27 +195,119 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $this->elapsedTime;
   }
 
-  protected function exec($command, &$output, &$return_var) {
-    exec($command, $output, $return_var);
+  /**
+   * Execute a shell command.
+   * Will save the output as a command_output artifact on the build,
+   * however, sometimes you want to explicitly name an artifact that is the
+   * output of a command. You can skip saving the command output in that case
+   * if the plugin already has other plans for the output.
+   *
+   * @param string[] $commands
+   * @param string[] &$output
+   * @param int &$return_var
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   */
+  protected function execCommands($commands, $save_output = TRUE) {
+    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    $executionResult = $this->container['command.result'];
+    $maxExitCode = 0;
+    $commands = is_array($commands) ? $commands : [$commands];
+    foreach ($commands as $cmd) {
+      // TODO: detect if this is there already and only add if absent.
+      $cmd .= ' 2>&1';
+
+      $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
+
+      // TODO: use proc_open to properly get stdout/stderr
+      exec($cmd, $cmd_output, $return_signal);
+
+      $maxExitCode = max($return_signal, $maxExitCode);
+      $fulloutput = implode("\n", $cmd_output);
+      $executionResult->appendOutput($fulloutput);
+      $executionResult->setSignal($maxExitCode);
+      if ($save_output) {
+        // TODO: save as machine readable json?
+        $this->buildTaskCommandOutput[] = "Host command: ${cmd}";
+        $this->buildTaskCommandOutput[] = "Return code: ${return_signal}";
+        $this->buildTaskCommandOutput[] = "Output: ${fulloutput}";
+      }
+    }
+    return $executionResult;
   }
 
-  protected function execRequiredCommand($command, $failure_message) {
-    $command .= ' 2>&1';
+  /**
+   * Execute a shell command, terminate build on failure, emit message.
+   *
+   * @param string $commands
+   * @param string $failure_message
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResult
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   */
+  protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
 
-    $this->exec($command, $output, $return_var);
-    $output = implode("\n",$output);
-    $this->hostCommandOutput[] = $command;
-    $this->hostCommandOutput[] = 'Return code: ' . $return_var;
-    $this->hostCommandOutput[] = $output;
-    if ($return_var !== 0) {
-      $output = $command . "\nReturn Code:" . $return_var . "\n" . $output;
+    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    $executionResult = $this->execCommands($commands, $save_output);
+    if ($executionResult->getSignal() !== 0) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $output = $command_strings . "\nReturn Code:" . $executionResult->getSignal() . "\n" . $executionResult->getOutput();
       $this->terminateBuild($failure_message, $output);
     }
-    return $output;
+    return $executionResult;
+  }
+
+  /**
+   * @param $commands
+   * @param null $container_id
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   */
+  protected function execEnvironmentCommands($commands, $container_id = NULL, $save_output = TRUE) {
+
+    $result = $this->environment->executeCommands($commands, $container_id);
+    if ($save_output) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $return_signal = $result->getSignal();
+      $commands_output = $result->getOutput();
+      $commands_error = $result->getError();
+      // TODO: save as machine readable json?
+      $this->buildTaskCommandOutput[] = "Host commands: ${command_strings}";
+      $this->buildTaskCommandOutput[] = "Return code: ${return_signal}";
+      $this->buildTaskCommandOutput[] = "Output: ${commands_output}";
+      $this->buildTaskCommandOutput[] = "StdErr: ${commands_error}";
+    }
+    return $result;
+  }
+
+  /**
+   * @param $commands
+   * @param $failure_message
+   * @param null $container_id
+   * @param bool $save_output
+   *
+   * @return \DrupalCI\Build\Environment\CommandResultInterface
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   */
+  protected function execRequiredEnvironmentCommands($commands, $failure_message, $container_id = NULL, $save_output = TRUE) {
+    $result = $this->execEnvironmentCommands($commands, $container_id, $save_output);
+    $return_signal = $result->getSignal();
+
+    if ($return_signal !== 0) {
+      $command_strings = is_array($commands) ? $commands : [$commands];
+      $command_strings = implode("\n",$command_strings);
+      $output = "--- Commands Executed ---\n${command_strings}\nReturn Code: ${return_signal}\n--- Output ---\n{$result->getOutput()}--- Errors ---\n{$result->getError()}";
+      $this->terminateBuild($failure_message, $output);
+    }
+    return $result;
 
   }
 
-  // TODO 2851000 Ensure saving host artifacts works
   protected function saveHostArtifact($filepath, $savename) {
     $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 
@@ -238,6 +338,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
   public function inject(Container $container) {
     $this->build = $container['build'];
+    $this->environment = $container['environment'];
     $this->io = $container['console.io'];
     $this->container = $container;
   }
@@ -302,6 +403,9 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return [];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function terminateBuild($errorLabel, $errorDetails = '') {
     $this->io->drupalCIError($errorLabel, $errorDetails);
     throw new BuildTaskException($errorLabel, $errorDetails);
