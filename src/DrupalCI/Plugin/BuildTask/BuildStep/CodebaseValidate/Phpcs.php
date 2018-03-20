@@ -236,9 +236,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     $this->io->writeln('Executing PHPCS.');
 
-    $result = $this->execEnvironmentCommands([
+    $sniffresult = $this->execEnvironmentCommands([
       'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
+
 
     // Save phpcs sniffs as an artifact.
     $commands[] = 'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
@@ -253,7 +254,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
     if ($this->configuration['sniff-fails-test']) {
-      return $result->getSignal();
+      return $sniffresult->getSignal();
     }
     return 0;
   }
