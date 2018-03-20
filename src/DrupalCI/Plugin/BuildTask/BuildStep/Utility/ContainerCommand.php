@@ -33,30 +33,37 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
    *
    * @param string[] $commands
    * @param bool $die_on_fail
-   * @return int
-   * @throws BuildTaskException
    *
    * @todo: Explicitly set the container in executeCommands().
    */
   protected function execute($commands, $die_on_fail) {
-    // @todo: Add contrib path stuff.
-    $commands = array_merge(
-      ['cd ' . $this->environment->getExecContainerSourceDir()],
-      $commands
-    );
 
-    $result = $this->environment->executeCommands($commands);
-    $this->saveStringArtifact('php-container-command', $result->getOutput());
-    if ($result->getSignal() != 0) {
-      $message = 'Return code: ' . $result->getSignal();
+    protected
+    /**
+     * @param $commands
+     * @param $die_on_fail
+     *
+     * @return int
+     * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+     */
+    function execute($commands, $die_on_fail) {
+      // TODO: Loop through $commands and fill in tokens for
+      //  $this->environment->getExecContainerSourceDir();
+      // ???
       if ($die_on_fail) {
-        $this->terminateBuild($message, $result->getError());
+        $result = $this->execRequiredEnvironmentCommands($commands, 'Custom Commands Failed');
       }
       else {
-        $this->io->drupalCIError($message, $result->getError());
+        $result = $this->execEnvironmentCommands($commands);
       }
+      // exedRequiredComannds should terminate The build further down if there's
+      // an error. And since we have no idea what to do with a custom command
+      // that isnt required, we'll just return 0 at this point.
+      // Maybe this should return $result->getSignal() instead and make sure
+      // devs know about 0, 1, and 2 ?
+      return 0;
     }
-    return 0;
+
   }
 
 }

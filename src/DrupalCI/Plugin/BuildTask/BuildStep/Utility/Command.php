@@ -9,7 +9,7 @@ use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use Pimple\Container;
 
 /**
- * @PluginID("command")
+ * @PluginID("host_command")
  */
 class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
@@ -56,39 +56,33 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     }
 
     // Execute.
-    return $this->execute(
-      $this->configuration['commands'],
-      $this->configuration['die-on-nonzero']
-    );
+    return $this->execute($this->configuration['commands'], $this->configuration['die-on-nonzero']);
   }
 
   /**
    * Execute the commands on the host environment.
    *
-   * @param type $commands
-   * @param type $die_on_fail
+   * @param $commands
+   * @param $die_on_fail
+   *
    * @return int
-   * @throws BuildTaskException
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execute($commands, $die_on_fail) {
-    // @todo: Add stuff for contrib.
-    if (!chdir($this->codebase->getSourceDirectory())) {
-      $message = 'Unable to change working directory to source directory.';
-      if ($die_on_fail) {
-        $this->terminateBuild($message);
-      }
-      $this->io->drupalCIError($message);
-      return 0;
+    // TODO: Loop through $commands and set
+    $this->codebase->getSourceDirectory();
+
+    if ($die_on_fail) {
+      $result = $this->execRequiredCommands($commands, 'Custom Commands Failed');
     }
-    foreach ($commands as $key => $command) {
-      try {
-        $this->execWithArtifact($command, 'command_output.' . $key);
-      } catch (BuildTaskException $e) {
-        if ($die_on_fail) {
-          throw $e;
-        }
-      }
+    else {
+      $result = $this->execCommands($commands);
     }
+    // exedRequiredComannds should terminate The build further down if there's
+    // an error. And since we have no idea what to do with a custom command
+    // that isnt required, we'll just return 0 at this point.
+    // Maybe this should return $result->getSignal() instead and make sure
+    // devs know about 0, 1, and 2 ?
     return 0;
   }
 
