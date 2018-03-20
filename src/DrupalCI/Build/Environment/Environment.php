@@ -125,8 +125,6 @@ class Environment implements Injectable, EnvironmentInterface {
       //$this->io->writeLn("<info>Executing on container instance $short_id:</info>");
       foreach ($commands as $cmd) {
         $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
-        $executionResult->appendOutput("\nEXECUTING: " . $cmd . "\n");
-        $executionResult->appendError("\nEXECUTING: " . $cmd . "\n");
 
         $exec_config = new ContainersIdExecPostBody();
         $exec_config->setTty(FALSE);
