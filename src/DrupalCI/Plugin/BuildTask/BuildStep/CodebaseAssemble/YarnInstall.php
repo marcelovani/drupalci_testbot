@@ -53,8 +53,8 @@ class YarnInstall extends BuildTaskBase {
     $result = $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
-    if ($result !== 0) {
-      $message = "Yarn install command returned code: $result";
+    if ($result->getSignal() !== 0) {
+      $message = "Yarn install command returned code: {$result->getOutput()}";
       if ($this->configuration['die-on-fail']) {
 
         $this->terminateBuild($message, $output);
@@ -73,7 +73,7 @@ class YarnInstall extends BuildTaskBase {
 
     $result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
     $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
-    return $result;
+    return $result->getSignal();
   }
 
 }
