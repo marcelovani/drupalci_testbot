@@ -32,23 +32,23 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
 
   protected function setupD7Composer(): void {
     $source_dir = $this->codebase->getSourceDirectory();
-    $cmd = "composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
+    $cmd = "/usr/local/bin/composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
     $this->io->writeln("Initializing composer repository");
     $this->execRequiredCommands($cmd, 'Composer init failure');
 
-    $cmd = "composer config discard-changes true --working-dir " . $source_dir;;
+    $cmd = "/usr/local/bin/composer config discard-changes true --working-dir " . $source_dir;;
     $this->io->writeln("Ignoring Composer Changes");
     $this->execRequiredCommands($cmd, 'Composer config failure');
 
-    $cmd = "composer config minimum-stability dev --working-dir " . $source_dir;
+    $cmd = "/usr/local/bin/composer config minimum-stability dev --working-dir " . $source_dir;
     $this->io->writeln("Setting Minimum Stability");
     $this->execRequiredCommands($cmd, 'Composer config failure');
 
-    $cmd = "composer config prefer-stable true --working-dir " . $source_dir;
+    $cmd = "/usr/local/bin/composer config prefer-stable true --working-dir " . $source_dir;
     $this->io->writeln("Setting Preferred Stability");
     $this->execRequiredCommands($cmd, 'Composer config failure');
 
-    $cmd = "composer require composer/installers --working-dir " . $source_dir;
+    $cmd = "/usr/local/bin/composer require composer/installers --working-dir " . $source_dir;
     $this->io->writeln("Composer Command: $cmd");
     $this->execRequiredCommands($cmd, 'Composer require failure');
 
