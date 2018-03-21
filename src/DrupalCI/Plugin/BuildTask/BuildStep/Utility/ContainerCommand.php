@@ -40,10 +40,8 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
    */
   protected function execute($commands, $die_on_fail) {
     // Set some environment variables for these executions.
-    $this->command_environment[] = "HOST_SOURCE_DIR={$this->codebase->getSourceDirectory()}";
-    $this->command_environment[] = "HOST_PROJECT_DIR={$this->codebase->getSourceDirectory()}/{$this->codebase->getTrueExtensionSubDirectory()}";
-    $this->command_environment[] = "TEST_SOURCE_DIR={$this->environment->getExecContainerSourceDir()}";
-    $this->command_environment[] = "TEST_PROJECT_DIR={$this->environment->getExecContainerSourceDir()}/{$this->codebase->getTrueExtensionSubDirectory()}";
+    $this->command_environment[] = "SOURCE_DIR={$this->environment->getExecContainerSourceDir()}";
+    $this->command_environment[] = "PROJECT_DIR={$this->environment->getExecContainerSourceDir()}/{$this->codebase->getTrueExtensionSubDirectory()}";
 
     if ($die_on_fail) {
       $result = $this->execRequiredEnvironmentCommands($commands, 'Custom Commands Failed');
