@@ -92,7 +92,7 @@ class Environment implements Injectable, EnvironmentInterface {
   /**
    * {@inheritdoc}
    */
-  public function executeCommands($commands, $container_id = '') {
+  public function executeCommands($commands, $container_id = '', $env_vars = []) {
 
     /* @var $executionResult \DrupalCI\Build\Environment\CommandResultInterface */
     $executionResult = $this->container['command.result'];
@@ -131,6 +131,7 @@ class Environment implements Injectable, EnvironmentInterface {
         $exec_config->setAttachStderr(TRUE);
         $exec_config->setAttachStdout(TRUE);
         $exec_config->setAttachStdin(FALSE);
+        $exec_config->setEnv($env_vars);
         $command = ["/bin/bash", "-c", $cmd];
         $exec_config->setCmd($command);
 

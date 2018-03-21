@@ -35,35 +35,27 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
    * @param bool $die_on_fail
    *
    * @todo: Explicitly set the container in executeCommands().
+   * @return int
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execute($commands, $die_on_fail) {
+    // Set some environment variables for these executions.
+    $this->command_environment[] = "HOST_SOURCE_DIR={$this->codebase->getSourceDirectory()}";
+    $this->command_environment[] = "HOST_PROJECT_DIR={$this->codebase->getSourceDirectory()}/{$this->codebase->getTrueExtensionSubDirectory()}";
+    $this->command_environment[] = "TEST_SOURCE_DIR={$this->environment->getExecContainerSourceDir()}";
+    $this->command_environment[] = "TEST_PROJECT_DIR={$this->environment->getExecContainerSourceDir()}/{$this->codebase->getTrueExtensionSubDirectory()}";
 
-    protected
-    /**
-     * @param $commands
-     * @param $die_on_fail
-     *
-     * @return int
-     * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
-     */
-    function execute($commands, $die_on_fail) {
-      // TODO: Loop through $commands and fill in tokens for
-      //  $this->environment->getExecContainerSourceDir();
-      // ???
-      if ($die_on_fail) {
-        $result = $this->execRequiredEnvironmentCommands($commands, 'Custom Commands Failed');
-      }
-      else {
-        $result = $this->execEnvironmentCommands($commands);
-      }
-      // exedRequiredComannds should terminate The build further down if there's
-      // an error. And since we have no idea what to do with a custom command
-      // that isnt required, we'll just return 0 at this point.
-      // Maybe this should return $result->getSignal() instead and make sure
-      // devs know about 0, 1, and 2 ?
-      return 0;
+    if ($die_on_fail) {
+      $result = $this->execRequiredEnvironmentCommands($commands, 'Custom Commands Failed');
     }
-
+    else {
+      $result = $this->execEnvironmentCommands($commands);
+    }
+    // exedRequiredComannds should terminate The build further down if there's
+    // an error. And since we have no idea what to do with a custom command
+    // that isnt required, we'll just return 0 at this point.
+    // Maybe this should return $result->getSignal() instead and make sure
+    // devs know about 0, 1, and 2 ?
+    return 0;
   }
-
 }

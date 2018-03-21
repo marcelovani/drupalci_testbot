@@ -298,7 +298,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   protected function execEnvironmentCommands($commands, $container_id = NULL, $save_output = TRUE) {
 
-    $result = $this->environment->executeCommands($commands, $container_id);
+    $result = $this->environment->executeCommands($commands, $container_id, $this->command_environment);
     if ($save_output) {
       $command_strings = is_array($commands) ? $commands : [$commands];
       $command_strings = implode("\n",$command_strings);
