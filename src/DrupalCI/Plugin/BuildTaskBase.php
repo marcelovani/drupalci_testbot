@@ -236,10 +236,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
       // TODO: we probably need to make a Process Factory on the container for
       // this.
+      /** @var Process $process */
+
       $process = $this->container['process'];
       $process->setWorkingDirectory($source_dir);
       $process->setCommandLine($cmd);
       $process->setEnv($this->command_environment);
+      $process->setTimeout(300);
 
       $process->run();
       $cmdOutput = $process->getOutput();

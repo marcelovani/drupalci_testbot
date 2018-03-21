@@ -37,7 +37,7 @@ class CommandResult implements CommandResultInterface {
    * @return string
    */
   public function getOutput() {
-    return $this->output;
+    return trim($this->output);
   }
 
   /**
