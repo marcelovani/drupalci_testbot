@@ -335,7 +335,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     if ($return_signal !== 0) {
       $command_strings = is_array($commands) ? $commands : [$commands];
       $command_strings = implode("\n",$command_strings);
-      $output = "--- Commands Executed ---\n${command_strings}\nReturn Code: ${return_signal}\n--- Output ---\n{$result->getOutput()}--- Errors ---\n{$result->getError()}";
+      $output = "--- Commands Executed ---\n${command_strings}\nReturn Code: ${return_signal}\n--- Output ---\n{$result->getOutput()}\n--- Errors ---\n{$result->getError()}";
       $this->terminateBuild($failure_message, $output);
     }
     return $result;
