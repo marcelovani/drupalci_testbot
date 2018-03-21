@@ -220,4 +220,14 @@ class Codebase implements CodebaseInterface, Injectable {
     return $installed_json;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getWorkingDirectory() {
+    if ($this->getProjectType() == 'core') {
+      return $this->getSourceDirectory();
+    }
+    return $this->getTrueExtensionSubDirectory();
+  }
+
 }

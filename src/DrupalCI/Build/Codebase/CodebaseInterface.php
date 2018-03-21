@@ -80,4 +80,14 @@ interface CodebaseInterface {
 
   public function getInstalledComposerPackages();
 
+  /**
+   * Relative path to the project root where tasks should do work.
+   *
+   * For core this is equivalent to DRUPAL_ROOT. For extensions this will be
+   * where composer-installers would place the project.
+   *
+   * @return string
+   */
+  public function getWorkingDirectory();
+
 }

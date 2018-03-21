@@ -92,9 +92,9 @@ class Environment implements Injectable, EnvironmentInterface {
   /**
    * {@inheritdoc}
    */
-  public function executeCommands($commands, $container_id = '') {
+  public function executeCommands($commands, $container_id = '', $env_vars = []) {
 
-    /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
+    /* @var $executionResult \DrupalCI\Build\Environment\CommandResultInterface */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;
     // Data format: 'command [arguments]' or array('command [arguments]', 'command [arguments]')
@@ -131,6 +131,7 @@ class Environment implements Injectable, EnvironmentInterface {
         $exec_config->setAttachStderr(TRUE);
         $exec_config->setAttachStdout(TRUE);
         $exec_config->setAttachStdin(FALSE);
+        $exec_config->setEnv($env_vars);
         $command = ["/bin/bash", "-c", $cmd];
         $exec_config->setCmd($command);
 
@@ -190,7 +191,6 @@ class Environment implements Injectable, EnvironmentInterface {
 
   /**
    * @return string
-   * TODO 2851000 - convert all of these to WorkDir
    */
   public function getContainerArtifactDir() {
     return $this->containerArtifactDir;

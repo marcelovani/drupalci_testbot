@@ -48,7 +48,7 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
     $this->io->writeln("Setting Preferred Stability");
     $this->execRequiredCommands($cmd, 'Composer config failure');
 
-    $cmd = "./bin/composer require composer/installers --working-dir " . $source_dir;
+    $cmd = "composer require composer/installers --working-dir " . $source_dir;
     $this->io->writeln("Composer Command: $cmd");
     $this->execRequiredCommands($cmd, 'Composer require failure');
 

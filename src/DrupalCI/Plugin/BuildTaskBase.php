@@ -7,6 +7,7 @@ use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use DrupalCI\Build\Environment\CommandResult;
 use Pimple\Container;
+use Symfony\Component\Process\Process;
 
 /**
  * Base class for plugins.
@@ -110,6 +111,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *   Total time taken for this build task, including child tasks
    */
   protected $elapsedTime;
+  /*
+   * @var string[]
+   *
+   * Associatiave array of environment variables to pass into commands this
+   * plugin executes.
+   */
+  protected $command_environment = [];
 
   /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
@@ -142,7 +150,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   public function start() {
     $this->startTime = microtime(TRUE);
-    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->pluginId . "</>   ----------------</info>");
+    $this->io->writeLn("<info>----------------   Starting <options=bold>" . $this->getPluginIdLabel() . "</>   ----------------</info>");
 
     $this->setup();
     $statuscode = $this->run();
@@ -165,19 +173,26 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $elapsed_time = microtime(TRUE) - $this->startTime;
     $this->elapsedTime = $elapsed_time;
     $datetime = new \DateTime();
-    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->pluginId . "</> in " . number_format($elapsed_time, 3) . " seconds ---------------- </info>");
+    $this->io->writeLn("<info>---------------- Finished <options=bold>" . $this->getPluginIdLabel() . "</> in " . number_format($elapsed_time, 3) . " seconds ---------------- </info>");
   }
 
   private function setup(){
     // Sets up the artifact and ancillary directories for the plugins.
-
-    $this->pluginDir = $this->pluginId;
-    if (!empty($this->pluginLabel)) {
-      $this->pluginDir = $this->pluginDir . '.' . $this->pluginLabel;
-    }
+    $this->pluginDir = $this->getPluginIdLabel();
     $this->pluginWorkDir = $this->build->getAncillaryWorkDirectory() . '/' . $this->pluginDir;
     $this->build->setupDirectory($this->pluginWorkDir);
 
+  }
+
+  /**
+   * Get the plugin id + label, as in composer.update.
+   */
+  protected function getPluginIdLabel() {
+    $id = $this->pluginId;
+    if (!empty($this->pluginLabel)) {
+      $id = $this->pluginId . '.' . $this->pluginLabel;
+    }
+    return $id;
   }
 
   private function teardown() {
@@ -210,28 +225,45 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @return \DrupalCI\Build\Environment\CommandResultInterface
    */
   protected function execCommands($commands, $save_output = TRUE) {
+    $source_dir = $this->build->getBuildDirectory() . '/source';
     /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;
     $commands = is_array($commands) ? $commands : [$commands];
     foreach ($commands as $cmd) {
-      // TODO: detect if this is there already and only add if absent.
-      $cmd .= ' 2>&1';
 
       $this->io->writeLn("<fg=magenta>$cmd</fg=magenta>");
 
-      // TODO: use proc_open to properly get stdout/stderr
-      exec($cmd, $cmd_output, $return_signal);
+      // TODO: we probably need to make a Process Factory on the container for
+      // this.
+      /** @var Process $process */
 
-      $maxExitCode = max($return_signal, $maxExitCode);
-      $fulloutput = implode("\n", $cmd_output);
-      $executionResult->appendOutput($fulloutput);
+      $process = $this->container['process'];
+      $process->setWorkingDirectory($source_dir);
+      $process->setCommandLine($cmd);
+      $process->setEnv($this->command_environment);
+      $process->setTimeout(300);
+
+      $process->run();
+      $cmdOutput = $process->getOutput();
+      $errorOutput = $process->getErrorOutput();
+      $exitCode = $process->getExitCode();
+
+      $maxExitCode = max($exitCode, $maxExitCode);
+
+      $executionResult->appendOutput($cmdOutput);
+      $executionResult->appendError($errorOutput);
       $executionResult->setSignal($maxExitCode);
       if ($save_output) {
         // TODO: save as machine readable json?
-        $this->buildTaskCommandOutput[] = "Host command: ${cmd}";
-        $this->buildTaskCommandOutput[] = "Return code: ${return_signal}";
-        $this->buildTaskCommandOutput[] = "Output: ${fulloutput}";
+        if (!empty($errorOutput)) {
+          $cmdOutput = "{$cmdOutput}\n{$errorOutput}";
+        }
+        $this->buildTaskCommandOutput[] = "Host command: {$cmd}";
+        $this->buildTaskCommandOutput[] = "Return code: {$exitCode}";
+        if (!empty($cmdOutput)){
+          $this->buildTaskCommandOutput[] = "Output: {$cmdOutput}";
+        }
       }
     }
     return $executionResult;
@@ -269,7 +301,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    */
   protected function execEnvironmentCommands($commands, $container_id = NULL, $save_output = TRUE) {
 
-    $result = $this->environment->executeCommands($commands, $container_id);
+    $result = $this->environment->executeCommands($commands, $container_id, $this->command_environment);
     if ($save_output) {
       $command_strings = is_array($commands) ? $commands : [$commands];
       $command_strings = implode("\n",$command_strings);

@@ -1,0 +1,38 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.5.x'
+        git_commit_hash: 91e668f
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+      composer_contrib:
+        repositories: {  }
+      fetch:
+      patch:
+      update_dependencies: {  }
+    project_subdir: ''
+    project_name: ''
+    project_type: ''
+  environment:
+    startcontainers:
+      runcontainers:
+  assessment:
+    host_command.composer_existy:
+      die-on-nonzero: FALSE
+      commands:
+        test -f composer.json
+    host_command.bad_file:
+      die-on-nonzero: TRUE
+      commands:
+        test -f no_such_file
+    container_command.composer_exists:
+      die-on-nonzero: FALSE
+      commands:
+        test -f composer.json
+    container_command.badder_file:
+      die-on-nonzero: FALSE
+      commands:
+        test -f no_such_file

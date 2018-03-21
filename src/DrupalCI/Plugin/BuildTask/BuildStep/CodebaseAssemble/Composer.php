@@ -35,10 +35,10 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     // We add in discard-changes because we're sometimes working with an existing
     // drupal core that already has coder stripped of its tests, and thus it
     // appears as though they are changed.
-    $cmd = "./bin/composer ${verbose} config -g discard-changes true";
+    $cmd = "composer ${verbose} config -g discard-changes true";
     $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
 
-    $cmd = "./bin/composer ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
+    $cmd = "composer ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->execRequiredCommands($cmd, 'Composer Command Failed');
 
   }
