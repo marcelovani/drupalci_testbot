@@ -23,6 +23,7 @@ class DrupalCIServiceProvider implements ServiceProviderInterface {
     $container->register(new DatabaseServiceProvider());
     $container->register(new YamlServiceProvider());
     $container->register(new GuzzleClientServiceProvider());
+    $container->register(new ProcessServiceProvider());
     $container->register(new BuildServiceProvider());
     $container->register(new CodebaseServiceProvider());
     $container->register(new EnvironmentServiceProvider());
