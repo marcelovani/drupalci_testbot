@@ -96,14 +96,14 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     $composer_branch = $this->getSemverBranch($branch);
 
     $source_dir = $this->codebase->getSourceDirectory();
-    $cmd = "./bin/composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
+    $cmd = "composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
     $this->io->writeln("Adding packages.drupal.org as composer repository");
     $this->execRequiredCommands($cmd, 'Composer config failure');
 
 
-    $cmd = "./bin/composer ${verbose} require drupal/" . $project . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
+    $cmd = "composer ${verbose} require drupal/" . $project . " " . $composer_branch . " --ignore-platform-reqs --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
 
-    $this->io->writeln("Composer Command: $cmd");
+    $this->io->writeln("Requiring Project");
     $this->execRequiredCommands($cmd, 'Composer require failure');
 
     // Composer does not respect require-dev anywhere but the root package
@@ -111,8 +111,8 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     // Those dependencies in as well.
     $packages = $this->codebase->getComposerDevRequirements();
     if (!empty($packages)) {
-      $cmd = "./bin/composer ${verbose} require --no-interaction --ignore-platform-reqs " . implode(' ', $packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
-      $this->io->writeln("Composer Command: $cmd");
+      $cmd = "composer ${verbose} require --no-interaction --ignore-platform-reqs " . implode(' ', $packages) . " --ignore-platform-reqs --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
+      $this->io->writeln("Adding require-dev");
       $this->execRequiredCommands($cmd, 'Composer require failure');
 
     }
