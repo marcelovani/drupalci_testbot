@@ -12,13 +12,15 @@ interface EnvironmentInterface {
    *
    * @param null $container_id
    *
+   * @param array $env_vars
+   *
    * @return \DrupalCI\Build\Environment\CommandResultInterface
    *
    * Takes in an array of commands to execute on a container and returns a
    * CommandResult object with the signal, stdout, and stderr. Optional
    * container_id allows for a specific container to be selected.
    */
-  public function executeCommands($commands, $container_id = NULL);
+  public function executeCommands($commands, $container_id = NULL, $env_vars = []);
 
   public function startExecContainer($container);
 

@@ -435,7 +435,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Install drupal/coder.
     $coder_version = $this->configuration['coder-version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-    $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE composer require --dev drupal/coder " . $coder_version;
+    $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE /usr/local/bin/composer require --dev drupal/coder " . $coder_version;
     $result = $this->execEnvironmentCommands($cmd);
     if ($result->getSignal() !== 0) {
       // If it didn't work, then we bail, but we don't halt build execution.

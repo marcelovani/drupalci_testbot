@@ -87,6 +87,9 @@ class SimpletestD7 extends Simpletest {
       'concurrency',
       'url',
     ];
+    if (empty($config['concurrency'])) {
+      $config['concurrency'] = $this->environment->getHostProcessorCount();
+    }
     foreach ($config as $key => $value) {
       if (in_array($key, $args)) {
         if ($value) {
