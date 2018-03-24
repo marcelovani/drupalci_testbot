@@ -1,0 +1,24 @@
+# The DrupalCI Project Build Definition Template.
+#
+# Use this file to get started defining your own build for use with the DrupalCI
+# testbot.
+
+# We must define a build task.
+build:
+  # The testbot will ignore all build stages other than assessment. This
+  # assessment stage is the same as the one in simpletest.yml, but you can
+  # remove any of these tasks.
+  assessment:
+    validate_codebase:
+      phplint:
+      container_composer:
+      csslint:
+      eslint:
+      phpcs:
+    testing:
+      simpletest.standard:
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+      simpletest.js:
+        concurrency: 1
+        types: 'PHPUnit-FunctionalJavascript'
+      nightwatchjs:
