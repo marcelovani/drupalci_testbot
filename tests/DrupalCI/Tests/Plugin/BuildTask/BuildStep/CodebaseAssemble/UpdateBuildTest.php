@@ -52,41 +52,12 @@ class UpdateBuildTest extends DrupalCITestCase {
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
-    // Ensure that always-use-drupalci-yml is FALSE.
-    $plugin = $plugin_factory->getPlugin('BuildStep', 'update_build', ['always-use-drupalci-yml' => FALSE]);
+    $plugin = $plugin_factory->getPlugin('BuildStep', 'update_build');
 
     $ref_should = new \ReflectionMethod($plugin, 'shouldReplaceAssessmentStage');
     $ref_should->setAccessible(TRUE);
 
     $this->assertEquals($expected, $ref_should->invoke($plugin));
-  }
-
-  /**
-   * Test behavior of always-use-drupalci-yml config.
-   *
-   * @covers ::shouldReplaceAssessmentStage
-   */
-  public function testShouldReplaceAssessmentStageConfig() {
-    foreach ([TRUE, FALSE] as $config) {
-      // Codebase has no modified files, so we should never need to replace
-      // assessment stage.
-      $codebase = $this->getMockBuilder(CodebaseInterface::class)
-        ->setMethods(['getModifiedFiles'])
-        ->getMockForAbstractClass();
-      $codebase->expects($this->any())
-        ->method('getModifiedFiles')
-        ->willReturn([]);
-      $container = $this->getContainer(['codebase' => $codebase]);
-      $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
-
-      // Create a plugin using our config.
-      $plugin = $plugin_factory->getPlugin('BuildStep', 'update_build', ['always-use-drupalci-yml' => $config]);
-
-      $ref_should = new \ReflectionMethod($plugin, 'shouldReplaceAssessmentStage');
-      $ref_should->setAccessible(TRUE);
-
-      $this->assertSame($config, $ref_should->invoke($plugin));
-    }
   }
 
   /**
