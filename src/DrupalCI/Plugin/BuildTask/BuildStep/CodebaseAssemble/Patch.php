@@ -58,7 +58,7 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if (empty($details['from'])) {
         $this->terminateBuild("Invalid Patch", "No valid patch file provided for the patch command.");
       }
-      $details['to'] = $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory();
+      $details['to'] = $this->codebase->getProjectSourceDirectory();
 
       // Create a new patch object based on the adjusted 'to'.
       /* @var $patch \DrupalCI\Build\Codebase\Patch */

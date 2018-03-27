@@ -100,11 +100,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     return [
       'sniff-all-files' => FALSE,
-      'start-directory' => 'core',
       'installed-paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning-fails-sniff' => FALSE,
-      // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
-      // terminate the build or fail the test.
+      // If halt-on-fail is FALSE, then NO circumstance should let phpcs
+      // terminate the build.
       'halt-on-fail' => FALSE,
       'coder-version' => '^8.2@stable',
       'skip-codesniff' => FALSE,
@@ -119,9 +118,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // source directory.
     if (FALSE !== getenv('DCI_CS_SniffAllFiles')) {
       $this->configuration['sniff-all-files'] = getenv('DCI_CS_SniffAllFiles');
-    }
-    if (FALSE !== getenv('DCI_CS_SniffStartDirectory')) {
-      $this->configuration['start-directory'] = getenv('DCI_CS_SniffStartDirectory');
     }
     if (FALSE !== getenv('DCI_CS_ConfigInstalledPaths')) {
       $this->configuration['installed-paths'] = getenv('DCI_CS_ConfigInstalledPaths');
@@ -189,7 +185,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
 
     // Get the sniff start directory.
-    $start_dir = $this->getStartDirectory();
+    $start_dir = $this->codebase->getProjectConfigDirectory(FALSE);
 
     // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
     // error.
@@ -219,13 +215,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     if ($files_to_sniff == 'all') {
       // We can use start-directory since we're supposed to sniff the codebase.
-      if (!empty($this->configuration['start-directory'])) {
-        $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['start-directory'];
-      }
-      else {
-        // If there's no start-directory, use .
-        $phpcs_args[] = $this->environment->getExecContainerSourceDir();
-      }
+      $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->codebase->getProjectConfigDirectory(FALSE);
     }
     elseif ($files_to_sniff == 'none') {
       return 0;
@@ -278,11 +268,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
 
     // Check if we're testing contrib, adjust start path accordingly.
     $project = $this->codebase->getProjectName();
-    // @todo: For now, core has no project name, but contrib does. This could
-    // easily change, so we'll need to change the behavior here.
-    if ($project !== 'drupal') {
-      $this->configuration['start-directory'] = $this->codebase->getTrueExtensionSubDirectory();
-    }
+
 
     // Does the code have a phpcs.xml.dist file after patching?
     $this->io->writeln('<info>Checking for phpcs.xml(.dist) file.</info>');
@@ -349,24 +335,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   }
 
   /**
-   * Get the start directory within the container.
-   *
-   * @return string
-   *   Container path to the configured start directory. If no config was
-   *   specified, return the root path to the container source directory.
-   */
-  protected function getStartDirectory() {
-    // Get the project root.
-    $source_dir = $this->environment->getExecContainerSourceDir();
-    $start_dir = $source_dir;
-    // Add the start directory from configuration.
-    if (!empty($this->configuration['start-directory'])) {
-      $start_dir = $source_dir . '/' . $this->configuration['start-directory'];
-    }
-    return $start_dir;
-  }
-
-  /**
    * Determine whether the project has a phpcs.xml(.dist) file.
    *
    * Uses start-directory as the place to look.
@@ -376,10 +344,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
    */
   protected function projectHasPhpcsConfig() {
     // Check if phpcs.xml(.dist) exists.
-    $config_dir = $this->getStartDirectory();
+    $config_dir = $this->codebase->getProjectConfigDirectory();
     $config_file = $config_dir . '/phpcs.xml*';
     $this->io->writeln('Checking for PHPCS config file: ' . $config_file);
-    $result = $this->execEnvironmentCommands('test -e ' . $config_file);
+    $result = $this->execCommands('test -e ' . $config_file);
     return ($result->getSignal() == 0);
   }
 
@@ -395,10 +363,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   protected function phpcsConfigFileIsModified() {
     // Get the list of modified files.
     $modified_files = $this->codebase->getModifiedFiles();
-    $start_dir = '';
-    if (!empty($this->configuration['start-directory'])) {
-      $start_dir = $this->configuration['start-directory'];
-    }
+    $start_dir = $this->codebase->getProjectConfigDirectory(FALSE);
     return (
       in_array($start_dir . '/phpcs.xml', $modified_files) ||
       in_array($start_dir . '/phpcs.xml.dist', $modified_files)

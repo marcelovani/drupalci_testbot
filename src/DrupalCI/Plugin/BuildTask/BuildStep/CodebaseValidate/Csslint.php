@@ -126,7 +126,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   }
 
   /**
-   * Returns the full path of the directory to run csslint in.
+   * Returns the relative path of the directory to run csslint in.
    *
    * If a project has a .csslintrc, we want to run csslint from the
    * project directory, otherwise we run from the root directory to use
@@ -135,13 +135,11 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   protected function getCssLintConfig() {
     $config_file = '';
 
-    $root_dir = $this->codebase->getTrueExtensionSubDirectory();
     // Check for config files in the project directory first
-   if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.csslintrc'))   {
-      $config_file = $root_dir . '/.csslintrc';
-   }
-   elseif (file_exists($this->codebase->getSourceDirectory() . '/.csslintrc'))   {
-     $config_file = '.csslintrc';
+    // We dont use getProjectConfigDirectory because core's csslintrc file is
+    // located in the root of the project.
+   if (!empty($this->codebase->getProjectSourceDirectory()) && file_exists($this->codebase->getProjectSourceDirectory() . '/.csslintrc'))   {
+      $config_file = $this->codebase->getProjectSourceDirectory(FALSE) . '/.csslintrc';
    }
 
     return $config_file;
@@ -169,13 +167,13 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // No modified files? Sniff the whole repo.
     if (empty($this->codebase->getModifiedFiles())) {
       $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
-      return [$this->codebase->getTrueExtensionSubDirectory()];
+      return [$this->codebase->getProjectSourceDirectory(FALSE)];
     }
     elseif ($this->configFileIsModified()) {
       // Sniff all files if .csslintrc has been modified. The file could be
       // 'modified' in that it was removed
       $this->io->writeln('<info>Csslint config file modified, sniffing entire project.</info>');
-      return [$this->codebase->getTrueExtensionSubDirectory()];
+      return [$this->codebase->getProjectSourceDirectory(FALSE)];
     }
     else {
       $modified_css =  preg_grep("{.*\.css$}",$this->codebase->getModifiedFiles());

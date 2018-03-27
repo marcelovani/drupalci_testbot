@@ -171,7 +171,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     // If its a contrib test, then either empty, --all, or a --directory
     // switch needs to be converted to use our TrueExtensionSubDirectory.
     if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
-      $command[] = "--directory " . $this->codebase->getTrueExtensionSubDirectory();
+      $command[] = "--directory " . $this->codebase->getProjectSourceDirectory(FALSE);
     }
     else {
       // Add the test groups last, if this is not an extension test.

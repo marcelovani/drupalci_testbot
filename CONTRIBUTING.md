@@ -679,7 +679,7 @@ to the test. We can achieve that a few ways.
                             'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
          ], $options);`
 
-         Where the definition file is relative to the root of the
+         Where the definition file is absolute to the root of the
          project.
 -   Using .yml templates & ENV's
 

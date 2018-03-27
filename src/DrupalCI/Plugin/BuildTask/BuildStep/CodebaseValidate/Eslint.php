@@ -91,7 +91,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
 
     $this->io->writeln('Executing eslint.');
 
-    $command = 'cd ' . $this->codebase->getSourceDirectory() . '/' . $this->codebase->getTrueExtensionSubDirectory() . ' && ' . 'eslint ' . implode(' ', $args) . ' ' . $lintfiles;
+    $command = 'cd ' . $this->codebase->getProjectSourceDirectory() . ' && ' . 'eslint ' . implode(' ', $args) . ' ' . $lintfiles;
     $result = $this->execCommands($command);
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->checkstyleReportFile, $this->checkstyleReportFile);
 
@@ -139,18 +139,15 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    * fall back to the ones in the root directory
    */
   protected function getEsLintConfig() {
-    $config = ['config' => '', 'ignore' => ''];
+    $config = '';
 
-    $root_dir = $this->codebase->getTrueExtensionSubDirectory();
+    $config_directory = $this->codebase->getProjectConfigDirectory();
+    $config_path = $this->codebase->getProjectConfigDirectory(FALSE);
     // Check for config files in the project directory first
-    if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintrc.json')) {
-      $config['config'] = $this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintrc.json';
-    } elseif (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintrc')) {
-      $config['config'] = $this->codebase->getSourceDirectory() . '/' . $root_dir . '/.eslintrc';
-    } elseif ($exists = (file_exists($this->codebase->getSourceDirectory() . '/.eslintrc.json'))){
-      $config['config'] = $this->codebase->getSourceDirectory() . '/.eslintrc.json';
-    } elseif ($exists = (file_exists($this->codebase->getSourceDirectory() . '/.eslintrc'))){
-      $config['config'] = $this->codebase->getSourceDirectory() . '/.eslintrc';
+    if (!empty($config_directory) && file_exists($config_directory . '/.eslintrc.json')) {
+      $config = $config_path . '/.eslintrc.json';
+    } elseif (!empty($config_directory) && file_exists($config_directory . '/.eslintrc')) {
+      $config = $config_path . '/.eslintrc';
     }
 
     return $config;
@@ -168,10 +165,8 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     $modified_files = $this->codebase->getModifiedFiles();
     $config = $this->getEsLintConfig();
 
-    return (
-      in_array($config['config'], $modified_files) ||
-      in_array($config['ignore'], $modified_files)
-    );
+    return in_array($config, $modified_files);
+
   }
 
 
