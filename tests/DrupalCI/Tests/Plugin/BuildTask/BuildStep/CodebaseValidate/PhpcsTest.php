@@ -158,27 +158,27 @@ class PhpcsTest extends DrupalCITestCase {
   public function provideSniffScenarios() {
     return [
       'sniff_all_files' =>
-        ['all', TRUE, [], []],
+        ['all', TRUE, [], [], FALSE],
       'sniff_all_files_modified' =>
-        ['all', TRUE, ['index.php'], ['index.php']],
+        ['all', TRUE, ['index.php'], ['index.php'], FALSE],
       'no_modified_files' =>
-        ['all', FALSE, [], []],
+        ['all', FALSE, [], [], FALSE],
       'phpcs_config_modified' =>
-        ['all', FALSE, ['core/phpcs.xml'], []],
+        ['all', FALSE, ['core/phpcs.xml'], [], TRUE],
       'phpcs_config_modified2' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'], []],
+        ['all', FALSE, ['core/phpcs.xml.dist'], [], TRUE],
       'phpcs_config_modified3' =>
-        ['all', FALSE, ['core/phpcs.xml.dist'], ['index.php']],
+        ['all', FALSE, ['core/phpcs.xml.dist'], ['index.php'], TRUE],
       'no_modified_php_files' =>
-        ['none', FALSE, ['README.md'], []],
+        ['none', FALSE, ['README.md'], [], FALSE],
       'modified_php_files' =>
-        [['index.php'], FALSE, ['index.php'], ['index.php']],
+        [['index.php'], FALSE, ['index.php'], ['index.php'], FALSE],
       'multiple_php_files' =>
-        [['index.php', 'run-tests.php'], FALSE, ['index.php', 'run-tests.php'], ['index.php', 'run-tests.php']],
+        [['index.php', 'run-tests.php'], FALSE, ['index.php', 'run-tests.php'], ['index.php', 'run-tests.php'], FALSE],
       'modified_php_etc_files' =>
-        [['index.php'], FALSE, ['index.php', 'README.md'], ['index.php']],
+        [['index.php'], FALSE, ['index.php', 'README.md'], ['index.php'], FALSE],
       'php_and_config' =>
-        ['all', FALSE, ['index.php', 'README.md', 'core/phpcs.xml.dist'], ['index.php']],
+        ['all', FALSE, ['index.php', 'README.md', 'core/phpcs.xml.dist'], ['index.php'], TRUE],
     ];
   }
 
@@ -194,12 +194,14 @@ class PhpcsTest extends DrupalCITestCase {
    * @param $sniff_all_files
    * @param $modified_files
    * @param $modified_php_files
+   * @param $config_modified
    */
   public function testGetSniffableFiles(
     $e_sniffable_outcome,
     $sniff_all_files,
     $modified_files,
-    $modified_php_files
+    $modified_php_files,
+    $config_modified
 
   ) {
     $artifact_directory = '/test/';
@@ -213,6 +215,9 @@ class PhpcsTest extends DrupalCITestCase {
     $codebase->expects($this->any())
       ->method('getModifiedPhpFiles')
       ->willReturn($modified_php_files);
+    $codebase->expects($this->any())
+      ->method('getModifiedFiles')
+      ->willReturn($modified_files);
 
     $build = $this->getMockBuilder(BuildInterface::class)
       ->setMethods(['getArtifactDirectory'])
@@ -230,11 +235,15 @@ class PhpcsTest extends DrupalCITestCase {
       ->setMethods([
         'projectHasPhpcsConfig',
         'getPhpcsExecutable',
+        'phpcsConfigFileIsModified',
         // We just mock writeSniffableFiles() so it does nothing.
         'writeSniffableFiles',
       ])
       ->setConstructorArgs([['sniff-all-files' => $sniff_all_files]])
       ->getMock();
+    $phpcs->expects($this->any())
+      ->method('phpcsConfigFileIsModified')
+      ->willReturn($config_modified);
 
     // Use our mocked codebase and build.
     $phpcs->inject($container);

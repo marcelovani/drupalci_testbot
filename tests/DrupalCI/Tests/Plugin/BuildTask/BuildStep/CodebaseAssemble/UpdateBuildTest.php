@@ -37,8 +37,11 @@ class UpdateBuildTest extends DrupalCITestCase {
    */
   public function testShouldReplaceAssessmentStage($expected, $drupalci_yml_path, $modified) {
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getModifiedFiles', 'getProjectType'])
+      ->setMethods(['getModifiedFiles', 'getProjectType', 'getProjectConfigDirectory'])
       ->getMockForAbstractClass();
+    $codebase->expects($this->any())
+      ->method('getProjectConfigDirectory')
+      ->willReturn('core');
     $modified_files = [];
     if ($modified) {
       $modified_files = [$drupalci_yml_path];
@@ -46,9 +49,6 @@ class UpdateBuildTest extends DrupalCITestCase {
     $codebase->expects($this->once())
       ->method('getModifiedFiles')
       ->willReturn($modified_files);
-    $codebase->expects($this->once())
-      ->method('getProjectType')
-      ->willReturn('core');
 
     $container = $this->getContainer(['codebase' => $codebase]);
     $plugin_factory = $container['plugin.manager.factory']->create('BuildTask');
@@ -65,7 +65,6 @@ class UpdateBuildTest extends DrupalCITestCase {
    */
   public function provideLocateDrupalCiYmlFile() {
     return [
-      'core' => ['core/drupalci.yml', 'core'],
       'module' => ['contrib/drupalci.yml', 'module'],
       'theme' => ['contrib/drupalci.yml', 'theme'],
       'distribution' => ['contrib/drupalci.yml', 'distribution'],
@@ -74,18 +73,17 @@ class UpdateBuildTest extends DrupalCITestCase {
   }
 
   /**
+   * This test basically shows that we're appending drupalci.yml to whatever
+   * The codebase is set to, so, it kinda doesnt test anything at all.
    * @covers ::locateDrupalCiYmlFile
    * @dataProvider provideLocateDrupalCiYmlFile
    */
   public function testLocateDrupalCiYmlFile($expected, $project_type) {
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getProjectType', 'getTrueExtensionSubDirectory'])
+      ->setMethods(['getProjectConfigDirectory'])
       ->getMockForAbstractClass();
-    $codebase->expects($this->once())
-      ->method('getProjectType')
-      ->willReturn($project_type);
     $codebase->expects($this->any())
-      ->method('getTrueExtensionSubDirectory')
+      ->method('getProjectConfigDirectory')
       ->willReturn('contrib');
 
     $container = $this->getContainer(['codebase' => $codebase]);

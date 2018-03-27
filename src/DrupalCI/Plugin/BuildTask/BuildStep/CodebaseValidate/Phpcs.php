@@ -408,7 +408,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
       return 'all';
     }
-    elseif ($this->phpcsConfigFileIsModified()) {
+    else if ($this->phpcsConfigFileIsModified()) {
       // Sniff all files if phpcs.xml(.dist) has been modified. The file could be
       // 'modified' in that it was removed, in which case we want to preserve the
       // sniff_only_changed configuration.
