@@ -21,7 +21,6 @@ build:
       phpcs:
         # Start sniffing at the root of D7. This will be modified to the
         # extension's directory for contrib.
-        start_directory:
       eslint:
     testing:
       run_tests_d7:

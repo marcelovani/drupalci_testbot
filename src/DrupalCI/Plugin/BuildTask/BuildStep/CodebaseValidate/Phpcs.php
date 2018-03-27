@@ -100,13 +100,11 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     return [
       'sniff-all-files' => FALSE,
-      'installed-paths' => 'vendor/drupal/coder/coder_sniffer/',
       'warning-fails-sniff' => FALSE,
       // If halt-on-fail is FALSE, then NO circumstance should let phpcs
       // terminate the build.
       'halt-on-fail' => FALSE,
       'coder-version' => '^8.2@stable',
-      'skip-codesniff' => FALSE,
     ];
   }
 
@@ -119,9 +117,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (FALSE !== getenv('DCI_CS_SniffAllFiles')) {
       $this->configuration['sniff-all-files'] = getenv('DCI_CS_SniffAllFiles');
     }
-    if (FALSE !== getenv('DCI_CS_ConfigInstalledPaths')) {
-      $this->configuration['installed-paths'] = getenv('DCI_CS_ConfigInstalledPaths');
-    }
     if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
       $this->configuration['halt-on-fail'] = getenv('DCI_CS_SniffFailsTest');
     }
@@ -131,9 +126,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     if (FALSE !== getenv('DCI_CS_CoderVersion')) {
       $this->configuration['coder-version'] = getenv('DCI_CS_CoderVersion');
     }
-    if (FALSE !== getenv('DCI_CS_SkipCodesniff')) {
-      $this->configuration['skip-codesniff'] = getenv('DCI_CS_SkipCodesniff');
-    }
   }
 
   /**
@@ -142,10 +134,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function run() {
     $this->io->writeln('<info>PHPCS sniffing the project.</info>');
 
-    // Allow for skipping codesniffer outright, in some tests for example.
-    if ($this->configuration['skip-codesniff']) {
-      return 0;
-    }
     // Set up state as much as possible in a mockable method.
     $this->adjustForUseCase();
 
@@ -167,17 +155,15 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $phpcs_bin = $this->getPhpcsExecutable();
 
       // We have to configure phpcs to use drupal/coder. We need to be able to use
-      // the Drupal standard. The 'installed-paths' configuration is set to the
-      // path for the Drupal standard by default in getDefaultConfiguration(),
-      if (!empty($this->configuration['installed-paths'])) {
-        $cmd = [
-          $phpcs_bin,
-          '--config-set installed_paths ' . $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['installed-paths'],
-        ];
-        $result = $this->execEnvironmentCommands(implode(' ', $cmd));
-        // Let the user figure out if it worked.
-        $result = $this->execEnvironmentCommands("$phpcs_bin -i");
-      }
+      // the Drupal standard.
+      $cmd = [
+        $phpcs_bin,
+        "--config-set installed_paths {$this->environment->getExecContainerSourceDir()}/vendor/drupal/coder/coder_sniffer/",
+      ];
+      $result = $this->execEnvironmentCommands(implode(' ', $cmd));
+      // Let the user figure out if it worked.
+      $result = $this->execEnvironmentCommands("$phpcs_bin -i");
+
     }
     catch (\Exception $e) {
       // No exception should ever bubble up from here.
@@ -214,7 +200,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $files_to_sniff = $this->getSniffableFiles();
 
     if ($files_to_sniff == 'all') {
-      // We can use start-directory since we're supposed to sniff the codebase.
+      // Start at the project directory
       $phpcs_args[] = $this->environment->getExecContainerSourceDir() . '/' . $this->codebase->getProjectConfigDirectory(FALSE);
     }
     elseif ($files_to_sniff == 'none') {
@@ -241,7 +227,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->saveHostArtifact($this->pluginWorkDir . '/' . $this->patchFile, $this->patchFile);
 
     // Allow for failing the test run if CS was bad.
-    // TODO: if this is supposed to fail the build, we should put in a
+    // TODO: distinguish between "coding standard issue is a build failure"
+    // and "stop processing if it fails"
     // $this->terminatebuild.
     if ($this->configuration['halt-on-fail']) {
       return $sniffresult->getSignal();
@@ -337,7 +324,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   /**
    * Determine whether the project has a phpcs.xml(.dist) file.
    *
-   * Uses start-directory as the place to look.
+   * Uses project config directory as the place to look.
    *
    * @return bool
    *   TRUE if the config file exists, false otherwise.

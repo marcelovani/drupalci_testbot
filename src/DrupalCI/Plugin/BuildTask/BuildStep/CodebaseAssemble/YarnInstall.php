@@ -29,7 +29,7 @@ class YarnInstall extends BuildTaskBase {
    */
   public function getDefaultConfiguration() {
     return [
-      'die-on-fail' => FALSE,
+      'halt-on-fail' => FALSE,
     ];
   }
 
@@ -55,8 +55,7 @@ class YarnInstall extends BuildTaskBase {
 
     if ($result->getSignal() !== 0) {
       $message = "Yarn install command returned code: {$result->getOutput()}";
-      if ($this->configuration['die-on-fail']) {
-
+      if ($this->configuration['halt-on-fail']) {
         $this->terminateBuild($message, $output);
       }
       else {
