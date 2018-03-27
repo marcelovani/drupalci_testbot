@@ -56,7 +56,7 @@ build:
         coder_version: ^8.2@stable
         skip_codesniff: false
     testing:
-      simpletest.standard:
+      run_tests.standard:
         types: 'PHPUnit-Unit'
         testgroups: '--all'
         color: true

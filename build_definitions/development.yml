@@ -24,9 +24,9 @@ build:
       eslint:
       phpcs:
     testing:
-      simpletest.standard:
+      run_tests.standard:
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
-      simpletest.js:
+      run_tests.standard:
         concurrency: 1
         types: 'PHPUnit-FunctionalJavascript'
       nightwatchjs:

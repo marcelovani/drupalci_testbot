@@ -30,7 +30,7 @@ class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/2716613-69.flag_.permissions-author.patch,modules/flag',
     'DCI_GitCommitHash=24343f9',
-    'DCI_JobType=simpletest',
+    'DCI_JobType=development',
     'DCI_Patch=2716613-69.flag_.permissions-author.patch,modules/flag',
     'DCI_PHPVersion=php-5.6-apache:production',
     'DCI_ProjectType=module',

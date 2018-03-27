@@ -6,7 +6,7 @@ use DrupalCI\Tests\DrupalCIFunctionalTestBase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
- * Basic test that proves that drupalci can execute a simpletest and generate a result
+ * Basic test that proves that drupalci can execute run_tests and generate a result
  *
  * NOTE: This test assumes you have followed the setup instructions in TESTING.md
  *

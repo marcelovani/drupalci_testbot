@@ -24,4 +24,4 @@ build:
         start_directory:
       eslint:
     testing:
-      simpletest_d7:
+      run_tests_d7:

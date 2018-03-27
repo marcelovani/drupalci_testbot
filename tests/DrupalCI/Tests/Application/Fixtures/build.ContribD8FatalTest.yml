@@ -46,7 +46,7 @@ build:
     dbpassword: drupaltestbotpw
   assessment:
     testing:
-      simpletest.standard:
+      run_tests.standard:
         concurrency: 31
         testgroups: '--directory modules/examples'
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
