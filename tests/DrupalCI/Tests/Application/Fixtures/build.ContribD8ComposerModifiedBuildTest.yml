@@ -54,7 +54,7 @@ build:
         keep-results: true
         keep-results-table: false
         verbose: false
-      run_tests.standard:
+      run_tests.js:
         concurrency: 1
         types: PHPUnit-FunctionalJavascript
         testgroups: '--directory modules/monolog'
