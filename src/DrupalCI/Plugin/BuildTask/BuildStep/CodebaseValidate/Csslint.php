@@ -68,10 +68,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function run() {
     $config = $this->getCssLintConfig();
-    // If there is no config file or we want to skip csslint outright
-    if (empty($config) || $this->configuration['skip-linting']) {
-      return 0;
-    }
+
     $this->io->writeln('<info>csslinting the project.</info>');
 
     $outputfile = $this->pluginWorkDir . '/' . $this->checkstyleReportFile;

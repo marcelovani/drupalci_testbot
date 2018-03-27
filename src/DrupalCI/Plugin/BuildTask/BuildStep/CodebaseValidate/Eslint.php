@@ -37,8 +37,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
   public function getDefaultConfiguration() {
     return [
       // If halt-on-fail is TRUE, then abort the build.
-      'halt-on-fail' => FALSE,
-      'skip-linting' => FALSE,
+      'halt-on-fail' => FALSE
     ];
   }
 
@@ -49,9 +48,6 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
 
     if (FALSE !== getenv('DCI_ES_LintFailsTest')) {
       $this->configuration['halt-on-fail'] = getenv('DCI_ES_LintFailsTest');
-    }
-    if (FALSE !== getenv('DCI_ES_SkipLinting')) {
-      $this->configuration['skip-linting'] = getenv('DCI_ES_SkipLinting');
     }
   }
 
@@ -68,10 +64,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    * Perform the step run.
    */
   public function run() {
-    // If there is no config file or we want to skip eslint outright
-    if ($this->configuration['skip-linting']) {
-      return 0;
-    }
+
     $this->io->writeln('<info>eslinting the project.</info>');
 
     $args = [
