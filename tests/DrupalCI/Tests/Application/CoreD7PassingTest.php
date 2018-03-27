@@ -25,7 +25,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_LocalBranch=7.x',
     'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_JobType=simpletestlegacy7',
+    'DCI_JobType=legacydevelopment',
     // This hash will fail the Coder scan, but the build should pass.
     'DCI_LocalCommitHash=3d5bcd3',
     'DCI_TestGroups=Syslog',
@@ -45,7 +45,7 @@ class CoreD7PassingTest extends DrupalCIFunctionalTestBase {
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
-    $this->assertRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*legacydevelopment*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/.*Syslog functionality 17 passes, 0 fails, and 0 exceptions*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/testresults.xml";

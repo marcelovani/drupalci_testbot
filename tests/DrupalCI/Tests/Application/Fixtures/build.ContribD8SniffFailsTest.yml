@@ -1,6 +1,6 @@
 # This is a test definition to require the Examples project.
 # It forces the addition of Coder, and then runs phpcs. It does not include
-# simpletest tests.
+# run_tests tests.
 build:
   codebase:
     assemble_codebase:

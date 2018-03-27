@@ -28,7 +28,7 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/2684095-2.patch,.',
     'DCI_LocalCommitHash=6afe359',
-    'DCI_JobType=simpletest',
+    'DCI_JobType=development',
     'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_Patch=2684095-2.patch,.',
     'DCI_TestGroups=--class "Drupal\comment\Tests\CommentItemTest"',

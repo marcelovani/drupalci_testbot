@@ -67,27 +67,32 @@ interface CodebaseInterface {
 
   public function setExtensionPaths($extensionPaths);
 
-  /**
-   * Returns the subpath to the project under test.
-   *
-   * @return string
-   *   Subpath to the project under test. This is relative to the codebase
-   *   source directory.
-   */
-  public function getTrueExtensionSubDirectory();
-
   public function getComposerDevRequirements();
 
   public function getInstalledComposerPackages();
 
   /**
-   * Relative path to the project root where tasks should do work.
+   * Path on the host directory that is the 'root' of the project
+   * under test. Defaults to absolute. Pass in FALSE for relative paths.
    *
    * For core this is equivalent to DRUPAL_ROOT. For extensions this will be
    * where composer-installers would place the project.
    *
+   * @param bool $absolute
+   *
    * @return string
    */
-  public function getWorkingDirectory();
+  public function getProjectSourceDirectory($absolute);
+
+  /**
+   * Absolute path on the host where the config files is located, per project
+   *
+   * Basically translates into 'core' or the extension source dir.
+   *
+   * @param bool $absolute
+   *
+   * @return string
+   */
+  public function getProjectConfigDirectory($absolute);
 
 }

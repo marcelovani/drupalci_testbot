@@ -26,7 +26,7 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
     'DCI_DBType=mysql',
     'DCI_DBVersion=5.5',
     'DCI_LocalCommitHash=5533335',
-    'DCI_JobType=simpletestlegacy7',
+    'DCI_JobType=legacydevelopment',
     'DCI_PHPVersion=php-5.3.29-apache:production',
     'DCI_ProjectType=module',
     'DCI_ProjectName=forena',
@@ -41,7 +41,7 @@ class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
     $this->app_tester->run([
       'command' => 'run',
     ], $options);
-    $this->assertRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*legacydevelopment*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/Forena Reports 15 passes, 0 fails, and 0 exceptions/', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 

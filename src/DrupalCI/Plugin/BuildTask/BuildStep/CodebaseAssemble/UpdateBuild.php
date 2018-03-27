@@ -38,12 +38,7 @@ class UpdateBuild extends BuildTaskBase {
    */
   protected function locateDrupalCiYmlFile() {
     $path = [];
-    if ($this->codebase->getProjectType() == 'core') {
-      $path[] = 'core';
-    }
-    else {
-      $path[] = $this->codebase->getTrueExtensionSubDirectory();
-    }
+    $path[] = $this->codebase->getProjectConfigDirectory(FALSE);
     $path[] = 'drupalci.yml';
     return implode(DIRECTORY_SEPARATOR, $path);
   }

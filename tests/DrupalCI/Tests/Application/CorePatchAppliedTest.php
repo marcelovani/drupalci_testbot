@@ -30,7 +30,7 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
     'DCI_DBVersion=5.5',
     'DCI_Fetch=https://www.drupal.org/files/issues/2572307-30.patch,.',
     'DCI_Patch=2572307-30.patch,.',
-    'DCI_JobType=simpletest',
+    'DCI_JobType=development',
     'DCI_PHPVersion=php-5.5.38-apache:production',
     'DCI_TestGroups=Url',
     'DCI_CS_SkipCodesniff=TRUE',

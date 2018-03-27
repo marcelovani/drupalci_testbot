@@ -212,8 +212,8 @@ class Build implements BuildInterface, Injectable {
    * @param $arg
    *
    * Takes in either the full path to a build.yml file, or the name of one of
-   * the predefined build_definitions like simpletest or simpletest7, or if
-   * null, defaults to simpletest.  Once it loads the yaml definition, it
+   * the predefined build_definitions like development or legacydevelopment, or if
+   * null, defaults to development.  Once it loads the yaml definition, it
    * recursively iterates over the definition creating and configuring the
    * build plugins for this build.
    */
@@ -249,10 +249,10 @@ class Build implements BuildInterface, Injectable {
       }
     }
     else {
-      // If no argument defined, then we assume the default of simpletest
+      // If no argument defined, then we assume the default of development
 
-      $this->buildFile = $this->container['app.root'] . '/build_definitions/simpletest.yml';
-      $this->buildType = 'simpletest';
+      $this->buildFile = $this->container['app.root'] . '/build_definitions/development.yml';
+      $this->buildType = 'development';
     }
 
     $this->initialBuildDefinition = $this->loadYaml($this->buildFile);

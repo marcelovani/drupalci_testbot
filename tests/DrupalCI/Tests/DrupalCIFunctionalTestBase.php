@@ -24,7 +24,7 @@ abstract class DrupalCIFunctionalTestBase extends TestCase {
    *
    * @code
    * [
-   *   'DCI_JobType=simpletest',
+   *   'DCI_JobType=development',
    *   'DCI_CoreBranch=8.1.x',
    * ]
    * @endcode

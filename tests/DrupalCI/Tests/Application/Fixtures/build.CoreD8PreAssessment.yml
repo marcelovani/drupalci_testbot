@@ -21,18 +21,18 @@ build:
       runcontainers:
   assessment:
     host_command.composer_existy:
-      die-on-nonzero: FALSE
+      halt-on-fail: FALSE
       commands:
         test -f composer.json
     host_command.bad_file:
-      die-on-nonzero: TRUE
+      halt-on-fail: TRUE
       commands:
         test -f no_such_file
     container_command.composer_exists:
-      die-on-nonzero: FALSE
+      halt-on-fail: FALSE
       commands:
         test -f composer.json
     container_command.badder_file:
-      die-on-nonzero: FALSE
+      halt-on-fail: FALSE
       commands:
         test -f no_such_file

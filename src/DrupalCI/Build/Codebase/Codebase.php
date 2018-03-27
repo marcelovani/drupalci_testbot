@@ -178,18 +178,6 @@ class Codebase implements CodebaseInterface, Injectable {
     $this->extensionPaths = $extensionPaths;
   }
 
-  // This is the path, relative to the source, where composer installers
-  // places our extensions. It really should be the 'working directory'
-  // as it mostly gets used to determine *where* certain tools should be
-  // executed.
-
-  public function getTrueExtensionSubDirectory() {
-    if ($this->projectType === 'core') {
-      return '';
-    }
-    return $this->extensionPaths[$this->projectType] . '/' . $this->projectName;
-  }
-
   /**
    * Returns a list of require-dev packages for the current project.
    *
@@ -223,11 +211,37 @@ class Codebase implements CodebaseInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function getWorkingDirectory() {
-    if ($this->getProjectType() == 'core') {
-      return $this->getSourceDirectory();
+  public function getProjectSourceDirectory($absolute = TRUE) {
+    $project_type = $this->getProjectType();
+
+    if ($project_type == 'core') {
+      $project_dir = '';
+    } else {
+      $project_dir = "{$this->extensionPaths[$project_type]}/{$this->projectName}";
     }
-    return $this->getTrueExtensionSubDirectory();
+
+    if ($absolute) {
+      return "{$this->getSourceDirectory()}/{$project_dir}";
+    } else {
+      return $project_dir;
+    }
+
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getProjectConfigDirectory($absolute = TRUE) {
+
+    if ($this->getProjectType() == 'core') {
+      if ($absolute) {
+        return "{$this->getProjectSourceDirectory($absolute)}/core";
+      } else {
+        return 'core';
+      }
+    }
+    // Config dir and project source dir are the same thing for everything
+    // but core.
+    return $this->getProjectSourceDirectory($absolute);
+   }
 }

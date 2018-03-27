@@ -6,7 +6,7 @@ use DrupalCI\Build\Codebase\CodebaseInterface;
 use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
 use DrupalCI\Tests\DrupalCITestCase;
-use DrupalCI\Plugin\BuildTask\BuildStep\Testing\Simpletest;
+use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTests;
 
 /**
  * @group Simpletest
@@ -74,7 +74,7 @@ class SimpletestTest extends DrupalCITestCase {
       'codebase' => $codebase,
     ]);
 
-    $simpletest = $this->getMockBuilder(Simpletest::class)
+    $simpletest = $this->getMockBuilder(RunTests::class)
       ->setMethods([
         'getRunTestsValues',
       ])

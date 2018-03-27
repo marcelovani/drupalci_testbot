@@ -33,7 +33,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'die-on-nonzero' => FALSE,
+      'halt-on-fail' => FALSE,
       'commands' => [],
     ];
   }
@@ -56,7 +56,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     }
 
     // Execute.
-    return $this->execute($this->configuration['commands'], $this->configuration['die-on-nonzero']);
+    return $this->execute($this->configuration['commands'], $this->configuration['halt-on-fail']);
   }
 
   /**
@@ -72,7 +72,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     // Set some environment variables for these executions.
     $this->command_environment['SOURCE_DIR'] = $this->codebase->getSourceDirectory();
-    $this->command_environment['PROJECT_DIR'] = $this->codebase->getSourceDirectory(). '/' . $this->codebase->getTrueExtensionSubDirectory();
+    $this->command_environment['PROJECT_DIR'] = $this->codebase->getProjectSourceDirectory();
 
     // TODO: Loop through $commands and set
     $this->codebase->getSourceDirectory();

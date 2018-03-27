@@ -39,8 +39,7 @@ class ContainerComposer extends Composer {
         // The 'options' configuration should be exactly the same as parent
         // config, but without --ignore-platform-reqs.
         'options' => "${verbose} install --prefer-dist --no-suggest${progress} --no-interaction",
-        'executable-path' => '/usr/local/bin/composer',
-        'fail-should-terminate' => TRUE,
+        'halt-on-fail' => TRUE,
       ]
      );
   }
@@ -53,7 +52,7 @@ class ContainerComposer extends Composer {
 
     // Build a containerized Composer command to ignore/discard changes
     $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->configuration['executable-path'],
+      $this->executable_path,
       'config -g discard-changes true',
     ];
     $commands[] = implode(' ', $command);
@@ -61,18 +60,18 @@ class ContainerComposer extends Composer {
 
     // Build a containerized Composer command.
     $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->configuration['executable-path'],
+      $this->executable_path,
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
     $commands[] = implode(' ', $command);
-    // TODO: fail-should-terminate should determine which execEnvironmentComands
+    // TODO: halt-on-fail should determine which execEnvironmentComands
     // instead of terminating the build itself
 
     $result = $this->execEnvironmentCommands($commands);
 
     if ($result->getSignal() != 0) {
-      if ($this->configuration['fail-should-terminate']) {
+      if ($this->configuration['halt-on-fail']) {
         $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
       }
     }
