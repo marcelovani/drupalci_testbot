@@ -35,9 +35,8 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      // If lint_fails_test is TRUE, then abort the build.
+      // If halt-on-fail is TRUE, then abort the build.
       'halt-on-fail' => FALSE,
-      'skip-linting' => FALSE,
     ];
   }
 
@@ -48,9 +47,6 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     if (FALSE !== getenv('DCI_CSS_LintFailsTest')) {
       $this->configuration['halt-on-fail'] = getenv('DCI_CSS_LintFailsTest');
-    }
-    if (FALSE !== getenv('DCI_CSS_SkipLinting')) {
-      $this->configuration['skip-linting'] = getenv('DCI_CSS_SkipLinting');
     }
   }
 
