@@ -43,7 +43,7 @@ class PreAssessmentPhaseTest extends DrupalCITestCase {
 
     $plugin = $this->getPlugin(
       [
-        'halt-on-failure' => TRUE,
+        'halt-on-fail' => TRUE,
         'execution-environment' => $environment,
       ],
       [
@@ -82,7 +82,7 @@ class PreAssessmentPhaseTest extends DrupalCITestCase {
     $ref_config->setValue($plugin, [
       'commands' => ['foo'],
       'execution-environment' => $environment,
-      'halt-on-failure' => FALSE,
+      'halt-on-fail' => FALSE,
     ]);
 
     $plugin->expects($this->exactly($calls_to_host))
