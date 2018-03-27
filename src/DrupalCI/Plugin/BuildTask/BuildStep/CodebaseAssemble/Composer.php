@@ -15,6 +15,8 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
 
+  protected $executable_path = '/usr/local/bin/composer';
+
   public function inject(Container $container) {
     parent::inject($container);
     $this->codebase = $container['codebase'];
@@ -35,10 +37,10 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     // We add in discard-changes because we're sometimes working with an existing
     // drupal core that already has coder stripped of its tests, and thus it
     // appears as though they are changed.
-    $cmd = "/usr/local/bin/composer ${verbose} config -g discard-changes true";
+    $cmd = "{$this->executable_path} ${verbose} config -g discard-changes true";
     $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
 
-    $cmd = "/usr/local/bin/composer ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
+    $cmd = "{$this->executable_path} ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->execRequiredCommands($cmd, 'Composer Command Failed');
 
   }
