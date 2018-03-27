@@ -59,11 +59,11 @@ class SimpletestTest extends DrupalCITestCase {
       ->willReturn($command_result);
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getTrueExtensionSubDirectory'])
+      ->setMethods(['getProjectSourceDirectory'])
       ->getMockForAbstractClass();
     // Always check core for this test.
     $codebase->expects($this->any())
-      ->method('getTrueExtensionSubDirectory')
+      ->method('getProjectSourceDirectory')
       ->willReturn('true-extension-subdirectory');
     $codebase->expects($this->any())
       ->method('getProjectType')
