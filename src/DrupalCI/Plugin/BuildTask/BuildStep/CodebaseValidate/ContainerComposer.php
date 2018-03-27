@@ -40,7 +40,7 @@ class ContainerComposer extends Composer {
         // config, but without --ignore-platform-reqs.
         'options' => "${verbose} install --prefer-dist --no-suggest${progress} --no-interaction",
         'executable-path' => '/usr/local/bin/composer',
-        'fail-should-terminate' => TRUE,
+        'halt-on-failure' => TRUE,
       ]
      );
   }
@@ -66,13 +66,13 @@ class ContainerComposer extends Composer {
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
     $commands[] = implode(' ', $command);
-    // TODO: fail-should-terminate should determine which execEnvironmentComands
+    // TODO: halt-on-failure should determine which execEnvironmentComands
     // instead of terminating the build itself
 
     $result = $this->execEnvironmentCommands($commands);
 
     if ($result->getSignal() != 0) {
-      if ($this->configuration['fail-should-terminate']) {
+      if ($this->configuration['halt-on-failure']) {
         $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
       }
     }

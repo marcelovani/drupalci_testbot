@@ -105,7 +105,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       'warning-fails-sniff' => FALSE,
       // If sniff_fails_test is FALSE, then NO circumstance should let phpcs
       // terminate the build or fail the test.
-      'sniff-fails-test' => FALSE,
+      'halt-on-failure' => FALSE,
       'coder-version' => '^8.2@stable',
       'skip-codesniff' => FALSE,
     ];
@@ -127,7 +127,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       $this->configuration['installed-paths'] = getenv('DCI_CS_ConfigInstalledPaths');
     }
     if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
-      $this->configuration['sniff-fails-test'] = getenv('DCI_CS_SniffFailsTest');
+      $this->configuration['halt-on-failure'] = getenv('DCI_CS_SniffFailsTest');
     }
     if (FALSE !== getenv('DCI_CS_WarningFailsSniff')) {
       $this->configuration['warning-fails-sniff'] = getenv('DCI_CS_WarningFailsSniff');
@@ -158,7 +158,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
         // There was an error installing generic drupal/coder. Bail on sniffing,
         // or terminate the build if the config says so.
         $msg = 'Unable to install Coder tools for Drupal standards sniff.';
-        if ($this->configuration['sniff-fails-test']) {
+        if ($this->configuration['halt-on-failure']) {
           $this->terminateBuild('Coder error', $msg);
         }
         $this->io->writeln($msg);
@@ -253,7 +253,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['sniff-fails-test']) {
+    if ($this->configuration['halt-on-failure']) {
       return $sniffresult->getSignal();
     }
     return 0;

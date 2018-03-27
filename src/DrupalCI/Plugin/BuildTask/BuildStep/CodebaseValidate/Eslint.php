@@ -36,8 +36,8 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
    */
   public function getDefaultConfiguration() {
     return [
-      // If lint-fails-test is TRUE, then abort the build.
-      'lint-fails-test' => FALSE,
+      // If halt-on-failure is TRUE, then abort the build.
+      'halt-on-failure' => FALSE,
       'skip-linting' => FALSE,
     ];
   }
@@ -48,7 +48,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
   public function configure() {
 
     if (FALSE !== getenv('DCI_ES_LintFailsTest')) {
-      $this->configuration['lint-fails-test'] = getenv('DCI_ES_LintFailsTest');
+      $this->configuration['halt-on-failure'] = getenv('DCI_ES_LintFailsTest');
     }
     if (FALSE !== getenv('DCI_ES_SkipLinting')) {
       $this->configuration['skip-linting'] = getenv('DCI_ES_SkipLinting');
@@ -114,7 +114,7 @@ class Eslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInter
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint-fails-test'] && !empty($result->getSignal())) {
+    if ($this->configuration['halt-on-failure'] && !empty($result->getSignal())) {
       $this->terminatebuild('Javascript coding standards error', '');
     }
     // TODO: d7 eslint doenst have a config file, so, no config means we should

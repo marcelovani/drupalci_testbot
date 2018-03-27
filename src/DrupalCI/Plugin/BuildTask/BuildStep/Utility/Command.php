@@ -33,7 +33,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      'die-on-nonzero' => FALSE,
+      'halt-on-failure' => FALSE,
       'commands' => [],
     ];
   }
@@ -56,7 +56,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     }
 
     // Execute.
-    return $this->execute($this->configuration['commands'], $this->configuration['die-on-nonzero']);
+    return $this->execute($this->configuration['commands'], $this->configuration['halt-on-failure']);
   }
 
   /**
