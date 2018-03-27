@@ -16,7 +16,7 @@ build:
   assessment:
     validate_codebase:
       container_composer:
-        fail_should_terminate: FALSE
+        halt-on-fail: FALSE
       phplint:
       phpcs:
         # Start sniffing at the root of D7. This will be modified to the
