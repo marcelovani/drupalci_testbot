@@ -70,4 +70,9 @@ interface EnvironmentInterface {
    */
   public function getHostProcessorCount();
 
+  /**
+   * @return string
+   *   The hostname of the chrome container.
+   */
+  public function getChromeContainerHostname();
 }
