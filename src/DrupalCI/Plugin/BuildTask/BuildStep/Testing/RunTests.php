@@ -155,16 +155,12 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     }
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-    if ($is_extension_test) {
-      // Always add --suppress-deprecations for contrib, if its available
-      $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
-      $result = $this->execEnvironmentCommands($suppress_check_command);
-      // @todo Turn this off when some other solution is decided in
-      //   https://www.drupal.org/project/drupal/issues/2607260
 
-      if ($result->getSignal() == 0) {
-        $this->configuration['suppress-deprecations'] = TRUE;
-      }
+    // Override deprecations for core until they set this in their own
+    // drupalci.yml file.
+    // TODO: https://www.drupal.org/project/drupalci_testbot/issues/2956753
+    if ($this->codebase->getProjectType() == 'core') {
+      $this->configuration['suppress-deprecations'] = FALSE;
     }
 
     // Parse the flags and optional values.
@@ -220,7 +216,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'verbose' => FALSE,
       'concurrency' => 1,
       'repeat' => 1,
-      'suppress-deprecations' => FALSE,
+      'suppress-deprecations' => TRUE,
     ];
   }
 
