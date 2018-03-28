@@ -48,7 +48,7 @@ class CoreSimpletestPhpFatalTest extends DrupalCIFunctionalTestBase {
 
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getContainer()['build'];
-    $this->assertBuildOutputJson($build, 'buildLabel', 'Simpletest fatal error');
+    $this->assertBuildOutputJson($build, 'buildLabel', 'run-tests.sh fatal error');
     $this->assertBuildOutputJsonContains($build, 'buildDetails', 'PHP Fatal error:  Class \'Drupal\\KernelTests\\field\\FieldUnitTestBase\' not found');
   }
 

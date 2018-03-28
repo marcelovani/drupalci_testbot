@@ -134,11 +134,11 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         break;
 
       case 2:
-        $this->terminateBuild('Simpletest exception', $result->getOutput() . "\n\n" . $result->getError());
+        $this->terminateBuild('run-tests.sh exception', $result->getOutput() . "\n\n" . $result->getError());
         break;
 
       default:
-        $this->terminateBuild('Simpletest fatal error', $result->getError());
+        $this->terminateBuild('run-tests.sh fatal error', $result->getError());
         break;
     }
     return $signal;
@@ -223,6 +223,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   /**
    * Prepare the filesystem for a run-tests.sh run.
    *
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function prepareFilesystem() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
@@ -233,7 +234,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
     ];
-    $this->execRequiredEnvironmentCommands($setup_commands, "Prepare Simpletest filesystem failed");
+    $this->execRequiredEnvironmentCommands($setup_commands, "Prepare run-tests.sh filesystem failed");
     return 0;
   }
 

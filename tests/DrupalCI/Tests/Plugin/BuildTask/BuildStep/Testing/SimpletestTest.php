@@ -9,10 +9,10 @@ use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTests;
 
 /**
- * @group Simpletest
- * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\Testing\Simpletest
+ * @group RunTests
+ * @coversDefaultClass \DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTests
  */
-class SimpletestTest extends DrupalCITestCase {
+class RunTestsTest extends DrupalCITestCase {
 
   public function providerGetRunTestsCommand() {
     return [
@@ -30,6 +30,11 @@ class SimpletestTest extends DrupalCITestCase {
   /**
    * @dataProvider providerGetRunTestsCommand
    * @covers ::getRunTestsCommand
+   *
+   * @param $expected
+   * @param $configuration
+   *
+   * @throws \ReflectionException
    */
   public function testGetRunTestsCommand($expected, $configuration) {
     $command_result = $this->getMockBuilder(CommandResultInterface::class)
@@ -59,7 +64,7 @@ class SimpletestTest extends DrupalCITestCase {
       ->willReturn($command_result);
 
     $codebase = $this->getMockBuilder(CodebaseInterface::class)
-      ->setMethods(['getProjectSourceDirectory'])
+      ->setMethods(['getProjectSourceDirectory', 'getProjectType'])
       ->getMockForAbstractClass();
     // Always check core for this test.
     $codebase->expects($this->any())
@@ -74,23 +79,23 @@ class SimpletestTest extends DrupalCITestCase {
       'codebase' => $codebase,
     ]);
 
-    $simpletest = $this->getMockBuilder(RunTests::class)
+    $runTests = $this->getMockBuilder(RunTests::class)
       ->setMethods([
         'getRunTestsValues',
       ])
       ->getMock();
-    $simpletest->expects($this->once())
+    $runTests->expects($this->once())
       ->method('getRunTestsValues')
       ->willReturn('--values=value');
 
     // Use our mocked services.
-    $simpletest->inject($container);
+    $runTests->inject($container);
 
 
     // Run getRunTestsCommand().
-    $ref_get_run_tests_command = new \ReflectionMethod($simpletest, 'getRunTestsCommand');
+    $ref_get_run_tests_command = new \ReflectionMethod($runTests, 'getRunTestsCommand');
     $ref_get_run_tests_command->setAccessible(TRUE);
-    $command = $ref_get_run_tests_command->invoke($simpletest);
+    $command = $ref_get_run_tests_command->invoke($runTests);
     $this->assertEquals($expected, $command);
   }
 
