@@ -31,22 +31,22 @@ class RunTestsTest extends DrupalCITestCase {
   public function providerEnvironmentGetRunTestsCommand() {
     return [
       'core' => [
-        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --url "TheURLOfmyServer" --dburl "databaseURL" --class "\Has\No\Class"',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --repeat "1001" --url "TheURLOfmyServer" --dburl "databaseURL" --class "\Has\No\Class"',
         'core',
-        ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
+        ['DCI_Concurrency=Over9000','DCI_RTRepeat=1001','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
       ],
       'contrib-with-testgroups' => [
-        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --url "TheURLOfmyServer" --dburl "databaseURL" --class "\Has\No\Class"',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --repeat "1001" --url "TheURLOfmyServer" --dburl "databaseURL" --class "\Has\No\Class"',
         'contrib',
-        ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
+        ['DCI_Concurrency=Over9000','DCI_RTRepeat=1001','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
       ],
       'contrib-default' => [
-        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --url "TheURLOfmyServer" --dburl "databaseURL" --directory true-extension-subdirectory',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh --color --die-on-fail --keep-results --keep-results-table --verbose --suppress-deprecations --types "TestTypes" --concurrency "Over9000" --repeat "1" --url "TheURLOfmyServer" --dburl "databaseURL" --directory true-extension-subdirectory',
         'contrib',
         ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
       ],
       'core-no-flags' => [
-        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh  --types "TestTypes" --concurrency "Over9000" --url "TheURLOfmyServer" --dburl "databaseURL" --all',
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh  --types "TestTypes" --concurrency "Over9000" --repeat "1" --url "TheURLOfmyServer" --dburl "databaseURL" --all',
         'core',
         ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=FALSE','DCI_RTDieOnFail=FALSE','DCI_RTKeepResults=FALSE','DCI_RTKeepResultsTable=FALSE','DCI_RTVerbose=FALSE','DCI_RTSuppressDeprecations=FALSE'],
       ],

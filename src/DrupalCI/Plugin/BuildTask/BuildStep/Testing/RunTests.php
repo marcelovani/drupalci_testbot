@@ -57,6 +57,9 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     if (FALSE !== getenv('DCI_Concurrency')) {
       $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
+    if (FALSE !== getenv('DCI_RTRepeat')) {
+      $this->configuration['repeat'] = getenv('DCI_RTRepeat');
+    }
     if (FALSE !== getenv('DCI_RTTypes')) {
       $this->configuration['types'] = getenv('DCI_RTTypes');
     }
@@ -216,6 +219,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
       'concurrency' => 1,
+      'repeat' => 1,
       'suppress-deprecations' => FALSE,
     ];
   }
@@ -339,6 +343,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $args = [
       'concurrency',
       'dburl',
+      'repeat',
       'sqlite',
       'types',
       'url',
