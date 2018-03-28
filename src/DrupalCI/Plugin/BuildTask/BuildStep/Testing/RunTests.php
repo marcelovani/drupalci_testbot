@@ -148,11 +148,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
   }
 
   protected function getRunTestsCommand() {
-    // Figure out if this is a contrib test.
-    $is_extension_test = FALSE;
-    if ($this->codebase->getProjectType() != 'core') {
-      $is_extension_test = TRUE;
-    }
+
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
 
@@ -169,7 +165,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
     // If its a contrib test, then either empty, --all, or a --directory
     // switch needs to be converted to use our TrueExtensionSubDirectory.
-    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
+    if ($this->codebase->getProjectType() != 'core' && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
       $command[] = "--directory " . $this->codebase->getProjectSourceDirectory(FALSE);
     }
     else {
