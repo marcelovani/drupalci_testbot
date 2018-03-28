@@ -64,25 +64,25 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $this->configuration['url'] = getenv('DCI_RTUrl');
     }
     if (FALSE !== getenv('DCI_RTColor')) {
-      $this->configuration['color'] = getenv('DCI_RTColor');
+      $this->configuration['color'] = filter_var(getenv('DCI_RTColor'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_TestGroups')) {
       $this->configuration['testgroups'] = getenv('DCI_TestGroups');
     }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
-      $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
+      $this->configuration['die-on-fail'] =  filter_var(getenv('DCI_RTDieOnFail'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTKeepResults')) {
-      $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
+      $this->configuration['keep-results'] = filter_var(getenv('DCI_RTKeepResults'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
-      $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
+      $this->configuration['keep-results-table'] = filter_var(getenv('DCI_RTKeepResultsTable'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTVerbose')) {
-      $this->configuration['verbose'] = getenv('DCI_RTVerbose');
+      $this->configuration['verbose'] = filter_var(getenv('DCI_RTVerbose'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTSuppressDeprecations')) {
-      $this->configuration['suppress-deprecations'] = getenv('DCI_RTSuppressDeprecations');
+      $this->configuration['suppress-deprecations'] = filter_var(getenv('DCI_RTSuppressDeprecations'), FILTER_VALIDATE_BOOLEAN);
     }
   }
 
