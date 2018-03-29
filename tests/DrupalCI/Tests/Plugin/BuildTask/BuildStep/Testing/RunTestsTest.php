@@ -6,6 +6,7 @@ use DrupalCI\Build\Codebase\CodebaseInterface;
 use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
+use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTestsD7;
 use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTests;
 
@@ -52,6 +53,39 @@ class RunTestsTest extends DrupalCITestCase {
       ],
       'core-no-flags' => [
         'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/core/scripts/run-tests.sh  --types "TestTypes" --concurrency "Over9000" --repeat "1" --url "TheURLOfmyServer" --dburl "databaseURL" --all',
+        'core',
+        ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=FALSE','DCI_RTDieOnFail=FALSE','DCI_RTKeepResults=FALSE','DCI_RTKeepResultsTable=FALSE','DCI_RTVerbose=FALSE','DCI_RTSuppressDeprecations=FALSE'],
+      ],
+    ];
+  }
+
+  public function providerLegacyEnvironmentGetRunTestsCommand() {
+    return [
+      'core' => [
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/scripts/run-tests.sh --color --die-on-fail --verbose --concurrency "Over9000" --url "TheURLOfmyServer" --class "\Has\No\Class"',
+        'core',
+        ['DCI_Concurrency=Over9000','DCI_RTRepeat=1001','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
+      ],
+      'contrib-with-testgroups' => [
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/scripts/run-tests.sh --color --die-on-fail --verbose --concurrency "Over9000" --url "TheURLOfmyServer" --class "\Has\No\Class"'
+,
+        'contrib',
+        ['DCI_Concurrency=Over9000','DCI_RTRepeat=1001','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_TestGroups=--class "\Has\No\Class"','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
+      ],
+      'contrib-default' => [
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/scripts/run-tests.sh --color --die-on-fail --verbose --concurrency "Over9000" --url "TheURLOfmyServer" --directory true-extension-subdirectory',
+        'contrib',
+        ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=TRUE'],
+      ],
+      'contrib-suppress' => [
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/scripts/run-tests.sh --color --die-on-fail --verbose --concurrency "Over9000" --url "TheURLOfmyServer" --directory true-extension-subdirectory'
+,
+        'contrib',
+        ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=TRUE','DCI_RTDieOnFail=TRUE','DCI_RTKeepResults=TRUE','DCI_RTKeepResultsTable=TRUE','DCI_RTVerbose=TRUE','DCI_RTSuppressDeprecations=FALSE'],
+      ],
+      'core-no-flags' => [
+        'cd exec-container-source-dir && sudo MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://chromecontainer-host:9515"]\' -u www-data php exec-container-source-dir/scripts/run-tests.sh  --concurrency "Over9000" --url "TheURLOfmyServer" --all'
+,
         'core',
         ['DCI_Concurrency=Over9000','DCI_RTTypes=TestTypes','DCI_RTUrl=TheURLOfmyServer','DCI_RTColor=FALSE','DCI_RTDieOnFail=FALSE','DCI_RTKeepResults=FALSE','DCI_RTKeepResultsTable=FALSE','DCI_RTVerbose=FALSE','DCI_RTSuppressDeprecations=FALSE'],
       ],
@@ -126,6 +160,44 @@ class RunTestsTest extends DrupalCITestCase {
         list($env_var, $value) = explode('=', $variable);
         putenv($env_var);
       }
+  }
+
+  /**
+   * @dataProvider providerLegacyEnvironmentGetRunTestsCommand
+   * @covers ::getRunTestsCommand
+   *
+   * @param $expected
+   * @param $project_type
+   * @param $env_vars
+   *
+   * @throws \ReflectionException
+   */
+  public function testLegacyConfiguration($expected, $project_type, $env_vars) {
+    $container = $this->setupPlugin($project_type);
+    foreach ($env_vars as $envvar){
+      putenv($envvar);
+    }
+
+    $runTests = $this->getMockBuilder(RunTestsD7::class)
+      ->setMethods([
+        'parseGroups',
+      ])
+      ->getMock();
+
+    // Use our mocked services.
+    $runTests->inject($container);
+    $runTests->configure();
+
+    // Run getRunTestsCommand().
+    $ref_get_run_tests_command = new \ReflectionMethod($runTests, 'getRunTestsCommand');
+    $ref_get_run_tests_command->setAccessible(TRUE);
+    $command = $ref_get_run_tests_command->invoke($runTests);
+
+    foreach ($env_vars as $variable) {
+      list($env_var, $value) = explode('=', $variable);
+      putenv($env_var);
+    }
+    $this->assertEquals($expected, $command);
   }
 
   /**
