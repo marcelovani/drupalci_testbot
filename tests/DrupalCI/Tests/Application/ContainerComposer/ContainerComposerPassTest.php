@@ -22,12 +22,7 @@ class ContainerComposerPassTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     // Specify core 8.3.x and PHP 7, which are compatible.
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=3af6a3e',
     'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=sqlite',
-    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testPlatform() {

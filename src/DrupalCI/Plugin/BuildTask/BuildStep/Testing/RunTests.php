@@ -57,6 +57,9 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     if (FALSE !== getenv('DCI_Concurrency')) {
       $this->configuration['concurrency'] = getenv('DCI_Concurrency');
     }
+    if (FALSE !== getenv('DCI_RTRepeat')) {
+      $this->configuration['repeat'] = getenv('DCI_RTRepeat');
+    }
     if (FALSE !== getenv('DCI_RTTypes')) {
       $this->configuration['types'] = getenv('DCI_RTTypes');
     }
@@ -64,25 +67,25 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $this->configuration['url'] = getenv('DCI_RTUrl');
     }
     if (FALSE !== getenv('DCI_RTColor')) {
-      $this->configuration['color'] = getenv('DCI_RTColor');
+      $this->configuration['color'] = filter_var(getenv('DCI_RTColor'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_TestGroups')) {
       $this->configuration['testgroups'] = getenv('DCI_TestGroups');
     }
     if (FALSE !== getenv('DCI_RTDieOnFail')) {
-      $this->configuration['die-on-fail'] = getenv('DCI_RTDieOnFail');
+      $this->configuration['die-on-fail'] =  filter_var(getenv('DCI_RTDieOnFail'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTKeepResults')) {
-      $this->configuration['keep-results'] = getenv('DCI_RTKeepResults');
+      $this->configuration['keep-results'] = filter_var(getenv('DCI_RTKeepResults'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTKeepResultsTable')) {
-      $this->configuration['keep-results-table'] = getenv('DCI_RTKeepResultsTable');
+      $this->configuration['keep-results-table'] = filter_var(getenv('DCI_RTKeepResultsTable'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTVerbose')) {
-      $this->configuration['verbose'] = getenv('DCI_RTVerbose');
+      $this->configuration['verbose'] = filter_var(getenv('DCI_RTVerbose'), FILTER_VALIDATE_BOOLEAN);
     }
     if (FALSE !== getenv('DCI_RTSuppressDeprecations')) {
-      $this->configuration['suppress-deprecations'] = getenv('DCI_RTSuppressDeprecations');
+      $this->configuration['suppress-deprecations'] = filter_var(getenv('DCI_RTSuppressDeprecations'), FILTER_VALIDATE_BOOLEAN);
     }
   }
 
@@ -134,34 +137,32 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         break;
 
       case 2:
-        $this->terminateBuild('Simpletest exception', $result->getOutput() . "\n\n" . $result->getError());
+        $this->terminateBuild('run-tests.sh exception', $result->getOutput() . "\n\n" . $result->getError());
         break;
 
       default:
-        $this->terminateBuild('Simpletest fatal error', $result->getError());
+        $this->terminateBuild('run-tests.sh fatal error', $result->getError());
         break;
     }
     return $signal;
   }
 
   protected function getRunTestsCommand() {
-    // Figure out if this is a contrib test.
-    $is_extension_test = FALSE;
-    if ($this->codebase->getProjectType() != 'core') {
-      $is_extension_test = TRUE;
-    }
+
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
-    if ($is_extension_test) {
-      // Always add --suppress-deprecations for contrib, if its available
-      $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
-      $result = $this->execEnvironmentCommands($suppress_check_command);
-      // @todo Turn this off when some other solution is decided in
-      //   https://www.drupal.org/project/drupal/issues/2607260
 
-      if ($result->getSignal() == 0) {
-        $this->configuration['suppress-deprecations'] = TRUE;
-      }
+    // Disable deprectaions for versions of core that do not support it.
+    $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
+    $result = $this->execEnvironmentCommands($suppress_check_command);
+
+    if ($result->getSignal() > 0) {
+      $this->configuration['suppress-deprecations'] = FALSE;
+    }
+    // Disable deprections for core until they have their own yml file
+    // TODO: https://www.drupal.org/project/drupalci_testbot/issues/2956753
+    if ($this->codebase->getProjectType() == 'core') {
+      $this->configuration['suppress-deprecations'] = FALSE;
     }
 
     // Parse the flags and optional values.
@@ -170,7 +171,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
     // If its a contrib test, then either empty, --all, or a --directory
     // switch needs to be converted to use our TrueExtensionSubDirectory.
-    if ($is_extension_test && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
+    if ($this->codebase->getProjectType() != 'core' && (empty($this->configuration['testgroups']) || ($this->configuration['testgroups'] == '--all') || (substr($this->configuration['testgroups'], 0, 11 ) == "--directory"))) {
       $command[] = "--directory " . $this->codebase->getProjectSourceDirectory(FALSE);
     }
     else {
@@ -215,14 +216,16 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'keep-results' => TRUE,
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
-      'concurrency' => 1,
-      'suppress-deprecations' => FALSE,
+      'concurrency' => 0,
+      'repeat' => 1,
+      'suppress-deprecations' => TRUE,
     ];
   }
 
   /**
    * Prepare the filesystem for a run-tests.sh run.
    *
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function prepareFilesystem() {
     $sourcedir = $this->environment->getExecContainerSourceDir();
@@ -233,7 +236,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
     ];
-    $this->execRequiredEnvironmentCommands($setup_commands, "Prepare Simpletest filesystem failed");
+    $this->execRequiredEnvironmentCommands($setup_commands, "Prepare run-tests.sh filesystem failed");
     return 0;
   }
 
@@ -338,6 +341,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $args = [
       'concurrency',
       'dburl',
+      'repeat',
       'sqlite',
       'types',
       'url',

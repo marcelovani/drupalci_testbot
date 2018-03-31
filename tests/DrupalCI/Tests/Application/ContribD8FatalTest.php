@@ -33,7 +33,7 @@ class ContribD8FatalTest extends DrupalCIFunctionalTestBase {
     // The testbot should return 2 if there was an error.
     $this->assertEquals(2, $this->app_tester->getStatusCode());
 
-    $this->assertBuildOutputJson($build, 'buildLabel', 'Simpletest fatal error');
+    $this->assertBuildOutputJson($build, 'buildLabel', 'run-tests.sh fatal error');
     $this->assertBuildOutputJsonContains($build, 'buildDetails', "PHP Fatal error:  Trait 'Drupal\Tests\NodeCreationTrait' not found");
   }
 

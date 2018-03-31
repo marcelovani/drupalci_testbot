@@ -656,7 +656,6 @@ to the test. We can achieve that a few ways.
            'DCI_PHPVersion=php-7.0-apache:production',
            'DCI_DBType=mysql',
            'DCI_DBVersion=5.5',
-           'DCI_CS_SkipCodesniff=TRUE',
            ];```
 
 -   Using .yml files

@@ -23,6 +23,12 @@ class RunTestsD7 extends RunTests {
     $this->results_database = $container['db.system'];
   }
 
+  /**
+   * @param \DrupalCI\Build\BuildInterface $build
+   *
+   * @return int
+   * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   */
   protected function setupSimpletestDB(BuildInterface $build) {
     $dburl = $this->system_database->getUrl();
     // Fixes sqlite for d7

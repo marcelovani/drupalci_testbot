@@ -22,12 +22,7 @@ class ContainerComposerFailTest extends DrupalCIFunctionalTestBase {
    */
   protected $dciConfig = [
     // Specify core 8.3.x and PHP 5.3.29, which have platform incompatibilities.
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=3af6a3e',
     'DCI_PHPVersion=php-5.3.29-apache:production',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=sqlite',
-    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testPlatformMismatch() {

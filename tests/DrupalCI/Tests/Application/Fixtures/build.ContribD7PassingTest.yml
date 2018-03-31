@@ -1,0 +1,50 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local-dir: /var/lib/drupalci/drupal-checkout
+        git-branch: 7.x
+        git-commit-hash: '5533335'
+      checkout_core_d7:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit-hash: ''
+            checkout-dir: ''
+      composer_contrib_d7:
+        repositories: {  }
+        project: forena
+        branch: 7.x-4.x
+      fetch:
+        files: {  }
+      patch:
+        patches: {  }
+      update_build: {  }
+      update_dependencies_d7: {  }
+    project-subdir: ''
+    project-name: forena
+    project-type: module
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.3.29-apache:production'
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    testing:
+      run_tests_d7:
+        testgroups: '--all'
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        repeat: 1
+        suppress-deprecations: true
