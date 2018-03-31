@@ -152,8 +152,14 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $environment_variables = 'MINK_DRIVER_ARGS_WEBDRIVER=\'["chrome", {"browserName":"chrome","chromeOptions":{"args":["--disable-gpu","--headless"]}}, "http://' . $this->environment->getChromeContainerHostname() . ':9515"]\'';
     $command = ["cd " . $this->environment->getExecContainerSourceDir() . " && sudo " . $environment_variables . " -u www-data php " . $this->environment->getExecContainerSourceDir() . $this->runscript];
 
-    // Override deprecations for core until they set this in their own
-    // drupalci.yml file.
+    // Disable deprectaions for versions of core that do not support it.
+    $suppress_check_command = "sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --help |grep suppress";
+    $result = $this->execEnvironmentCommands($suppress_check_command);
+
+    if ($result->getSignal() > 0) {
+      $this->configuration['suppress-deprecations'] = FALSE;
+    }
+    // Disable deprections for core until they have their own yml file
     // TODO: https://www.drupal.org/project/drupalci_testbot/issues/2956753
     if ($this->codebase->getProjectType() == 'core') {
       $this->configuration['suppress-deprecations'] = FALSE;
