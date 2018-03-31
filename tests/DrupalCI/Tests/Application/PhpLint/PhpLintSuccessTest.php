@@ -21,13 +21,8 @@ class PhpLintSuccessTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
   protected $dciConfig = [
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_DBType=sqlite',
-    'DCI_PHPVersion=php-7.0-apache:production',
     'DCI_Fetch=https://www.drupal.org/files/issues/2839170-coder-phpcs-sniff-error.patch,.',
     'DCI_Patch=2839170-coder-phpcs-sniff-error.patch,.',
-    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testCoderSniffOnlyChangedFailTest() {

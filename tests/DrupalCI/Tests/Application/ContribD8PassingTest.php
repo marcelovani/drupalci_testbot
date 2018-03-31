@@ -17,29 +17,12 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected $dciConfig = [
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_DBType=sqlite',
-    'DCI_DBVersion=3.8',
-    'DCI_LocalCommitHash=469d128',
-    'DCI_JobType=development',
-    'DCI_ProjectType=module',
-    'DCI_ProjectName=block_field',
-    'DCI_Composer_Project=block_field',
-    'DCI_Composer_Branch=8.x-1.x',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testD8Contrib() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8PassingTest.yml',
     ], $options);
     $this->assertRegExp('/.*Drupal\\\\block_field\\\\Tests.*/', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());

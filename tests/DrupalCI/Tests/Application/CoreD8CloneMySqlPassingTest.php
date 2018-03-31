@@ -22,23 +22,12 @@ class CoreD8CloneMySqlPassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
 
-  protected $dciConfig = [
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
-    'DCI_GitCommitHash=f4a242f',
-    'DCI_JobType=development',
-    'DCI_TestGroups=Url',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBasicTest() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreD8CloneMySqlPassingTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();

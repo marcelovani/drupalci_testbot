@@ -22,24 +22,13 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $dciConfig = [
-    'DCI_LocalBranch=8.3.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
-    'DCI_LocalCommitHash=5d97345',
-    'DCI_JobType=development',
-    'DCI_PHPVersion=php-5.5.38-apache:production',
-    'DCI_Patch=2827218-2-field_denormalize.patch,.',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
 
   public function testCoreNoGroup() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreNoGroupTest.yml',
     ], $options);
     $foo = $this->app_tester->getDisplay();
     $this->assertRegExp('/.*MissingGroupException.*/', $this->app_tester->getDisplay());

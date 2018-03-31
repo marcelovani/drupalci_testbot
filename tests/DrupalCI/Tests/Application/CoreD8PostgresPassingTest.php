@@ -22,23 +22,12 @@ class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
 
-  protected $dciConfig = [
-    'DCI_LocalBranch=8.3.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalCommitHash=c187f1d',
-    'DCI_JobType=development',
-    'DCI_TestGroups=Url',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DBType=pgsql',
-    'DCI_DBVersion=9.1',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBasicTest() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreD8PostgresPassingTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();

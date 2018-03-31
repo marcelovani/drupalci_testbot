@@ -22,28 +22,15 @@ class CorePatchAppliedTest extends DrupalCIFunctionalTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $dciConfig = [
-    'DCI_LocalBranch=8.1.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalCommitHash=bdb434a',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2572307-30.patch,.',
-    'DCI_Patch=2572307-30.patch,.',
-    'DCI_JobType=development',
-    'DCI_PHPVersion=php-5.5.38-apache:production',
-    'DCI_TestGroups=Url',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
 
   public function testCorePatchApplied() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CorePatchAppliedTest.yml',
     ], $options);
     $this->assertRegExp('/.*2572307-30.patch applied.*/', $this->app_tester->getDisplay());
-    $this->assertRegExp('/.*Drupal\\\\system\\\\Tests\\\\Routing\\\\UrlIntegrationTest*/', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */

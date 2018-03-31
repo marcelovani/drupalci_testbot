@@ -22,23 +22,12 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
 
-  protected $dciConfig = [
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=c187f1d',
-    'DCI_JobType=development',
-    'DCI_TestGroups=Url',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBasicTest() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreD8MySqlPassingTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();

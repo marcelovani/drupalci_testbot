@@ -3,6 +3,10 @@ build:
   codebase:
     assemble_codebase:
       replicate:
+        exclude: {  }
+        local-dir: /var/lib/drupalci/drupal-checkout
+        git-branch: 8.3.x
+        git-commit-hash: ''
       checkout_core:
         repositories:
           -
@@ -17,6 +21,11 @@ build:
   environment:
     startcontainers:
       runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    db-type: sqlite
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   assessment:
     validate_codebase:
       phplint:

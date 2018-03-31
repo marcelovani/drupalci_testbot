@@ -16,28 +16,13 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class CorePatchFailTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected $dciConfig = [
-    'DCI_LocalBranch=8.1.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_Fetch=http://drupal.org/files/issues/does_not_apply.patch',
-    'DCI_JobType=development',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_Patch=does_not_apply.patch',
-    'DCI_TestGroups=ban',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBadPatch() {
 
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CorePatchFailTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
