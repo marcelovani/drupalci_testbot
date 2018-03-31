@@ -100,7 +100,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
   public function getDefaultConfiguration() {
     return [
       'sniff-all-files' => FALSE,
-      'warning-fails-sniff' => FALSE,
       // If halt-on-fail is FALSE, then NO circumstance should let phpcs
       // terminate the build.
       'halt-on-fail' => FALSE,
@@ -119,9 +118,6 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     }
     if (FALSE !== getenv('DCI_CS_SniffFailsTest')) {
       $this->configuration['halt-on-fail'] = getenv('DCI_CS_SniffFailsTest');
-    }
-    if (FALSE !== getenv('DCI_CS_WarningFailsSniff')) {
-      $this->configuration['warning-fails-sniff'] = getenv('DCI_CS_WarningFailsSniff');
     }
     if (FALSE !== getenv('DCI_CS_CoderVersion')) {
       $this->configuration['coder-version'] = getenv('DCI_CS_CoderVersion');
@@ -173,18 +169,10 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Get the sniff start directory.
     $start_dir = $this->codebase->getProjectConfigDirectory(FALSE);
 
-    // Set minimum error level for fail. phpcs uses 1 for warning and 2 for
-    // error.
-    $minimum_error = 2;
-    if ($this->configuration['warning-fails-sniff']) {
-      $minimum_error = 1;
-    }
-
     // Execute phpcs. The project's phpcs.xml(.dist) should configure file types
     // and all other constraints.
     // Gather phpcs arguments separately so we can re-use them for phpcbf.
     $phpcs_args = [
-      '--warning-severity=' . $minimum_error,
       '--report-full=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->fullReportFile,
       '--report-checkstyle=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->checkstyleReportFile,
       '--report-diff=' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/' . $this->patchFile,
