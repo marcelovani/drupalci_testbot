@@ -1,0 +1,54 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local-dir: ''
+        git-branch: ''
+        git-commit-hash: ''
+      checkout_core:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/drupal.git'
+            branch: 8.3.x
+            commit-hash: 1c762d13221ede7a500f1691392a94a76fcacce0
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
+      composer_contrib:
+        repositories: {  }
+        project: monolog
+        branch: 8.x-1.x
+      fetch:
+        files: {  }
+      patch:
+        patches: {  }
+      update_build: {  }
+      update_dependencies: {  }
+      yarn_install:
+        halt-on-fail: false
+    project-subdir: ''
+    project-name: monolog
+    project-type: module
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.5.38-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  assessment:
+    testing:
+      run_tests.standard:
+        types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
+        testgroups: '--all'
+        color: true
+        die-on-fail: false
+        keep-results: true
+        keep-results-table: false
+        verbose: false
+        repeat: 1
+        suppress-deprecations: true

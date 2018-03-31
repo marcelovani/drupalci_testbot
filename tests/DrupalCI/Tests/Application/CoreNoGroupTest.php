@@ -22,24 +22,13 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
   /**
    * {@inheritdoc}
    */
-  protected $dciConfig = [
-    'DCI_LocalBranch=8.3.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2827218-2-field_denormalize.patch,.',
-    'DCI_LocalCommitHash=5d97345',
-    'DCI_JobType=simpletest',
-    'DCI_PHPVersion=php-5.5.38-apache:production',
-    'DCI_Patch=2827218-2-field_denormalize.patch,.',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
 
   public function testCoreNoGroup() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreNoGroupTest.yml',
     ], $options);
     $foo = $this->app_tester->getDisplay();
     $this->assertRegExp('/.*MissingGroupException.*/', $this->app_tester->getDisplay());
@@ -49,7 +38,7 @@ class CoreNoGroupTest extends DrupalCIFunctionalTestBase {
     $build = $this->getContainer()['build'];
     $this->assertBuildOutputJson($build, 'buildLabel', 'Unable to generate test groups');
     $this->assertBuildOutputJson($build, 'buildDetails', '--- Commands Executed ---
-sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/workdir/simpletest.standard/testgroups.txt
+sudo -u www-data php /var/www/html/core/scripts/run-tests.sh --list > /var/lib/drupalci/workdir/run_tests.standard/testgroups.txt
 Return Code: 2
 --- Output ---
 

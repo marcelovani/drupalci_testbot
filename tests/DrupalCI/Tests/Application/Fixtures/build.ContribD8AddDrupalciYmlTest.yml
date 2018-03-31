@@ -39,24 +39,18 @@ build:
       phplint: {  }
       container_composer:
         options: ' install --prefer-dist --no-suggest --no-progress --no-interaction'
-        executable_path: /usr/local/bin/composer
-        fail_should_terminate: true
+        halt-on-fail: true
       csslint:
-        lint_fails_test: false
-        skip_linting: false
+        halt-on-fail: false
       eslint:
-        lint_fails_test: false
-        skip_linting: false
+        halt-on-fail: false
       phpcs:
         sniff_all_files: false
-        start_directory: core
-        installed_paths: vendor/drupal/coder/coder_sniffer/
         warning_fails_sniff: false
         sniff_fails_test: false
         coder_version: ^8.2@stable
-        skip_codesniff: false
     testing:
-      simpletest.standard:
+      run_tests.standard:
         types: 'PHPUnit-Unit'
         testgroups: '--all'
         color: true

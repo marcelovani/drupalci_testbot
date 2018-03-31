@@ -18,31 +18,13 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8ComposerBuildTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-
-  protected $dciConfig = [
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
-    'DCI_GitCommitHash=1c762d13221ede7a500f1691392a94a76fcacce0',
-    'DCI_JobType=simpletest',
-    'DCI_ProjectType=module',
-    'DCI_ProjectName=monolog',
-    'DCI_Composer_Project=monolog',
-    'DCI_Composer_Branch=8.x-1.x',
-    'DCI_PHPVersion=php-5.5.38-apache:production',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBasicTest() {
     //$this->markTestSkipped('Unable to check out core codebase, fails at composer phase.');
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8ComposerBuildTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();

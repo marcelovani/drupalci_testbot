@@ -33,7 +33,7 @@ class NewComposerJsonModifiedFilesTest extends DrupalCIFunctionalTestBase {
     // been modified.
     $codebase = $this->getContainer()['codebase'];
     $this->assertContains(
-      $codebase->getTrueExtensionSubDirectory() . '/composer.json',
+      $codebase->getProjectSourceDirectory(FALSE) . '/composer.json',
       $codebase->getModifiedFiles()
     );
     // Verify the output.

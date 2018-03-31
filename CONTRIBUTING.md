@@ -44,7 +44,7 @@ divided into three categories, Stages, Phases, and Steps.
     the lowest level. This hierarchy allows us to aggregate results into
     higher groupings and determine success if all child steps succeeded.
 -   Steps are the individual build elements such as a particular type of
-    assessment like simpletest, or a particular codebase validation step
+    assessment like run_tests, or a particular codebase validation step
     like eslinting.
 -   It's also somewhat easier to reason about the purpose of things,
     even though there are many blank classes that do very little (all of
@@ -106,9 +106,9 @@ execute.
 
 DrupalCI can gather a build.yml file in one of three ways:
 
-`./drupalci run simpletest` -> if the argument after 'run' does not end
+`./drupalci run development` -> if the argument after 'run' does not end
 in .yml, drupalci will look in the /build_definitions folder for a file
-of the same name, in this case it will use the 'simpletest.yml' build
+of the same name, in this case it will use the 'development.yml' build
 definition.
 
 `./drupalci run ./build.yml` -> if the argument after 'run' is a path
@@ -126,16 +126,16 @@ the build definition.
 Build.yml files will contain a hierarchy of plugin names and
 configuration values for the plugin.
 
-This is a sample build.yml (the default simpletest yaml file). In the
+This is a sample build.yml (the default development yaml file). In the
 following example shows that most of these plugins are using their
 defaults and expecting to be overridden by environment variables, with
-the exception of the concurrency value for simpletest.standard and
-simpletest.js.
+the exception of the concurrency value for run_tests.standard and
+run_tests.standard.
 
 Additionally there is the concept of a 'plugin label' - because
 sometimes you want to execute the same plugin twice with different
-configuration, in this example "standard" and "js" on the simpletest
-plugin are labels to distinguish between the simpletest execution and
+configuration, in this example "standard" and "js" on the run_tests
+plugin are labels to distinguish between the run_tests execution and
 the javascript functional tests (which also require 1 concurrency).
 ```yml
 build:
@@ -160,9 +160,9 @@ build:
        container_composer:
        phpcs:
      testing:
-       simpletest.standard:
+       run_tests.standard:
          concurrency: 31
-       simpletest.js:
+       run_tests.standard:
          concurrency: 1
          types: 'PHPUnit-FunctionalJavascript'
 ```
@@ -599,7 +599,7 @@ additional environment variables that alter the behavior of drupalci.
 -   **DCI_Debug**
 
     -   When drupalci runs, normally it will clean up all working files,
-        > the codebase, and core files (for the simpletest plugin). If
+        > the codebase, and core files (for the run_tests plugin). If
         > the DCI_Debug flag is set, it will not attempt to clean up
         > those directories.
 
@@ -651,12 +651,11 @@ to the test. We can achieve that a few ways.
            'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
            'DCI_LocalBranch=8.3.x',
            'DCI_LocalCommitHash=c187f1d',
-           'DCI_JobType=simpletest',
+           'DCI_JobType=development',
            'DCI_TestGroups=Url',
            'DCI_PHPVersion=php-7.0-apache:production',
            'DCI_DBType=mysql',
            'DCI_DBVersion=5.5',
-           'DCI_CS_SkipCodesniff=TRUE',
            ];```
 
 -   Using .yml files
@@ -679,7 +678,7 @@ to the test. We can achieve that a few ways.
                             'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7ManyTestingDepsTest.yml',
          ], $options);`
 
-         Where the definition file is relative to the root of the
+         Where the definition file is absolute to the root of the
          project.
 -   Using .yml templates & ENV's
 

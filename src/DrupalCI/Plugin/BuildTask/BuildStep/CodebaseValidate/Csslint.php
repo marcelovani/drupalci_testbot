@@ -35,9 +35,8 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function getDefaultConfiguration() {
     return [
-      // If lint_fails_test is TRUE, then abort the build.
-      'lint-fails-test' => FALSE,
-      'skip-linting' => FALSE,
+      // If halt-on-fail is TRUE, then abort the build.
+      'halt-on-fail' => FALSE,
     ];
   }
 
@@ -47,10 +46,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   public function configure() {
 
     if (FALSE !== getenv('DCI_CSS_LintFailsTest')) {
-      $this->configuration['lint-fails-test'] = getenv('DCI_CSS_LintFailsTest');
-    }
-    if (FALSE !== getenv('DCI_CSS_SkipLinting')) {
-      $this->configuration['skip-linting'] = getenv('DCI_CSS_SkipLinting');
+      $this->configuration['halt-on-fail'] = getenv('DCI_CSS_LintFailsTest');
     }
   }
 
@@ -68,10 +64,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    */
   public function run() {
     $config = $this->getCssLintConfig();
-    // If there is no config file or we want to skip csslint outright
-    if (empty($config) || $this->configuration['skip-linting']) {
-      return 0;
-    }
+
     $this->io->writeln('<info>csslinting the project.</info>');
 
     $outputfile = $this->pluginWorkDir . '/' . $this->checkstyleReportFile;
@@ -109,7 +102,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // Allow for failing the test run if CS was bad.
     // TODO: if this is supposed to fail the build, we should put in a
     // $this->terminatebuild.
-    if ($this->configuration['lint-fails-test']) {
+    if ($this->configuration['halt-on-fail']) {
       return $result->getSignal();
     }
     return 0;
@@ -133,7 +126,7 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   }
 
   /**
-   * Returns the full path of the directory to run csslint in.
+   * Returns the relative path of the directory to run csslint in.
    *
    * If a project has a .csslintrc, we want to run csslint from the
    * project directory, otherwise we run from the root directory to use
@@ -142,13 +135,11 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   protected function getCssLintConfig() {
     $config_file = '';
 
-    $root_dir = $this->codebase->getTrueExtensionSubDirectory();
     // Check for config files in the project directory first
-   if (!empty($root_dir) && file_exists($this->codebase->getSourceDirectory() . '/' . $root_dir . '/.csslintrc'))   {
-      $config_file = $root_dir . '/.csslintrc';
-   }
-   elseif (file_exists($this->codebase->getSourceDirectory() . '/.csslintrc'))   {
-     $config_file = '.csslintrc';
+    // We dont use getProjectConfigDirectory because core's csslintrc file is
+    // located in the root of the project.
+   if (!empty($this->codebase->getProjectSourceDirectory()) && file_exists($this->codebase->getProjectSourceDirectory() . '/.csslintrc'))   {
+      $config_file = $this->codebase->getProjectSourceDirectory(FALSE) . '/.csslintrc';
    }
 
     return $config_file;
@@ -176,13 +167,13 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // No modified files? Sniff the whole repo.
     if (empty($this->codebase->getModifiedFiles())) {
       $this->io->writeln('<info>No modified files. Sniffing all files.</info>');
-      return [$this->codebase->getTrueExtensionSubDirectory()];
+      return [$this->codebase->getProjectSourceDirectory(FALSE)];
     }
     elseif ($this->configFileIsModified()) {
       // Sniff all files if .csslintrc has been modified. The file could be
       // 'modified' in that it was removed
       $this->io->writeln('<info>Csslint config file modified, sniffing entire project.</info>');
-      return [$this->codebase->getTrueExtensionSubDirectory()];
+      return [$this->codebase->getProjectSourceDirectory(FALSE)];
     }
     else {
       $modified_css =  preg_grep("{.*\.css$}",$this->codebase->getModifiedFiles());

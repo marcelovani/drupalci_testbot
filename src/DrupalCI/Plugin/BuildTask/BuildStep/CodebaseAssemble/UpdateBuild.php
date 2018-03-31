@@ -31,16 +31,6 @@ class UpdateBuild extends BuildTaskBase {
   }
 
   /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    // We have always-use-drupalci-yml so we can test without a patch.
-    return [
-      'always-use-drupalci-yml' => FALSE,
-    ];
-  }
-
-  /**
    * Figure out where the drupalci.yml file should be.
    *
    * @return string
@@ -48,12 +38,7 @@ class UpdateBuild extends BuildTaskBase {
    */
   protected function locateDrupalCiYmlFile() {
     $path = [];
-    if ($this->codebase->getProjectType() == 'core') {
-      $path[] = 'core';
-    }
-    else {
-      $path[] = $this->codebase->getTrueExtensionSubDirectory();
-    }
+    $path[] = $this->codebase->getProjectConfigDirectory(FALSE);
     $path[] = 'drupalci.yml';
     return implode(DIRECTORY_SEPARATOR, $path);
   }
@@ -65,10 +50,6 @@ class UpdateBuild extends BuildTaskBase {
    *   TRUE if you should replace the assessment stage with drupalci.yml.
    */
   protected function shouldReplaceAssessmentStage() {
-    // Do we have config to tell us to always use the project drupalci.yml?
-    if ($this->configuration['always-use-drupalci-yml']) {
-      return TRUE;
-    }
     // Is drupalci.yml modified?
     return in_array(
       $this->locateDrupalCiYmlFile(),

@@ -25,7 +25,6 @@ class CssLintSuccessTest extends DrupalCIFunctionalTestBase {
     'DCI_LocalBranch=8.3.x',
     'DCI_DBType=sqlite',
     'DCI_PHPVersion=php-7.1-apache:production',
-    'DCI_CS_SkipCodesniff=TRUE',
   ];
 
   public function testCoderSniffOnlyChangedFailTest() {

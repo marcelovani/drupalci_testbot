@@ -51,7 +51,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     $source_dir = $this->codebase->getSourceDirectory();
     $project_name = $this->codebase->getProjectName();
     $ancillary_dir = $this->build->getAncillaryWorkDirectory() . '/' . $project_name;
-    $contrib_dir = $this->codebase->getTrueExtensionSubDirectory();
+    $contrib_dir = $this->codebase->getProjectSourceDirectory(FALSE);
 
     if (in_array($contrib_dir . '/composer.json', $modified_files)) {
       $this->io->writeln("composer.json changed by patch: recalculating depenendices");
@@ -64,7 +64,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       $composer_branchname = $result->getOutput();
       $composer_branchname = $this->flipDevBranch($composer_branchname);
       // Copy directory to ancillary
-      $project_dir = $source_dir . '/' . $contrib_dir;
+      $project_dir = $this->codebase->getProjectSourceDirectory();
       $cmd = "cp -r $project_dir $ancillary_dir";
       $this->execRequiredCommands($cmd, 'Ancillary Copy Failure');
 

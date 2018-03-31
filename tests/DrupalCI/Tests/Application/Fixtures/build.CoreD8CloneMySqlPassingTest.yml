@@ -3,27 +3,32 @@ build:
     assemble_codebase:
       replicate:
         exclude: {  }
-        local_dir: '/var/lib/drupalci/drupal-checkout'
-        git_branch: '8.5.x'
-        git_commit_hash: 91e668f
+        local-dir: ''
+        git-branch: ''
+        git-commit-hash: ''
+      checkout_core:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/drupal.git'
+            branch: 8.3.x
+            commit-hash: f4a242f
       composer.core_install:
-        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
       composer_contrib:
         repositories: {  }
+        project: ''
+        branch: ''
       fetch:
-        files:
-          -
-            from: 'https://www.drupal.org/files/issues/2893804-7.patch'
-            to: .
+        files: {  }
       patch:
-        patches:
-          -
-            from: 2893804-7.patch
-            to: .
+        patches: {  }
+      update_build: {  }
       update_dependencies: {  }
-    project_subdir: ''
-    project_name: ''
-    project_type: ''
+      yarn_install:
+        halt-on-fail: false
+    project-subdir: ''
+    project-name: ''
+    project-type: ''
   environment:
     startcontainers:
       runcontainers:
@@ -31,19 +36,19 @@ build:
       start_phantomjs: {  }
     create_db:
       dbcreate: {  }
-    db_type: mysql
-    db_version: '5.5'
+    db-type: mysql
+    db-version: '5.5'
     dbuser: drupaltestbot
     dbpassword: drupaltestbotpw
   assessment:
     testing:
       run_tests.standard:
-        concurrency: 31
-        testgroups: '--all'
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
-        url: 'http://localhost/subdirectory'
+        testgroups: Url
         color: true
         die-on-fail: false
         keep-results: true
         keep-results-table: false
         verbose: false
+        repeat: 1
+        suppress-deprecations: true

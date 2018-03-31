@@ -17,31 +17,14 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD7PassingTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected $dciConfig = [
-    'DCI_LocalBranch=7.x',
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_LocalCommitHash=5533335',
-    'DCI_JobType=simpletestlegacy7',
-    'DCI_PHPVersion=php-5.3.29-apache:production',
-    'DCI_ProjectType=module',
-    'DCI_ProjectName=forena',
-    'DCI_Composer_Project=forena',
-    'DCI_Composer_Branch=7.x-4.x',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testD7Contrib() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD7PassingTest.yml',
     ], $options);
-    $this->assertRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*run_tests_d7*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/Forena Reports 15 passes, 0 fails, and 0 exceptions/', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 

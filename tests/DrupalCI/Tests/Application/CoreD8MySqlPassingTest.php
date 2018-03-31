@@ -22,28 +22,17 @@ class CoreD8MySqlPassingTest extends DrupalCIFunctionalTestBase {
    * {@inheritdoc}
    */
 
-  protected $dciConfig = [
-    'DCI_UseLocalCodebase=/var/lib/drupalci/drupal-checkout',
-    'DCI_LocalBranch=8.3.x',
-    'DCI_LocalCommitHash=c187f1d',
-    'DCI_JobType=simpletest',
-    'DCI_TestGroups=Url',
-    'DCI_PHPVersion=php-7.0-apache:production',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testBasicTest() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreD8MySqlPassingTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $this->app_tester->getDisplay();
-    $this->assertNotRegExp('/.*simpletestlegacy7*/', $this->app_tester->getDisplay());
+    $this->assertNotRegExp('/.*legacydevelopment*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";

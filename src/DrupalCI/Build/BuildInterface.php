@@ -38,8 +38,8 @@ interface BuildInterface {
    * @param string $build
    *
    * Either the full path to a build.yml file, or the name of one of
-   * the predefined build_definitions like simpletest or simpletest7, or if
-   * null, defaults to simpletest.  Once it loads the yaml definition, it
+   * the predefined build_definitions like development or legacydevelopment, or if
+   * null, defaults to development.  Once it loads the yaml definition, it
    * recursively iterates over the definition creating and configuring the
    * build plugins for this build.
    */

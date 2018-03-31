@@ -1,0 +1,38 @@
+build:
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local-dir: /var/lib/drupalci/drupal-checkout
+        git-branch: 8.1.x
+        git-commit-hash: bdb434a
+      checkout_core:
+        repositories:
+          -
+            repo: ''
+            branch: ''
+            commit-hash: ''
+            checkout-dir: ''
+      composer.core_install:
+        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
+      composer_contrib:
+        repositories: {  }
+        project: ''
+        branch: ''
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/does_not_apply.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: does_not_apply.patch
+            to: .
+      update_build: {  }
+      update_dependencies: {  }
+      yarn_install:
+        halt-on-fail: false
+    project-subdir: ''
+    project-name: ''
+    project-type: ''

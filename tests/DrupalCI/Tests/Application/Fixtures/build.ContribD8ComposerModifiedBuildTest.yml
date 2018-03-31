@@ -44,7 +44,7 @@ build:
       phplint:
         concurrency: '4'
     testing:
-      simpletest.standard:
+      run_tests.standard:
         concurrency: 31
         testgroups: '--directory modules/monolog'
         types: 'Simpletest,PHPUnit-Unit,PHPUnit-Kernel,PHPUnit-Functional'
@@ -54,7 +54,7 @@ build:
         keep-results: true
         keep-results-table: false
         verbose: false
-      simpletest.js:
+      run_tests.js:
         concurrency: 1
         types: PHPUnit-FunctionalJavascript
         testgroups: '--directory modules/monolog'

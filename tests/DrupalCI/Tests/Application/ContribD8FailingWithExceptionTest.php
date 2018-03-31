@@ -18,31 +18,12 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  */
 class ContribD8FailingWithExceptionTest extends DrupalCIFunctionalTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
-  protected $dciConfig = [
-    'DCI_Composer_Project=flag',
-    'DCI_Composer_Branch=8.x-4.x#9daaa90d82fe580d2b5c64633a50d60593068d91',
-    'DCI_CoreRepository=git://git.drupal.org/project/drupal.git',
-    'DCI_CoreBranch=8.3.x',
-    'DCI_DBType=mysql',
-    'DCI_DBVersion=5.5',
-    'DCI_Fetch=https://www.drupal.org/files/issues/2716613-69.flag_.permissions-author.patch,modules/flag',
-    'DCI_GitCommitHash=24343f9',
-    'DCI_JobType=simpletest',
-    'DCI_Patch=2716613-69.flag_.permissions-author.patch,modules/flag',
-    'DCI_PHPVersion=php-5.6-apache:production',
-    'DCI_ProjectType=module',
-    'DCI_ProjectName=flag',
-    'DCI_CS_SkipCodesniff=TRUE',
-  ];
-
   public function testD8Contrib() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8FailingWithExceptionTest.yml',
     ], $options);
     $build = $this->getCommand('run')->getBuild();
     $output_file = $build->getXmlDirectory() . "/testresults.xml";
