@@ -197,7 +197,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
       $result = $this->execEnvironmentCommands($command);
       $this->saveStringArtifact(basename($core_file) . ".debug", $result->getOutput());
-      if (FALSE === (getenv('DCI_Debug'))) {
+      if (FALSE === (filter_var(getenv('DCI_Debug'), FILTER_VALIDATE_BOOLEAN))) {
         $this->io->writeln("Removing core file: $core_file");
         $cmd = "sudo rm -rf $core_file";
         $result = $this->execCommands($cmd);

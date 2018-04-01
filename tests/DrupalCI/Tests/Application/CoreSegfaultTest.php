@@ -16,28 +16,36 @@ use Symfony\Component\Console\Tester\ApplicationTester;
  *
  * @see TESTING.md
  */
-class CoreD8PostgresPassingTest extends DrupalCIFunctionalTestBase {
+class CoreSegfaultTest extends DrupalCIFunctionalTestBase {
 
   /**
    * {@inheritdoc}
    */
-
-  public function testBasicTest() {
+  protected $dciConfig = [
+    'DCI_Debug=false',
+  ];
+  /**
+   * {@inheritdoc}
+   */
+  public function testSegfaultTest() {
 
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
-      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreD8PostgresPassingTest.yml',
+      'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.CoreSegfaultTest.yml',
     ], $options);
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $this->app_tester->getDisplay();
     $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Program terminated with signal SIGSEGV, Segmentation fault.*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*php_conv_qprint_decode_convert*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Removing core file:.*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
-    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
+    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreSegfault_testresults.xml', $output_file);
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');
