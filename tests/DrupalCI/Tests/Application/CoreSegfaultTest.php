@@ -21,6 +21,12 @@ class CoreSegfaultTest extends DrupalCIFunctionalTestBase {
   /**
    * {@inheritdoc}
    */
+  protected $dciConfig = [
+    'DCI_Debug=false',
+  ];
+  /**
+   * {@inheritdoc}
+   */
   public function testSegfaultTest() {
 
     $options = ['interactive' => FALSE];
@@ -31,8 +37,10 @@ class CoreSegfaultTest extends DrupalCIFunctionalTestBase {
     /* @var $build \DrupalCI\Build\BuildInterface */
     $build = $this->getCommand('run')->getBuild();
     $display = $this->app_tester->getDisplay();
-    $this->assertNotRegExp('/.*legacydevelopment*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/.*Drupal\\\\KernelTests\\\\Core\\\\Routing\\\\UrlIntegrationTest*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Program terminated with signal SIGSEGV, Segmentation fault.*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*php_conv_qprint_decode_convert*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Removing core file:.*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
