@@ -23,6 +23,7 @@ class PhpLintFailTest extends DrupalCIFunctionalTestBase {
   protected $dciConfig = [
     'DCI_Fetch=https://www.drupal.org/files/issues/2809565_actually_fails_linting.patch,.',
     'DCI_Patch=2809565_actually_fails_linting.patch,.',
+    'DCI_Concurrency=4',
   ];
 
   public function testPhpLintFailTest() {

@@ -186,7 +186,8 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
    * @inheritDoc
    */
   public function complete($childStatus) {
-
+    // @todo Add regression tests.
+    //   https://www.drupal.org/project/drupalci_testbot/issues/2957623
     $gdbcommands = ['source /usr/src/php/.gdbinit','bt','zbacktrace','q' ];
     $gdb_command_file = $this->pluginWorkDir . '/debugscript.gdb';
     file_put_contents($gdb_command_file, implode("\n", $gdbcommands));
@@ -194,11 +195,13 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $container_command_file = $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/debugscript.gdb';
     foreach ($phpcoredumps as $core_file) {
       $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
-      $this->execEnvironmentCommands($command);
-      $this->saveStringArtifact(basename($core_file) . ".debug", $response->getOutput());
+      $result = $this->execEnvironmentCommands($command);
+      $this->saveStringArtifact(basename($core_file) . ".debug", $result->getOutput());
       if (FALSE === (getenv('DCI_Debug'))) {
+        $this->io->writeln("Removing core file: $core_file");
         $cmd = "sudo rm -rf $core_file";
         $result = $this->execCommands($cmd);
+        $this->io->writeln("{$result->getError()}");
       }
     }
 
