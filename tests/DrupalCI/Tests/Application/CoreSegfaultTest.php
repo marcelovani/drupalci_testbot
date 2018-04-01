@@ -37,7 +37,7 @@ class CoreSegfaultTest extends DrupalCIFunctionalTestBase {
     $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
-    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreD8PassingTest_testresults.xml', $output_file);
+    $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreSegfault_testresults.xml', $output_file);
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     $this->assertBuildOutputJson($build, 'buildLabel', 'Build Successful');

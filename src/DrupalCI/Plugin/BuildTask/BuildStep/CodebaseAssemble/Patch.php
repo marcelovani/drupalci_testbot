@@ -60,6 +60,9 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       }
       $details['to'] = $this->codebase->getProjectSourceDirectory();
 
+      // Allow patches for self tests to refer to themselves.
+      $dir = __DIR__ . "/../../../../../..";
+      $details['from'] = str_replace('TESTRUNNER_SRC', $dir ,$details['from']);
       // Create a new patch object based on the adjusted 'to'.
       /* @var $patch \DrupalCI\Build\Codebase\Patch */
       $patch = $this->patchFactory->getPatch(

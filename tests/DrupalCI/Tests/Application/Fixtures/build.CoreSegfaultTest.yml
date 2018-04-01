@@ -24,7 +24,7 @@ build:
       patch:
         patches:
           -
-            from: /opt/drupalci/testrunner/tests/DrupalCI/Tests/Application/Fixtures/patches/segfault.patch
+            from: TESTRUNNER_SRC/tests/DrupalCI/Tests/Application/Fixtures/patches/segfault.patch
             to: .
       update_build: {  }
       update_dependencies: {  }
