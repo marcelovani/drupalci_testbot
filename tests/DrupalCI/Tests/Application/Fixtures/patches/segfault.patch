@@ -1,22 +1,32 @@
 diff --git a/core/tests/Drupal/KernelTests/Core/Routing/UrlIntegrationTest.php b/core/tests/Drupal/KernelTests/Core/Routing/UrlIntegrationTest.php
-index 053db792cb..d279d96b56 100644
+index 053db792cb..254760b3f9 100644
 --- a/core/tests/Drupal/KernelTests/Core/Routing/UrlIntegrationTest.php
 +++ b/core/tests/Drupal/KernelTests/Core/Routing/UrlIntegrationTest.php
-@@ -48,6 +48,17 @@ public function testAccess() {
+@@ -48,6 +48,27 @@ public function testAccess() {
      $url_access = new Url('router_test.16');
      $this->assertTrue($url_access->access($user_with_access));
      $this->assertFalse($url_access->access($user_without_access));
-+    "".(new Crash());
++    $fh = fopen('/tmp/segfault.txt', 'w');
++    stream_filter_append( $fh, 'convert.quoted-printable-decode', STREAM_FILTER_WRITE, array( 'line-break-chars' => "\r\n" ));
++
++    $lines = [
++      "\r\n",
++      " -=()\r\n",
++      " -=\r\n",
++      "\r\n"
++    ];
++
++    foreach ($lines as $line)
++    {
++      try
++      {
++        fwrite($fh, $line);
++      }
++      catch (\Exception $e) { }
++    }
++
++    fclose($fh);
 +
    }
-
+ 
  }
-+
-+class Crash
-+{
-+  public function __tostring()
-+  {
-+    return "".$this;
-+  }
-+}
-+

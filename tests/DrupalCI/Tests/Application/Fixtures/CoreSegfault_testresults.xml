@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<testsuites errors="0" failures="3" name="todo set" tests="3" time="todo set">
+    <testsuite errors="0" failures="3" hostname="todo: set hostname" id="0" name="url" package="url" tests="3">
+        <testcase assertions="1" classname="url.drupal\kerneltests\core\routing\urlintegrationtest" name="testaccess" status="failed">
+            <failure message="fail: [other] line 27 of core/tests/drupal/kerneltests/core/routing/urlintegrationtest.php:&#10;drupal\kerneltests\core\routing\urlintegrationtest::testaccess&#10;phpunit_framework_exception: segmentation fault (core dumped)&#10;&#10;&#10;&#10;" type="fail"/>
+            <system-out/>
+        </testcase>
+        <testcase assertions="1" classname="url.drupal\kerneltests\core\routing\urlintegrationtest" name="drupal\kerneltests\core\routing\urlintegrationtest" status="failed">
+            <failure message="fail: [other] line 0 of sites/default/files/simpletest/phpunit-1.xml:&#10;phpunit test failed to complete&#10;&#10;" type="fail"/>
+            <system-out/>
+        </testcase>
+        <testcase assertions="1" classname="url.drupal\kerneltests\core\routing\urlintegrationtest" name="unknown" status="failed">
+            <failure message="fail: [run-tests.sh check] line 0 of :&#10;fatal drupal\kerneltests\core\routing\urlintegrationtest: test runner returned a non-zero error code (2).&#10;&#10;" type="fail"/>
+            <system-out/>
+        </testcase>
+    </testsuite>
+</testsuites>
