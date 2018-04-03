@@ -139,7 +139,11 @@ class Csslint extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     // We dont use getProjectConfigDirectory because core's csslintrc file is
     // located in the root of the project.
    if (!empty($this->codebase->getProjectSourceDirectory()) && file_exists($this->codebase->getProjectSourceDirectory() . '/.csslintrc'))   {
-      $config_file = $this->codebase->getProjectSourceDirectory(FALSE) . '/.csslintrc';
+     if (!empty($this->codebase->getProjectSourceDirectory(FALSE))) {
+       $config_file = $this->codebase->getProjectSourceDirectory(FALSE) . '/.csslintrc';
+     } else {
+       $config_file = '.csslintrc';
+     }
    }
 
     return $config_file;
