@@ -36,6 +36,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
    * @inheritDoc
    */
   public function run() {
+    $return = 0;
     if (file_exists("{$this->codebase->getSourceDirectory()}/core/.env.example")) {
       $dotenv = new Dotenv();
       $envpath = "{$this->codebase->getSourceDirectory()}/core/.env.example";
@@ -67,8 +68,9 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       if ($result->getSignal() == 0) {
         $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
       }
+      $return = $result->getSignal();
     }
-    return 0;
+    return $return;
   }
 
   /**
