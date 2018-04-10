@@ -241,12 +241,14 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $sourcedir = $this->environment->getExecContainerSourceDir();
     $setup_commands = [
       'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
-      'ln -s ' . $sourcedir . ' ' . $sourcedir . '/subdirectory',
       'chown -fR www-data:www-data ' . $sourcedir . '/sites',
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
       'chmod 0777 /tmp',
     ];
     $this->execRequiredEnvironmentCommands($setup_commands, "Prepare run-tests.sh filesystem failed");
+    // Let this fail. We want to eliminate this thing anyhow in https://www.drupal.org/project/drupalci_testbot/issues/2838194
+    $subdir_link = [ 'ln -s ' . $sourcedir . ' ' . $sourcedir . '/subdirectory' ];
+    $this->execEnvironmentCommands($subdir_link);
     return 0;
   }
 
