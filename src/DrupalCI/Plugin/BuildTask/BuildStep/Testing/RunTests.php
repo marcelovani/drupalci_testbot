@@ -132,8 +132,13 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $signal = $result->getSignal();
     switch ($signal) {
       case 0:
+        $signal = 0;
+        break;
       case 1:
         $signal = 0;
+        if ($this->configuration['halt-on-fail']) {
+          $this->terminateBuild('test failure', $result->getOutput() . "\n\n" . $result->getError());
+        }
         break;
 
       case 2:
@@ -144,6 +149,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
         $this->terminateBuild('run-tests.sh fatal error', $result->getError());
         break;
     }
+
     return $signal;
   }
 
@@ -220,6 +226,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'keep-results-table' => FALSE,
       'verbose' => FALSE,
       'concurrency' => 0,
+      'halt-on-fail' => FALSE,
       'repeat' => 1,
       'suppress-deprecations' => TRUE,
     ];
