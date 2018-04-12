@@ -6,6 +6,7 @@ use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
+use DrupalCI\Plugin\BuildTask\HaltingFailException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Pimple\Container;
@@ -411,6 +412,9 @@ class Build implements BuildInterface, Injectable {
     }
     catch (BuildTaskException $e) {
       $this->saveBuildState($e->getBuildResults());
+      if ($e instanceof HaltingFailException) {
+        return 1;
+      }
       return 2;
     } finally {
       // TODO: we need to have a step that goes through the build objects

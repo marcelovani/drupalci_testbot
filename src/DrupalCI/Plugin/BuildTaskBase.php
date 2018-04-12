@@ -5,6 +5,7 @@ namespace DrupalCI\Plugin;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Plugin\BuildTask\HaltingFailException;
 use DrupalCI\Build\Environment\CommandResult;
 use Pimple\Container;
 use Symfony\Component\Process\Process;
@@ -444,4 +445,13 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->io->drupalCIError($errorLabel, $errorDetails);
     throw new BuildTaskException($errorLabel, $errorDetails);
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function terminateBuildWithFail($errorLabel, $errorDetails = '') {
+    $this->io->drupalCIError($errorLabel, $errorDetails);
+    throw new HaltingFailException($errorLabel, $errorDetails);
+  }
+
 }
