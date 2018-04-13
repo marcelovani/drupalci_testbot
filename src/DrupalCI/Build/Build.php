@@ -413,7 +413,7 @@ class Build implements BuildInterface, Injectable {
     catch (BuildTaskException $e) {
       $this->saveBuildState($e->getBuildResults());
       if ($e instanceof HaltingFailException) {
-        return 1;
+        return 0;
       }
       return 2;
     } finally {
