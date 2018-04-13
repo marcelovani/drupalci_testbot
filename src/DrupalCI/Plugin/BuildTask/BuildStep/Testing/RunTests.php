@@ -4,6 +4,7 @@ namespace DrupalCI\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\Artifact\Junit\JunitXmlBuilder;
 use DrupalCI\Build\BuildInterface;
+use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
@@ -123,34 +124,54 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $this->saveStringArtifact('run_testsoutput.txt', $result->getOutput());
     $this->saveStringArtifact('run_testserror.txt', $result->getError());
 
-    // Run-tests.sh can return 0, 1, or 2. If the container exec() does not
-    // return any of those values, it's a PHP fatal.
-    // Jenkins will fail the build if it receives a 1, but we don't want it to
-    // do that. D.O has the responsibility for displaying the fail.
-    // Therefore: Return 0 for both 0 and 1. All other states result in
-    // terminateBuild().
+    return $this->determineSignal($result);
+  }
+
+  /**
+   * Adjust the result code testbot should return, halting the build as needed.
+   *
+   * Run-tests.sh can return 0, 1, or 2. If the container exec() does not
+   * return any of those values, it's a PHP fatal.
+   * Jenkins will fail the build if it receives a 1, but we don't want it to
+   * do that. D.O has the responsibility for displaying the fail.
+   * Therefore: Return 0 for both 0 and 1. All other states result in
+   * terminateBuild().
+   *
+   * @param CommandResultInterface $result
+   *   The result object.
+   *
+   * @return int
+   *   Process response signal to return.
+   *
+   * @throws BuildTaskException|HaltingFailException
+   *   If there was an error, throws BuildTaskException. If the test run failed
+   *   and should result in terminating the build, throws HaltingFailException.
+   */
+  protected function determineSignal(CommandResultInterface $result) {
     $signal = $result->getSignal();
     switch ($signal) {
       case 0:
+        // No change for passing test run.
         $signal = 0;
         break;
+
       case 1:
+        // run-tests.sh reports a fail. If halt-on-fail is TRUE, we should halt
+        // the build as failed.
         $signal = 0;
         if ($this->configuration['halt-on-fail']) {
-          // @todo Figure out how to be informative for buildoutcome.json.
-          $this->terminateBuildWithFail('test failure', $result->getOutput() . "\n\n" . $result->getError());
+          $this->terminateBuildWithFail($this->getPluginIdLabel() . ' test fail', $result->getOutput() . "\n\n" . $result->getError());
         }
         break;
 
       case 2:
-        $this->terminateBuild('run-tests.sh exception', $result->getOutput() . "\n\n" . $result->getError());
+        $this->terminateBuild($this->getPluginIdLabel() . ' exception', $result->getOutput() . "\n\n" . $result->getError());
         break;
 
       default:
-        $this->terminateBuild('run-tests.sh fatal error', $result->getError());
+        $this->terminateBuild($this->getPluginIdLabel() . ' fatal error', $result->getError());
         break;
     }
-
     return $signal;
   }
 

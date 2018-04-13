@@ -3,12 +3,15 @@
 namespace DrupalCI\Tests\Plugin\BuildTask\BuildStep\Testing;
 
 use DrupalCI\Build\Codebase\CodebaseInterface;
+use DrupalCI\Build\Environment\CommandResult;
 use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Build\Environment\EnvironmentInterface;
-use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTestsD7;
-use DrupalCI\Tests\DrupalCITestCase;
 use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTests;
+use DrupalCI\Plugin\BuildTask\BuildStep\Testing\RunTestsD7;
+use DrupalCI\Plugin\BuildTask\BuildTaskException;
+use DrupalCI\Plugin\BuildTask\HaltingFailException;
+use DrupalCI\Tests\DrupalCITestCase;
 
 /**
  * @group RunTests
@@ -258,6 +261,44 @@ class RunTestsTest extends DrupalCITestCase {
       'db.system' => $system_db,
     ]);
     return $container;
+  }
+
+  public function provideDetermineSignal() {
+    return [
+      [0, 0, FALSE],
+      [0, 1, FALSE],
+      [HaltingFailException::class, 1, TRUE],
+      [BuildTaskException::class, 2, FALSE],
+      [BuildTaskException::class, 3, TRUE],
+      [BuildTaskException::class, 4, FALSE],
+      [BuildTaskException::class, 255, TRUE],
+    ];
+  }
+
+  /**
+   * @covers ::determineSignal
+   * @dataProvider provideDetermineSignal
+   */
+  public function testDetermineSignal($expected, $signal, $halt_on_fail) {
+    $result = new CommandResult();
+    $result->setSignal($signal);
+
+    $configuration = [
+      'halt-on-fail' => $halt_on_fail,
+    ];
+
+    $plugin_factory = $this->getContainer()['plugin.manager.factory']->create('BuildTask');
+    $run_tests = $plugin_factory->getPlugin('BuildStep', 'run_tests', $configuration);
+
+    $ref_determine = new \ReflectionMethod($run_tests, 'determineSignal');
+    $ref_determine->setAccessible(TRUE);
+
+    if (!is_numeric($expected)) {
+      $this->expectException($expected);
+      $ref_determine->invokeArgs($run_tests, [$result]);
+      return;
+    }
+    $this->assertEquals($expected, $ref_determine->invokeArgs($run_tests, [$result]));
   }
 
 }
