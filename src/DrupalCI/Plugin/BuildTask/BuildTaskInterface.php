@@ -127,6 +127,19 @@ interface BuildTaskInterface {
    */
   public function terminateBuild($errorLabel, $errorDetails);
 
+  /**
+   * Allow a fail to terminate a build.
+   *
+   * This represents a failed build, rather than one that has an error.
+   *
+   * @param $errorLabel
+   *   A short, < 50 character label describing the reason the build was
+   *   terminated. This is what should display in the UI.
+   * @param $errorDetails
+   *   Comprehensive details/error messages for why the build failed.
+   */
+  public function terminateBuildWithFail($errorLabel, $errorDetails);
+
   /* TODO: each task should be able to define their own command line switches
    * that override config like the environment variables do.
    * public function getCLIHelp();

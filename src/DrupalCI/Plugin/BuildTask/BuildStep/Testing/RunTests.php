@@ -137,7 +137,8 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       case 1:
         $signal = 0;
         if ($this->configuration['halt-on-fail']) {
-          $this->terminateBuild('test failure', $result->getOutput() . "\n\n" . $result->getError());
+          // @todo Figure out how to be informative for buildoutcome.json.
+          $this->terminateBuildWithFail('test failure', $result->getOutput() . "\n\n" . $result->getError());
         }
         break;
 
