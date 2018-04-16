@@ -83,11 +83,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     else {
       $result = $this->execCommands($commands);
     }
-    // exedRequiredComannds should terminate The build further down if there's
-    // an error. And since we have no idea what to do with a custom command
-    // that isnt required, we'll just return 0 at this point.
-    // Maybe this should return $result->getSignal() instead and make sure
-    // devs know about 0, 1, and 2 ?
+    // execRequiredCommands() should terminate the build if there's an error.
     return 0;
   }
 
