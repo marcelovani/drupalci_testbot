@@ -83,9 +83,14 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       "ln -s ${sourcedir} ${sourcedir}/subdirectory",
       "mkdir -p ${sourcedir}/nightwatch_output",
       "mkdir -p /var/www/.yarn",
+      "mkdir -p /var/www/.cache",
+      "chown -fR www-data:www-data /var/www/.yarn /var/www/.cache",
       "chown -fR www-data:www-data ${sourcedir}/sites",
       "chown -fR www-data:www-data ${sourcedir}/nightwatch_output",
       "chown -fR www-data:www-data /var/www/.yarn",
+      # Some tests create unwritable folders. Some JS lib has a hard time with
+      # permissions.
+      "find /var/www/html/sites -type d -exec chmod 777 {} \;",
     ];
     $result = $this->execEnvironmentCommands($setup_commands);
   }
