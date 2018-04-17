@@ -2,7 +2,6 @@
 
 namespace DrupalCI\Tests\Plugin\BuildTask\BuildStep\Utility;
 
-use DrupalCI\Console\DrupalCIStyle;
 use DrupalCI\Plugin\BuildTask\BuildStep\Utility\Command;
 use DrupalCI\Tests\DrupalCITestCase;
 
@@ -12,13 +11,12 @@ use DrupalCI\Tests\DrupalCITestCase;
  */
 class CommandTest extends DrupalCITestCase {
 
-  protected function getPlugin($configuration = [], $services = []) {
-    $plugin_factory = $this->getContainer($services)['plugin.manager.factory']->create('BuildTask');
-    return $plugin_factory->getPlugin('BuildStep', 'host_command', $configuration);
-  }
-
   public function testGetPlugin() {
-    $this->assertEquals(Command::class, get_class($this->getPlugin()));
+    $plugin_factory = $this->getContainer()['plugin.manager.factory']->create('BuildTask');
+    $this->assertEquals(
+      Command::class,
+      get_class($plugin_factory->getPlugin('BuildStep', 'host_command'))
+    );
   }
 
   public function provideTestRun() {
@@ -54,6 +52,30 @@ class CommandTest extends DrupalCITestCase {
       ->method('execute');
 
     $this->assertEquals(0, $plugin->run());
+  }
+
+  /**
+   * @covers ::execute
+   */
+  public function testExecute() {
+    foreach ([TRUE, FALSE] as $halt_on_fail) {
+      $plugin = $this->getMockBuilder(Command::class)
+        ->disableOriginalConstructor()
+        ->setMethods(['execRequiredCommands', 'execCommands'])
+        ->getMock();
+      $plugin->inject($this->getContainer());
+
+      // 'halt-on-fail' tells us whether to require the exec or not.
+      $plugin->expects($this->exactly($halt_on_fail ? 1 : 0))
+        ->method('execRequiredCommands');
+      $plugin->expects($this->exactly($halt_on_fail ? 0 : 1))
+        ->method('execCommands');
+
+      $ref_execute = new \ReflectionMethod($plugin, 'execute');
+      $ref_execute->setAccessible(TRUE);
+
+      $this->assertEquals(0, $ref_execute->invokeArgs($plugin, [['command'], $halt_on_fail]));
+    }
   }
 
 }
