@@ -28,6 +28,14 @@ class DrupalCITestCase extends TestCase {
     $this->build = $this->createMock(BuildInterface::class);
   }
 
+  /**
+   * Get an application service container.
+   *
+   * @param string[] $services
+   *   Services to inject into the container.
+   * @return \Pimple\Container
+   *   The container.
+   */
   protected function getContainer($services = []) {
     $container = new Container();
     $container->register(new DrupalCIServiceProvider());

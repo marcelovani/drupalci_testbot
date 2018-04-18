@@ -144,6 +144,7 @@ class Environment implements Injectable, EnvironmentInterface {
         $exec_start_config->setTty(FALSE);
         $exec_start_config->setDetach(FALSE);
 
+        /* @var $stream \Docker\Stream\DockerRawStream */
         $stream = $this->docker->execStart($exec_id, $exec_start_config, [], $this->docker::FETCH_STREAM);
 
         $stdoutFull = "";

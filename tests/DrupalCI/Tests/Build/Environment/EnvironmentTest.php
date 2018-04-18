@@ -2,9 +2,7 @@
 
 namespace DrupalCI\Tests\Build\Environment;
 
-
-use Docker\Docker;
-use Docker\Stream\DockerRawStream;
+use DrupalCI\Build\Environment\CommandResultInterface;
 use DrupalCI\Build\Environment\Environment;
 use DrupalCI\Tests\DrupalCITestCase;
 
@@ -14,66 +12,52 @@ use DrupalCI\Tests\DrupalCITestCase;
 class EnvironmentTest extends DrupalCITestCase {
 
   /**
-   * @covers ::executeCommands
+   * Ensure we get a result when there are no commands.
+   *
+   * covers ::executeCommands
    */
-  public function testExecuteCommands() {
-    $this->markTestSkipped("This is all kinds of broken, but doesnt really
-    test that much");
-    $manager_id = 'abcdef';
-    $cmd = 'test_command test_argument';
+  public function testExecuteCommandsNoCommands() {
+    /* @var $environment \DrupalCI\Build\Environment\Environment */
+    $environment = $this->getContainer()['environment'];
+    $result = $environment->executeCommands([]);
+    $this->assertInstanceOf(CommandResultInterface::class, $result);
+    $this->assertEquals(0, $result->getSignal());
+  }
 
-    $docker = $this->getMockBuilder(Docker::class)
-      ->setMethods(['getExecManager'])
-      ->getMock();
+  public function provideNoExistingContainer() {
+    return [
+      ['command'],
+      [['array', 'of', 'commands']],
+    ];
+  }
 
-    $exec_manager = $this->getMockBuilder(ExecManager::class)
-      ->disableOriginalConstructor()
-      ->setMethods(['create', 'start', 'find'])
-      ->getMock();
-
-    $docker->expects($this->once())
-      ->method('getExecManager')
-      ->will($this->returnValue($exec_manager));
-
-    $exec_result = $this->createMock(ExecCreateResult::class);
-
-    $exec_manager->expects($this->once())
-      ->method('create')
-      ->will($this->returnValue($exec_result));
-    $exec_result->expects($this->once())
-      ->method('getId')
-      ->willReturn($manager_id);
-
-    $exec_start_config = $this->createMock(ExecStartConfig::class);
-
-    $stream = $this->getMockBuilder(DockerRawStream::class)
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $exec_manager->expects($this->once())
-      ->method('start')
-      ->with($manager_id)
-      ->will($this->returnValue($stream));
-
-    $exec_command = $this->getMockBuilder(ExecCommand::class)
-      ->setMethods(['getExitCode'])
-      ->getMock();
-    $exec_command->expects($this->once())
-      ->method('getExitCode');
-    $exec_manager->expects($this->once())
-      ->method('find')
-      ->will($this->returnValue($exec_command));
-
+  /**
+   * No container? No problem!
+   *
+   * @dataProvider provideNoExistingContainer
+   * @covers ::executeCommand
+   */
+  public function testExecuteCommandsNoExistingContainer($commands) {
     $environment = $this->getMockBuilder(Environment::class)
+      ->disableOriginalConstructor()
       ->setMethods(['getExecContainer'])
-      ->getMockForAbstractClass();
-
+      ->getMock();
+    // getExecContainer() always returns no available container.
     $environment->expects($this->once())
       ->method('getExecContainer')
-      ->will($this->returnValue(['id' => 'drupalci/php-5.4']));
+      ->willReturn([]);
 
-    $environment->inject($this->getContainer(['docker' => $docker]));
-    $environment->executeCommands([$cmd]);
+    // Set up some services...
+    $environment->inject($this->getContainer());
+
+    // Container ID (second parameter to executeCommands()) must be empty.
+    /* @var $result \DrupalCI\Build\Environment\CommandResultInterface */
+    $result = $environment->executeCommands($commands, '');
+
+    $this->assertInstanceOf(CommandResultInterface::class, $result);
+    $this->assertEquals(1, $result->getSignal());
+    $this->assertEquals(1, preg_match('/No existing container to run commands on./', $result->getOutput()));
+    $this->assertEquals(1, preg_match('/No existing container to run commands on./', $result->getError()));
   }
 
 }
