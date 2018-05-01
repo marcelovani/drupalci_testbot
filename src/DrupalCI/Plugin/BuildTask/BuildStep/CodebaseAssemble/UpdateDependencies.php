@@ -69,7 +69,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       $this->execRequiredCommands($cmd, 'Ancillary Copy Failure');
 
       // Remove the project via composer
-      $cmd = "/usr/local/bin/composer${verbose} remove drupal/" . $project_name . " --ignore-platform-reqs --no-interaction --working-dir " . $source_dir;
+      $cmd = "/usr/local/bin/composer${verbose} remove drupal/" . $project_name . " --no-update --ignore-platform-reqs --no-interaction --working-dir " . $source_dir;
       $this->io->writeln("Removing project: $cmd");
       $this->execRequiredCommands($cmd, 'Removal of modified project failed');
       // Remove any of its dev dependnecies
