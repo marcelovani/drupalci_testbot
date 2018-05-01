@@ -40,6 +40,11 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $cmd = "{$this->executable_path} ${verbose} config -g discard-changes true";
     $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
 
+    if (!empty($this->configuration['phpversion'])){
+      $cmd = "{$this->executable_path} ${verbose} config platform.php {$this->configuration['phpversion']}";
+      $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
+    }
+
     $cmd = "{$this->executable_path} ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->execRequiredCommands($cmd, 'Composer Command Failed');
 
@@ -57,7 +62,8 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       $progress = ' --no-progress';
     }
     return [
-      'options' => "${verbose}install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction${progress}",
+      'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
+      'phpversion' => '',
     ];
   }
 
