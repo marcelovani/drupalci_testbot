@@ -24,7 +24,7 @@ class ContribD8PassingTest extends DrupalCIFunctionalTestBase {
       'command' => 'run',
       'definition' => 'tests/DrupalCI/Tests/Application/Fixtures/build.ContribD8PassingTest.yml',
     ], $options);
-    $this->assertRegExp('/.*Drupal\\\\block_field\\\\Tests.*/', $this->app_tester->getDisplay());
+    $this->assertRegExp('/.*Drupal\\\\Tests\\\\block_field\\\\Functional.*/', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
