@@ -71,6 +71,14 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
         if (!empty($this->configuration['git-branch'])) {
+          $cmd = "git remote add -t {$this->configuration['git-branch']} drupal {$remote_url}";
+          $this->io->writeln("Git Command: $cmd");
+          $this->execRequiredCommands($cmd, 'git remote add failure');
+
+          $cmd = "git fetch drupal";
+          $this->io->writeln("Git Command: $cmd");
+          $this->execRequiredCommands($cmd, 'git fetch failure');
+
           $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git-branch'];
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommands($cmd, 'git checkout failure');
