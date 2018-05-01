@@ -269,8 +269,12 @@ class Build implements BuildInterface, Injectable {
     }
     $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
 
+    $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
+
     $this->generateBuildId();
     $this->setupWorkSpace();
+
+    $this->saveYaml($build_definition);
   }
 
   /**
@@ -526,6 +530,9 @@ class Build implements BuildInterface, Injectable {
   protected function saveYaml($config) {
     $buildfile = $this->getArtifactDirectory() . '/build.' . $this->getBuildId() . '.yml';
     $yamlstring = $this->yaml->dump($config, PHP_INT_MAX, 2, 0);
+    if (file_exists($buildfile)){
+      rename($buildfile, "${buildfile}_orig");
+    }
     file_put_contents($buildfile, $yamlstring);
   }
 
