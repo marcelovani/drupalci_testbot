@@ -4,7 +4,7 @@ build:
       replicate:
         exclude: {  }
         local_dir: '/var/lib/drupalci/drupal-checkout'
-        git_branch: '8.4.2'
+        git_branch: '8.4.x'
         git_commit_hash: ''
       checkout_core:
         repositories:

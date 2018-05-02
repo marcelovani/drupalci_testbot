@@ -132,7 +132,7 @@ You probably don’t want to attempt a complete run, so we can override the Test
 
 Afterwards you should be able to run:
 
-  ./drupalci run simpletest
+  ./drupalci run development
 
 If you want to build your own test definition file (look at .drupalci.yml.example as a starting point, documentation will follow), you can instead run:
 
@@ -206,7 +206,7 @@ You probably don’t want to attempt a complete run, so we can override the Test
 
 Afterwards you should be able to run:
 
-  sudo ./drupalci run simpletest
+  sudo ./drupalci run development
 
 If you want to build your own test definition file (look at .drupalci.yml.example as a starting point, documentation will follow), you can instead run:
 
