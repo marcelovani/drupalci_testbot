@@ -36,9 +36,6 @@ class ContainerComposer extends Composer {
     return array_merge(
       parent::getDefaultConfiguration(),
       [
-        // The 'options' configuration should be exactly the same as parent
-        // config, but without --ignore-platform-reqs.
-        'options' => "${verbose} install --prefer-dist --no-suggest${progress} --no-interaction",
         'halt-on-fail' => TRUE,
       ]
      );
