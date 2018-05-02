@@ -25,11 +25,11 @@ class CoreD7SqlLiteRemoteBuildTest extends DrupalCIFunctionalTestBase {
     $options = ['interactive' => FALSE];
     $this->app_tester->run([
       'command' => 'run',
-      'definition' => 'https://dispatcher.drupalci.org/job/drupal_contrib/190687/artifact/jenkins-drupal_contrib-190687/artifacts/build.jenkins-drupal_contrib-190687.yml',
+      'definition' => 'https://www.drupal.org/files/issues/2018-05-01/build.jenkins-drupal_contrib-190687.yml',
     ], $options);
     $display = $this->app_tester->getDisplay();
     $this->assertRegExp('!Build downloaded to /var/lib/drupalci/workspace/build.jenkins-drupal_contrib-190687.yml!', $this->app_tester->getDisplay());
-    $this->assertRegExp('!Drupal\\\\block_field\\\\Tests\\\\BlockFieldTest!', $this->app_tester->getDisplay());
+    $this->assertRegExp('!Drupal\\\\Tests\\\\block_field\\\\Functional\\\\BlockFieldTest!', $this->app_tester->getDisplay());
     $this->assertEquals(0, $this->app_tester->getStatusCode());
 
     /* @var $build \DrupalCI\Build\BuildInterface */
