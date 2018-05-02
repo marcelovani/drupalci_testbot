@@ -63,7 +63,7 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Cloning local core checkout from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
 
-      $cmd = "git clone $remote_url --reference ${local_dir} ${directory}";
+      $cmd = "git clone -s ${local_dir} ${directory}";
       $result = $this->execRequiredCommands($cmd, 'Local git clone failed');
 
       $this->io->writeln("<comment>Copying files complete</comment>");
