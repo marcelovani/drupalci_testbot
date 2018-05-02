@@ -41,7 +41,7 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
 
     if (!empty($this->configuration['phpversion'])){
-      $cmd = "{$this->executable_path} ${verbose} config platform.php {$this->configuration['phpversion']}";
+      $cmd = "{$this->executable_path} ${verbose} config -g platform.php {$this->configuration['phpversion']}";
       $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
     }
 
