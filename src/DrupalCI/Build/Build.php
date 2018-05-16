@@ -700,7 +700,8 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
-    // Not sure if this is needed or not. Carryover from a refactoring
+    // The source directory needs to not be writable group/other by www-data so
+    // that certain tests pass.
     chmod($this->getSourceDirectory(), 0755);
 
     return TRUE;
