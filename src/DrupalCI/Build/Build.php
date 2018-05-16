@@ -267,6 +267,12 @@ class Build implements BuildInterface, Injectable {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
       unset($this->applicationComputedBuildDefinition['assessment']);
     }
+    // Backwards compatibility with older build.yml files on dispatcher for the
+    // next six months.  TODO: remove at least 180 days after 5-17-2018
+    // also note that if we add a fourth stage in that time, this will fail
+    $codebase_definition = $this->applicationComputedBuildDefinition['codebase'];
+    unset($this->applicationComputedBuildDefinition['codebase']);
+    $this->applicationComputedBuildDefinition['codebase'] = $codebase_definition;
     $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
 
     $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);

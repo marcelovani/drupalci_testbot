@@ -19,6 +19,12 @@
 
 # The build level really only exists to provide for a possibility to run entire, multiple builds. It might go away.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+      start_phantomjs:
+      create_db:
+        dbcreate:
   codebase:
     assemble_codebase:
       checkout:
@@ -27,12 +33,6 @@ build:
       # This allows us to optionally enable it with env variables, user config overrides, or command line overrides.
       patch:
       fetch:
-  environment:
-    startcontainers:
-      runcontainers:
-      start_phantomjs:
-      create_db:
-        dbcreate:
   assessment:
     validate_codebase:
       phplint:

@@ -1,4 +1,15 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.5.38-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -33,17 +44,6 @@ build:
     project_subdir: modules/examples
     project_name: examples
     project_type: ''
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-5.5.38-apache:production'
-      start_phantomjs: {  }
-    create_db:
-      dbcreate: {  }
-    db_type: mysql
-    db_version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     testing:
       run_tests.standard:

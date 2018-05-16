@@ -1,4 +1,9 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
   codebase:
     assemble_codebase:
       replicate:
@@ -12,11 +17,6 @@ build:
         branch: '7.x-1.x#a94f3b25b7740d67ff7d69a4bf18f529c07d6db3'
       fetch:
       patch:
-  environment:
-    startcontainers:
-      runcontainers:
-    create_db:
-      dbcreate:
   assessment:
     validate_codebase:
       eslint:

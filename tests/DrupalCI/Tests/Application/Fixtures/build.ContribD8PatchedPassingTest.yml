@@ -1,4 +1,15 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.6-apache:production'
+      start_phantomjs:
+    create_db:
+      dbcreate: {  }
+    db_type: mysql
+    db_version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -36,17 +47,6 @@ build:
       update_dependencies: {  }
     project_subdir: modules/config_readonly
     project_name: config_readonly
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-5.6-apache:production'
-      start_phantomjs:
-    create_db:
-      dbcreate: {  }
-    db_type: mysql
-    db_version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     validate_codebase:
       phplint:
