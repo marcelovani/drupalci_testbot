@@ -26,13 +26,6 @@ class ContainerComposer extends Composer {
    * {@inheritdoc}
    */
   public function getDefaultConfiguration() {
-    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = ' -vvv';
-      $progress = '';
-    } else {
-      $verbose = '';
-      $progress = ' --no-progress';
-    }
     return array_merge(
       parent::getDefaultConfiguration(),
       [
