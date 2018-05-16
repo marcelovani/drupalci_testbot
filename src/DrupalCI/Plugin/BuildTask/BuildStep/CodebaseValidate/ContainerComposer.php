@@ -55,15 +55,12 @@ class ContainerComposer extends Composer {
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
     $commands[] = implode(' ', $command);
-    // TODO: halt-on-fail should determine which execEnvironmentComands
-    // instead of terminating the build itself
 
-    $result = $this->execEnvironmentCommands($commands);
-
-    if ($result->getSignal() != 0) {
-      if ($this->configuration['halt-on-fail']) {
-        $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
-      }
+    if ($this->configuration['halt-on-fail']) {
+      $result = $this->execRequiredEnvironmentCommands($commands, 'Composer error. Unable to continue.');
+    }
+    else {
+      $result = $this->execEnvironmentCommands($commands);
     }
 
     return 0;
