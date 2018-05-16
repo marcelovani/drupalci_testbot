@@ -34,23 +34,23 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
     $source_dir = $this->codebase->getSourceDirectory();
     $cmd = "/usr/local/bin/composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
     $this->io->writeln("Initializing composer repository");
-    $this->execRequiredCommands($cmd, 'Composer init failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer init failure');
 
     $cmd = "/usr/local/bin/composer config discard-changes true --working-dir " . $source_dir;;
     $this->io->writeln("Ignoring Composer Changes");
-    $this->execRequiredCommands($cmd, 'Composer config failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
     $cmd = "/usr/local/bin/composer config minimum-stability dev --working-dir " . $source_dir;
     $this->io->writeln("Setting Minimum Stability");
-    $this->execRequiredCommands($cmd, 'Composer config failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
     $cmd = "/usr/local/bin/composer config prefer-stable true --working-dir " . $source_dir;
     $this->io->writeln("Setting Preferred Stability");
-    $this->execRequiredCommands($cmd, 'Composer config failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
     $cmd = "/usr/local/bin/composer require composer/installers --working-dir " . $source_dir;
     $this->io->writeln("Composer Command: $cmd");
-    $this->execRequiredCommands($cmd, 'Composer require failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer require failure');
 
     $composer_json = $source_dir . '/composer.json';
     if (file_exists($composer_json)) {

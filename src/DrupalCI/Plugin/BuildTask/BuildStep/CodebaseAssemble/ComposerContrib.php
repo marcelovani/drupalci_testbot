@@ -98,13 +98,13 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     $source_dir = $this->codebase->getSourceDirectory();
     $cmd = "/usr/local/bin/composer ${verbose} config repositories.pdo composer " . $this->drupalPackageRepository . " --working-dir " . $source_dir;
     $this->io->writeln("Adding packages.drupal.org as composer repository");
-    $this->execRequiredCommands($cmd, 'Composer config failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
 
     $cmd = "/usr/local/bin/composer ${verbose} require drupal/" . $project . " " . $composer_branch . " --prefer-source --prefer-stable${progress} --no-suggest --no-interaction --working-dir " . $source_dir;
 
     $this->io->writeln("Requiring Project");
-    $this->execRequiredCommands($cmd, 'Composer require failure');
+    $this->execRequiredEnvironmentCommands($cmd, 'Composer require failure');
 
     // Composer does not respect require-dev anywhere but the root package
     // Lets probe for require-dev in our newly installed module, and add
@@ -113,7 +113,7 @@ class ComposerContrib extends BuildTaskBase implements BuildStepInterface, Build
     if (!empty($packages)) {
       $cmd = "/usr/local/bin/composer ${verbose} require --no-interaction " . implode(' ', $packages) . " --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
       $this->io->writeln("Adding require-dev");
-      $this->execRequiredCommands($cmd, 'Composer require failure');
+      $this->execRequiredEnvironmentCommands($cmd, 'Composer require failure');
 
     }
   }
