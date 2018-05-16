@@ -3,14 +3,15 @@
 namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\ContainerComposer;
 use DrupalCI\Plugin\BuildTaskBase;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
 use Pimple\Container;
 
 /**
- * @PluginID("composer")
+ * @PluginID("host_composer")
  */
-class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
+class HostComposer extends ContainerComposer {
 
   /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
   protected $codebase;
@@ -40,31 +41,9 @@ class Composer extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $cmd = "{$this->executable_path} ${verbose} config -g discard-changes true";
     $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
 
-    if (!empty($this->configuration['phpversion'])){
-      $cmd = "{$this->executable_path} ${verbose} config -g platform.php {$this->configuration['phpversion']}";
-      $this->execRequiredCommands($cmd, 'Composer Config Command Failed');
-    }
-
     $cmd = "{$this->executable_path} ${verbose} " . $this->configuration['options'] . " --working-dir " . $source_dir;
     $this->execRequiredCommands($cmd, 'Composer Command Failed');
 
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = '-vvv ';
-      $progress = '';
-    } else {
-      $verbose = '';
-      $progress = ' --no-progress';
-    }
-    return [
-      'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
-      'phpversion' => '',
-    ];
   }
 
 }

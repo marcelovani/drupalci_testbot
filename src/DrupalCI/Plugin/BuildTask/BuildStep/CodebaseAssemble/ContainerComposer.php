@@ -1,8 +1,11 @@
 <?php
 
-namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
+namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Composer;
+use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\HostComposer;
+use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 /**
@@ -10,9 +13,9 @@ use Pimple\Container;
  *
  * Subclass the other composer class, so we inherit default config.
  *
- * @PluginID("container_composer")
+ * @PluginID("composer")
  */
-class ContainerComposer extends Composer {
+class ContainerComposer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
   /**
    * {@inheritdoc}
@@ -25,13 +28,21 @@ class ContainerComposer extends Composer {
   /**
    * {@inheritdoc}
    */
+  /**
+   * @inheritDoc
+   */
   public function getDefaultConfiguration() {
-    return array_merge(
-      parent::getDefaultConfiguration(),
-      [
-        'halt-on-fail' => TRUE,
-      ]
-     );
+    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
+      $verbose = '-vvv ';
+      $progress = '';
+    } else {
+      $verbose = '';
+      $progress = ' --no-progress';
+    }
+    return [
+      'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
+      'halt-on-fail' => TRUE,
+    ];
   }
 
   /**

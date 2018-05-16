@@ -9,72 +9,13 @@ use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 /**
- * Runs Composer inside the container.
+ * BC layer that no-ops the container_composer command that only really existed
+ * as a doublecheck that we dont need anymore.
  *
- * Subclass the other composer class, so we inherit default config.
+ * TODO: remove at least 180 days past 5-17-2018
  *
- * @PluginID("composer")
+ * @PluginID("container_composer")
  */
-class ContainerComposer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function inject(Container $container) {
-    parent::inject($container);
-    $this->codebase = $container['codebase'];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  /**
-   * @inheritDoc
-   */
-  public function getDefaultConfiguration() {
-    if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = '-vvv ';
-      $progress = '';
-    } else {
-      $verbose = '';
-      $progress = ' --no-progress';
-    }
-    return [
-      'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
-      'halt-on-fail' => TRUE,
-    ];
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function run() {
-    $this->io->writeln('<info>Running Composer within the environment.</info>');
-
-    // Build a containerized Composer command to ignore/discard changes
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
-      'config -g discard-changes true',
-    ];
-    $commands[] = implode(' ', $command);
-    $result = $this->execEnvironmentCommands($commands);
-
-    // Build a containerized Composer command.
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
-      $this->configuration['options'],
-      '--working-dir ' . $this->environment->getExecContainerSourceDir(),
-    ];
-    $commands[] = implode(' ', $command);
-
-    if ($this->configuration['halt-on-fail']) {
-      $result = $this->execRequiredEnvironmentCommands($commands, 'Composer error. Unable to continue.');
-    }
-    else {
-      $result = $this->execEnvironmentCommands($commands);
-    }
-
-    return 0;
-  }
+class ContainerComposerBC extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
 }
