@@ -110,6 +110,14 @@ interface BuildInterface {
    */
   public function getDBDirectory();
 
+  /**
+   * This is where we put the source code that will be volume mounted over
+   * to the php containers
+   *
+   * @return mixed
+   */
+  public function getSourceDirectory();
+
   public function generateBuildId();
 
   public function addArtifact($path, $artifactpath);

@@ -217,7 +217,7 @@ class Environment implements Injectable, EnvironmentInterface {
 
     // Map working directory
     $container['Name'] = 'php-apache';
-    $container['HostConfig']['Binds'][] = $this->build->getBuildDirectory() . '/source:' . $this->execContainerSourceDir;
+    $container['HostConfig']['Binds'][] = $this->build->getSourceDirectory() . ':' . $this->execContainerSourceDir;
     $container['HostConfig']['Binds'][] = $this->build->getArtifactDirectory() . ':' . $this->containerArtifactDir;
     $container['HostConfig']['Binds'][] = $this->build->getAncillaryWorkDirectory() . ':' . $this->containerWorkDir;
     $container['HostConfig']['Binds'][] = $this->build->getHostCoredumpDirectory() . ':' . $this->containerCoreDumpDir;

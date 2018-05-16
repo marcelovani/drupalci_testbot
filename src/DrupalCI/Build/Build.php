@@ -600,6 +600,13 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
+   * @inheritDoc
+   */
+  public function getSourceDirectory() {
+    return $this->buildDirectory . '/source';
+  }
+
+  /**
    * Generate a Build ID for this build
    */
   public function generateBuildId() {
@@ -689,6 +696,13 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result = $this->setupDirectory($this->getSourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    // The source directory needs to not be writable group/other by www-data so
+    // that certain tests pass.
+    chmod($this->getSourceDirectory(), 0755);
 
     return TRUE;
   }

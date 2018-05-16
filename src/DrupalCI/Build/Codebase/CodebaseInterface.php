@@ -19,13 +19,12 @@ interface CodebaseInterface {
 
   /**
    * This is the codebase that we will test. It should be volume mounted over
-   * to wherever the $execContainerSourceDir is set on the Environment object
+   * to wherever the $execContainerSourceDir is set on the Environment object.
+   * It proxies through to the build, since the build is the directory master.
    *
    * @return string
    */
   public function getSourceDirectory();
-
-  public function setupDirectories();
 
   /**
    * ExtensionProjectSubDir is what gets passed to us via the --directory
