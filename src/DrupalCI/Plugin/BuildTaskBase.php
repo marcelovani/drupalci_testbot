@@ -226,7 +226,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @return \DrupalCI\Build\Environment\CommandResultInterface
    */
   protected function execCommands($commands, $save_output = TRUE) {
-    $source_dir = $this->build->getBuildDirectory() . '/source';
+    $source_dir = $this->build->getSourceDirectory();
     /** @var \DrupalCI\Build\Environment\CommandResult $executionResult */
     $executionResult = $this->container['command.result'];
     $maxExitCode = 0;

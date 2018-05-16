@@ -267,6 +267,12 @@ class Build implements BuildInterface, Injectable {
       $this->setAssessmentBuildDefinition($this->applicationComputedBuildDefinition['assessment']);
       unset($this->applicationComputedBuildDefinition['assessment']);
     }
+    // Backwards compatibility with older build.yml files on dispatcher for the
+    // next six months.  TODO: remove at least 180 days after 5-17-2018
+    // also note that if we add a fourth stage in that time, this will fail
+    $codebase_definition = $this->applicationComputedBuildDefinition['codebase'];
+    unset($this->applicationComputedBuildDefinition['codebase']);
+    $this->applicationComputedBuildDefinition['codebase'] = $codebase_definition;
     $this->applicationComputedBuildPlugins = $this->processBuildConfig($this->applicationComputedBuildDefinition);
 
     $build_definition['build'] = array_merge($this->applicationComputedBuildDefinition, $this->assessmentComputedBuildDefinition);
@@ -600,6 +606,13 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
+   * @inheritDoc
+   */
+  public function getSourceDirectory() {
+    return $this->buildDirectory . '/source';
+  }
+
+  /**
    * Generate a Build ID for this build
    */
   public function generateBuildId() {
@@ -689,6 +702,13 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result = $this->setupDirectory($this->getSourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    // The source directory needs to not be writable group/other by www-data so
+    // that certain tests pass.
+    chmod($this->getSourceDirectory(), 0755);
 
     return TRUE;
   }

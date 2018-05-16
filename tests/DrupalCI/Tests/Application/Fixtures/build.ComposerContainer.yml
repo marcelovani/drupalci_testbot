@@ -1,6 +1,13 @@
 # This build definition supports testing the behavior of ComposerContainer
 # plugin.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+    db-type: sqlite
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -18,13 +25,6 @@ build:
       fetch:
       patch:
       update_dependencies:
-  environment:
-    startcontainers:
-      runcontainers:
-    db-type: sqlite
-    db-version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     validate_codebase:
       # Re-install under the container.

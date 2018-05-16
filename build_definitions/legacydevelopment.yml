@@ -1,4 +1,9 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+    create_db:
+      dbcreate:
   codebase:
     assemble_codebase:
       replicate:
@@ -8,11 +13,6 @@ build:
       patch:
       update_build:
       update_dependencies_d7:
-  environment:
-    startcontainers:
-      runcontainers:
-    create_db:
-      dbcreate:
   assessment:
     validate_codebase:
       container_composer:

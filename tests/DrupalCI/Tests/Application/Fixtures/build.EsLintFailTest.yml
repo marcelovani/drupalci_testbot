@@ -1,5 +1,8 @@
 #Fixture that exercises phplint without any other tests.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
   codebase:
     assemble_codebase:
       replicate:
@@ -19,9 +22,6 @@ build:
       fetch:
       patch:
       update_dependencies:
-  environment:
-    startcontainers:
-      runcontainers:
   assessment:
     validate_codebase:
       eslint:

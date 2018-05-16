@@ -1,4 +1,7 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
   codebase:
     assemble_codebase:
       replicate:
@@ -16,9 +19,6 @@ build:
     project_subdir: ''
     project_name: ''
     project_type: ''
-  environment:
-    startcontainers:
-      runcontainers:
   assessment:
     host_command.composer_existy:
       halt-on-fail: FALSE

@@ -1,4 +1,8 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
   codebase:
     assemble_codebase:
       replicate:
@@ -30,10 +34,6 @@ build:
     project_name: examples
     project_type: module
     project_subdir: ''
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-7.0-apache:production'
   assessment:
     validate_codebase:
       phplint: {  }

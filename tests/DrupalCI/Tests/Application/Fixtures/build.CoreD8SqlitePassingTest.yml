@@ -1,4 +1,15 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.6-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db-type: sqlite
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -30,17 +41,6 @@ build:
     project-subdir: ''
     project-name: ''
     project-type: ''
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-5.6-apache:production'
-      start_phantomjs: {  }
-    create_db:
-      dbcreate: {  }
-    db-type: sqlite
-    db-version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     testing:
       run_tests.standard:

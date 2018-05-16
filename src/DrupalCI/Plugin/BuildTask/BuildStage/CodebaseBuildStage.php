@@ -60,7 +60,6 @@ class CodebaseBuildStage extends BuildTaskBase implements BuildStageInterface, B
       $project_type = rtrim($pathcomponents[0], 's');
       $this->codebase->setProjectType($project_type);
     }
-    $this->codebase->setupDirectories();
 
   }
 

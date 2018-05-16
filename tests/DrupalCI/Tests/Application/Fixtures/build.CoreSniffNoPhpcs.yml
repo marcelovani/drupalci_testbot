@@ -2,6 +2,9 @@
 # with phpcs. It is used to test what happens if there is no phpcs tool in the
 # codebase.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
   codebase:
     assemble_codebase:
       replicate:
@@ -10,9 +13,6 @@ build:
       fetch:
       patch:
       update_dependencies:
-  environment:
-    startcontainers:
-      runcontainers:
   assessment:
     validate_codebase:
       phpcs:
