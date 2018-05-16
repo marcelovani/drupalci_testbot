@@ -108,18 +108,7 @@ class Codebase implements CodebaseInterface, Injectable {
    * @inheritDoc
    */
   public function getSourceDirectory() {
-    return $this->build->getBuildDirectory() . '/source';
-  }
-
-  public function setupDirectories() {
-    $result = $this->build->setupDirectory($this->getSourceDirectory());
-    if (!$result) {
-      return FALSE;
-    }
-    // The source directory needs to not be writable group/other by www-data so
-    // that certain tests pass.
-    chmod($this->getSourceDirectory(), 0755);
-    return TRUE;
+    return $this->build->getSourceDirectory();
   }
 
   /**

@@ -600,6 +600,13 @@ class Build implements BuildInterface, Injectable {
   }
 
   /**
+   * @inheritDoc
+   */
+  public function getSourceDirectory() {
+    return $this->buildDirectory . '/source';
+  }
+
+  /**
    * Generate a Build ID for this build
    */
   public function generateBuildId() {
@@ -689,6 +696,12 @@ class Build implements BuildInterface, Injectable {
     if (!$result) {
       return FALSE;
     }
+    $result = $this->setupDirectory($this->getSourceDirectory());
+    if (!$result) {
+      return FALSE;
+    }
+    // Not sure if this is needed or not. Carryover from a refactoring
+    chmod($this->getSourceDirectory(), 0755);
 
     return TRUE;
   }
