@@ -17,7 +17,7 @@ build:
         git_branch: '8.6.x'
         git_commit_hash: 8bf69b5
       composer.core_install:
-        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-progress'
+        options: 'install --prefer-dist --no-suggest --no-progress'
       composer_contrib:
         repositories: {  }
       fetch:

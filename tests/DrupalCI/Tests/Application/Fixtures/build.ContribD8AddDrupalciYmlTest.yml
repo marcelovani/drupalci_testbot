@@ -12,7 +12,7 @@ build:
         git_commit_hash: '418ee453'
       checkout_core:
       composer.core_install:
-        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
+        options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
       composer_contrib:
         project: examples
         branch: 8.x-1.x
