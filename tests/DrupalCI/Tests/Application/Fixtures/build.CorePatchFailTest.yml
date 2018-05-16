@@ -13,12 +13,6 @@ build:
             branch: ''
             commit-hash: ''
             checkout-dir: ''
-      composer.core_install:
-        options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
-      composer_contrib:
-        repositories: {  }
-        project: ''
-        branch: ''
       fetch:
         files:
           -
@@ -30,7 +24,6 @@ build:
             from: does_not_apply.patch
             to: .
       update_build: {  }
-      update_dependencies: {  }
       yarn_install:
         halt-on-fail: false
     project-subdir: ''

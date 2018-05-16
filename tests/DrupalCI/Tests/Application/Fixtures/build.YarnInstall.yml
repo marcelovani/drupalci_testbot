@@ -10,8 +10,6 @@ build:
             branch: ''
             commit_hash: ''
             checkout_dir: ''
-      composer:
       fetch:
       patch:
-      update_dependencies:
       yarn_install:
