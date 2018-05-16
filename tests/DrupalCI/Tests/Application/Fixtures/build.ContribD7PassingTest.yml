@@ -1,4 +1,14 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.3.29-apache:production'
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -26,16 +36,6 @@ build:
     project-subdir: ''
     project-name: forena
     project-type: module
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-5.3.29-apache:production'
-    create_db:
-      dbcreate: {  }
-    db-type: mysql
-    db-version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     testing:
       run_tests_d7:

@@ -1,5 +1,13 @@
 #Fixture that exercises phplint without any other tests.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    db-type: sqlite
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -18,14 +26,6 @@ build:
       fetch:
       patch:
       update_dependencies:
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-7.0-apache:production'
-    db-type: sqlite
-    db-version: '5.5'
-    dbuser: drupaltestbot
-    dbpassword: drupaltestbotpw
   assessment:
     validate_codebase:
       phplint:

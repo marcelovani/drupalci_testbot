@@ -3,6 +3,9 @@
 # composer dependencies. This way it can be used to test the behavior of phpcs
 # sniffs even though Drupal core does not currently require it.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
   codebase:
     assemble_codebase:
       replicate:
@@ -17,9 +20,6 @@ build:
       fetch:
       patch:
       update_dependencies:
-  environment:
-    startcontainers:
-      runcontainers:
   assessment:
     validate_codebase:
       phpcs:

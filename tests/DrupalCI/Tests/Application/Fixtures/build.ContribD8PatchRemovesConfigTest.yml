@@ -2,6 +2,13 @@
 # It forces the addition of Coder, and then runs phpcs. It does not include
 # run-tests tests.
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    db_type: sqlite
   codebase:
     assemble_codebase:
       replicate:
@@ -28,13 +35,6 @@ build:
       update_dependencies: {  }
     project_subdir: modules/examples
     project_name: examples
-  environment:
-    startcontainers:
-      runcontainers:
-        phpversion: 'php-7.0-apache:production'
-    create_db:
-      dbcreate: {  }
-    db_type: sqlite
   assessment:
     validate_codebase:
       container_composer:

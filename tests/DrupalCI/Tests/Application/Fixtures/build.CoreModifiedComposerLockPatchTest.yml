@@ -1,4 +1,9 @@
 build:
+  environment:
+      startcontainers:
+        runcontainers:
+      create_db:
+        dbcreate:
   codebase:
     assemble_codebase:
       replicate:
@@ -30,11 +35,6 @@ build:
       update_dependencies: {  }
     project_subdir: ''
     project_name: ''
-  environment:
-      startcontainers:
-        runcontainers:
-      create_db:
-        dbcreate:
   assessment:
     validate_codebase:
       phplint:
