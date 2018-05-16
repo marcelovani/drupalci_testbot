@@ -38,5 +38,3 @@ build:
   assessment:
     validate_codebase:
       phplint:
-      container_composer:
-        options: 'install --prefer-dist --no-progress'

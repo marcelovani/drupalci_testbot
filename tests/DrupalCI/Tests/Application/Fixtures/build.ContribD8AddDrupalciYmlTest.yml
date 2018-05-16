@@ -37,9 +37,6 @@ build:
   assessment:
     validate_codebase:
       phplint: {  }
-      container_composer:
-        options: ' install --prefer-dist --no-suggest --no-progress --no-interaction'
-        halt-on-fail: true
       csslint:
         halt-on-fail: false
       eslint:
