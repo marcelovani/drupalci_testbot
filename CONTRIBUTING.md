@@ -139,6 +139,12 @@ plugin are labels to distinguish between the run_tests execution and
 the javascript functional tests (which also require 1 concurrency).
 ```yml
 build:
+ environment:
+   startcontainers:
+     runcontainers:
+     start_phantomjs:
+   create_db:
+     dbcreate:
   codebase:
    assemble_codebase:
      replicate:
@@ -148,23 +154,17 @@ build:
      fetch:
      patch:
      update_dependencies:
- environment:
-   startcontainers:
-     runcontainers:
-     start_phantomjs:
-   create_db:
-     dbcreate:
-   assessment:
-     validate_codebase:
-       phplint:
-       container_composer:
-       phpcs:
-     testing:
-       run_tests.standard:
-         concurrency: 31
-       run_tests.standard:
-         concurrency: 1
-         types: 'PHPUnit-FunctionalJavascript'
+  assessment:
+   validate_codebase:
+     phplint:
+     container_composer:
+     phpcs:
+   testing:
+     run_tests.standard:
+       concurrency: 31
+     run_tests.standard:
+       concurrency: 1
+       types: 'PHPUnit-FunctionalJavascript'
 ```
 
 ## Preparing the buildtasks:
