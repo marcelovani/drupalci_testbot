@@ -51,17 +51,17 @@ class ContainerComposer extends BuildTaskBase implements BuildStepInterface, Bui
   public function run() {
     $this->io->writeln('<info>Running Composer within the environment.</info>');
 
+
     // Build a containerized Composer command to ignore/discard changes
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
+    $command = [ $this->executable_path,
       'config -g discard-changes true',
     ];
     $commands[] = implode(' ', $command);
     $result = $this->execEnvironmentCommands($commands);
 
+
     // Build a containerized Composer command.
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
+    $command = [ $this->executable_path,
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];

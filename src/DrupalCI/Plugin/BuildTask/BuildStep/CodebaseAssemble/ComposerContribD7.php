@@ -31,24 +31,24 @@ class ComposerContribD7 extends ComposerContrib implements BuildStepInterface, B
   }
 
   protected function setupD7Composer(): void {
-    $source_dir = $this->codebase->getSourceDirectory();
-    $cmd = "/usr/local/bin/composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
+    $source_dir = $this->environment->getExecContainerSourceDir();
+    $cmd = "sudo -u www-data /usr/local/bin/composer init --name \"drupal/drupal\" --type \"drupal-core\" -n --working-dir " . $source_dir;
     $this->io->writeln("Initializing composer repository");
     $this->execRequiredEnvironmentCommands($cmd, 'Composer init failure');
 
-    $cmd = "/usr/local/bin/composer config discard-changes true --working-dir " . $source_dir;;
+    $cmd = "sudo -u www-data /usr/local/bin/composer config discard-changes true --working-dir " . $source_dir;;
     $this->io->writeln("Ignoring Composer Changes");
     $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
-    $cmd = "/usr/local/bin/composer config minimum-stability dev --working-dir " . $source_dir;
+    $cmd = "sudo -u www-data /usr/local/bin/composer config minimum-stability dev --working-dir " . $source_dir;
     $this->io->writeln("Setting Minimum Stability");
     $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
-    $cmd = "/usr/local/bin/composer config prefer-stable true --working-dir " . $source_dir;
+    $cmd = "sudo -u www-data /usr/local/bin/composer config prefer-stable true --working-dir " . $source_dir;
     $this->io->writeln("Setting Preferred Stability");
     $this->execRequiredEnvironmentCommands($cmd, 'Composer config failure');
 
-    $cmd = "/usr/local/bin/composer require composer/installers --working-dir " . $source_dir;
+    $cmd = "sudo -u www-data /usr/local/bin/composer require composer/installers --working-dir " . $source_dir;
     $this->io->writeln("Composer Command: $cmd");
     $this->execRequiredEnvironmentCommands($cmd, 'Composer require failure');
 

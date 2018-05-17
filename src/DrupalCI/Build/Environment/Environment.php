@@ -227,7 +227,7 @@ class Environment implements Injectable, EnvironmentInterface {
 //    $execname = substr($this->chromeContainer['name'], 1);
 //    $container['HostConfig']['Links'][0] = $execname;
     $this->executableContainer = $this->startContainer($container);
-
+    $this->executeCommands("chown -fR www-data:www-data {$this->containerComposerCacheDir}/../..");
   }
 
   public function startServiceContainerDaemons($db_container) {

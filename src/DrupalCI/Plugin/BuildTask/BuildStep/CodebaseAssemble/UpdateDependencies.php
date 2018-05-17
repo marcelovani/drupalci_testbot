@@ -48,71 +48,73 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
       $progress = ' --no-progress';
     }
     $modified_files = $this->codebase->getModifiedFiles();
-    $source_dir = $this->codebase->getSourceDirectory();
+    $source_dir = $this->environment->getExecContainerSourceDir();
     $project_name = $this->codebase->getProjectName();
-    $ancillary_dir = $this->build->getAncillaryWorkDirectory() . '/' . $project_name;
+
+    $ancillary_dir = $this->environment->getContainerWorkDir() . '/' . $project_name;
     $contrib_dir = $this->codebase->getProjectSourceDirectory(FALSE);
 
     if (in_array($contrib_dir . '/composer.json', $modified_files)) {
       $this->io->writeln("composer.json changed by patch: recalculating depenendices");
 
       // 1. Get the currently checked out composer branch name <CBRANCH>
-      $cmd = "/usr/local/bin/composer${verbose} show --working-dir " . $source_dir . " |grep 'drupal/$project_name ' |awk '{print $2}'";
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} show --working-dir " . $source_dir . " |grep 'drupal/$project_name ' |awk '{print $2}'";
       $this->io->writeln("Determining composer branch: $cmd");
       $result = $this->execRequiredEnvironmentCommands($cmd, 'Unable to determine composer branch');
 
       $composer_branchname = $result->getOutput();
       $composer_branchname = $this->flipDevBranch($composer_branchname);
       // Copy directory to ancillary
-      $project_dir = $this->codebase->getProjectSourceDirectory();
-      $cmd = "cp -r $project_dir $ancillary_dir";
-      $this->execRequiredCommands($cmd, 'Ancillary Copy Failure');
+      $project_dir = $this->environment->getExecContainerSourceDir() . '/' . $this->codebase->getProjectSourceDirectory(FALSE);
+      $cmd = "sudo -u www-data cp -r $project_dir $ancillary_dir";
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary Copy Failure');
 
-      // Remove the project via composer
-      $cmd = "/usr/local/bin/composer${verbose} remove drupal/" . $project_name . " --no-interaction --working-dir " . $source_dir;
-      $this->io->writeln("Removing project: $cmd");
-      $result = $this->execRequiredEnvironmentCommands($cmd, 'Removal of modified project failed');
       // Remove any of its dev dependnecies
       // $this->io->writeln("Removing dev dependencies: $cmd");
       // $this->execRequiredCommand($cmd, 'Dev dependency Removal Failure');
       $dev_dependencies = $this->codebase->getComposerDevRequirements();
       foreach($dev_dependencies as $package){
         $dev_dep = str_replace("'", "", strstr($package, ':', TRUE));
-        $cmd = "/usr/local/bin/composer${verbose} remove " . $dev_dep . " --no-interaction --working-dir " . $source_dir;
+        $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} remove " . $dev_dep . " --no-interaction --working-dir " . $source_dir;
         $this->io->writeln("Removing dev dependencies: $cmd");
         $this->execRequiredEnvironmentCommands($cmd, 'Dev dependency Removal Failure');
 
       }
+      // Remove the project via composer
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} remove drupal/" . $project_name . " --no-interaction --working-dir " . $source_dir;
+      $this->io->writeln("Removing project: $cmd");
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Removal of modified project failed');
+
       // make a fake branch in ancillary <TBRANCH>
-      $cmd = "cd " . $ancillary_dir . " && git checkout -b ancillary-branch";
+      $cmd = "cd " . $ancillary_dir . " && sudo -u www-data git checkout -b ancillary-branch";
       $this->io->writeln("Creating ancillary branch: $cmd");
-      $result = $this->execRequiredCommands($cmd, 'Ancillary branch creation failure');
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary branch creation failure');
 
       // commit to ancillary
-      $cmd = "cd " . $ancillary_dir . " && git add . && git config --global user.email \"drupalci@drupalci.org\" &&
-git config --global user.name \"The Testbot\" && git commit -am 'intermediate commit'";
+      $cmd = "cd " . $ancillary_dir . " && sudo -u www-data git add . && sudo -u www-data git config --global user.email \"drupalci@drupalci.org\" &&
+sudo -u www-data git config --global user.name \"The Testbot\" && sudo -u www-data git commit -am 'intermediate commit'";
       $this->io->writeln("Git Command: $cmd");
-      $result = $this->execRequiredCommands($cmd, 'Ancillary commit failure');
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary commit failure');
 
       // unset pdo
-      $cmd = "/usr/local/bin/composer${verbose} config repositories.pdo --unset --working-dir " . $source_dir;
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} config repositories.pdo --unset --working-dir " . $source_dir;
       $this->io->writeln("Unset pdo repo: $cmd");
       $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary repo config failure');
 
       // add ancillary as a composer repo
-      $cmd = "/usr/local/bin/composer${verbose} config repositories.ancillary '{\"type\": \"path\", \"url\": \"" . $ancillary_dir . "\", \"options\": {\"symlink\": false}}' --working-dir " . $source_dir;
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} config repositories.ancillary '{\"type\": \"path\", \"url\": \"" . $ancillary_dir . "\", \"options\": {\"symlink\": false}}' --working-dir " . $source_dir;
 
       $this->io->writeln("Composer Command: $cmd");
       $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary repo config failure');
 
       // reset pdo
-      $cmd = "/usr/local/bin/composer${verbose} config repositories.pdo composer $this->drupalPackageRepository --working-dir " . $source_dir;
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} config repositories.pdo composer $this->drupalPackageRepository --working-dir " . $source_dir;
 
       $this->io->writeln("Composer Command: $cmd");
-      $result = $this->execRequiredEnvironmentCommands()Commands($cmd, 'Ancillary repo config failure');
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary repo config failure');
 
       // composer require drupal/project "<TBRANCH> AS <CBRANCH>"
-      $cmd = "/usr/local/bin/composer${verbose} require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --working-dir " . $source_dir;
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} require drupal/" . $project_name . " 'dev-ancillary-branch as $composer_branchname' --working-dir " . $source_dir;
 
       $this->io->writeln("Composer Command: $cmd");
       $result = $this->execRequiredEnvironmentCommands($cmd, 'Ancillary require failure');
@@ -123,7 +125,7 @@ git config --global user.name \"The Testbot\" && git commit -am 'intermediate co
       $packages = $this->codebase->getComposerDevRequirements();
 
       if (!empty($packages)) {
-        $cmd = "/usr/local/bin/composer${verbose} require " . implode(" ", $packages) . " --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
+        $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} require " . implode(" ", $packages) . " --prefer-stable${progress} --no-suggest --working-dir " . $source_dir;
         $this->io->writeln("Composer Command: $cmd");
         $this->execRequiredEnvironmentCommands($cmd, 'Composer require failure');
 

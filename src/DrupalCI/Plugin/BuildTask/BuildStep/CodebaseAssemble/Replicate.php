@@ -58,12 +58,12 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         $this->io->drupalCIError("Directory error", "The local directory <info>$local_dir</info> does not exist.");
         $this->terminateBuild("Replication Failed", "The source directory $local_dir does not exist.");
       }
-      $result = $this->execRequiredCommands("git --git-dir ${local_dir}/.git remote -v |grep fetch|awk '{print $2}'", 'Unable to determine git remote url');
+      $result = $this->execRequiredCommands("sudo -u www-data git --git-dir ${local_dir}/.git remote -v |grep fetch|awk '{print $2}'", 'Unable to determine git remote url');
       $remote_url = $result->getOutput();
       $directory = $this->codebase->getSourceDirectory();
       $this->io->writeln("<comment>Cloning local core checkout from <options=bold>$local_dir</> to the local checkout directory <options=bold>$directory</> ... </comment>");
 
-      $cmd = "git clone -s ${local_dir} ${directory}";
+      $cmd = "sudo -u www-data git clone -s ${local_dir} ${directory}";
       $result = $this->execRequiredCommands($cmd, 'Local git clone failed');
 
       $this->io->writeln("<comment>Copying files complete</comment>");
@@ -71,26 +71,26 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       // If the copied directory has a .git tree in it, operate on it.
       if (is_dir($directory . '/.git')) {
         if (!empty($this->configuration['git-branch'])) {
-          $cmd = "git remote add -t {$this->configuration['git-branch']} drupal {$remote_url}";
+          $cmd = "sudo -u www-data git remote add -t {$this->configuration['git-branch']} drupal {$remote_url}";
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommands($cmd, 'git remote add failure');
 
-          $cmd = "git fetch drupal";
+          $cmd = "sudo -u www-data git fetch drupal";
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommands($cmd, 'git fetch failure');
 
-          $cmd = "cd " . $directory . " && git checkout " . $this->configuration['git-branch'];
+          $cmd = "cd " . $directory . " && sudo -u www-data git checkout " . $this->configuration['git-branch'];
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommands($cmd, 'git checkout failure');
 
         }
         if (!empty($this->configuration['git-commit-hash'])) {
-          $cmd = "cd " . $directory . " && git reset -q --hard " . $this->configuration['git-commit-hash'];
+          $cmd = "cd " . $directory . " && sudo -u www-data git reset -q --hard " . $this->configuration['git-commit-hash'];
           $this->io->writeln("Git Command: $cmd");
           $this->execRequiredCommands($cmd, 'git reset failure');
         }
 
-        $cmd = "cd '$directory' && git log --oneline -n 1 --decorate";
+        $cmd = "cd '$directory' && sudo -u www-data git log --oneline -n 1 --decorate";
         $result = $this->execCommands($cmd);
         $cmdoutput = $result->getOutput();
         $this->io->writeln("<comment>Git commit info:</comment>");
@@ -98,6 +98,10 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
       }
 
       $this->io->writeln("<comment>Checkout complete.</comment>");
+      // Make sure that the codebase is owned by www-data internally after we
+      // check it out.
+      $commands[] = "chown -fR www-data:www-data {$this->environment->getExecContainerSourceDir()}";
+      $result = $this->execEnvironmentCommands($commands);
     }
     return 0;
   }
