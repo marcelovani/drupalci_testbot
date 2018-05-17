@@ -153,6 +153,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // We have to configure phpcs to use drupal/coder. We need to be able to use
       // the Drupal standard.
       $cmd = [
+        "sudo -u www-data",
         $phpcs_bin,
         "--config-set installed_paths {$this->environment->getExecContainerSourceDir()}/vendor/drupal/coder/coder_sniffer/",
       ];
@@ -201,12 +202,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('Executing PHPCS.');
 
     $sniffresult = $this->execEnvironmentCommands([
-      'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
+      'cd ' . $start_dir . ' && sudo -u www-data ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
 
 
     // Save phpcs sniffs as an artifact.
-    $commands[] = 'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
+    $commands[] = 'cd ' . $start_dir . ' && sudo -u www-data ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
     $result = $this->execEnvironmentCommands($commands);
     $this->saveHostArtifact($this->pluginWorkDir . '/phpcs_sniffs.txt', 'phpcs_sniffs.txt');
 

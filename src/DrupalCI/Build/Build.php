@@ -708,7 +708,7 @@ class Build implements BuildInterface, Injectable {
     }
     // The source directory needs to not be writable group/other by www-data so
     // that certain tests pass.
-    chmod($this->getSourceDirectory(), 0755);
+    exec("sudo -u www-data chmod 0755 {$this->getSourceDirectory()}", $cmdoutput, $result);
 
     return TRUE;
   }
@@ -728,6 +728,7 @@ class Build implements BuildInterface, Injectable {
         return FALSE;
       }
       else {
+        exec("sudo chown www-data:www-data {$directory}", $cmdoutput, $result);
         $this->io->writeLn("<info>Directory created at <options=bold>$directory</></info>");
         return TRUE;
       }
