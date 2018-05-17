@@ -1,4 +1,14 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
