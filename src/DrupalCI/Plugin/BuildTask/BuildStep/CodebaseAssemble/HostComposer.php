@@ -13,10 +13,7 @@ use Pimple\Container;
  */
 class HostComposer extends ContainerComposer {
 
-  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
-  protected $codebase;
 
-  protected $executable_path = '/usr/local/bin/composer';
 
   public function inject(Container $container) {
     parent::inject($container);

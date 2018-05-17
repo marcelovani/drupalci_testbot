@@ -17,6 +17,10 @@ use Pimple\Container;
  */
 class ContainerComposer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
+  protected $executable_path = 'sudo -u www-data /usr/local/bin/composer';
   /**
    * {@inheritdoc}
    */
