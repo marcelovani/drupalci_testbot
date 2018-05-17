@@ -77,7 +77,7 @@ class Environment implements Injectable, EnvironmentInterface {
    *
    * Directory for composer cahces
    */
-  protected $containerComposerCacheDir = '/root/.composer/cache';
+  protected $containerComposerCacheDir = '/var/www/.composer/cache';
 
   public function inject(Container $container) {
 
