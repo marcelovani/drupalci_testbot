@@ -157,7 +157,6 @@ build:
   assessment:
    validate_codebase:
      phplint:
-     container_composer:
      phpcs:
    testing:
      run_tests.standard:

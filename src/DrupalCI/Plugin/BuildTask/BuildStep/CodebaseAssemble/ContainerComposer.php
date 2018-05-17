@@ -1,8 +1,11 @@
 <?php
 
-namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseValidate;
+namespace DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble;
 
-use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\Composer;
+use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
+use DrupalCI\Plugin\BuildTask\BuildStep\CodebaseAssemble\HostComposer;
+use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
+use DrupalCI\Plugin\BuildTaskBase;
 use Pimple\Container;
 
 /**
@@ -10,10 +13,14 @@ use Pimple\Container;
  *
  * Subclass the other composer class, so we inherit default config.
  *
- * @PluginID("container_composer")
+ * @PluginID("composer")
  */
-class ContainerComposer extends Composer {
+class ContainerComposer extends BuildTaskBase implements BuildStepInterface, BuildTaskInterface {
 
+  /* @var \DrupalCI\Build\Codebase\CodebaseInterface */
+  protected $codebase;
+
+  protected $executable_path = 'sudo -u www-data /usr/local/bin/composer';
   /**
    * {@inheritdoc}
    */
@@ -25,20 +32,21 @@ class ContainerComposer extends Composer {
   /**
    * {@inheritdoc}
    */
+  /**
+   * @inheritDoc
+   */
   public function getDefaultConfiguration() {
     if ('TRUE' === strtoupper(getenv('DCI_Debug'))) {
-      $verbose = ' -vvv';
+      $verbose = '-vvv ';
       $progress = '';
     } else {
       $verbose = '';
       $progress = ' --no-progress';
     }
-    return array_merge(
-      parent::getDefaultConfiguration(),
-      [
-        'halt-on-fail' => TRUE,
-      ]
-     );
+    return [
+      'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
+      'halt-on-fail' => TRUE,
+    ];
   }
 
   /**
@@ -47,30 +55,27 @@ class ContainerComposer extends Composer {
   public function run() {
     $this->io->writeln('<info>Running Composer within the environment.</info>');
 
+
     // Build a containerized Composer command to ignore/discard changes
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
+    $command = [ $this->executable_path,
       'config -g discard-changes true',
     ];
     $commands[] = implode(' ', $command);
     $result = $this->execEnvironmentCommands($commands);
 
+
     // Build a containerized Composer command.
-    $command = [ 'COMPOSER_ALLOW_SUPERUSER=TRUE',
-      $this->executable_path,
+    $command = [ $this->executable_path,
       $this->configuration['options'],
       '--working-dir ' . $this->environment->getExecContainerSourceDir(),
     ];
     $commands[] = implode(' ', $command);
-    // TODO: halt-on-fail should determine which execEnvironmentComands
-    // instead of terminating the build itself
 
-    $result = $this->execEnvironmentCommands($commands);
-
-    if ($result->getSignal() != 0) {
-      if ($this->configuration['halt-on-fail']) {
-        $this->terminateBuild('Composer error. Unable to continue.', $result->getError());
-      }
+    if ($this->configuration['halt-on-fail']) {
+      $result = $this->execRequiredEnvironmentCommands($commands, 'Composer error. Unable to continue.');
+    }
+    else {
+      $result = $this->execEnvironmentCommands($commands);
     }
 
     return 0;

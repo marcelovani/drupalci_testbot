@@ -238,7 +238,7 @@ class Patch implements PatchInterface, Injectable {
 
     $this->io->writeln("Applying patch $absolutePath to $target");
 
-    $cmd = "cd $target && git apply -p1 $absolutePath 2>&1";
+    $cmd = "cd $target && sudo -u www-data git apply -p1 $absolutePath 2>&1";
 
     exec($cmd, $cmdoutput, $result);
     $this->setPatchApplyResults($cmdoutput);
