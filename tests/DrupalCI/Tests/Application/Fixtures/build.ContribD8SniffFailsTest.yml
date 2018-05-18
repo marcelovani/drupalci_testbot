@@ -37,5 +37,4 @@ build:
     project_name: examples
   assessment:
     validate_codebase:
-      container_composer:
       phpcs:

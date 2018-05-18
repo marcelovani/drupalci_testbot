@@ -19,7 +19,6 @@ build:
   assessment:
     validate_codebase:
       phplint:
-      container_composer:
       csslint:
       eslint:
       phpcs:

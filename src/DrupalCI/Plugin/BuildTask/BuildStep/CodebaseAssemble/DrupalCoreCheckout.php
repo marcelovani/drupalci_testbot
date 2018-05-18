@@ -52,6 +52,11 @@ class DrupalCoreCheckout extends Checkout implements BuildStepInterface, BuildTa
       $core_dir = $this->configuration['repositories'][0]['checkout-dir'] = $this->codebase->getSourceDirectory();
       parent::run();
     }
+    // Make sure that the codebase is owned by www-data internally after we
+    // check it out.
+    $commands[] = "chown -fR www-data:www-data {$this->environment->getExecContainerSourceDir()}";
+    $result = $this->execEnvironmentCommands($commands);
+
     $this->codebase->setExtensionPaths($this->discoverExentionPaths());
   }
 

@@ -24,7 +24,7 @@ build:
             branch: 8.3.x
             commit-hash: f4a242f
       composer.core_install:
-        options: 'install --ignore-platform-reqs --prefer-dist --no-suggest --no-interaction --no-progress'
+        options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
       composer_contrib:
         repositories: {  }
         project: ''

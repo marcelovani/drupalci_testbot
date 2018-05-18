@@ -3,7 +3,6 @@
 namespace DrupalCI\Tests\Application;
 
 use DrupalCI\Tests\DrupalCIFunctionalTestBase;
-use Symfony\Component\Console\Tester\ApplicationTester;
 
 /**
  * Test what happens when a patch is applied to core.

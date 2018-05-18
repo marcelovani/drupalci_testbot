@@ -153,6 +153,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // We have to configure phpcs to use drupal/coder. We need to be able to use
       // the Drupal standard.
       $cmd = [
+        "sudo -u www-data",
         $phpcs_bin,
         "--config-set installed_paths {$this->environment->getExecContainerSourceDir()}/vendor/drupal/coder/coder_sniffer/",
       ];
@@ -201,12 +202,12 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     $this->io->writeln('Executing PHPCS.');
 
     $sniffresult = $this->execEnvironmentCommands([
-      'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
+      'cd ' . $start_dir . ' && sudo -u www-data ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' ' . implode(' ', $phpcs_args),
     ]);
 
 
     // Save phpcs sniffs as an artifact.
-    $commands[] = 'cd ' . $start_dir . ' && ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
+    $commands[] = 'cd ' . $start_dir . ' && sudo -u www-data ' . $this->environment->getExecContainerSourceDir() . static::$phpcsExecutable . ' -e ' . ' ' . implode(' ', $phpcs_args) . ' > ' . $this->environment->getContainerWorkDir() . '/' . $this->pluginDir . '/phpcs_sniffs.txt';
     $result = $this->execEnvironmentCommands($commands);
     $this->saveHostArtifact($this->pluginWorkDir . '/phpcs_sniffs.txt', 'phpcs_sniffs.txt');
 
@@ -375,7 +376,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
     // Install drupal/coder.
     $coder_version = $this->configuration['coder-version'];
     $this->io->writeln('Attempting to install drupal/coder ' . $coder_version);
-    $cmd = "COMPOSER_ALLOW_SUPERUSER=TRUE /usr/local/bin/composer require --dev drupal/coder " . $coder_version;
+    $cmd = "sudo -u www-data /usr/local/bin/composer require --dev drupal/coder " . $coder_version;
     $result = $this->execEnvironmentCommands($cmd);
     if ($result->getSignal() !== 0) {
       // If it didn't work, then we bail, but we don't halt build execution.

@@ -1,4 +1,14 @@
 build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
       replicate:
@@ -7,7 +17,6 @@ build:
         git_branch: '7.x'
         git_commit_hash: ''
       checkout_core_d7:
-      composer_core_install:
       composer_contrib_d7:
         repositories:
           -
