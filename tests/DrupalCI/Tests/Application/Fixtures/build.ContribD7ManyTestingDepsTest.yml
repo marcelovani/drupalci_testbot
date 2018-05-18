@@ -17,7 +17,6 @@ build:
         git_branch: '7.x'
         git_commit_hash: ''
       checkout_core_d7:
-      composer.core_install:
       composer_contrib_d7:
         repositories:
           -

@@ -73,15 +73,15 @@ class Replicate extends BuildTaskBase implements BuildStepInterface, BuildTaskIn
         if (!empty($this->configuration['git-branch'])) {
           $cmd = "sudo -u www-data git remote add -t {$this->configuration['git-branch']} drupal {$remote_url}";
           $this->io->writeln("Git Command: $cmd");
-          $this->execRequiredCommands($cmd, 'git remote add failure');
+          $result = $this->execRequiredCommands($cmd, 'git remote add failure');
 
           $cmd = "sudo -u www-data git fetch drupal";
           $this->io->writeln("Git Command: $cmd");
-          $this->execRequiredCommands($cmd, 'git fetch failure');
+          $result = $this->execRequiredCommands($cmd, 'git fetch failure');
 
           $cmd = "cd " . $directory . " && sudo -u www-data git checkout " . $this->configuration['git-branch'];
           $this->io->writeln("Git Command: $cmd");
-          $this->execRequiredCommands($cmd, 'git checkout failure');
+          $result = $this->execRequiredCommands($cmd, 'git checkout failure');
 
         }
         if (!empty($this->configuration['git-commit-hash'])) {

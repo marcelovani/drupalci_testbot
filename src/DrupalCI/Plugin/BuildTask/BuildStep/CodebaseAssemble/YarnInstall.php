@@ -50,7 +50,7 @@ class YarnInstall extends BuildTaskBase {
 
     $work_dir = $this->codebase->getSourceDirectory() . '/core';
     // Should this be execRequiredCommand?
-    $result = $this->execCommands("yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
+    $result = $this->execCommands("sudo -u www-data yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
     if ($result->getSignal() !== 0) {
