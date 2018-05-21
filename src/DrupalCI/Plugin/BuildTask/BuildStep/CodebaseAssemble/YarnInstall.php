@@ -50,7 +50,7 @@ class YarnInstall extends BuildTaskBase {
 
     $work_dir = $this->environment->getExecContainerSourceDir() . '/core';
     // Should this be execRequiredCommand?
-    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
+    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
     if ($result->getSignal() !== 0) {
@@ -67,10 +67,10 @@ class YarnInstall extends BuildTaskBase {
       $this->io->writeln('Yarn install success');
     }
 
-    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
+    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_list.txt', $result->getOutput());
 
-    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
+    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
     $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
     return $result->getSignal();
   }
