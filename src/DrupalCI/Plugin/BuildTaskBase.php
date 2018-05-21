@@ -281,6 +281,8 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *
    * @return \DrupalCI\Build\Environment\CommandResult
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
+   *
+   * @todo Allow fail status from commands, for host_ and container_command.
    */
   protected function execRequiredCommands($commands, $failure_message, $save_output = TRUE) {
 
