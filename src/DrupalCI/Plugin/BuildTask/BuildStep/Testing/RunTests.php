@@ -244,6 +244,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
       'mkdir -p ' . $sourcedir . '/sites/simpletest/xml',
       'chown -fR www-data:www-data ' . $sourcedir . '/..',
       'chmod 0777 ' . $this->environment->getContainerArtifactDir(),
+      'chmod 0555 ' . $this->environment->getExecContainerSourceDir(),
       'chmod 0777 /tmp',
 
     ];
