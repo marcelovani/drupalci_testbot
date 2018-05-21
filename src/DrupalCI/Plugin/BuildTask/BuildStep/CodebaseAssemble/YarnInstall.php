@@ -48,9 +48,9 @@ class YarnInstall extends BuildTaskBase {
     $result = 0;
     $this->io->writeln('Executing yarn install for core nodejs dev dependencies.');
 
-    $work_dir = $this->codebase->getSourceDirectory() . '/core';
+    $work_dir = $this->environment->getExecContainerSourceDir() . '/core';
     // Should this be execRequiredCommand?
-    $result = $this->execCommands("sudo -u www-data yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
+    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose} install${progress} --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_install.txt', $result->getOutput());
 
     if ($result->getSignal() !== 0) {

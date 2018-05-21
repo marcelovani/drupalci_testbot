@@ -59,7 +59,11 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       foreach ($nightwatch_settings as $env => $value) {
         $envfile .= $env . '=' . $value . "\n";
       }
-      file_put_contents("{$this->codebase->getSourceDirectory()}/core/.env", $envfile);
+      file_put_contents("{$this->pluginWorkDir}/.env", $envfile);
+      $command = "sudo -u www-data cp {$this->environment->getContainerWorkDir()}/{$this->pluginDir}/.env {$this->environment->getExecContainerSourceDir()}/core/.env";
+      $this->execRequiredEnvironmentCommands($command, "Failed to copy Nightwatch config file");
+
+      #file_put_contents("{$this->codebase->getSourceDirectory()}/core/.env", $envfile);
 
       $runscript = "sudo BABEL_DISABLE_CACHE=1 -u www-data {$this->runscript}";
       $result = $this->execEnvironmentCommands("$runscript");
