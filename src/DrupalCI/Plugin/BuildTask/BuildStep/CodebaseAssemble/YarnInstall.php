@@ -67,10 +67,10 @@ class YarnInstall extends BuildTaskBase {
       $this->io->writeln('Yarn install success');
     }
 
-    $result = $this->execCommands("yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
+    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose} list$progress --non-interactive --cwd ${work_dir}", TRUE);
     $this->saveStringArtifact('yarn_list.txt', $result->getOutput());
 
-    $result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
+    $result = $this->execRequiredEnvironmentCommands("sudo -u www-data yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
     $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
     return $result->getSignal();
   }

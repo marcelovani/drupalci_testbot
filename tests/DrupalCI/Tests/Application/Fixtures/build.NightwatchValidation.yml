@@ -1,0 +1,49 @@
+build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-7.0-apache:production'
+      start_phantomjs: {  }
+    create_db:
+      dbcreate: {  }
+    db-type: mysql
+    db-version: '5.5'
+    dbuser: drupaltestbot
+    dbpassword: drupaltestbotpw
+  codebase:
+    assemble_codebase:
+      checkout_core:
+        repositories:
+          -
+            repo: 'git://git.drupal.org/project/drupal.git'
+            branch: 8.6.x
+      composer.core_install:
+        phpversion: 7.0.27
+        options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
+        halt-on-fail: true
+      composer_contrib:
+        repositories: {  }
+        project: ''
+        branch: ''
+      fetch:
+        files:
+          -
+            from: 'https://www.drupal.org/files/issues/2018-05-17/make-search-button-100%25-width-on-small-screens-2942410-10_1.patch'
+            to: .
+      patch:
+        patches:
+          -
+            from: make-search-button-100%25-width-on-small-screens-2942410-10_1.patch
+            to: .
+      update_build: {  }
+      update_dependencies: {  }
+      yarn_install:
+        halt-on-fail: false
+    project-name: drupal
+    project-type: core
+    project-subdir: ''
+  assessment:
+    testing:
+      composer.upgrade_phpunit:
+        options: 'run-script drupal-phpunit-upgrade'
+      nightwatchjs: {  }
