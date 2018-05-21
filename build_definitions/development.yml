@@ -2,7 +2,6 @@ build:
   environment:
     startcontainers:
       runcontainers:
-      start_phantomjs:
     create_db:
       dbcreate:
   codebase:
@@ -16,6 +15,7 @@ build:
       update_build:
       update_dependencies:
       yarn_install:
+      start_phantomjs:
   assessment:
     validate_codebase:
       phplint:
