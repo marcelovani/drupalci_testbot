@@ -58,7 +58,13 @@ class Patch extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       if (empty($details['from'])) {
         $this->terminateBuild("Invalid Patch", "No valid patch file provided for the patch command.");
       }
-      $details['to'] = $this->codebase->getProjectSourceDirectory();
+      if ($details['to'] == 'SOURCE_DIR') {
+        $details['to'] = $this->codebase->getSourceDirectory();
+      }
+      else {
+        $details['to'] = $this->codebase->getProjectSourceDirectory();
+      }
+
 
       // Allow patches for self tests to refer to themselves.
       $dir = __DIR__ . "/../../../../../..";
