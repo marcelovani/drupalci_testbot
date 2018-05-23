@@ -77,7 +77,9 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
 
       // Save some artifacts for the build
       if ($result->getSignal() == 0) {
-        $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
+        $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/core/nightwatch_output', 'nightwatch_output');
+        $cmd = "find {$this->codebase->getSourceDirectory()}/core/nightwatch_output -name *.xml -print0 |xargs -0 -I{} cp {} {$this->build->getXmlDirectory()}";
+        $this->execCommands($cmd);
       }
       else {
 
