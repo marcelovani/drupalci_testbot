@@ -82,7 +82,7 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       else {
 
         if (strpos($result->getError(), 'Error: No tests defined!')){
-          $this->io->writeln('<error>No nightwatchjs tests tagged with {$this->codebase->getProjectName()}</error>');
+          $this->io->writeln("<error>No nightwatchjs tests tagged with {$this->codebase->getProjectName()}</error>");
           return 0;
         }
       }
