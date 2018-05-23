@@ -79,6 +79,13 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       if ($result->getSignal() == 0) {
         $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/nightwatch_output', 'nightwatch_xml');
       }
+      else {
+
+        if (strpos($result->getError(), 'Error: No tests defined!')){
+          $this->io->writeln('<error>No nightwatchjs tests tagged with {$this->codebase->getProjectName()}</error>');
+          return 0;
+        }
+      }
       $return = $result->getSignal();
     }
     return $return;
