@@ -54,7 +54,11 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       $nightwatch_settings['DRUPAL_TEST_DB_URL'] = $database_url;
       $nightwatch_settings['DRUPAL_TEST_WEBDRIVER_HOSTNAME'] = $hostname;
       $nightwatch_settings['DRUPAL_TEST_WEBDRIVER_PORT'] = 9515;
-      $nightwatch_settings['DRUPAL_NIGHTWATCH_OUTPUT'] = "{$this->environment->getExecContainerSourceDir()}/nightwatch_output";
+      $nightwatch_settings['DRUPAL_NIGHTWATCH_OUTPUT'] = "nightwatch_output";
+      if ($this->codebase->getProjectType() != 'core' ) {
+        $nightwatch_settings['DRUPAL_NIGHTWATCH_SEARCH_DIRECTORY'] = "../";
+      }
+
       $envfile = '';
       foreach ($nightwatch_settings as $env => $value) {
         $envfile .= $env . '=' . $value . "\n";
@@ -66,6 +70,9 @@ class NightwatchJS extends BuildTaskBase implements BuildStepInterface {
       #file_put_contents("{$this->codebase->getSourceDirectory()}/core/.env", $envfile);
 
       $runscript = "sudo BABEL_DISABLE_CACHE=1 -u www-data {$this->runscript}";
+      if ($this->codebase->getProjectType() != 'core' ) {
+        $runscript = "{$runscript} --tag={$this->codebase->getProjectName()}";
+      }
       $result = $this->execEnvironmentCommands("$runscript");
 
       // Save some artifacts for the build
