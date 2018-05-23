@@ -67,11 +67,11 @@ class YarnInstall extends BuildTaskBase {
       $this->io->writeln('Yarn install success');
     }
 
-    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose} list{$progress} --non-interactive --cwd ${work_dir}");
-    $this->saveStringArtifact('yarn_list.txt', $result->getOutput());
+    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose} list{$progress} --non-interactive --cwd ${work_dir} > {$this->environment->getContainerWorkDir()}/{$this->pluginDir}/yarn_list.txt");
+    $this->saveHostArtifact("{$this->environment->getContainerWorkDir()}/{$this->pluginDir}/yarn_list.txt", "yarn_list.txt");
 
-    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose}{$progress} --non-interactive --cwd ${work_dir} licenses list");
-    $this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
+    $result = $this->execEnvironmentCommands("sudo -u www-data yarn${verbose}{$progress} --non-interactive --cwd ${work_dir} licenses list > {$this->environment->getContainerWorkDir()}/{$this->pluginDir}/yarn_licenses.txt");
+    $this->saveHostArtifact("{$this->environment->getContainerWorkDir()}/{$this->pluginDir}/yarn_licenses.txt", "yarn_licenses.txt");
     return $result->getSignal();
   }
 
