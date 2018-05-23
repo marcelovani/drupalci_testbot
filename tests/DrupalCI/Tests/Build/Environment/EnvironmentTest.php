@@ -35,7 +35,7 @@ class EnvironmentTest extends DrupalCITestCase {
    * No container? No problem!
    *
    * @dataProvider provideNoExistingContainer
-   * @covers ::executeCommand
+   * @covers ::executeCommands
    */
   public function testExecuteCommandsNoExistingContainer($commands) {
     $environment = $this->getMockBuilder(Environment::class)
