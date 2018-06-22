@@ -199,7 +199,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   private function teardown() {
     if (!empty($this->buildTaskCommandOutput)){
       $output = implode("\n", $this->buildTaskCommandOutput);
-      $this->saveStringArtifact('command_output',$output);
+      $this->saveStringArtifact($output, 'command_output');
 
     }
   }
@@ -352,11 +352,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     $this->build->addArtifact($filepath, $savename);
   }
 
-  protected function saveStringArtifact($contents, $filename) {
+  protected function saveStringArtifact($contents, $savename) {
     $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 
-    $filename = $this->pluginDir . '/' . $filename;
-    $this->build->addStringArtifact($filename, $contents);
+    $savename = $this->pluginDir . '/' . $savename;
+    $this->build->addStringArtifact($savename, $contents);
   }
 
   /**
