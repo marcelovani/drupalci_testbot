@@ -163,6 +163,11 @@ class Build implements BuildInterface, Injectable {
    */
   public function addStringArtifact($filename, $string) {
     $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
+    $info = pathinfo($artifactFile);
+    if (!is_dir($info['dirname'])) {
+      $result = mkdir($info['dirname'], 0777, TRUE);
+    }
+
     file_put_contents($artifactFile, $string);
     $this->addArtifact($artifactFile, $filename);
   }
