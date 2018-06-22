@@ -120,8 +120,8 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
     $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/simpletest/browser_output','simpletest_html');
 
-    $this->saveStringArtifact('run_testsoutput.txt', $result->getOutput());
-    $this->saveStringArtifact('run_testserror.txt', $result->getError());
+    $this->saveStringArtifact($result->getOutput(), 'run_testsoutput.txt');
+    $this->saveStringArtifact($result->getError(), 'run_testserror.txt');
 
     // Run-tests.sh can return 0, 1, or 2. If the container exec() does not
     // return any of those values, it's a PHP fatal.
@@ -203,7 +203,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     foreach ($phpcoredumps as $core_file) {
       $command = "gdb -exec=/usr/local/bin/php -symbols=/usr/local/bin/php -core=$core_file -command=$container_command_file 2>&1";
       $result = $this->execEnvironmentCommands($command);
-      $this->saveStringArtifact(basename($core_file) . ".debug", $result->getOutput());
+      $this->saveStringArtifact($result->getOutput(), basename($core_file) . ".debug");
       if (FALSE === (filter_var(getenv('DCI_Debug'), FILTER_VALIDATE_BOOLEAN))) {
         $this->io->writeln("Removing core file: $core_file");
         $cmd = "sudo rm -rf $core_file";
@@ -408,7 +408,7 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
 
     $doc = $this->junitXmlBuilder->generate($test_groups, $this->results_database);
 
-    $this->saveStringArtifact('junitxml/run_tests_results.xml', $doc->saveXML());
+    $this->saveStringArtifact($doc->saveXML(), 'junitxml/run_tests_results.xml');
     $this->io->writeln("<info>Reformatted junitxml test results saved</info>");
   }
 
