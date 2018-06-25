@@ -12,11 +12,10 @@ build:
     dbpassword: drupaltestbotpw
   codebase:
     assemble_codebase:
-      checkout_core:
-        repositories:
-          -
-            repo: 'git://git.drupal.org/project/drupal.git'
-            branch: 8.6.x
+      replicate:
+        exclude: {  }
+        local_dir: '/var/lib/drupalci/drupal-checkout'
+        git_branch: '8.6.x'
       composer.core_install:
         phpversion: 7.0.27
         options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
@@ -25,16 +24,6 @@ build:
         repositories: {  }
         project: ''
         branch: ''
-      fetch:
-        files:
-          -
-            from: 'https://www.drupal.org/files/issues/2018-05-17/make-search-button-100%25-width-on-small-screens-2942410-10_1.patch'
-            to: .
-      patch:
-        patches:
-          -
-            from: make-search-button-100%25-width-on-small-screens-2942410-10_1.patch
-            to: .
       update_build: {  }
       update_dependencies: {  }
       yarn_install:

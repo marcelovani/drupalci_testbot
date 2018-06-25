@@ -15,7 +15,7 @@ build:
         options: 'install --prefer-dist --no-suggest --no-interaction --no-progress'
       composer_contrib:
         project: examples
-        branch: 8.x-1.x
+        branch: '8.x-1.x#64da4595e593decc161e669a53ac6e19ec733d21'
         repositories: {  }
       fetch:
         files:
