@@ -399,7 +399,7 @@ All of these methods can accept a '$save_output' variable, which defaults to TRU
 
 ```
 $result = $this->execCommands("yarn${verbose}$progress --non-interactive --cwd ${work_dir} licenses list", TRUE);
-$this->saveStringArtifact('yarn_licenses.txt', $result->getOutput());
+$this->saveStringArtifact($result->getOutput(), 'yarn_licenses.txt');
 ```
 
 Executing any of these plugins will return a `\DrupalCI\Build\Environment\CommandResult` object that lets the executor access the cumulative signal/output/errors of the passed in command or commands. Each execution of these methods should likely take the form of
@@ -445,7 +445,7 @@ file to composer-installed.json, as an example).
 If you do not have a file, but have a string you wish to save, you can
 use saveStringArtifact to create the file for you.
 
-`$this->saveStringArtifact($filename, $contents);`
+`$this->saveStringArtifact($contents, $filename);`
 
 Finally, if the artifact exists only inside the docker container
 filesystems, you'll want to use saveContainerArtifact with the full path
