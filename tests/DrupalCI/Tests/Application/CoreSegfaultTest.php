@@ -42,7 +42,7 @@ class CoreSegfaultTest extends DrupalCIFunctionalTestBase {
     $this->assertRegExp('/.*php_conv_qprint_decode_convert*/', $this->app_tester->getDisplay());
     $this->assertRegExp('/.*Removing core file:.*/', $this->app_tester->getDisplay());
     // Look for junit xml results file
-    $output_file = $build->getXmlDirectory() . "/standard.testresults.xml";
+    $output_file = $build->getArtifactDirectory() . "/run_tests.standard/junitxml/run_tests_results.xml";
     $this->assertFileExists($output_file);
     // create a test fixture that contains the xml output results.
     $this->assertXmlFileEqualsXmlFile(__DIR__ . '/Fixtures/CoreSegfault_testresults.xml', $output_file);
