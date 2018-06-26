@@ -2,6 +2,9 @@
 
 namespace DrupalCI\Plugin;
 
+use DrupalCI\Build\Artifact\BuildArtifact;
+use DrupalCI\Build\Artifact\ContainerBuildArtifact;
+use DrupalCI\Build\Artifact\StringBuildArtifact;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
@@ -119,6 +122,12 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * plugin executes.
    */
   protected $command_environment = [];
+  /*
+   * @var BuildArtifactInterface[]
+   *
+   * Container for all the artifacts this plugin produces.
+   */
+  protected $pluginArtifacts = [];
 
   /**
    * Constructs a Drupal\Component\Plugin\BuildTaskBase object.
@@ -200,7 +209,9 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     if (!empty($this->buildTaskCommandOutput)){
       $output = implode("\n", $this->buildTaskCommandOutput);
       $this->saveStringArtifact($output, 'command_output');
-
+    }
+    foreach ($this->pluginArtifacts as $artifact) {
+      $artifact->preserve();
     }
   }
 
@@ -344,19 +355,36 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $result;
 
   }
+  /**
+   * @param $filepath
+   *   The full filepath of the artifact within the container environment.
+   * @param $savename
+   *   The name of the file or directory that we wish the preserved artifact to
+   *   have.
+   * @param bool $cleanse
+   *   If true the original artifact will be purged from the filesystem.
+   */
+  protected function saveHostArtifact($filepath, $savename, $cleanse = FALSE) {
 
-  protected function saveHostArtifact($filepath, $savename) {
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
-
-    $savename = $this->pluginDir . '/' . $savename;
-    $this->build->addArtifact($filepath, $savename);
+    if (file_exists($filepath)) {
+      $artifact = new BuildArtifact($filepath, "{$this->pluginDir}/${savename}", $cleanse);
+      $artifact->inject($this->container);
+      $this->pluginArtifacts[] = $artifact;
+    }
   }
 
+  /**
+   * @param $contents
+   *   The string contents that we wish to save as an artifact
+   * @param $savename
+   *   The name of the file or directory that we wish the preserved artifact to
+   *  have.
+   */
   protected function saveStringArtifact($contents, $savename) {
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
 
-    $savename = $this->pluginDir . '/' . $savename;
-    $this->build->addStringArtifact($savename, $contents);
+    $artifact = new StringBuildArtifact($contents, "{$this->pluginDir}/${savename}");
+    $artifact->inject($this->container);
+    $this->pluginArtifacts[] = $artifact;
   }
 
   /**
@@ -365,13 +393,15 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @param $savename
    *   The name of the file or directory that we wish the preserved artifact to
    *  have.
+   * @param bool $cleanse
+   *   If true the original artifact will be purged from the filesystem.
    */
-  protected function saveContainerArtifact($filepath, $savename) {
-    $this->build->setupDirectory($this->build->getArtifactDirectory() . '/' . $this->pluginDir);
+  protected function saveContainerArtifact($filepath, $savename, $cleanse = FALSE) {
 
-    $this->build->addContainerArtifact($filepath, $this->pluginDir . '/' . $savename);
+    $artifact = new ContainerBuildArtifact($filepath, "{$this->pluginDir}/${savename}", $cleanse);
+    $artifact->inject($this->container);
+    $this->pluginArtifacts[] = $artifact;
   }
-
 
   public function inject(Container $container) {
     $this->build = $container['build'];
