@@ -4,6 +4,7 @@ namespace DrupalCI\Build;
 
 use DrupalCI\Build\Artifact\ContainerBuildArtifact;
 use DrupalCI\Build\Artifact\BuildArtifact;
+use DrupalCI\Build\Artifact\StringBuildArtifact;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildTaskException;
 use DrupalCI\Plugin\BuildTask\HaltingFailException;
@@ -161,15 +162,10 @@ class Build implements BuildInterface, Injectable {
   /**
    * {@inheritdoc}
    */
-  public function addStringArtifact($filename, $string) {
-    $artifactFile = $this->getArtifactDirectory() . '/' . $filename;
-    $info = pathinfo($artifactFile);
-    if (!is_dir($info['dirname'])) {
-      $result = mkdir($info['dirname'], 0777, TRUE);
-    }
-
-    file_put_contents($artifactFile, $string);
-    $this->addArtifact($artifactFile, $filename);
+  public function addStringArtifact($string, $filename) {
+    $stringBuildArtifact = new StringBuildArtifact($string, $filename);
+    $stringBuildArtifact->inject($this->container);
+    $this->buildArtifacts[] = $stringBuildArtifact;
   }
 
   public function getBuildArtifacts() {

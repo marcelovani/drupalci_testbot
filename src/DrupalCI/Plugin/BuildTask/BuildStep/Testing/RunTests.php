@@ -117,8 +117,8 @@ class RunTests extends BuildTaskBase implements BuildStepInterface, BuildTaskInt
     $this->saveContainerArtifact('/var/log/apache2/test.apache.error.log','test.apache.error.log');
     //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.err.log','phantomjs.err.log');
     //    $this->saveContainerArtifact('/var/log/supervisor/phantomjs.out.log','phantomjs.out.log');
-    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml');
-    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/simpletest/browser_output','simpletest_html');
+    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/default/files/simpletest','phpunit-xml', TRUE);
+    $this->saveContainerArtifact($this->environment->getExecContainerSourceDir() . '/sites/simpletest/browser_output','simpletest_html', TRUE);
 
     $this->saveStringArtifact($result->getOutput(), 'run_testsoutput.txt');
     $this->saveStringArtifact($result->getError(), 'run_testserror.txt');

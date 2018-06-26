@@ -21,6 +21,13 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
   protected $artifactPath;
 
   /**
+   * @var bool
+   *   Whether or not to clean up the artifact from the source. Useful for
+   *   cleaning up the filesystem between repeat plugins.
+   */
+  protected $cleanse;
+
+  /**
    * @var \DrupalCI\Build\BuildInterface
    *  The current build.
    */
@@ -34,10 +41,14 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
    * container, depending on whether its a ContainerTaskArtifact or not.
    * @param string $artifactpath
    *   Path within the artifact directory where this artifact should be stored.
+   * @param bool $cleanse
+   *   Whether or not to clean up the artifact from the source. Useful for
+   * cleaning up the filesystem between repeat plugins.
    */
-  public function __construct($path, $artifactpath = '') {
+  public function __construct($path, $artifactpath = '', $cleanse = FALSE) {
     $this->sourcePath = $path;
     $this->artifactPath = $artifactpath;
+    $this->cleanse = $cleanse;
   }
 
   /**
@@ -69,6 +80,9 @@ class BuildArtifact implements BuildArtifactInterface, Injectable {
     }
     $fs->chown($this->artifactPath, $uid, TRUE);
     $fs->chgrp($this->artifactPath, $gid, TRUE);
+    if ($this->cleanse) {
+      $fs->remove($this->sourcePath);
+    }
   }
 
   /**

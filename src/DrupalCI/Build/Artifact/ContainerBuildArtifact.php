@@ -38,20 +38,24 @@ class ContainerBuildArtifact extends BuildArtifact {
           'mkdir -p ' . $artifactPath,
           'cp -R ' . $this->sourcePath . '/* ' . $artifactPath,
         ];
+        if ($this->cleanse) {
+          $commands[] = "rm -rf {$this->sourcePath}/*";
+        }
       } else {
         $info = pathinfo($artifactPath);
         $commands = [
           'mkdir -p ' . $info['dirname'],
           'cp -R ' . $this->sourcePath . ' ' . $artifactPath,
         ];
+        if ($this->cleanse) {
+          $commands[] = "rm -rf {$this->sourcePath}";
+        }
       }
+      $commands[] = 'chown -R ' . $uid . ':' . $gid . ' ' . $this->environment->getContainerArtifactDir();
+
       $result = $this->environment->executeCommands($commands);
 
     }
-    $commands = [
-      'chown -R ' . $uid . ':' . $gid . ' ' . $artifactPath,
-    ];
-    $result = $this->environment->executeCommands($commands);
   }
 
 }
