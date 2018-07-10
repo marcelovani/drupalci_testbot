@@ -43,7 +43,6 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function run() {
-    $this->io->writeln('<info>Host command.</info>');
 
     // Don't do anything if there's nothing to do.
     if (empty($this->configuration['commands'])) {
@@ -84,6 +83,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execute($commands, $die_on_fail) {
+    $this->io->writeln('<info>Host command.</info>');
 
     // Set some environment variables for these executions.
     $this->command_environment['SOURCE_DIR'] = $this->codebase->getSourceDirectory();
