@@ -35,6 +35,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     return [
       'halt-on-fail' => FALSE,
       'commands' => [],
+      'artifacts' => [],
     ];
   }
 
@@ -57,6 +58,20 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
 
     // Execute.
     return $this->execute($this->configuration['commands'], $this->configuration['halt-on-fail']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function complete($childStatus) {
+
+    foreach ($this->configuration['artifacts'] as $artifact) {
+      $artifact['source'] = str_replace('${SOURCE_DIR}', $this->codebase->getSourceDirectory(), $artifact['source']);
+      $artifact['source'] = str_replace('${PROJECT_DIR}', $this->codebase->getProjectSourceDirectory(), $artifact['source']);
+      // Save any defined artifacts at the end
+      $this->saveHostArtifact($artifact['source'], $artifact['destination']);
+    }
+
   }
 
   /**

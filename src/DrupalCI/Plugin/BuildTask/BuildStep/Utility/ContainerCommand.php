@@ -28,6 +28,20 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function complete($childStatus) {
+
+    foreach ($this->configuration['artifacts'] as $artifact) {
+      // Save any defined artifacts at the end
+      $artifact['source'] = str_replace('${SOURCE_DIR}', $this->environment->getExecContainerSourceDir(), $artifact['source']);
+      $artifact['source'] = str_replace('${PROJECT_DIR}', $this->codebase->getProjectSourceDirectory(), $artifact['source']);
+      $this->saveContainerArtifact($artifact['source'], $artifact['destination']);
+    }
+
+  }
+
+  /**
    * Execute the commands in the PHP container.
    *
    * @param string[] $commands
