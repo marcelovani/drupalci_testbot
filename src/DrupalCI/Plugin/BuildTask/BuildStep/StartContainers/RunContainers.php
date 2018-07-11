@@ -2,6 +2,7 @@
 
 namespace DrupalCI\Plugin\BuildTask\BuildStep\StartContainers;
 
+use DrupalCI\Build\Environment\DatabaseInterface;
 use DrupalCI\Injectable;
 use DrupalCI\Plugin\BuildTask\BuildStep\BuildStepInterface;
 use DrupalCI\Plugin\BuildTask\BuildTaskInterface;
