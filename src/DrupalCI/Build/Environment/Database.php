@@ -377,6 +377,12 @@ class Database implements DatabaseInterface, Injectable {
     if ($this->dbtype == 'sqlite') {
       $conn_string .= $this->dbfile;
     }
+    else if ($this->dbtype == 'sqlsrv') {
+      $conn_string .= 'Server=' . $this->getHost();
+      if (!empty($database)) {
+        $conn_string .= ';Database=' . $this->dbname;
+      }
+    }
     else {
       $conn_string .= 'host=' . $this->getHost();
       if (!empty($database)) {
