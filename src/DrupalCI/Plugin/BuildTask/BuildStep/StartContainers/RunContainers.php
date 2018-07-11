@@ -60,11 +60,13 @@ class RunContainers extends BuildTaskBase implements BuildStepInterface, BuildTa
     $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$php_version</></comment>");
     $this->environment->startExecContainer($images['web']);
 
-    $this->io->writeln("<info>Parsing required database container image names ...</info>");
-    $db_version = $this->database->getDbType() . '-' . $this->database->getVersion();
-    $images['db'] = ["Image" => "drupalci/$db_version"];
-    $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$db_version</></comment>");
-    $this->environment->startServiceContainerDaemons($images['db']);
+    if (empty($this->database->getHost())) {
+      $this->io->writeln("<info>Parsing required database container image names ...</info>");
+      $db_version = $this->database->getDbType() . '-' . $this->database->getVersion();
+      $images['db'] = ["Image" => "drupalci/$db_version"];
+      $this->io->writeln("<comment>Adding image: <options=bold>drupalci/$db_version</></comment>");
+      $this->environment->startServiceContainerDaemons($images['db']);
+    }
 
   }
 
