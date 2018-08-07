@@ -66,7 +66,13 @@ class PluginManager implements PluginManagerInterface, Injectable {
     $plugin_definition = isset($this->pluginDefinitions[$type][$plugin_id]) ?
         $this->pluginDefinitions[$type][$plugin_id] :
         $this->pluginDefinitions['generic'][$plugin_id];
-    $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
+    $ref_class = new \ReflectionClass($plugin_definition['class']);
+    if ($ref_class->isSubclassOf(BuildTaskBase::class)) {
+      $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition, $this->container);
+    }
+    else {
+      $plugin = new $plugin_definition['class']($configuration, $plugin_id, $plugin_definition);
+    }
     if ($plugin instanceof Injectable) {
       $plugin->inject($this->container);
     }

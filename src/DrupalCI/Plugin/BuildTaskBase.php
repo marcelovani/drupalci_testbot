@@ -143,7 +143,8 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
    */
-  public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = []) {
+  public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = [], Container $container = NULL) {
+    $this->inject($container);
     $this->configuration = $this->getDefaultConfiguration();
     // Set the plugin label as a special case.
     if (isset($configuration_overrides['plugin_label'])) {

@@ -45,8 +45,7 @@ class BuildTaskBaseTest extends DrupalCITestCase {
       'valid_config' => 'bar',
     ];
 
-    $base = new BaseTestImplementation($config_overrides, 'plugin_id', []);
-    $base->inject($this->container);
+    $base = new BaseTestImplementation($config_overrides, 'plugin_id', [], $this->container);
   }
 
 }
