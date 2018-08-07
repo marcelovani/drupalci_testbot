@@ -144,7 +144,11 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
    *   The plugin implementation definition.
    */
   public function __construct(array $configuration_overrides = [], $plugin_id = '', $plugin_definition = [], Container $container = NULL) {
-    $this->inject($container);
+    // Perform the injection now if $container is available. If it's not, the
+    // caller will call inject() later.
+    if ($container !== NULL && $this instanceof Injectable) {
+      $this->inject($container);
+    }
     $this->configuration = $this->getDefaultConfiguration();
     // Set the plugin label as a special case.
     if (isset($configuration_overrides['plugin_label'])) {
@@ -435,7 +439,7 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
 
     if (!empty($this->configuration_overrides)) {
       if ($invalid_overrides = array_diff_key($this->configuration_overrides, $this->configuration)) {
-        $this->io->comment('The following configuration for ' . $this->pluginId . ' are invalid: ' . implode(', ', $invalid_overrides));
+        $this->io->comment('The following configuration for ' . $this->pluginId . ' are invalid: ' . implode(', ', array_keys($invalid_overrides)));
       }
       $this->configuration = array_merge($this->configuration, array_intersect_key($this->configuration_overrides, $this->configuration));
     }

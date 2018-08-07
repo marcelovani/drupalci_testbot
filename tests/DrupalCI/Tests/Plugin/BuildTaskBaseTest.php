@@ -2,15 +2,13 @@
 
 namespace DrupalCI\Tests\Plugin;
 
-use DrupalCI\Tests\DrupalCITestCase;
-use DrupalCI\Plugin\BuildTask\BuildTaskException;
-use GuzzleHttp\ClientInterface;
 use DrupalCI\Plugin\BuildTaskBase;
+use DrupalCI\Providers\ConsoleIOServiceProvider;
+use DrupalCI\Providers\DrupalCIServiceProvider;
+use DrupalCI\Tests\DrupalCITestCase;
 use Pimple\Container;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use DrupalCI\Providers\ConsoleIOServiceProvider;
-use DrupalCI\Providers\DrupalCIServiceProvider;
 
 /**
  * @group Plugin
@@ -20,36 +18,36 @@ use DrupalCI\Providers\DrupalCIServiceProvider;
 class BuildTaskBaseTest extends DrupalCITestCase {
 
   /**
-   * The container.
+   * Make sure BuildTaskBase tells the user about invalid config.
    *
-   * @var \Pimple\Container
-   */
-  protected $container;
-
-  public function setUp() {
-    parent::setUp();
-
-    $container = new Container();
-    $container->register(new DrupalCIServiceProvider());
-    $io_provider = new ConsoleIOServiceProvider(new ArrayInput([]), new BufferedOutput());
-    $container->register($io_provider);
-    $this->container = $container;
-  }
-
-  /**
    * @covers ::override_config
    */
   public function testOverrideConfig() {
+    // Get an output we can inspect later.
+    $output = new BufferedOutput();
+
+    // Set up the container.
+    $container = new Container();
+    $container->register(new DrupalCIServiceProvider());
+    $io_provider = new ConsoleIOServiceProvider(new ArrayInput([]), $output);
+    $container->register($io_provider);
+
+    // Invalid config overrides.
     $config_overrides = [
       'invalid_config' => 'foo',
       'valid_config' => 'bar',
     ];
 
-    $base = new BaseTestImplementation($config_overrides, 'plugin_id', [], $this->container);
+    $base = new BaseTestImplementation($config_overrides, 'test_plugin', [], $container);
+
+    $this->assertContains('The following configuration for test_plugin are invalid: invalid_config', $output->fetch());
   }
 
 }
 
+/**
+ * Stub build task implementation with valid config.
+ */
 class BaseTestImplementation extends BuildTaskBase {
 
   public function getDefaultConfiguration() {
