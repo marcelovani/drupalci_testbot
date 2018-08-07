@@ -44,6 +44,10 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
   /**
    * Configuration overrides passed into the plugin.
    *
+   * During object construction, configuration overrides can be passed in. If
+   * the override array contains keys not present in ::configuration, they will
+   * be ignored, but a message will tell the user which keys are not valid.
+   *
    * @var array
    */
   protected $configuration_overrides;
@@ -417,11 +421,20 @@ abstract class BuildTaskBase implements Injectable, BuildTaskInterface {
     return $this->configuration;
   }
 
+  /**
+   * Merge the configuration overrides into the configuration.
+   *
+   * Overrides which have keys not present in ::configuration will generate an
+   * informative message for the user.
+   *
+   * @see ::configuration_overrides
+   * @see ::configure()
+   */
   protected function override_config() {
 
     if (!empty($this->configuration_overrides)) {
       if ($invalid_overrides = array_diff_key($this->configuration_overrides, $this->configuration)) {
-        // @TODO: somebody is trying to override a non-existant configuration value. Throw an exception? print a warning?
+        $this->io->comment('The following configuration for ' . $this->pluginId . ' are invalid: ' . implode(', ', $invalid_overrides));
       }
       $this->configuration = array_merge($this->configuration, array_intersect_key($this->configuration_overrides, $this->configuration));
     }
