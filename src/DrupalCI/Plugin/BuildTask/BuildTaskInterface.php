@@ -86,13 +86,8 @@ interface BuildTaskInterface {
   /**
    * Gives a list of default values for variables for this task.
    *
-   * Set the ::configuration property to a keyed array.
-   *
-   * Keys are configuration options, with values. The keys defined here are the
-   * options for the given build task.
-   *
    * @return array
-   *   An array of configuration that this build task can accept. Used primarily
+   *   An array of configuration that this buildtask can accept. Used primarily
    *   to generate a build template for discoverability.
    */
   public function getDefaultConfiguration();
