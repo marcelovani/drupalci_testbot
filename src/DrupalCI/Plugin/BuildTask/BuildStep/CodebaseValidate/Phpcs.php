@@ -20,7 +20,7 @@ use Pimple\Container;
  * - If the project does not specify a phpcs.xml ruleset, then the 'Drupal'
  *   standard will be used.
  * - If no phpcs executable has been installed, we require drupal/coder
- *   ^8.2@stable which should install phpcs, then we configure phpcs to use
+ *   ^8.2.12@stable which should install phpcs, then we configure phpcs to use
  *   coder.
  * - If contrib doesn't declare a dependency on a version of coder, but does
  *   have a phpcs.xml file, then we use either core's version, or if none is
@@ -103,7 +103,7 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If halt-on-fail is FALSE, then NO circumstance should let phpcs
       // terminate the build.
       'halt-on-fail' => FALSE,
-      'coder-version' => '^8.2@stable',
+      'coder-version' => '^8.2.12@stable',
     ];
   }
 
