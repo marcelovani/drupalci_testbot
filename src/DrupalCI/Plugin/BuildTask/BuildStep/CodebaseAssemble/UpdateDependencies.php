@@ -54,7 +54,7 @@ class UpdateDependencies extends BuildTaskBase implements BuildStepInterface, Bu
     $ancillary_dir = $this->environment->getContainerWorkDir() . '/' . $project_name;
     $contrib_dir = $this->codebase->getProjectSourceDirectory(FALSE);
 
-    if (in_array($contrib_dir . '/composer.json', $modified_files)) {
+    if (in_array($contrib_dir . '/composer.json', $modified_files) || in_array('core/composer.json', $modified_files)) {
       $this->io->writeln("composer.json changed by patch: recalculating depenendices");
 
       // 1. Get the currently checked out composer branch name <CBRANCH>
