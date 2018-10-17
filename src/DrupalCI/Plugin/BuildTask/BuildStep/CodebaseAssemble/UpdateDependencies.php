@@ -131,6 +131,15 @@ sudo -u www-data git config --global user.name \"The Testbot\" && sudo -u www-da
 
       }
     }
+    if (in_array('composer.lock', $modified_files)) {
+      $this->io->writeln("core dependencies changed by patch: recalculating depenendices");
+
+      $cmd = "sudo -u www-data /usr/local/bin/composer${verbose} install --prefer-dist --no-suggest --no-interaction${progress} --working-dir " . $source_dir;
+
+      $this->io->writeln("Composer Command: $cmd");
+      $result = $this->execRequiredEnvironmentCommands($cmd, 'Core composer reinstall failure');
+
+    }
   }
 
   /**
