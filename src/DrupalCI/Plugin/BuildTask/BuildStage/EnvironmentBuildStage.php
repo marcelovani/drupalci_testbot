@@ -43,6 +43,10 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
       }
     }
 
+    if (FALSE !== getenv('DCI_DBHost')) {
+      $this->configuration['dbhost'] = getenv('DCI_DBHost');
+    }
+
     if (FALSE !== getenv('DCI_DBUser')) {
       $this->configuration['dbuser'] = getenv('DCI_DBUser');
     }
@@ -61,6 +65,7 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
     $db_name = str_replace('-', '_', $this->build->getBuildId());
     $db_name = preg_replace('/[^0-9_A-Za-z]/', '', $db_name);
     $this->database->setDbname($db_name);
+    $this->database->setHost($this->configuration['dbhost']);
     $this->database->setPassword($this->configuration['dbpassword']);
     $this->database->setUsername($this->configuration['dbuser']);
 
@@ -73,6 +78,7 @@ class EnvironmentBuildStage extends BuildTaskBase implements BuildStageInterface
     return [
       'db-type' => 'mysql',
       'db-version' => '5.5',
+      'dbhost' => '',
       'dbuser' => 'drupaltestbot',
       'dbpassword' => 'drupaltestbotpw',
     ];

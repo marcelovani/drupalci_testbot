@@ -360,6 +360,8 @@ class Environment implements Injectable, EnvironmentInterface {
     }
     $response = $this->docker->imageCreate('', ['fromImage' => $image_name[0] . ':' . $image_name[1]], [], $this->docker::FETCH_STREAM);
 
+    // TODO: Throw an exception if we get a Not Found for whatever reason (Guzzle response
+    // insted of a Stream
     $response->onFrame(function (CreateImageInfo $createImageInfo) use (&$progressInformation) {
       $createImageInfoList[] = $createImageInfo;
       if ($createImageInfo->getStatus() === "Downloading") {

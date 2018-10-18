@@ -79,7 +79,8 @@ class Codebase implements CodebaseInterface, Injectable {
       if (file_exists($file_path)) {
         $isphpfile = strpos(fgets(fopen($file_path, 'r'), 33), '<?php') !== FALSE;
         $not_vendor = strpos($file, 'vendor/') === FALSE;
-        if ($not_vendor && $isphpfile) {
+        $not_phar = strpos($file, '.phar') === FALSE;
+        if ($not_phar && $not_vendor && $isphpfile) {
           $phpfiles[] = $file;
         }
       }

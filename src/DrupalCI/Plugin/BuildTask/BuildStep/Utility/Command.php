@@ -35,6 +35,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
     return [
       'halt-on-fail' => FALSE,
       'commands' => [],
+      'artifacts' => [],
     ];
   }
 
@@ -42,7 +43,6 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @inheritDoc
    */
   public function run() {
-    $this->io->writeln('<info>Host command.</info>');
 
     // Don't do anything if there's nothing to do.
     if (empty($this->configuration['commands'])) {
@@ -60,6 +60,20 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function complete($childStatus) {
+
+    foreach ($this->configuration['artifacts'] as $artifact) {
+      $artifact['source'] = str_replace('${SOURCE_DIR}', $this->codebase->getSourceDirectory(), $artifact['source']);
+      $artifact['source'] = str_replace('${PROJECT_DIR}', $this->codebase->getProjectSourceDirectory(), $artifact['source']);
+      // Save any defined artifacts at the end
+      $this->saveHostArtifact($artifact['source'], $artifact['destination']);
+    }
+
+  }
+
+  /**
    * Execute the commands on the host environment.
    *
    * @param $commands
@@ -69,6 +83,7 @@ class Command extends BuildTaskBase implements BuildStepInterface, BuildTaskInte
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execute($commands, $die_on_fail) {
+    $this->io->writeln('<info>Host command.</info>');
 
     // Set some environment variables for these executions.
     $this->command_environment['SOURCE_DIR'] = $this->codebase->getSourceDirectory();

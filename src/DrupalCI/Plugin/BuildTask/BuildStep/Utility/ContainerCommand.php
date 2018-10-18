@@ -28,6 +28,20 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function complete($childStatus) {
+
+    foreach ($this->configuration['artifacts'] as $artifact) {
+      // Save any defined artifacts at the end
+      $artifact['source'] = str_replace('${SOURCE_DIR}', $this->environment->getExecContainerSourceDir(), $artifact['source']);
+      $artifact['source'] = str_replace('${PROJECT_DIR}', $this->codebase->getProjectSourceDirectory(), $artifact['source']);
+      $this->saveContainerArtifact($artifact['source'], $artifact['destination']);
+    }
+
+  }
+
+  /**
    * Execute the commands in the PHP container.
    *
    * @param string[] $commands
@@ -38,6 +52,8 @@ class ContainerCommand extends Command implements BuildStepInterface, BuildTaskI
    * @throws \DrupalCI\Plugin\BuildTask\BuildTaskException
    */
   protected function execute($commands, $die_on_fail) {
+    $this->io->writeln('<info>Container command.</info>');
+
     // Set some environment variables for these executions.
     $this->command_environment[] = "SOURCE_DIR={$this->environment->getExecContainerSourceDir()}";
     $this->command_environment[] = "PROJECT_DIR={$this->codebase->getProjectSourceDirectory()}";

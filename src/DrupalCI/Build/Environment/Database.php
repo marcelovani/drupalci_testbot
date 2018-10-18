@@ -356,6 +356,7 @@ class Database implements DatabaseInterface, Injectable {
       $conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
     catch (\PDOException $e) {
+      $this->io->writeln("<error>" . $e->getMessage() . "</error>");
       $this->io->writeln("<comment>Could not connect to database server.</comment>");
       return FALSE;
     }
