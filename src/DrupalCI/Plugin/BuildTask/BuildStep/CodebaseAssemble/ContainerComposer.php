@@ -44,6 +44,7 @@ class ContainerComposer extends BuildTaskBase implements BuildStepInterface, Bui
       $progress = ' --no-progress';
     }
     return [
+      'working-directory' => '',
       'options' => "${verbose}install --prefer-dist --no-suggest --no-interaction${progress}",
       'halt-on-fail' => TRUE,
     ];
@@ -65,9 +66,13 @@ class ContainerComposer extends BuildTaskBase implements BuildStepInterface, Bui
 
 
     // Build a containerized Composer command.
-    $command = [ $this->executable_path,
+    $working_directory = empty($this->configuration['working-directory']) ?
+      $this->environment->getExecContainerSourceDir() :
+      $this->environment->getExecContainerSourceDir() . '/' . $this->configuration['working-directory'];
+    $command = [
+      $this->executable_path,
       $this->configuration['options'],
-      '--working-dir ' . $this->environment->getExecContainerSourceDir(),
+      '--working-dir ' . $working_directory,
     ];
     $commands[] = implode(' ', $command);
 
