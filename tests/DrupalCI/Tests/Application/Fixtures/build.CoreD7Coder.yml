@@ -1,0 +1,22 @@
+# Built to test that our drupal/coder default version config can run on PHP 5.3.
+build:
+  environment:
+    startcontainers:
+      runcontainers:
+        phpversion: 'php-5.3.29-apache:production'
+  codebase:
+    assemble_codebase:
+      replicate:
+        exclude: {  }
+        local-dir: /var/lib/drupalci/drupal-checkout
+        git-branch: 7.x
+        git-commit-hash: '5533335'
+      checkout_core_d7:
+      composer_contrib_d7:
+      fetch:
+      patch:
+      update_build:
+      update_dependencies_d7:
+  assessment:
+    validate_codebase:
+      phpcs:

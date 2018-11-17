@@ -103,7 +103,8 @@ class Phpcs extends BuildTaskBase implements BuildStepInterface, BuildTaskInterf
       // If halt-on-fail is FALSE, then NO circumstance should let phpcs
       // terminate the build.
       'halt-on-fail' => FALSE,
-      'coder-version' => '~8.2.12@stable',
+      // Coder 8.2.5 is the last to support PHP <5.4.
+      'coder-version' => '~8.2.5@stable',
     ];
   }
 
