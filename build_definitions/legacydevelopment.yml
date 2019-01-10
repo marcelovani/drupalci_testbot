@@ -6,7 +6,6 @@ build:
       dbcreate:
   codebase:
     assemble_codebase:
-      replicate:
       checkout_core_d7:
       composer_contrib_d7:
       fetch:
@@ -15,10 +14,13 @@ build:
       update_dependencies_d7:
   assessment:
     validate_codebase:
+      container_composer:
+        halt-on-fail: FALSE
       phplint:
       phpcs:
         # Start sniffing at the root of D7. This will be modified to the
         # extension's directory for contrib.
+        start_directory:
       eslint:
     testing:
       run_tests_d7:
